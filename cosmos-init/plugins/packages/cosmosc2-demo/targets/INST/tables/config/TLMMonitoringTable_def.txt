@@ -1,4 +1,4 @@
-TABLE "TLM Monitoring" BIG_ENDIAN TWO_DIMENSIONAL 100 "Telemetry Monitoring Table"
+TABLE "TLM Monitoring" BIG_ENDIAN ROW_COLUMN 100 "Telemetry Monitoring Table"
   APPEND_PARAMETER "Threshold" 32 UINT MIN MAX 0 "Telemetry item threshold at which point persistance is incremented"
   APPEND_PARAMETER "Offset" 32 UINT MIN MAX 0 "Offset into the telemetry packet to monitor"
   APPEND_PARAMETER "Data Size" 32 UINT 0 3 0 "Amount of data to monitor (bytes)"

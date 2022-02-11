@@ -36,7 +36,7 @@ module Cosmos
     # @param table [Table] Table created items are added to
     def create_table_item(table)
       name = @parser.parameters[0]
-      if table.type == :TWO_DIMENSIONAL
+      if table.type == :ROW_COLUMN
         name = "#{name}0"
         table.num_columns += 1
       end

@@ -25,16 +25,16 @@ module Cosmos
 
       it "handles errors parsing" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+        tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
         tf.puts '  APPEND_PARAMETER ITEM1 ZERO UINT 0 2 0 "Description"'
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error)
         tf.unlink
       end
 
-      it "renames items in TWO_DIMENSIONAL tables by appending their column number" do
+      it "renames items in ROW_COLUMN tables by appending their column number" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 100 "Table"'
+        tf.puts 'TABLE table LITTLE_ENDIAN ROW_COLUMN 100 "Table"'
         tf.puts '  APPEND_PARAMETER FIRST 32 UINT 0 2 0 "Description"'
         tf.puts '  APPEND_PARAMETER SECOND 32 UINT 0 2 0 "Description"'
         tf.puts '  APPEND_PARAMETER THIRD 32 UINT 0 2 0 "Description"'

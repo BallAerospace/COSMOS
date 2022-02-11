@@ -20,9 +20,9 @@ module Cosmos
     describe "tables" do
       it "returns the tables hash" do
         tf = Tempfile.new('unittest')
-        tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
-        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL 2")
-        tf.puts("TABLE table3 BIG_ENDIAN ONE_DIMENSIONAL")
+        tf.puts("TABLE table1 BIG_ENDIAN KEY_VALUE")
+        tf.puts("TABLE table2 BIG_ENDIAN ROW_COLUMN 2")
+        tf.puts("TABLE table3 BIG_ENDIAN KEY_VALUE")
         tf.close
         tc.process_file(tf.path)
         expect(tc.tables.keys).to eql %w(TABLE1 TABLE2 TABLE3)
@@ -33,6 +33,17 @@ module Cosmos
 
     describe "table_names" do
       it "returns the table names" do
+        tf = Tempfile.new('unittest')
+        tf.puts("TABLE table1 BIG_ENDIAN KEY_VALUE")
+        tf.puts("TABLE table2 BIG_ENDIAN ROW_COLUMN 2")
+        tf.puts("TABLE table3 BIG_ENDIAN KEY_VALUE")
+        tf.close
+        tc.process_file(tf.path)
+        expect(tc.table_names).to eql %w(TABLE1 TABLE2 TABLE3)
+        tf.unlink
+      end
+
+      it "supports deprecated ONE_DIMENSIONAL & TWO_DIMENSIONAL" do
         tf = Tempfile.new('unittest')
         tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
         tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL 2")
@@ -47,17 +58,17 @@ module Cosmos
     describe "table" do
       it "returns a table" do
         tf = Tempfile.new('unittest')
-        tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
-        tf.puts("TABLE table2 BIG_ENDIAN TWO_DIMENSIONAL 2")
-        tf.puts("TABLE table3 BIG_ENDIAN ONE_DIMENSIONAL")
+        tf.puts("TABLE table1 BIG_ENDIAN KEY_VALUE")
+        tf.puts("TABLE table2 BIG_ENDIAN ROW_COLUMN 2")
+        tf.puts("TABLE table3 BIG_ENDIAN KEY_VALUE")
         tf.close
         tc.process_file(tf.path)
         expect(tc.table("TABLE1").table_name).to eql "TABLE1"
-        expect(tc.table("TABLE1").type).to eql :ONE_DIMENSIONAL
+        expect(tc.table("TABLE1").type).to eql :KEY_VALUE
         expect(tc.table("TABLE2").table_name).to eql "TABLE2"
-        expect(tc.table("TABLE2").type).to eql :TWO_DIMENSIONAL
+        expect(tc.table("TABLE2").type).to eql :ROW_COLUMN
         expect(tc.table("TABLE3").table_name).to eql "TABLE3"
-        expect(tc.table("TABLE3").type).to eql :ONE_DIMENSIONAL
+        expect(tc.table("TABLE3").type).to eql :KEY_VALUE
         tf.unlink
       end
     end
@@ -73,7 +84,7 @@ module Cosmos
 
       it "handles errors in processing elements" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+        tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
         tf.puts '  APPEND_PARAMETER item1'
         tf.close
         expect { tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters/)
@@ -107,7 +118,7 @@ module Cosmos
 
         it "parses the table definition file" do
           tf = Tempfile.new('test_table')
-          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
           tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
           tf.close
           tf1 = Tempfile.new('unittest')
@@ -134,7 +145,7 @@ module Cosmos
 
         it "selects a table for modification" do
           tf = Tempfile.new('unittest')
-          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
           tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
           tf.close
           tc.process_file(tf.path)
@@ -157,7 +168,7 @@ module Cosmos
       context "with SELECT_PARAMETER" do
         it "complains if the parameter is not found" do
           tf = Tempfile.new('unittest')
-          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
           tf.puts '  APPEND_PARAMETER PARAM 16 UINT 0 0 0 "Param"'
           tf.close
           tc.process_file(tf.path)
@@ -179,7 +190,7 @@ module Cosmos
       context "with TWO_DIMESIONAL tables" do
         it "duplicates parameters to create rows" do
           tf = Tempfile.new('unittest')
-          tf.puts 'TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 2 "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN ROW_COLUMN 2 "Table"'
           tf.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
           tf.puts '  APPEND_PARAMETER item2 16 UINT 0 0 0 "Item"'
           tf.close
@@ -195,7 +206,7 @@ module Cosmos
       context "with UNEDITABLE" do
         it "sets editable to false" do
           tf = Tempfile.new('unittest')
-          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
           tf.puts '  PARAMETER item1 0 16 UINT 0 0 0 "Item"'
           tf.puts '    UNEDITABLE'
           tf.close
@@ -209,7 +220,7 @@ module Cosmos
       context "with HIDDEN" do
         it "sets hidden to true" do
           tf = Tempfile.new('unittest')
-          tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
           tf.puts '  PARAMETER item1 0 16 UINT 0 0 0 "Item"'
           tf.puts '    HIDDEN'
           tf.close
@@ -223,7 +234,7 @@ module Cosmos
       context "with DEFAULT" do
         it "sets the default value of a 2D table" do
           tf = Tempfile.new('unittest')
-          tf.puts 'TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 2 "Table"'
+          tf.puts 'TABLE table LITTLE_ENDIAN ROW_COLUMN 2 "Table"'
           tf.puts '  APPEND_PARAMETER item1 16 UINT 0 1 0 "Item"'
           tf.puts '    STATE DISABLE 0'
           tf.puts '    STATE ENABLE 1'

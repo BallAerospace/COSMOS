@@ -211,7 +211,7 @@ module Cosmos
       @current_item = TableItemParser.parse(parser, @current_packet, @warnings)
     end
 
-    # If the table is TWO_DIMENSIONAL all currently defined items are
+    # If the table is ROW_COLUMN all currently defined items are
     # duplicated until the specified number of rows are created.
     def finish_packet
       if @current_packet
@@ -219,7 +219,7 @@ module Cosmos
         if warnings.length > 0
           raise "Overlapping items not allowed in tables.\n#{warnings}"
         end
-        if @current_packet.type == :TWO_DIMENSIONAL
+        if @current_packet.type == :ROW_COLUMN
           items = @current_packet.sorted_items.clone
           (@current_packet.num_rows - 1).times do |row|
             items.each do |item|

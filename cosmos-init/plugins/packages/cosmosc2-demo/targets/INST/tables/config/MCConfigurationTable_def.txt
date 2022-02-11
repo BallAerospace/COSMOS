@@ -1,4 +1,4 @@
-TABLE "MC Configuration" BIG_ENDIAN ONE_DIMENSIONAL "Memory Control Configuration Table"
+TABLE "MC Configuration" BIG_ENDIAN KEY_VALUE "Memory Control Configuration Table"
   APPEND_PARAMETER "Scrub Region 1 Start Addr" 32 UINT 0 0x03FFFFFB 0
     FORMAT_STRING "0x%0X"
   APPEND_PARAMETER "Scrub Region 1 End Addr" 32 UINT 0 0x03FFFFFF 0x03FFFFFF

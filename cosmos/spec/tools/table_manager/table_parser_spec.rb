@@ -31,7 +31,7 @@ module Cosmos
         tf.unlink
 
         tf = Tempfile.new('unittest')
-        tf.puts("TABLE table BIG_ENDIAN TWO_DIMENSIONAL")
+        tf.puts("TABLE table BIG_ENDIAN ROW_COLUMN")
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for TABLE/)
         tf.unlink
@@ -39,13 +39,13 @@ module Cosmos
 
       it "complains if there are too many parameters" do
         tf = Tempfile.new('unittest')
-        tf.puts "TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL 'Table' extra"
+        tf.puts "TABLE table LITTLE_ENDIAN KEY_VALUE 'Table' extra"
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for TABLE/)
         tf.unlink
 
         tf = Tempfile.new('unittest')
-        tf.puts "TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 2 'Table' extra"
+        tf.puts "TABLE table LITTLE_ENDIAN ROW_COLUMN 2 'Table' extra"
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for TABLE/)
         tf.unlink
@@ -61,7 +61,7 @@ module Cosmos
 
       it "complains about invalid endianness" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE table MIDDLE_ENDIAN ONE_DIMENSIONAL "Table"'
+        tf.puts 'TABLE table MIDDLE_ENDIAN KEY_VALUE "Table"'
         tf.close
         expect { @tc.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Invalid endianness MIDDLE_ENDIAN/)
         tf.unlink
@@ -69,21 +69,21 @@ module Cosmos
 
       it "processes table, endianness, type, description" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Table"'
+        tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Table"'
         tf.close
         @tc.process_file(tf.path)
         tbl = @tc.table("TABLE")
         expect(tbl.table_name).to eql "TABLE"
         expect(tbl.default_endianness).to eql :LITTLE_ENDIAN
-        expect(tbl.type).to eql :ONE_DIMENSIONAL
+        expect(tbl.type).to eql :KEY_VALUE
         expect(tbl.description).to eql "Table"
         tf.unlink
       end
 
       it "complains if a table is redefined" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Packet 1"'
-        tf.puts 'TABLE table LITTLE_ENDIAN ONE_DIMENSIONAL "Packet 2"'
+        tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Packet 1"'
+        tf.puts 'TABLE table LITTLE_ENDIAN KEY_VALUE "Packet 2"'
         tf.close
         @tc.process_file(tf.path)
         expect(@tc.warnings).to include("Table TABLE redefined.")

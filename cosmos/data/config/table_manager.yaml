@@ -49,21 +49,19 @@ TABLE:
       values: ['BIG_ENDIAN', 'LITTLE_ENDIAN']
     - name: Display
       requires: true
-      description: Indicates the table is a ONE_DIMENSIONAL table which is a two
-        column table consisting of unique rows, or a TWO_DIMENSIONAL table with
-        multiple columns and identical rows with unique values
+      description: Indicates the table contains KEY_VALUE rows (e.g. each row is unique),
+        or a ROW_COLUMN table with identical rows containing different values.
       values:
-        ONE_DIMENSIONAL:
-          summary: Declare a key value two column table with unique rows
+        KEY_VALUE:
+          summary: Table rows will be unique items (previously ONE_DIMENSIONAL, now deprecated)
           parameters:
             - name: Description
               requires: true
               description: Description of the table in quotes. The description is
                 used in mouseover popups and status line information.
               values: "['\"].*['\"]"
-        TWO_DIMENSIONAL:
-          summary: Declare a table with multiple columns and identical rows with
-            unique values
+        ROW_COLUMN:
+          summary: Table rows will be indentical with multiple columns (previously TWO_DIMENSIONAL, now deprecated)
           parameters:
             - name: Rows
               requires: true

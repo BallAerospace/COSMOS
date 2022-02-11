@@ -1,4 +1,4 @@
-TABLE "PPS Selection" BIG_ENDIAN ONE_DIMENSIONAL "Payload Clock Control Pulse Per Second Selection Table"
+TABLE "PPS Selection" BIG_ENDIAN KEY_VALUE "Payload Clock Control Pulse Per Second Selection Table"
   APPEND_PARAMETER "Primary PPS" 8 UINT 0 1 1
     STATE CHECKED 1
     STATE UNCHECKED 0

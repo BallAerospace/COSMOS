@@ -213,7 +213,7 @@ module Cosmos
           file.puts(table.table_name)
 
           # Write the column headers
-          if table.type == :TWO_DIMENSIONAL
+          if table.type == :ROW_COLUMN
             columns = ['Item']
 
             # Remove the '0' from the 'itemname0'
@@ -227,7 +227,7 @@ module Cosmos
 
           # Write the table item values
           (0...table.num_rows).each do |r|
-            if table.type == :TWO_DIMENSIONAL
+            if table.type == :ROW_COLUMN
               rowtext = "#{r + 1}"
             else
               rowtext = items[r].name
@@ -235,7 +235,7 @@ module Cosmos
 
             file.write "#{rowtext}, "
             (0...table.num_columns).each do |c|
-              if table.type == :TWO_DIMENSIONAL
+              if table.type == :ROW_COLUMN
                 table_item = items[c + r * table.num_columns]
               else
                 table_item = items[r]

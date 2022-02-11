@@ -36,7 +36,7 @@ module Cosmos
     # Verify the correct number of arguments to the TABLE keyword
     def verify_parameters
       @usage =
-        'TABLE <TABLE NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DISPLAY: ONE_DIMENSIONAL/TWO_DIMENSIONAL> <TWO_DIMENSIONAL TABLE ROWS> <DESCRIPTION (Optional)>'
+        'TABLE <TABLE NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DISPLAY: KEY_VALUE/ROW_COLUMN> <ROW_COLUMN ROW COUNT> <DESCRIPTION (Optional)>'
       @parser.verify_num_parameters(3, 5, @usage)
     end
 
@@ -54,22 +54,22 @@ module Cosmos
       end
       type = params[2].to_s.upcase.to_sym
       case type
-      when :ONE_DIMENSIONAL
+      when :KEY_VALUE, :ONE_DIMENSIONAL # :ONE_DIMENSIONAL is deprecated
         @parser.verify_num_parameters(3, 4, @usage)
         description = params[3].to_s
-      when :TWO_DIMENSIONAL
+      when :ROW_COLUMN, :TWO_DIMENSIONAL # :TWO_DIMENSIONAL is deprecated
         @parser.verify_num_parameters(4, 5, @usage)
         num_rows = params[3].to_i
         description = params[4].to_s
       else
         raise @parser.error(
-                "Invalid display type #{params[2]}. Must be ONE_DIMENSIONAL or TWO_DIMENSIONAL.",
+                "Invalid display type #{params[2]}. Must be KEY_VALUE or ROW_COLUMN.",
                 @usage,
               )
       end
       table =
         Table.new(table_name, endianness, type, description, @parser.filename)
-      table.num_rows = num_rows if type == :TWO_DIMENSIONAL
+      table.num_rows = num_rows if type == :ROW_COLUMN
       TableParser.finish_create_table(table, tables, warnings)
     end
 

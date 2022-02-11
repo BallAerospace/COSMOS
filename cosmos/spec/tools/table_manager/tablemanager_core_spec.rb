@@ -24,7 +24,7 @@ module Cosmos
 
       it "processes the table definition" do
         tf = Tempfile.new('unittest')
-        tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
+        tf.puts("TABLE table1 BIG_ENDIAN KEY_VALUE")
         tf.close
         core.process_definition(tf.path)
         tf.unlink
@@ -33,9 +33,9 @@ module Cosmos
     end
 
     describe "generate_json" do
-      it "generates json from the ONE_DIMENSIONAL table definition" do
+      it "generates json from the KEY_VALUE table definition" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "Test" BIG_ENDIAN ONE_DIMENSIONAL "Description"'
+        tf.puts 'TABLE "Test" BIG_ENDIAN KEY_VALUE "Description"'
         # Normal text value
         tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
         tf.puts '    FORMAT_STRING "0x%0X"'
@@ -83,9 +83,9 @@ module Cosmos
         tf.unlink
       end
 
-      it "generates json from the TWO_DIMENSIONAL table definition" do
+      it "generates json from the ROW_COLUMN table definition" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "Test" BIG_ENDIAN TWO_DIMENSIONAL 3 "Description"'
+        tf.puts 'TABLE "Test" BIG_ENDIAN ROW_COLUMN 3 "Description"'
         # Normal text value
         tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
         tf.puts '    FORMAT_STRING "0x%0X"'
@@ -130,7 +130,7 @@ module Cosmos
     describe "save_tables" do
       it "saves single column table hash to the binary" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "Test" BIG_ENDIAN ONE_DIMENSIONAL "Description"'
+        tf.puts 'TABLE "Test" BIG_ENDIAN KEY_VALUE "Description"'
         tf.puts '  APPEND_PARAMETER "Number" 16 UINT MIN MAX 0'
         tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
         tf.puts '    FORMAT_STRING "0x%0X"'
@@ -161,7 +161,7 @@ module Cosmos
 
       it "saves multi-column table hash to the binary" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "Test" BIG_ENDIAN TWO_DIMENSIONAL 3 "Description"'
+        tf.puts 'TABLE "Test" BIG_ENDIAN ROW_COLUMN 3 "Description"'
         # Normal text value
         tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
         tf.puts '    FORMAT_STRING "0x%0X"'
@@ -203,7 +203,7 @@ module Cosmos
     describe "reset" do
       it "clears the definition filename and configuration" do
         tf = Tempfile.new('unittest')
-        tf.puts("TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL")
+        tf.puts("TABLE table1 BIG_ENDIAN KEY_VALUE")
         tf.close
         core.process_definition(tf.path)
         tf.unlink
@@ -221,7 +221,7 @@ module Cosmos
       it "creates a simple new file in the given output dir" do
         def_filename = File.join(Dir.pwd, 'table_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 32 UINT MIN MAX 0xDEADBEEF "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT 0 1 0 "Item"'
           file.puts '    STATE DISABLE 0'
@@ -249,7 +249,7 @@ module Cosmos
         bin_filename = File.join(Dir.pwd, 'bin.bin')
         FileUtils.rm bin_filename if File.exist? bin_filename
         def_filename = File.join(Dir.pwd, 'def.txt')
-        File.open(def_filename,'w') {|file| file.puts "TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL" }
+        File.open(def_filename,'w') {|file| file.puts "TABLE table1 BIG_ENDIAN KEY_VALUE" }
         expect { core.file_open(bin_filename, def_filename) }.to raise_error(/Unable to open and load/)
         FileUtils.rm def_filename
       end
@@ -259,7 +259,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xAB\xCD" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 32 UINT 0 0 0 "Item"'
         end
         expect { core.file_open(bin_filename, def_filename) }.to raise_error(/Binary size of 2 not large enough/)
@@ -273,7 +273,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xAB\xCD\xEF" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
         end
         expect { core.file_open(bin_filename, def_filename) }.to raise_error(/Binary size of 3 larger/)
@@ -293,7 +293,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -307,7 +307,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -330,7 +330,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -344,7 +344,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -359,12 +359,12 @@ module Cosmos
         expect { core.file_report('file.bin', 'file_def.txt') }.to raise_error(TableManagerCore::NoConfigError)
       end
 
-      it "creates a CSV file with the configuration for ONE_DIMENSIONAL" do
+      it "creates a CSV file with the configuration for KEY_VALUE" do
         bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -378,12 +378,12 @@ module Cosmos
         FileUtils.rm def_filename
       end
 
-      it "creates a CSV file with the configuration for TWO_DIMENSIONAL" do
+      it "creates a CSV file with the configuration for ROW_COLUMN" do
         bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01\x02\x03\x00\x01\x02\x03" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN TWO_DIMENSIONAL 2'
+          file.puts 'TABLE table1 BIG_ENDIAN ROW_COLUMN 2'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -409,7 +409,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -431,7 +431,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -445,7 +445,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x03\xFF\xFD\x48\x46\x4C\x4C\x4F\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 2 0 "Item"'
           file.puts '    STATE DISABLE 0'
           file.puts '    STATE ENABLE 1'
@@ -478,7 +478,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
@@ -492,7 +492,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\x00"*11 }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 INT MIN MAX -100 "Item"'
           file.puts '  APPEND_PARAMETER item2 32 UINT MIN MAX 0xDEADBEEF "Item"'
           file.puts '  APPEND_PARAMETER item3 40 STRING "HELLO" "Item"'
@@ -520,7 +520,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -535,10 +535,10 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF\xCA\xFE\xBA\xBE" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
-          file.puts 'TABLE table2 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table2 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -562,7 +562,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -577,7 +577,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -592,10 +592,10 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF\xCA\xFE\xBA\xBE" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
-          file.puts 'TABLE table2 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table2 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -621,7 +621,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -636,7 +636,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT 0 0 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -651,7 +651,7 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -673,13 +673,13 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         new_def_filename = File.join(Dir.pwd, 'newtestfile_def.txt')
         File.open(new_def_filename,'w') do |file|
-          file.puts 'TABLE table2 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table2 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
@@ -695,10 +695,10 @@ module Cosmos
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF\xCA\xFE\xBA\xBE" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
-          file.puts 'TABLE table2 BIG_ENDIAN ONE_DIMENSIONAL'
+          file.puts 'TABLE table2 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
