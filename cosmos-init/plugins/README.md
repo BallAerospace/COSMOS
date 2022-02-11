@@ -67,6 +67,7 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
         # Set all the environment variables in the .env file
         # except set COSMOS_REDIS_HOSTNAME=127.0.0.1
         # Set RUBYGEMS_URL=https://rubygems.org
+        # Set COSMOS_DEVEL=<Absolute path to the 'cosmos' dir>
         cosmos-cmd-tlm-api> bundle install
         cosmos-cmd-tlm-api> bundle exec rails s
 

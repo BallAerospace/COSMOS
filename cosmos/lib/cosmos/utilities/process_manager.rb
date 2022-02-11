@@ -19,6 +19,7 @@
 
 require 'cosmos/operators/operator'
 require 'cosmos/models/process_status_model'
+require 'cosmos/models/scope_model'
 require 'cosmos/utilities/logger'
 require 'socket'
 

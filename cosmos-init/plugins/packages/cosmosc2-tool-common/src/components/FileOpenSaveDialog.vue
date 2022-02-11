@@ -118,6 +118,7 @@ export default {
         return ['open', 'save'].indexOf(value) !== -1
       },
     },
+    apiUrl: String, // Base API URL for use with scripts or cmd-tlm
     requireTargetParentDir: Boolean, // Require that the save filename be nested in a directory with the name of a target
     inputFilename: String, // passed if this is a 'save' dialog
     value: Boolean, // value is the default prop when using v-model
@@ -185,7 +186,7 @@ export default {
     },
   },
   created() {
-    Api.get('/script-api/scripts')
+    Api.get(this.apiUrl)
       .then((response) => {
         this.items = []
         this.id = 1
@@ -249,7 +250,7 @@ export default {
     openSuccess: function () {
       // Disable the buttons because the API call can take a bit
       this.disableButtons = true
-      Api.get(`/script-api/scripts/${this.selectedFile}`)
+      Api.get(`${this.apiUrl}/${this.selectedFile}`)
         .then((response) => {
           const file = {
             name: this.selectedFile,

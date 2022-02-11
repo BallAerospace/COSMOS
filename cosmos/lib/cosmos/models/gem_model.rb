@@ -20,12 +20,12 @@
 require 'open-uri'
 require 'nokogiri'
 require 'httpclient'
-require 'cosmos/utilities/s3'
-require 'cosmos/utilities/process_manager'
 require 'rubygems'
 require 'rubygems/uninstaller'
-require 'cosmos/api/api'
 require 'tempfile'
+require 'cosmos/utilities/s3'
+require 'cosmos/utilities/process_manager'
+require 'cosmos/api/api'
 
 module Cosmos
   # This class acts like a Model but doesn't inherit from Model because it doesn't

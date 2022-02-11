@@ -74,7 +74,7 @@ module Cosmos
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
       hash = JSON.parse(Store.hget("#{scope}__tlm__#{target_name}", packet_name))
-      results = hash.values_at(*types).each do |result|
+      hash.values_at(*types).each do |result|
         return result if result
       end
       return nil

@@ -91,6 +91,7 @@ def setup_system(targets = %w[SYSTEM INST EMPTY])
     Cosmos::System.instance(targets, dir)
     result = stdout
   end
+  result
 end
 
 def get_all_redis_keys

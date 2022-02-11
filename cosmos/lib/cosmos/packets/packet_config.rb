@@ -372,8 +372,7 @@ module Cosmos
       when 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER',\
           'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER',\
           'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER'
-        finish_item()
-        @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
+        start_item(parser)
 
       # Allow this packet to be received with less data than the defined length
       # without generating a warning.
@@ -447,7 +446,7 @@ module Cosmos
           conversion = klass.new(*params[1..(params.length - 1)])
           @current_item.public_send("#{keyword.downcase}=".to_sym, conversion)
           if klass != ProcessorConversion and (conversion.converted_type.nil? or conversion.converted_bit_size.nil?)
-            msg = "Read Conversion #{params[0].filename_to_class_name} on item #{@current_item.name} does not specify converted type or bit size. Will not be supported by DART"
+            msg = "Read Conversion #{params[0].filename_to_class_name} on item #{@current_item.name} does not specify converted type or bit size"
             @warnings << msg
             Logger.instance.warn @warnings[-1]
           end
@@ -500,7 +499,7 @@ module Cosmos
         end
         @converted_bit_size = Integer(params[1]) if params[1]
         if @converted_type.nil? or @converted_bit_size.nil?
-          msg = "Generic Conversion on item #{@current_item.name} does not specify converted type or bit size. Will not be supported by DART"
+          msg = "Generic Conversion on item #{@current_item.name} does not specify converted type or bit size"
           @warnings << msg
           Logger.instance.warn @warnings[-1]
         end
@@ -597,6 +596,11 @@ module Cosmos
         @current_item.overlap = true
 
       end
+    end
+
+    def start_item(parser)
+      finish_item()
+      @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
     end
 
     # Finish updating packet item

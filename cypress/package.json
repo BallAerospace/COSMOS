@@ -7,25 +7,25 @@
     "fixwindows": "copy .\\context.js node_modules\\istanbul-lib-report\\lib\\context.js"
   },
   "dependencies": {
-    "@cypress/code-coverage": "3.9.4",
-    "@cypress/skip-test": "^2.6.0",
-    "@cypress/vue": "2.2.3",
-    "@cypress/webpack-dev-server": "1.2.0",
-    "@testing-library/cypress": "8.0.0",
+    "@cypress/code-coverage": "3.9.12",
+    "@cypress/skip-test": "^2.6.1",
+    "@cypress/vue": "2.2.4",
+    "@cypress/webpack-dev-server": "1.8.1",
+    "@testing-library/cypress": "8.0.2",
     "@vue/cli-plugin-babel": "4.5.15",
     "@vue/eslint-config-prettier": "6.0.0",
     "babel-eslint": "10.1.0",
-    "babel-plugin-istanbul": "6.0.0",
-    "cypress": "9.1.1",
-    "date-fns": "2.19.0",
-    "eslint": "7.23.0",
+    "babel-plugin-istanbul": "6.1.1",
+    "cypress": "9.4.1",
+    "date-fns": "2.24.0",
+    "eslint": "7.32.0",
     "eslint-config-prettier": "6.15.0",
     "eslint-plugin-prettier": "3.3.1",
     "eslint-plugin-vue": "7.8.0",
-    "html-webpack-plugin": "5.3.1",
-    "prettier": "2.2.1",
+    "html-webpack-plugin": "5.5.0",
+    "prettier": "2.4.1",
     "vuex": "3.6.2",
-    "webpack": "5.30.0",
-    "webpack-dev-server": "3.11.2"
+    "webpack": "5.54.0",
+    "webpack-dev-server": "4.3.0"
   }
 }

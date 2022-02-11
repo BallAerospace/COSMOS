@@ -93,6 +93,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'puma',      '~> 5.5'
   s.add_runtime_dependency 'rack',      '~> 2.2'
   s.add_runtime_dependency 'redis',     '~> 4.5'
+  s.add_runtime_dependency 'psych',     '~> 3.0'
   s.add_runtime_dependency 'matrix',    '~> 0.4' # bundled gem in Ruby 3.1
   s.add_runtime_dependency 'httpclient', '~> 2.8'
   s.add_runtime_dependency 'aws-sdk-s3', '~> 1.109'
