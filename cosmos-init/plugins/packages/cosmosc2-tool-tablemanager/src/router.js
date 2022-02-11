@@ -30,7 +30,7 @@ export default new Router({
       path: '/',
       name: 'TableManager',
       component: () => import('./tools/TableManager/TableManager.vue'),
-      meta: { title: 'Table Manager', icon: 'mdi-table' },
+      meta: { title: 'Table Manager', icon: 'mdi-table-furniture' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

@@ -25,6 +25,7 @@
       hide-details
       v-model="checkValue"
       @change="checkboxChange"
+      :disabled="!dataItem.editable"
     />
     <v-select
       v-else-if="dataItem.states"
@@ -33,6 +34,7 @@
       v-model="stateValue"
       :items="itemStates"
       @change="stateChange"
+      :disabled="!dataItem.editable"
     />
     <v-text-field
       v-else
@@ -43,6 +45,7 @@
       hide-details
       v-model="dataItem.value"
       @change="textChange"
+      :disabled="!dataItem.editable"
     />
   </td>
 </template>

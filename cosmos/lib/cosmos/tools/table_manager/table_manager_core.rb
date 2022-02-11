@@ -102,7 +102,7 @@ module Cosmos
             ]
           else
             if row == 0 && col == 0
-              tables[-1][:headers] << ["INDEX"]
+              tables[-1][:headers] << "INDEX"
             end
             if row == 0
               tables[-1][:headers] << item.name[0..-2]
@@ -131,7 +131,7 @@ module Cosmos
 
     def save_tables(bin_path, def_path, tables)
       file_open(bin_path, def_path)
-      tables['tables'].each do |table|
+      tables.each do |table|
         table_def = @config.tables[table['name']]
         table['rows'].each do |row|
           row.each do |item|

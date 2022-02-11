@@ -53,23 +53,22 @@ module Cosmos
         json = core.generate_json(bin_file, tf.path)
         File.delete(bin_file)
         result = JSON.parse(json)
-        pp result
         expect(result).to be_a Hash
-        expect(result['tables']['TEST']["num_rows"]).to eql 3
-        expect(result['tables']['TEST']["num_columns"]).to eql 1
-        expect(result['tables']['TEST']["headers"]).to eql %w(INDEX NAME VALUE)
-        expect(result['tables']['TEST']["rows"][0]['index']).to eql 1
-        expect(result['tables']['TEST']["rows"][0]['name']).to eql 'THROTTLE'
-        expect(result['tables']['TEST']["rows"][0]['value']).to eql '0x0'
-        expect(result['tables']['TEST']["rows"][0]['editable']).to be true
-        expect(result['tables']['TEST']["rows"][1]['index']).to eql 2
-        expect(result['tables']['TEST']["rows"][1]['name']).to eql 'SCRUBBING'
-        expect(result['tables']['TEST']["rows"][1]['value']).to eql 'DISABLE'
-        expect(result['tables']['TEST']["rows"][1]['editable']).to be true
-        expect(result['tables']['TEST']["rows"][2]['index']).to eql 3
-        expect(result['tables']['TEST']["rows"][2]['name']).to eql 'PPS'
-        expect(result['tables']['TEST']["rows"][2]['value']).to eql 'UNCHECKED'
-        expect(result['tables']['TEST']["rows"][2]['editable']).to be false
+        expect(result['tables'][0]["numRows"]).to eql 3
+        expect(result['tables'][0]["numColumns"]).to eql 1
+        expect(result['tables'][0]["headers"]).to eql %w(INDEX NAME VALUE)
+        expect(result['tables'][0]["rows"][0][0]['index']).to eql 1
+        expect(result['tables'][0]["rows"][0][0]['name']).to eql 'THROTTLE'
+        expect(result['tables'][0]["rows"][0][0]['value']).to eql '0x0'
+        expect(result['tables'][0]["rows"][0][0]['editable']).to be true
+        expect(result['tables'][0]["rows"][1][0]['index']).to eql 2
+        expect(result['tables'][0]["rows"][1][0]['name']).to eql 'SCRUBBING'
+        expect(result['tables'][0]["rows"][1][0]['value']).to eql 'DISABLE'
+        expect(result['tables'][0]["rows"][1][0]['editable']).to be true
+        expect(result['tables'][0]["rows"][2][0]['index']).to eql 3
+        expect(result['tables'][0]["rows"][2][0]['name']).to eql 'PPS'
+        expect(result['tables'][0]["rows"][2][0]['value']).to eql 'UNCHECKED'
+        expect(result['tables'][0]["rows"][2][0]['editable']).to be false
 
         # Generate json based on a new binary
         bin = Tempfile.new('table.bin')
@@ -77,9 +76,9 @@ module Cosmos
         bin.close
         json = core.generate_json(bin.path, tf.path)
         result = JSON.parse(json)
-        expect(result['tables']['TEST']["rows"][0]['value']).to eql '0xDEADBEEF'
-        expect(result['tables']['TEST']["rows"][1]['value']).to eql 'ENABLE'
-        expect(result['tables']['TEST']["rows"][2]['value']).to eql 'CHECKED'
+        expect(result['tables'][0]["rows"][0][0]['value']).to eql '0xDEADBEEF'
+        expect(result['tables'][0]["rows"][1][0]['value']).to eql 'ENABLE'
+        expect(result['tables'][0]["rows"][2][0]['value']).to eql 'CHECKED'
         bin.unlink
         tf.unlink
       end
@@ -101,27 +100,28 @@ module Cosmos
         tf.puts '    UNEDITABLE'
         # Defaults
         tf.puts 'DEFAULT 0 0 0'
-        tf.puts 'DEFAULT 0xDEADBEEF 1 1'
-        tf.puts 'DEFAULT 0xBA5EBA11 0 1'
+        tf.puts 'DEFAULT 0xDEADBEEF ENABLE CHECKED'
+        tf.puts 'DEFAULT 0xBA5EBA11 DISABLE CHECKED'
         tf.close
         bin_file = core.file_new(tf.path, Dir.pwd)
         json = core.generate_json(bin_file, tf.path)
         result = JSON.parse(json)
-        pp result
         expect(result).to be_a Hash
-        expect(result['tables']['TEST']["num_rows"]).to eql 3
-        expect(result['tables']['TEST']["num_columns"]).to eql 3
-        expect(result['tables']['TEST']["headers"][0]['name']).to eql "INDEX"
-        expect(result['tables']['TEST']["headers"][1]['name']).to eql "THROTTLE"
-        expect(result['tables']['TEST']["headers"][1]['states']).to be_nil
-        expect(result['tables']['TEST']["headers"][2]['name']).to eql "SCRUBBING"
-        expect(result['tables']['TEST']["headers"][2]['states']).to eql({ 'DISABLE' => 0, 'ENABLE' => 1 })
-        expect(result['tables']['TEST']["headers"][3]['name']).to eql "PPS"
-        expect(result['tables']['TEST']["headers"][3]['states']).to eql({ 'UNCHECKED' => 0, 'CHECKED' => 1 })
-        expect(result['tables']['TEST']["rows"][0]['INDEX']).to eql 1
-        expect(result['tables']['TEST']["rows"][0]['THROTTLE']).to eql '0x0'
-        expect(result['tables']['TEST']["rows"][0]['SCRUBBING']).to eql 'DISABLE'
-        expect(result['tables']['TEST']["rows"][0]['PPS']).to eql 'UNCHECKED'
+        expect(result['tables'][0]["numRows"]).to eql 3
+        expect(result['tables'][0]["numColumns"]).to eql 3
+        expect(result['tables'][0]["headers"]).to eql %w(INDEX THROTTLE SCRUBBING PPS)
+        expect(result['tables'][0]["rows"][0][0]['index']).to eql 1
+        expect(result['tables'][0]["rows"][0][0]['value']).to eql '0x0'
+        expect(result['tables'][0]["rows"][0][1]['value']).to eql 'DISABLE'
+        expect(result['tables'][0]["rows"][0][2]['value']).to eql 'UNCHECKED'
+        expect(result['tables'][0]["rows"][1][0]['index']).to eql 2
+        expect(result['tables'][0]["rows"][1][0]['value']).to eql '0xDEADBEEF'
+        expect(result['tables'][0]["rows"][1][1]['value']).to eql 'ENABLE'
+        expect(result['tables'][0]["rows"][1][2]['value']).to eql 'CHECKED'
+        expect(result['tables'][0]["rows"][2][0]['index']).to eql 3
+        expect(result['tables'][0]["rows"][2][0]['value']).to eql '0xBA5EBA11'
+        expect(result['tables'][0]["rows"][2][1]['value']).to eql 'DISABLE'
+        expect(result['tables'][0]["rows"][2][2]['value']).to eql 'CHECKED'
         File.delete(bin_file)
         tf.unlink
       end
@@ -147,12 +147,12 @@ module Cosmos
         data = File.read(bin_file, mode: 'rb')
         expect(data).to eql "\x00\x00\x00\x00\x00\x00\x00\x00"
         json = core.generate_json(bin_file, tf.path)
-        table = JSON.parse(json)
-        table['tables'][0]['rows'][0][0]['value'] = "1"
-        table['tables'][0]['rows'][1][0]['value'] = "0x1234"
-        table['tables'][0]['rows'][2][0]['value'] = "ENABLE"
-        table['tables'][0]['rows'][3][0]['value'] = "CHECKED"
-        bin_file = core.save_tables(bin_file, tf.path, table)
+        result = JSON.parse(json)
+        result['tables'][0]['rows'][0][0]['value'] = "1"
+        result['tables'][0]['rows'][1][0]['value'] = "0x1234"
+        result['tables'][0]['rows'][2][0]['value'] = "ENABLE"
+        result['tables'][0]['rows'][3][0]['value'] = "CHECKED"
+        bin_file = core.save_tables(bin_file, tf.path, result['tables'])
         data =  File.read(bin_file, mode: 'rb')
         expect(data).to eql "\x00\x01\x00\x00\x12\x34\x01\x01"
         File.delete(bin_file)
@@ -175,24 +175,24 @@ module Cosmos
         tf.puts '    STATE CHECKED 1'
         # Defaults
         tf.puts 'DEFAULT 0 0 0'
-        tf.puts 'DEFAULT 0xDEADBEEF 1 1'
-        tf.puts 'DEFAULT 0xBA5EBA11 0 1'
+        tf.puts 'DEFAULT 0xDEADBEEF ENABLE CHECKED'
+        tf.puts 'DEFAULT 0xBA5EBA11 DISABLE CHECKED'
         tf.close
         bin_file = core.file_new(tf.path, Dir.pwd)
         data = File.read(bin_file, mode: 'rb')
         expect(data).to eql "\x00\x00\x00\x00\x00\x00\xDE\xAD\xBE\xEF\x01\x01\xBA\x5E\xBA\x11\x00\x01"
         json = core.generate_json(bin_file, tf.path)
-        table = JSON.parse(json)
-        table['tables'][0]['rows'][0][0]['value'] = "1"
-        table['tables'][0]['rows'][0][1]['value'] = "ENABLE"
-        table['tables'][0]['rows'][0][2]['value'] = "CHECKED"
-        table['tables'][0]['rows'][1][0]['value'] = "2"
-        table['tables'][0]['rows'][1][1]['value'] = "DISABLE"
-        table['tables'][0]['rows'][1][2]['value'] = "UNCHECKED"
-        table['tables'][0]['rows'][2][0]['value'] = "3"
-        table['tables'][0]['rows'][2][1]['value'] = "ENABLE"
-        table['tables'][0]['rows'][2][2]['value'] = "UNCHECKED"
-        bin_file = core.save_tables(bin_file, tf.path, table)
+        result = JSON.parse(json)
+        result['tables'][0]['rows'][0][0]['value'] = "1"
+        result['tables'][0]['rows'][0][1]['value'] = "ENABLE"
+        result['tables'][0]['rows'][0][2]['value'] = "CHECKED"
+        result['tables'][0]['rows'][1][0]['value'] = "2"
+        result['tables'][0]['rows'][1][1]['value'] = "DISABLE"
+        result['tables'][0]['rows'][1][2]['value'] = "UNCHECKED"
+        result['tables'][0]['rows'][2][0]['value'] = "3"
+        result['tables'][0]['rows'][2][1]['value'] = "ENABLE"
+        result['tables'][0]['rows'][2][2]['value'] = "UNCHECKED"
+        bin_file = core.save_tables(bin_file, tf.path, result['tables'])
         data =  File.read(bin_file, mode: 'rb')
         expect(data).to eql "\x00\x00\x00\x01\x01\x01\x00\x00\x00\x02\x00\x00\x00\x00\x00\x03\x01\x00"
         File.delete(bin_file)
@@ -232,7 +232,6 @@ module Cosmos
         expect(File.read(bin_filename).formatted).to match(/DE AD BE EF 00 00/)
         FileUtils.rm def_filename
         FileUtils.rm bin_filename
-        FileUtils.rm 'table.csv'
       end
     end
 
@@ -318,7 +317,6 @@ module Cosmos
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm 'save.bin'
-        FileUtils.rm 'save.bin.csv'
       end
     end
 
@@ -716,7 +714,6 @@ module Cosmos
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm new_bin_filename
-        FileUtils.rm 'newtestfile.csv'
       end
     end
 
