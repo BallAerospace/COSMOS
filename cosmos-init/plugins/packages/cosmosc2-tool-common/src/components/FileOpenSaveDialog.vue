@@ -257,11 +257,11 @@ export default {
             contents: response.data.contents,
           }
           if (response.data.suites) {
-            try {
-              file['suites'] = JSON.parse(response.data.suites)
-            } catch (e) {
-              this.$emit('error', response.data.suites)
-            }
+            file['suites'] = JSON.parse(response.data.suites)
+          }
+          if (response.data.error) {
+            file['error'] = response.data.error
+            // Intentionally don't emit error.  These errors are handled elsewhere
           }
           const locked = response.data.locked
           const breakpoints = response.data.breakpoints

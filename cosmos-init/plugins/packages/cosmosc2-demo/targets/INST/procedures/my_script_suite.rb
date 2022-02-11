@@ -1,4 +1,5 @@
 load 'cosmos/script/suite.rb'
+require 'INST/procedures/utilities/collect' # Test requiring files from s3 in suite analysis
 
 class ExampleGroup < Cosmos::Group
   def setup
