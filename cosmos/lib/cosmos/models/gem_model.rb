@@ -21,6 +21,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'httpclient'
 require 'cosmos/utilities/s3'
+require 'cosmos/utilities/process_manager'
 require 'rubygems'
 require 'rubygems/uninstaller'
 require 'cosmos/api/api'
@@ -61,7 +62,7 @@ module Cosmos
           rubys3_client.put_object(bucket: 'gems', key: gem_filename, body: file)
         end
         if gem_install
-          result = Cosmos::ProcessManager.instance.spawn(["ruby", "/cosmos/bin/cosmos", "geminstall", gem_filename], "gem_install", gem_filename, Time.now + 1.hour, scope: scope)
+          result = Cosmos::ProcessManager.instance.spawn(["ruby", "/cosmos/bin/cosmos", "geminstall", gem_filename], "gem_install", gem_filename, Time.now + 3600.0, scope: scope)
           return result
         end
       else

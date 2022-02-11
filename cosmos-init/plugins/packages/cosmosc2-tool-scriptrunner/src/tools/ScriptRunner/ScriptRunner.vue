@@ -450,6 +450,11 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <simple-text-dialog
+      v-model="showSuiteError"
+      title="Suite Analysis Error"
+      :text="suiteError"
+    />
   </div>
 </template>
 
@@ -472,6 +477,7 @@ import SuiteRunner from './SuiteRunner.vue'
 import { CmdCompleter, TlmCompleter, MnemonicChecker } from './autocomplete'
 import { SleepAnnotator } from './annotations'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
 
 const NEW_FILENAME = '<Untitled>'
 const START = 'Start'
@@ -490,6 +496,7 @@ export default {
     Multipane,
     MultipaneResizer,
     TopBar,
+    SimpleTextDialog,
   },
   data() {
     return {
@@ -572,6 +579,8 @@ export default {
       infoDialogWidth: 600,
       infoTitle: '',
       infoText: [],
+      showSuiteError: false,
+      suiteError: '',
       resultsDialog: false,
       scriptResults: '',
       executeSelectionMenu: false,
@@ -1392,15 +1401,18 @@ export default {
       this.restoreBreakpoints(filename)
       this.fileModified = ''
       this.lockedBy = locked
+
       if (file.suites) {
-        if (typeof file.suites === 'string') {
-          this.alertType = 'warning'
-          this.alertText = `Processing ${this.filename} resulted in: ${file.suites}`
-          this.showAlert = true
-        } else {
-          this.suiteRunner = true
-          this.suiteMap = file.suites
-          this.startOrGoDisabled = true
+        this.suiteRunner = true
+        this.suiteMap = JSON.parse(file.suites)
+        this.startOrGoDisabled = true
+      } else {
+        this.startOrGoDisabled = false
+        this.suiteRunner = false
+        this.suiteMap = {}
+        if (file.error) {
+          this.suiteError = file.error
+          this.showSuiteError = true
         }
       }
     },
@@ -1446,8 +1458,17 @@ export default {
           .then((response) => {
             if (response.status == 200) {
               if (response.data.suites) {
+                this.startOrGoDisabled = true
                 this.suiteRunner = true
                 this.suiteMap = JSON.parse(response.data.suites)
+              } else {
+                this.startOrGoDisabled = false
+                this.suiteRunner = false
+                this.suiteMap = {}
+                if (response.data.error) {
+                  this.suiteError = response.data.error
+                  this.showSuiteError = true
+                }
               }
               this.fileModified = ''
               setTimeout(() => {
