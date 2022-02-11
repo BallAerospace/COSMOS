@@ -328,37 +328,55 @@ export default {
       this.saveFile()
     },
     delete: function () {
-      this.$dialog
-        .confirm(`Permanently delete file: ${this.filename}`, {
-          okText: 'Delete',
-          cancelText: 'Cancel',
-        })
-        .then((dialog) => {
-          return Api.delete(`/cosmos-api/tables/${this.filename}`, {
-            data: {},
+      if (this.filename !== '') {
+        this.$dialog
+          .confirm(`Permanently delete file: ${this.filename}`, {
+            okText: 'Delete',
+            cancelText: 'Cancel',
           })
-        })
-        .then((response) => {
-          this.newFile()
-        })
-        .catch((error) => {
-          if (error) {
-            this.$notify.caution({
-              title: 'Error',
-              body: `Error deleting file: ${error}`,
+          .then((dialog) => {
+            return Api.delete(`/cosmos-api/tables/${this.filename}`, {
+              data: {},
             })
-          }
-        })
+          })
+          .then((response) => {
+            this.newFile()
+          })
+          .catch((error) => {
+            if (error) {
+              this.$notify.caution({
+                title: 'Error',
+                body: `Error deleting file: ${error}`,
+              })
+            }
+          })
+      }
     },
     download: function () {
-      const blob = new Blob([this.editor.getValue()], {
-        type: 'text/plain',
-      })
-      // Make a link and then 'click' on it to start the download
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.setAttribute('download', this.filename)
-      link.click()
+      if (this.filename !== '') {
+        Api.get(`/cosmos-api/tables/${this.filename}`).then((response) => {
+          // Decode Base64 string
+          const decodedData = window.atob(response.data.contents)
+          // Create UNIT8ARRAY of size same as row data length
+          const uInt8Array = new Uint8Array(decodedData.length)
+          // Insert all character code into uInt8Array
+          for (let i = 0; i < decodedData.length; ++i) {
+            uInt8Array[i] = decodedData.charCodeAt(i)
+          }
+          // Return BLOB image after conversion
+          const blob = new Blob([uInt8Array], {
+            type: 'application/octet-stream',
+          })
+          // Make a link and then 'click' on it to start the download
+          const link = document.createElement('a')
+          link.href = URL.createObjectURL(blob)
+          link.setAttribute(
+            'download',
+            this.filename.substring(this.filename.lastIndexOf('/') + 1)
+          )
+          link.click()
+        })
+      }
     },
     async upload() {
       this.fileInput = ''
