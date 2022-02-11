@@ -20,13 +20,13 @@
 require 'json'
 require 'thread'
 require 'cosmos'
+require 'cosmos/utilities/s3'
 require 'cosmos/script'
 require 'cosmos/io/stdout'
 require 'cosmos/io/stderr'
 require 'childprocess'
 require 'cosmos/script/suite_runner'
 require 'cosmos/utilities/store'
-require 'cosmos/utilities/s3'
 
 RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 
@@ -46,12 +46,16 @@ module Cosmos
     SCRIPT_METHODS.each do |method|
       define_method(method) do |*args, **kwargs|
         while true
-          RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args, kwargs: kwargs }))
-          RunningScript.instance.perform_pause
-          input = RunningScript.instance.user_input
-          # All ask and prompt dialogs should include a 'Cancel' button to enable break
-          return input unless input == 'Cancel'
+          if RunningScript.instance
+            RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
+            Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args, kwargs: kwargs }))
+            RunningScript.instance.perform_pause
+            input = RunningScript.instance.user_input
+            # All ask and prompt dialogs should include a 'Cancel' button to enable break
+            return input unless input == 'Cancel'
+          else
+            raise "Script input method called outside of running script"
+          end
         end
       end
     end
@@ -60,8 +64,20 @@ module Cosmos
       def load_s3(*args, **kw_args)
         path = args[0]
 
+        # Only support TARGET files
+        if path[0] == '/' or path.split('/')[0].to_s.upcase != path.split('/')[0]
+          raise LoadError
+        end
+        extension = File.extname(path)
+        path = path + '.rb' if extension == ""
+
         # Retrieve the text of the script from S3
-        text = ::Script.body(RunningScript.instance.scope, path)
+        if RunningScript.instance
+          scope = RunningScript.instance.scope
+        else
+          scope = $cosmos_scope
+        end
+        text = ::Script.body(scope, path)
 
         # Execute the script directly without instrumentation because we are doing require/load
         Object.class_eval(text, path, 1)
@@ -73,11 +89,11 @@ module Cosmos
       def require(*args, **kw_args)
         begin
           super(*args, **kw_args)
-        rescue LoadError => err
+        rescue LoadError
           begin
             load_s3(*args, **kw_args)
           rescue Exception
-            raise err
+            raise LoadError
           end
         end
       end
@@ -85,11 +101,11 @@ module Cosmos
       def load(*args, **kw_args)
         begin
           super(*args, **kw_args)
-        rescue LoadError => err
+        rescue LoadError
           begin
             load_s3(*args, **kw_args)
           rescue Exception
-            raise err
+            raise LoadError
           end
         end
       end
@@ -140,8 +156,8 @@ module Cosmos
           ensure
             RunningScript.instance.use_instrumentation = saved
           end
-        else # Just call start
-          not_cached = start(procedure_name)
+        else # Just call require
+          not_cached = require(procedure_name)
         end
         # Return whether we had to load and instrument this file, i.e. it was not cached
         # This is designed to match the behavior of Ruby's require and load keywords
@@ -298,7 +314,7 @@ class RunningScript
 
     # Spawned process should not be controlled by same Bundler constraints as spawning process
     ENV.each do |key, value|
-      if key =~ /^BUNDLER/
+      if key =~ /^BUNDLE/
         process.environment[key] = nil
       end
     end
@@ -362,7 +378,7 @@ class RunningScript
     if name.include?("suite")
       # Process the suite file in this context so we can load it
       # TODO: Do we need to worry about success or failure of the suite processing?
-      ::Script.process_suite(name, @body, new_process: false)
+      ::Script.process_suite(name, @body, new_process: false, scope: @scope)
       # Call load_utility to parse the suite and allow for individual methods to be executed
       load_utility(name)
     end

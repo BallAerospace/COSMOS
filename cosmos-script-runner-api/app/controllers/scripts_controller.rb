@@ -54,16 +54,14 @@ class ScriptsController < ApplicationController
         "locked" => locked
       }
       if params[:name].include?('suite')
-        results_suites, success = Script.process_suite(params[:name], file)
+        results_suites, success = Script.process_suite(params[:name], file, scope: params[:scope])
         if success
           results['suites'] = results_suites
         else
           results['error'] = results_suites
         end
       end
-      # If the parsing of the Suite was not successful return a 422 (Unprocessable Entity)
-      status = success ? 200 : 422
-      render :json => results, status: status
+      render :json => results
     else
       head :not_found
     end
@@ -81,12 +79,15 @@ class ScriptsController < ApplicationController
     if success
       results = {}
       if params[:name].include?('suite')
-        results['suites'], success = Script.process_suite(params[:name], params[:text])
+        results_suites, success = Script.process_suite(params[:name], params[:text], scope: params[:scope])
+        if success
+          results['suites'] = results_suites
+        else
+          results['error'] = results_suites
+        end
       end
       Cosmos::Logger.info("Script created: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION'])) if success
-      # If the parsing of the Suite was not successful return a 422 (Unprocessable Entity)
-      status = success ? 200 : 422
-      render :json => results, status: status
+      render :json => results
     else
       head :error
     end

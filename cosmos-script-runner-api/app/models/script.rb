@@ -18,10 +18,10 @@
 # copyright holder
 
 require 'tempfile'
+require 'cosmos/utilities/s3'
 require 'cosmos/script/suite'
 require 'cosmos/script/suite_runner'
 require 'cosmos/tools/test_runner/test'
-require 'cosmos/utilities/s3'
 
 Cosmos.require_file 'cosmos/utilities/store'
 
@@ -107,7 +107,7 @@ class Script
     []
   end
 
-  def self.process_suite(name, contents, new_process: true)
+  def self.process_suite(name, contents, new_process: true, scope:)
     start = Time.now
     temp = Tempfile.new(%w[suite .rb])
 
@@ -119,7 +119,8 @@ class Script
     results = nil
     success = true
     if new_process
-      process = ChildProcess.build('ruby', "-e", "require 'json'; require 'cosmos/script/suite_runner'; require '#{temp.path}'; puts Cosmos::SuiteRunner.build_suites.to_json")
+      runner_path = File.join(RAILS_ROOT, 'scripts', 'run_suite_analysis.rb')
+      process = ChildProcess.build('ruby', runner_path.to_s, scope, temp.path)
       process.cwd = File.join(RAILS_ROOT, 'scripts')
 
       # Set proper secrets for running script
@@ -140,7 +141,7 @@ class Script
 
       # Spawned process should not be controlled by same Bundler constraints as spawning process
       ENV.each do |key, value|
-        if key =~ /^BUNDLER/
+        if key =~ /^BUNDLE/
           process.environment[key] = nil
         end
       end
