@@ -1,0 +1,1 @@
+zip -r cosmos.zip *.* -x "*.git*" -x "*node_modules*"
