@@ -44,7 +44,7 @@
               <template v-slot:prepend-inner v-if="selectedBackgroundColor">
                 <v-icon :color="selectedBackgroundColor"> mdi-square </v-icon>
               </template>
-              <template slot="item" slot-scope="data">
+              <template v-slot:item="data">
                 <v-icon
                   :color="data.item.value"
                   v-if="data.item.value"

@@ -15,6 +15,9 @@ if "%1" == "save" (
 if "%1" == "load" (
   GOTO load
 )
+if "%1" == "zip" (
+  GOTO zip
+)
 
 GOTO usage
 
@@ -54,11 +57,16 @@ GOTO :EOF
   docker load -i cosmosc2-init.tar || exit /b
 GOTO :EOF
 
+:zip
+  zip -r cosmos.zip *.* -x "*.git*" -x "*coverage*" -x "*tmp/cache*" -x "*node_modules*" -x "*yarn.lock"
+GOTO :EOF
+
 :usage
   @echo Usage: %1 [encode, hash, save, load] 1>&2
   @echo *  encode: encode a string to base64 1>&2
   @echo *  hash: hash a string using SHA-256 1>&2
   @echo *  save: save cosmos to tar files 1>&2
   @echo *  load: load cosmos tar files 1>&2
+  @echo *  zip: create cosmos zipfile 1>&2
 
 @echo on
