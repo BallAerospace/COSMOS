@@ -144,5 +144,6 @@ GOTO :EOF
   @echo *    hash: hash a string using SHA-256 1>&2
   @echo *    load: load docker images from tar files 1>&2
   @echo *    save: save docker images to tar files 1>&2
+  @echo *    zip: create cosmos zipfile 1>&2
 
 @echo on
