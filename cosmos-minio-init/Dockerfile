@@ -1,4 +1,4 @@
-FROM minio/mc:RELEASE.2021-11-05T10-05-06Z
+FROM minio/mc:RELEASE.2021-12-10T00-14-28Z
 
 WORKDIR /cosmos/minio/
 
