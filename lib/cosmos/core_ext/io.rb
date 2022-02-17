@@ -29,7 +29,7 @@ class IO
     # On Windows the IO.select function (when called with no timeout) takes
     # a minimum of 10 msec to return, even if one of the IO objects is
     # ready to read/write sooner than that.
-    # 
+    #
     # This method is identical to IO.select but instead of calling IO.select with
     # the full timeout, it calls IO.select with a small timeout and then
     # doubles the timeout twice until eventually it calls IO.select with the
@@ -43,12 +43,18 @@ class IO
       # Always try a zero timeout first
       current_timeout = SELECT_BASE_TIMEOUT
       total_timeout = 0.0
-    
+
       while true
-        result = IO.__select__(read_sockets, write_sockets, error_array, current_timeout)
+        begin
+          result = IO.__select__(read_sockets, write_sockets, error_array, current_timeout)
+        # All OS errors are subclassed to SystemCallError as Errno::<Subclass>
+        # See https://ruby-doc.org/core-3.1.0/Errno.html
+        rescue SystemCallError
+          return nil
+        end
         return result if result or current_timeout.nil?
         return nil if timeout and total_timeout >= timeout
-    
+
         if current_timeout <= 0.0001
           # Always try the base timeout next
           current_timeout = SELECT_BASE_TIMEOUT
@@ -56,7 +62,7 @@ class IO
         else
           # Then start doubling the timeout
           current_timeout = current_timeout * 2
-    
+
           # Until it is bigger than our max timeout
           if current_timeout >= SELECT_MAX_TIMEOUT
             if timeout
@@ -95,13 +101,13 @@ class IO
         return fast_select(read_sockets, write_sockets, error_array, timeout)
       end
     end
-    
+
     # @param read_sockets [Array<IO>] IO objects to wait to be ready to read
     # @param timeout [Numeric] Number of seconds to wait
     def fast_read_select(read_sockets, timeout)
       return fast_select(read_sockets, nil, nil, timeout)
     end
-    
+
     # @param write_sockets [Array<IO>] IO objects to wait to be ready to write
     # @param timeout [Numeric] Number of seconds to wait
     def fast_write_select(write_sockets, timeout)
