@@ -12,7 +12,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/io'
 
 describe IO do
-
   describe "fast_select" do
     before(:all) do
       @server = TCPServer.new('127.0.0.1', 23456)
@@ -40,6 +39,19 @@ describe IO do
     it "selects on write sockets" do
       socket = TCPSocket.open('localhost', 23456)
       expect(IO.fast_write_select([socket], 0.5)).not_to be_nil
+      socket.close
+    end
+
+    it "handles errno exceptions" do
+      # Pick two errors (EBADF and EACCES) to test because all errors takes too long
+      allow(IO).to receive(:__select__).and_raise(Errno::EBADF)
+      socket = TCPSocket.open('localhost', 23456)
+      expect(IO.fast_read_select([socket], 0.5)).to be_nil
+      socket.close
+
+      allow(IO).to receive(:__select__).and_raise(Errno::EACCES)
+      socket = TCPSocket.open('localhost', 23456)
+      expect(IO.fast_read_select([socket], 0.5)).to be_nil
       socket.close
     end
   end
