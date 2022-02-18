@@ -457,6 +457,11 @@
       title="Suite Analysis Error"
       :text="suiteError"
     />
+    <v-bottom-sheet v-model="showStartedScripts">
+      <v-sheet class="pb-11 pt-5 px-5">
+        <running-scripts />
+      </v-sheet>
+    </v-bottom-sheet>
   </div>
 </template>
 
@@ -480,6 +485,7 @@ import { CmdCompleter, TlmCompleter, MnemonicChecker } from './autocomplete'
 import { SleepAnnotator } from './annotations'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
+import RunningScripts from './RunningScripts.vue'
 
 const NEW_FILENAME = '<Untitled>'
 const START = 'Start'
@@ -499,6 +505,7 @@ export default {
     MultipaneResizer,
     TopBar,
     SimpleTextDialog,
+    RunningScripts,
   },
   data() {
     return {
@@ -589,6 +596,7 @@ export default {
       menuX: 0,
       menuY: 0,
       mnemonicChecker: new MnemonicChecker(),
+      showStartedScripts: false,
     }
   },
   computed: {
@@ -680,11 +688,10 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Open Started Scripts',
+              label: 'View Started Scripts',
               icon: 'mdi-run',
               command: () => {
-                let routeData = this.$router.resolve({ name: 'RunningScripts' })
-                window.open(routeData.href, '_blank')
+                this.showStartedScripts = true
               },
             },
             {

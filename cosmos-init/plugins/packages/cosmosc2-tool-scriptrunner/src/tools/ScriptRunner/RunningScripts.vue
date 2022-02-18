@@ -19,8 +19,7 @@
 
 <template>
   <div>
-    <top-bar :title="title" />
-    <v-card>
+    <v-card flat>
       <v-card-title> Running Scripts </v-card-title>
       <v-card-text>
         <div class="row">
@@ -51,7 +50,7 @@
         <template v-slot:item.connect="{ item }">
           <v-btn color="primary" @click="connectScript(item)">
             <span>Connect</span>
-            <v-icon right> mdi-eye-outline </v-icon>
+            <v-icon right> mdi-open-in-new </v-icon>
           </v-btn>
         </template>
         <template v-slot:item.stop="{ item }">
@@ -62,7 +61,7 @@
         </template>
       </v-data-table>
     </v-card>
-    <v-card class="mt-3">
+    <v-card class="mt-3" flat>
       <v-card-title> Completed Scripts </v-card-title>
       <v-card-text>
         <div class="row">
@@ -102,12 +101,8 @@
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
-import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 export default {
-  components: {
-    TopBar,
-  },
   props: {
     tabId: Number,
     curTab: Number,
@@ -164,7 +159,11 @@ export default {
       })
     },
     connectScript: function (script) {
-      this.$router.push({ name: 'ScriptRunner', params: { id: script.id } })
+      let routeData = this.$router.resolve({
+        name: 'ScriptRunner',
+        params: { id: script.id },
+      })
+      window.open(routeData.href, '_blank')
     },
     stopScript: function (script) {
       this.$dialog
