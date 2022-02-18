@@ -1404,7 +1404,7 @@ export default {
 
       if (file.suites) {
         this.suiteRunner = true
-        this.suiteMap = JSON.parse(file.suites)
+        this.suiteMap = file.suites
         this.startOrGoDisabled = true
       } else {
         this.startOrGoDisabled = false
