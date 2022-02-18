@@ -333,6 +333,13 @@ module Cosmos
         end
         @current_type.sizeInBits = 8 unless element.attributes['sizeInBits']
 
+        case element.attributes['byteOrder'].to_s
+        when 'mostSignificantByteFirst'
+          @current_type.endianness = :BIG_ENDIAN
+        when 'leastSignificantByteFirst'
+          @current_type.endianness = :LITTLE_ENDIAN
+        end
+
       when 'Parameter'
         @current_parameter = OpenStruct.new
         element.attributes.each do |att_name, att|
