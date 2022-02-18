@@ -51,7 +51,7 @@ module Cosmos
     def xml_file(target)
       tf = Tempfile.new(['unittest', '.xtce'])
       tf.puts '<?xml version="1.0" encoding="UTF-8"?>'
-      tf.puts "<xtce:SpaceSystem xmlns:xtce=\"http://www.omg.org/space/xtce\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" name=\"#{target}\" xsi:schemaLocation=\"http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd\">"
+      tf.puts "<xtce:SpaceSystem xmlns:xtce=\"http://www.omg.org/spec/XTCE\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" name=\"#{target}\" xsi:schemaLocation=\"http://www.omg.org/spec/XTCE/20180204 SpaceSystem.xsd\">"
       yield tf
       tf.puts '</xtce:SpaceSystem>'
       tf.close
@@ -282,6 +282,48 @@ module Cosmos
         tf.unlink
       end
 
+      it "processes intermixed endianness xtce telemetry" do
+        tf = telemetry_file("TGT") do |file|
+          file.puts "<xtce:ParameterTypeSet>"
+          file.puts "  <xtce:IntegerParameterType name=\"A_Type\" shortDescription=\"Description\" signed=\"false\">"
+          file.puts "    <xtce:IntegerDataEncoding sizeInBits=\"8\" encoding=\"unsigned\" byteOrder=\"mostSignificantByteFirst\"/>"
+          file.puts "  </xtce:IntegerParameterType>"
+          file.puts "  <xtce:IntegerParameterType name=\"B_Type\" shortDescription=\"Description\" signed=\"false\">"
+          file.puts "    <xtce:IntegerDataEncoding sizeInBits=\"8\" encoding=\"unsigned\" byteOrder=\"leastSignificantByteFirst\"/>"
+          file.puts "  </xtce:IntegerParameterType>"
+          file.puts "  <xtce:IntegerParameterType name=\"C_Type\" shortDescription=\"Description\" signed=\"false\">"
+          file.puts "    <xtce:IntegerDataEncoding sizeInBits=\"8\" encoding=\"unsigned\" byteOrder=\"mostSignificantByteFirst\"/>"
+          file.puts "  </xtce:IntegerParameterType>"
+          file.puts "</xtce:ParameterTypeSet>"
+          file.puts "<xtce:ParameterSet>"
+          file.puts "  <xtce:Parameter name=\"A\" parameterTypeRef=\"A_Type\"/>"
+          file.puts "  <xtce:Parameter name=\"B\" parameterTypeRef=\"B_Type\"/>"
+          file.puts "  <xtce:Parameter name=\"C\" parameterTypeRef=\"C_Type\"/>"
+          file.puts "</xtce:ParameterSet>"
+          file.puts "<xtce:ContainerSet>"
+          file.puts "  <xtce:SequenceContainer name=\"PKT_Base\" abstract=\"true\">"
+          file.puts "    <xtce:EntryList>"
+          file.puts "      <xtce:ParameterRefEntry parameterRef=\"A\"/>"
+          file.puts "      <xtce:ParameterRefEntry parameterRef=\"B\"/>"
+          file.puts "      <xtce:ParameterRefEntry parameterRef=\"C\"/>"
+          file.puts "    </xtce:EntryList>"
+          file.puts "  </xtce:SequenceContainer>"
+          file.puts "  <xtce:SequenceContainer name=\"PKT\" shortDescription=\"Telemetry\">"
+          file.puts "    <xtce:EntryList/>"
+          file.puts "    <xtce:BaseContainer containerRef=\"PKT_Base\"/>"
+          file.puts "  </xtce:SequenceContainer>"
+          file.puts "</xtce:ContainerSet>"
+        end
+
+        @pc.process_file(tf.path, 'TGT')
+        packet = @pc.telemetry['TGT']['PKT']
+        expect(packet).to_not be_nil
+        expect(packet.get_item('A').endianness).to eql :BIG_ENDIAN
+        expect(packet.get_item('B').endianness).to eql :LITTLE_ENDIAN
+        expect(packet.get_item('C').endianness).to eql :BIG_ENDIAN
+        tf.unlink
+      end
+
       it "warns of bad byteorderlist no zero xtce telemetry" do
         tf = Tempfile.new(['unittest', '.xtce'])
         tf.puts XTCE_START
@@ -389,7 +431,6 @@ module Cosmos
         expect(tlm).to include(tlm2)
         tf.unlink
       end
-
     end # describe "process_file"
   end
 end
