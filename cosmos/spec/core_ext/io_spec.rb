@@ -50,5 +50,18 @@ describe IO do
       expect(IO.fast_write_select([socket], 0.5)).not_to be_nil
       socket.close
     end
+
+    it "handles errno exceptions" do
+      # Pick two errors (EBADF and EACCES) to test because all errors takes too long
+      allow(IO).to receive(:__select__).and_raise(Errno::EBADF)
+      socket = TCPSocket.open('localhost', 23456)
+      expect(IO.fast_read_select([socket], 0.5)).to be_nil
+      socket.close
+
+      allow(IO).to receive(:__select__).and_raise(Errno::EACCES)
+      socket = TCPSocket.open('localhost', 23456)
+      expect(IO.fast_read_select([socket], 0.5)).to be_nil
+      socket.close
+    end
   end
 end

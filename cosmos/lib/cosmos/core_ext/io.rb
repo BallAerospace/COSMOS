@@ -53,7 +53,13 @@ class IO
       total_timeout = 0.0
 
       while true
-        result = IO.__select__(read_sockets, write_sockets, error_array, current_timeout)
+        begin
+          result = IO.__select__(read_sockets, write_sockets, error_array, current_timeout)
+        # All OS errors are subclassed to SystemCallError as Errno::<Subclass>
+        # See https://ruby-doc.org/core-3.1.0/Errno.html
+        rescue SystemCallError
+          return nil
+        end
         return result if result or current_timeout.nil?
         return nil if timeout and total_timeout >= timeout
 
