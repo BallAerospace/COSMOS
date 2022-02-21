@@ -50,7 +50,7 @@
         <template v-slot:item.connect="{ item }">
           <v-btn color="primary" @click="connectScript(item)">
             <span>Connect</span>
-            <v-icon right> mdi-open-in-new </v-icon>
+            <v-icon right v-show="connectInNewTab"> mdi-open-in-new </v-icon>
           </v-btn>
         </template>
         <template v-slot:item.stop="{ item }">
@@ -106,6 +106,7 @@ export default {
   props: {
     tabId: Number,
     curTab: Number,
+    connectInNewTab: Boolean,
   },
   data() {
     return {
@@ -159,11 +160,17 @@ export default {
       })
     },
     connectScript: function (script) {
-      let routeData = this.$router.resolve({
+      const destination = {
         name: 'ScriptRunner',
         params: { id: script.id },
-      })
-      window.open(routeData.href, '_blank')
+      }
+      if (this.connectInNewTab) {
+        let { href } = this.$router.resolve(destination)
+        window.open(href, '_blank')
+      } else {
+        this.$router.push(destination)
+        this.$emit('close')
+      }
     },
     stopScript: function (script) {
       this.$dialog
