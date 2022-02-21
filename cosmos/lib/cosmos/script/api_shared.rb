@@ -300,10 +300,10 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
-    def wait_check(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+    def wait_check(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token, &block)
       target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate = _wait_check_process_args(args, scope: scope, token: token)
       start_time = Time.now.sys
-      success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
+      success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token, &block)
       time = Time.now.sys - start_time
       check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)} #{comparison_to_eval}"
       with_value_str = "with value == #{value} after waiting #{time} seconds"
@@ -321,8 +321,8 @@ module Cosmos
     end
 
     # @deprecated use wait_check with type: :RAW
-    def wait_check_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      wait_check(*args, type: :RAW, scope: scope, token: token)
+    def wait_check_raw(*args, scope: $cosmos_scope, token: $cosmos_token, &block)
+      wait_check(*args, type: :RAW, scope: scope, token: token, &block)
     end
 
     # Wait for the value of a telmetry item to be within a tolerance of a value
@@ -334,7 +334,7 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
-    def wait_check_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+    def wait_check_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token, &block)
       raise "Invalid type '#{type}' for wait_check_tolerance" unless %i(RAW CONVERTED).include?(type)
 
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = _wait_tolerance_process_args(args, scope: scope, token: token)
@@ -343,7 +343,7 @@ module Cosmos
       if value.is_a?(Array)
         expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, 'wait_check_tolerance', scope: scope, token: token)
 
-        success, value = cosmos_script_wait_implementation_array_tolerance(value.size, target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate, scope: scope, token: token)
+        success, value = cosmos_script_wait_implementation_array_tolerance(value.size, target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate, scope: scope, token: token, &block)
         time = Time.now.sys - start_time
 
         message = ""
@@ -388,8 +388,8 @@ module Cosmos
     end
 
     # @deprecated Use wait_check_tolerance with type: :RAW
-    def wait_check_tolerance_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      wait_check_tolerance(*args, type: :RAW, scope: scope, token: token)
+    def wait_check_tolerance_raw(*args, scope: $cosmos_scope, token: $cosmos_token, &block)
+      wait_check_tolerance(*args, type: :RAW, scope: scope, token: token, &block)
     end
 
     # Wait on an expression to be true.  On a timeout, the script will pause.
@@ -397,12 +397,12 @@ module Cosmos
                               timeout,
                               polling_rate = DEFAULT_TLM_POLLING_RATE,
                               context = nil,
-                              scope: $cosmos_scope, token: $cosmos_token)
+                              scope: $cosmos_scope, token: $cosmos_token, &block)
       start_time = Time.now.sys
       success = cosmos_script_wait_implementation_expression(exp_to_eval,
                                                              timeout,
                                                              polling_rate,
-                                                             context, scope: scope, token: token)
+                                                             context, scope: scope, token: token, &block)
       time = Time.now.sys - start_time
       if success
         Logger.info "CHECK: #{exp_to_eval} is TRUE after waiting #{time} seconds"
@@ -679,15 +679,21 @@ module Cosmos
       return [target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate]
     end
 
-    def _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: $cosmos_scope, token: $cosmos_token)
+    def _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: $cosmos_scope, token: $cosmos_token, &block)
       end_time = Time.now.sys + timeout
       exp_to_eval = yield
 
       while true
         work_start = Time.now.sys
         value = tlm(target_name, packet_name, item_name, type: value_type, scope: scope, token: token)
-        if eval(exp_to_eval)
-          return true, value
+        if not block.nil?
+          if block.call(value)
+            return true, value
+          end
+        else
+          if eval(exp_to_eval)
+            return true, value
+          end
         end
         break if Time.now.sys >= end_time || $disconnect
 
@@ -712,25 +718,25 @@ module Cosmos
     end
 
     # Wait for a converted telemetry item to pass a comparison
-    def cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token)
-      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: scope, token: token) do
-        "value " + comparison_to_eval
+    def cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token, &block)
+      if comparison_to_eval
+        exp_to_eval = "value " + comparison_to_eval
+      else
+        exp_to_eval = nil
       end
+      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, exp_to_eval, scope: scope, token: token, &block)
     end
 
-    def cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token)
-      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: scope, token: token) do
-        "((#{expected_value} - #{tolerance})..(#{expected_value} + #{tolerance})).include? value"
-      end
+    def cosmos_script_wait_implementation_tolerance(target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token, &block)
+      exp_to_eval = "((#{expected_value} - #{tolerance})..(#{expected_value} + #{tolerance})).include? value"
+      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, exp_to_eval, scope: scope, token: token, &block)
     end
 
-    def cosmos_script_wait_implementation_array_tolerance(array_size, target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token)
+    def cosmos_script_wait_implementation_array_tolerance(array_size, target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token, &block)
       statements = []
       array_size.times { |i| statements << "(((#{expected_value[i]} - #{tolerance[i]})..(#{expected_value[i]} + #{tolerance[i]})).include? value[#{i}])" }
       exp_to_eval = statements.join(" && ")
-      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: scope, token: token) do
-        exp_to_eval
-      end
+      _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, exp_to_eval, scope: scope, token: token, &block)
     end
 
     # Wait on an expression to be true.
