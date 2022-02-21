@@ -177,7 +177,7 @@
     <multipane
       class="horizontal-panes"
       layout="horizontal"
-      @paneResize="editor.resize()"
+      @pane-resize="editor.resize()"
     >
       <div id="editorbox" class="pane">
         <v-snackbar
