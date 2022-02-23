@@ -1283,6 +1283,11 @@ export default {
       })
     },
     handleScript(data) {
+      if (data.prompt_complete) {
+        this.prompt.show = false
+        this.ask.show = false
+        return
+      }
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
       this.prompt.title = 'Prompt'
