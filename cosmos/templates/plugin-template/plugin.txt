@@ -5,5 +5,5 @@ VARIABLE <%= target_name.downcase %>_target_name <%= target_name %>
 # Modify this according to your actual target connection
 # See https://cosmosc2.com/docs/v5/interfaces for more information
 TARGET <%= target_name %> <%%= <%= target_name.downcase %>_target_name %>
-INTERFACE <%%= <%= target_name.downcase %>_target_name %>_INT tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST
+INTERFACE <%%= <%= target_name.downcase %>_target_name %>_INT tcpip_client_interface.rb host.docker.internal 8080 8081 10.0 nil BURST
   MAP_TARGET <%%= <%= target_name.downcase %>_target_name %>
