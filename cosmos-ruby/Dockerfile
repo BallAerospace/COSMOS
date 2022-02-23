@@ -43,6 +43,7 @@ RUN apk update \
   ruby-irb \
   ca-certificates \
   curl \
+  libc6-compat \
   libressl \
   less \
   tini \
