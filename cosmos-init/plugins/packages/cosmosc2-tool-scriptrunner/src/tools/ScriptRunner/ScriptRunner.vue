@@ -870,6 +870,7 @@ export default {
         )
         if (loadRunningScript) {
           this.filename = loadRunningScript.name
+          this.tryLoadSuites()
           this.scriptStart(loadRunningScript.id)
         } else if (id) {
           this.$notify.caution({
@@ -880,6 +881,19 @@ export default {
           this.alertType = 'success'
           this.alertText = `Currently ${response.data.length} running scripts.`
           this.showAlert = true
+        }
+      })
+    },
+    tryLoadSuites: function () {
+      Api.get(`/script-api/scripts/${this.filename}`).then((response) => {
+        if (response.data.suites) {
+          this.suiteRunner = true
+          this.suiteMap = JSON.parse(response.data.suites)
+          this.startOrGoDisabled = true
+        } else {
+          this.startOrGoDisabled = false
+          this.suiteRunner = false
+          this.suiteMap = {}
         }
       })
     },
