@@ -147,11 +147,10 @@ class RunningScriptController < ApplicationController
     if running_script
       if params[:password]
         # TODO: ActionCable is logging this ... probably shouldn't
-        ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], password: params[:password] })
+        ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], password: params[:password], prompt_id: params[:prompt_id] })
       else
-        ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], result: params[:answer] })
+        ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], result: params[:answer], prompt_id: params[:prompt_id] })
       end
-      ActionCable.server.broadcast("running-script-channel:#{params[:id]}", { type: :script, prompt_complete: true })
       Cosmos::Logger.info("Script prompt action #{params[:method]}: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
@@ -169,8 +168,7 @@ class RunningScriptController < ApplicationController
     end
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
-      ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], args: params[:args] })
-      ActionCable.server.broadcast("running-script-channel:#{params[:id]}", { type: :script, prompt_complete: true })
+      ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], args: params[:args], prompt_id: params[:prompt_id] })
       Cosmos::Logger.info("Script method action #{params[:method]}: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else

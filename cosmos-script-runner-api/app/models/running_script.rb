@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'json'
+require 'securerandom'
 require 'thread'
 require 'cosmos'
 require 'cosmos/utilities/s3'
@@ -212,6 +213,7 @@ class RunningScript
   attr_accessor :stdout_max_lines
   attr_reader :script
   attr_accessor :user_input
+  attr_accessor :prompt_id
 
   @@instance = nil
   @@id = nil
@@ -334,6 +336,7 @@ class RunningScript
     @name = name
     @filename = name
     @user_input = ''
+    @prompt_id = nil
     @line_offset = 0
     @output_io = StringIO.new('', 'r+')
     @output_io_mutex = Mutex.new
@@ -472,6 +475,11 @@ class RunningScript
 
   def stop?
     @stop
+  end
+
+  def clear_prompt()
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, prompt_complete: @prompt_id }))
+    @prompt_id = nil
   end
 
   def as_json(*args)
@@ -962,12 +970,13 @@ class RunningScript
   def wait_for_go_or_stop(error = nil, prompt: nil)
     count = 0
     @go = false
+    RunningScript.instance.prompt_id = SecureRandom.uuid
     until (@go or @stop)
       sleep(0.01)
       count += 1
       if (count % 100) == 0 # Approximately Every Second
         Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
-        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, method: prompt['method'], args: prompt['args'], kwargs: prompt['kwargs'] })) if prompt
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, method: prompt['method'], prompt_id: RunningScript.instance.prompt_id, args: prompt['args'], kwargs: prompt['kwargs'] })) if prompt
       end
     end
     @go = false

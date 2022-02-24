@@ -604,6 +604,7 @@ export default {
       menuY: 0,
       mnemonicChecker: new MnemonicChecker(),
       showStartedScripts: false,
+      activePromptId: '',
     }
   },
   computed: {
@@ -1293,15 +1294,18 @@ export default {
         data: {
           method: this.prompt.method,
           answer: value,
+          prompt_id: this.activePromptId,
         },
       })
     },
     handleScript(data) {
       if (data.prompt_complete) {
+        this.activePromptId = ''
         this.prompt.show = false
         this.ask.show = false
         return
       }
+      this.activePromptId = data.prompt_id
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
       this.prompt.title = 'Prompt'
@@ -1334,6 +1338,7 @@ export default {
                 data: {
                   method: data.method,
                   password: value, // Using password as a key automatically filters it from rails logs
+                  prompt_id: this.activePromptId,
                 },
               })
             } else {
@@ -1341,6 +1346,7 @@ export default {
                 data: {
                   method: data.method,
                   answer: value,
+                  prompt_id: this.activePromptId,
                 },
               })
             }
