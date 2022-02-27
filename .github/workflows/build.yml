@@ -70,10 +70,8 @@ jobs:
     steps:
       - name: Cypress run
         uses: cypress-io/github-action@v2
-        working-directory: cypress
         with:
-          build: yarn
-          start: yarn run cypress run
+          working-directory: cypress
           wait-on: 'http://localhost:2900'
 
   docker-stop:
