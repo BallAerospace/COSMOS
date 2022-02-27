@@ -51,5 +51,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: build
-        run: cosmos-control.sh build
-        
+        run: ./cosmos-control.sh build
+
