@@ -16,35 +16,35 @@ on:
     branches: [master]
 
 jobs:
-  unit-test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ["2.7", "3.0", "3.1"]
+  # unit-test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       ruby-version: ["2.7", "3.0", "3.1"]
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby ${{ matrix.ruby-version }}
-        uses: ruby/setup-ruby@v1
-        env:
-          RUBYGEMS_URL: https://rubygems.org
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
-      - name: Run tests
-        run: bundle exec rake build spec
-        working-directory: cosmos
-        env:
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
-      - name: Run tests without extensions
-        run: bundle exec rspec --tag no_ext
-        working-directory: cosmos
-        env:
-          COSMOS_NO_EXT: 1
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Set up Ruby ${{ matrix.ruby-version }}
+  #       uses: ruby/setup-ruby@v1
+  #       env:
+  #         RUBYGEMS_URL: https://rubygems.org
+  #       with:
+  #         ruby-version: ${{ matrix.ruby-version }}
+  #         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+  #         working-directory: cosmos
+  #     - name: Run tests
+  #       run: bundle exec rake build spec
+  #       working-directory: cosmos
+  #       env:
+  #         RUBYGEMS_URL: https://rubygems.org
+  #         COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+  #     - name: Run tests without extensions
+  #       run: bundle exec rspec --tag no_ext
+  #       working-directory: cosmos
+  #       env:
+  #         COSMOS_NO_EXT: 1
+  #         RUBYGEMS_URL: https://rubygems.org
+  #         COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
 
   docker-build:
     runs-on: ubuntu-latest
@@ -54,3 +54,33 @@ jobs:
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh build
+
+  docker-start:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: cosmos-control.sh start
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh start
+
+  cypress-test:
+    runs-on: ubuntu-latest
+    needs: docker-start
+    steps:
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        working-directory: cypress
+        with:
+          build: yarn
+          start: yarn run cypress run
+          wait-on: 'http://localhost:2900'
+
+  docker-stop:
+    runs-on: ubuntu-latest
+    needs: cypress-test
+    steps:
+      - name: cosmos-control.sh stop
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh stop
