@@ -16,7 +16,7 @@ on:
     branches: [master]
 
 jobs:
-  test:
+  unit-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,3 +45,11 @@ jobs:
           COSMOS_NO_EXT: 1
           RUBYGEMS_URL: https://rubygems.org
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: cosmos-control.sh build
+        
