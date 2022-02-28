@@ -16,35 +16,35 @@ on:
     branches: [master]
 
 jobs:
-  # unit-test:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       ruby-version: ["2.7", "3.0", "3.1"]
+  unit-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ["2.7", "3.0", "3.1"]
 
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Set up Ruby ${{ matrix.ruby-version }}
-  #       uses: ruby/setup-ruby@v1
-  #       env:
-  #         RUBYGEMS_URL: https://rubygems.org
-  #       with:
-  #         ruby-version: ${{ matrix.ruby-version }}
-  #         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-  #         working-directory: cosmos
-  #     - name: Run tests
-  #       run: bundle exec rake build spec
-  #       working-directory: cosmos
-  #       env:
-  #         RUBYGEMS_URL: https://rubygems.org
-  #         COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
-  #     - name: Run tests without extensions
-  #       run: bundle exec rspec --tag no_ext
-  #       working-directory: cosmos
-  #       env:
-  #         COSMOS_NO_EXT: 1
-  #         RUBYGEMS_URL: https://rubygems.org
-  #         COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        env:
+          RUBYGEMS_URL: https://rubygems.org
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          working-directory: cosmos
+      - name: Run tests
+        run: bundle exec rake build spec
+        working-directory: cosmos
+        env:
+          RUBYGEMS_URL: https://rubygems.org
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+      - name: Run tests without extensions
+        run: bundle exec rspec --tag no_ext
+        working-directory: cosmos
+        env:
+          COSMOS_NO_EXT: 1
+          RUBYGEMS_URL: https://rubygems.org
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
 
   # docker-build:
   #   runs-on: ubuntu-latest
@@ -66,5 +66,6 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          browser: chome
           working-directory: cypress
           wait-on: 'http://localhost:2900'
