@@ -73,7 +73,6 @@ jobs:
             cypress/integration/tools/Admin*.js
             cypress/integration/tools/CmdTlm*.js
             cypress/integration/tools/CommandSender.spec.js
-            cypress/integration/tools/DataViewer.spec.js
             cypress/integration/tools/LimitsMonitor.spec.js
             cypress/integration/tools/PacketViewer.spec.js
             cypress/integration/tools/Script*.js
