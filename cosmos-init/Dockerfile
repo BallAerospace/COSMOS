@@ -8,6 +8,7 @@ COPY ./plugins/*.json ./
 COPY ./plugins/cosmosc2-tool-base/*.json cosmosc2-tool-base/
 COPY ./plugins/packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
 COPY ./plugins/packages/cosmosc2-tool-autonomic/*.json packages/cosmosc2-tool-autonomic/
+COPY ./plugins/packages/cosmosc2-tool-calendar/*.json packages/cosmosc2-tool-calendar/
 COPY ./plugins/packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cmdsender/
 COPY ./plugins/packages/cosmosc2-tool-cmdtlmserver/*.json packages/cosmosc2-tool-cmdtlmserver/
 COPY ./plugins/packages/cosmosc2-tool-dataextractor/*.json packages/cosmosc2-tool-dataextractor/
@@ -16,7 +17,6 @@ COPY ./plugins/packages/cosmosc2-tool-limitsmonitor/*.json packages/cosmosc2-too
 COPY ./plugins/packages/cosmosc2-tool-packetviewer/*.json packages/cosmosc2-tool-packetviewer/
 COPY ./plugins/packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptrunner/
 COPY ./plugins/packages/cosmosc2-tool-tablemanager/*.json packages/cosmosc2-tool-tablemanager/
-COPY ./plugins/packages/cosmosc2-tool-timeline/*.json packages/cosmosc2-tool-timeline/
 COPY ./plugins/packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
 COPY ./plugins/packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
 COPY ./plugins/packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
@@ -65,13 +65,13 @@ RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-packetviewer"]
 COPY ./plugins/packages/cosmosc2-tool-scriptrunner/ packages/cosmosc2-tool-scriptrunner/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-scriptrunner"]
 
+# Build calendar tool
+COPY ./plugins/packages/cosmosc2-tool-calendar/ packages/cosmosc2-tool-calendar/
+RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-calendar"]
+
 # Build tablemanager tool
 COPY ./plugins/packages/cosmosc2-tool-tablemanager/ packages/cosmosc2-tool-tablemanager/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tablemanager"]
-
-# Build timeline tool
-COPY ./plugins/packages/cosmosc2-tool-timeline/ packages/cosmosc2-tool-timeline/
-RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-timeline"]
 
 # Build tlmgrapher tool
 FROM cosmos-frontend-tmp AS cosmos-tmp4

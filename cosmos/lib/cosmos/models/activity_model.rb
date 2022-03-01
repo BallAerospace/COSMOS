@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+# https://www.rubydoc.info/gems/redis/Redis/Commands/SortedSets
+
 require 'cosmos/models/model'
 require 'cosmos/topics/timeline_topic'
 
@@ -30,8 +32,6 @@ module Cosmos
   class ActivityModel < Model
     MAX_DURATION = Time::SEC_PER_DAY
     PRIMARY_KEY = '__cosmos_timelines'.freeze # MUST be equal to `TimelineModel::PRIMARY_KEY` minus the leading __
-
-    attr_reader :duration, :start, :stop, :kind, :data, :events, :fulfillment
 
     # Called via the microservice this gets the previous 00:00:15 to 01:01:00. This should allow
     # for a small buffer around the timeline to make sure the schedule doesn't get stale.
@@ -100,6 +100,66 @@ module Cosmos
       Store.zremrangebyscore("#{scope}#{PRIMARY_KEY}__#{name}", min, max)
     end
 
+    # @return [ActivityModel] Model generated from the passed JSON
+    def self.from_json(json, name:, scope:)
+      json = JSON.parse(json) if String === json
+      raise "json data is nil" if json.nil?
+
+      json.transform_keys!(&:to_sym)
+      self.new(**json, name: name, scope: scope)
+    end
+
+    attr_reader :duration, :start, :stop, :kind, :data, :events, :fulfillment
+
+    def initialize(
+      name:,
+      start:,
+      stop:,
+      kind:,
+      data:,
+      scope:,
+      updated_at: 0,
+      duration: 0,
+      fulfillment: nil,
+      events: nil
+    )
+      super("#{scope}#{PRIMARY_KEY}__#{name}", name: name, scope: scope)
+      set_input(
+        fulfillment: fulfillment,
+        start: start,
+        stop: stop,
+        kind: kind,
+        data: data,
+        events: events,
+      )
+      @updated_at = updated_at
+    end
+
+    # validate_time will be called on create this will pull the time up to MAX_DURATION of an activity
+    # this will make sure that the activity is the only activity on the timeline for the duration of the
+    # activity. Score is the Seconds since the Unix Epoch: (%s) Number of seconds since 1970-01-01 00:00:00 UTC.
+    # We then search back from the stop of the activity and check to see if any activities are in the
+    # last x seconds (MAX_DURATION), if the zrange rev byscore finds activites from in reverse order so the
+    # first task is the closest task to the current score. In this a parameter ignore_score allows the request
+    # to ignore that time and skip to the next time but if nothing is found in the time range we can return nil.
+    #
+    # @param [Integer] ignore_score - should be nil unless you want to ignore a time when doing an update
+    def validate_time(ignore_score = nil)
+      max_score = @start - MAX_DURATION
+      array = Store.zrevrangebyscore(@primary_key, @stop, max_score)
+      array.each do |value|
+        activity = JSON.parse(value)
+        if ignore_score == activity['start']
+          next
+        elsif activity['stop'] > @start
+          return activity['start']
+        else
+          return nil
+        end
+      end
+      return nil
+    end
+
     # validate the input to the rules we have created for timelines.
     # - A task's start MUST NOT be in the past.
     # - A task's start MUST be before the stop.
@@ -131,8 +191,7 @@ module Cosmos
     end
 
     # Set the values of the instance, @start, @kind, @data, @events...
-    def set_input(start:, stop:, updated_at:, kind: nil, data: nil, events: nil, fulfillment: nil)
-      @updated_at = updated_at
+    def set_input(start:, stop:, kind: nil, data: nil, events: nil, fulfillment: nil)
       begin
         DateTime.strptime(start.to_s, '%s')
         DateTime.strptime(stop.to_s, '%s')
@@ -148,55 +207,6 @@ module Cosmos
       @events = events.nil? ? Array.new : events
     end
 
-    def initialize(
-      name:,
-      start:,
-      stop:,
-      kind:,
-      data:,
-      scope:,
-      updated_at: 0,
-      duration: 0,
-      fulfillment: nil,
-      events: nil
-    )
-      super("#{scope}#{PRIMARY_KEY}__#{name}", name: name, scope: scope)
-      set_input(
-        fulfillment: fulfillment,
-        start: start,
-        stop: stop,
-        kind: kind,
-        data: data,
-        events: events,
-        updated_at: updated_at
-      )
-    end
-
-    # validate_time will be called on create this will pull the time up to MAX_DURATION of an activity
-    # this will make sure that the activity is the only activity on the timeline for the duration of the
-    # activity. Score is the Seconds since the Unix Epoch: (%s) Number of seconds since 1970-01-01 00:00:00 UTC.
-    # We then search back from the stop of the activity and check to see if any activities are in the
-    # last x seconds (MAX_DURATION), if the zrange rev byscore finds activites from in reverse order so the
-    # first task is the closest task to the current score. In this a parameter ignore_score allows the request
-    # to ignore that time and skip to the next time but if nothing is found in the time range we can return nil.
-    #
-    # @param [Integer] ignore_score - should be nil unless you want to ignore a time when doing an update
-    def validate_time(ignore_score = nil)
-      max_score = @start - MAX_DURATION
-      array = Store.zrevrangebyscore(@primary_key, @stop, max_score)
-      array.each do |value|
-        activity = JSON.parse(value)
-        if ignore_score == activity['start']
-          next
-        elsif activity['stop'] > @start
-          return activity['start']
-        else
-          return nil
-        end
-      end
-      return nil
-    end
-
     # Update the Redis hash at primary_key and set the score equal to the start Epoch time
     # the member is set to the JSON generated via calling as_json
     def create
@@ -206,10 +216,10 @@ module Cosmos
         raise ActivityOverlapError.new "no activities can overlap, collision: #{collision}"
       end
 
-      @updated_at = Time.now.to_i
+      @updated_at = Time.now.to_nsec_from_epoch
       add_event(status: 'created')
       Store.zadd(@primary_key, @start, JSON.generate(self.as_json))
-      notify(kind: 'create')
+      notify(kind: 'created')
     end
 
     # Update the Redis hash at primary_key and remove the current activity at the current score
@@ -222,21 +232,21 @@ module Cosmos
       end
 
       validate_input(start: start, stop: stop, kind: kind, data: data)
-      tmp_start = @start
-      updated_at = Time.now.to_i
-      set_input(start: start, stop: stop, kind: kind, data: data, events: @events, updated_at: updated_at)
+      old_start = @start
+      set_input(start: start, stop: stop, kind: kind, data: data, events: @events)
+      @updated_at = Time.now.to_nsec_from_epoch
       # copy of create
-      collision = validate_time(tmp_start)
+      collision = validate_time(old_start)
       unless collision.nil?
-        raise ActivityOverlapError.new "failed to update #{tmp_start}, no activities can overlap, collision: #{collision}"
+        raise ActivityOverlapError.new "failed to update #{old_start}, no activities can overlap, collision: #{collision}"
       end
 
       add_event(status: 'updated')
       Store.multi do |multi|
-        multi.zremrangebyscore(@primary_key, tmp_start, tmp_start)
+        multi.zremrangebyscore(@primary_key, old_start, old_start)
         multi.zadd(@primary_key, @start, JSON.generate(self.as_json))
       end
-      notify(kind: 'update')
+      notify(kind: 'updated', extra: old_start)
       return @start
     end
 
@@ -249,9 +259,7 @@ module Cosmos
         'event' => status,
         'commit' => true
       }
-      unless message.nil?
-        event['message'] = message
-      end
+      event['message'] = message unless message.nil?
       @fulfillment = fulfillment.nil? ? @fulfillment : fulfillment
       @events << event
       Store.multi do |multi|
@@ -274,20 +282,22 @@ module Cosmos
     # destroy the activity from the redis database
     def destroy
       Store.zremrangebyscore(@primary_key, @start, @start)
-      notify(kind: 'delete')
+      notify(kind: 'deleted')
     end
 
     # @return [] update the redis stream / timeline topic that something has changed
-    def notify(kind:)
+    def notify(kind:, extra: nil)
       notification = {
         'data' => JSON.generate(as_json()),
         'kind' => kind,
         'type' => 'activity',
         'timeline' => @name
       }
+      notification['extra'] = extra unless extra.nil?
       begin
         TimelineTopic.write_activity(notification, scope: @scope)
-      rescue StandardError
+      rescue StandardError => e
+        raise ActivityError.new "Failed to write to stream: #{notification}, #{e}"
       end
     end
 
@@ -304,15 +314,6 @@ module Cosmos
         'events' => @events,
         'data' => @data
       }
-    end
-
-    # @return [ActivityModel] Model generated from the passed JSON
-    def self.from_json(json, name:, scope:)
-      json = JSON.parse(json) if String === json
-      raise "json data is nil" if json.nil?
-
-      json.transform_keys!(&:to_sym)
-      self.new(**json, name: name, scope: scope)
     end
   end
 end

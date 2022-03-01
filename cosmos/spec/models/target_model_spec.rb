@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'spec_helper'
+require 'fileutils'
 require 'cosmos/models/target_model'
 require 'cosmos/models/microservice_model'
 
@@ -405,12 +406,6 @@ module Cosmos
         expect(umodel).to receive(:deploy).with(@target_dir, variables).exactly(6).times
         # Verify the microservices that are started
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOM__#{@target}"
-                                                        )).and_return(umodel)
-        expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__REDUCER__#{@target}"
-                                                        )).and_return(umodel)
-        expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__COMMANDLOG__#{@target}"
                                                         )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
@@ -422,9 +417,90 @@ module Cosmos
         expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__DECOMLOG__#{@target}"
                                                         )).and_return(umodel)
+        expect(MicroserviceModel).to receive(:new).with(hash_including(
+                                                          name: "#{@scope}__DECOM__#{@target}"
+                                                        )).and_return(umodel)
+        expect(MicroserviceModel).to receive(:new).with(hash_including(
+                                                          name: "#{@scope}__REDUCER__#{@target}"
+                                                        )).and_return(umodel)
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create
-        model.deploy(@target_dir, variables)
+        output = ''
+        capture_io do |stdout|
+          model.deploy(@target_dir, variables)
+          expect(stdout.string).to include("#{@scope}__COMMANDLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__DECOMCMDLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__PACKETLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__DECOMLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__DECOM__#{@target}")
+          expect(stdout.string).to include("#{@scope}__REDUCER__#{@target}")
+        end
+      end
+
+      it "deploys no microservices if no commands or telemetry" do
+        @target = "EMPTY"
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model.create
+        capture_io do |stdout|
+          model.deploy(@target_dir, {})
+          expect(stdout.string).to_not include("#{@scope}__COMMANDLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__DECOMCMDLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__PACKETLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__DECOMLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__DECOM__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__REDUCER__#{@target}")
+        end
+        expect(MicroserviceModel.names()).to be_empty
+      end
+
+      it "deploys only command microservices if no telemetry" do
+        @target = "EMPTY"
+        FileUtils.mkdir_p("#{@target_dir}/targets/#{@target}/cmd_tlm")
+        File.open("#{@target_dir}/targets/#{@target}/cmd_tlm/cmd.txt", 'w') do |file|
+          file.puts 'COMMAND INST CMD LITTLE_ENDIAN "Command"'
+          file.puts '  APPEND_ID_PARAMETER ID 8 UINT 1 1 1 "ID"'
+        end
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model.create
+        capture_io do |stdout|
+          model.deploy(@target_dir, {})
+          expect(stdout.string).to include("#{@scope}__COMMANDLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__DECOMCMDLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__PACKETLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__DECOMLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__DECOM__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__REDUCER__#{@target}")
+        end
+        expect(MicroserviceModel.names()).to include(
+          "#{@scope}__COMMANDLOG__#{@target}",
+          "#{@scope}__DECOMCMDLOG__#{@target}")
+        FileUtils.rm_rf("#{@target_dir}/targets/#{@target}/cmd_tlm")
+      end
+
+      it "deploys only telemetry microservices if no commands" do
+        @target = "EMPTY"
+        FileUtils.mkdir_p("#{@target_dir}/targets/#{@target}/cmd_tlm")
+        File.open("#{@target_dir}/targets/#{@target}/cmd_tlm/tlm.txt", 'w') do |file|
+          file.puts 'TELEMETRY INST TLM LITTLE_ENDIAN "Telemetry"'
+          file.puts '  APPEND_ID_ITEM ID 8 UINT 1 "ID"'
+        end
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model.create
+        capture_io do |stdout|
+          model.deploy(@target_dir, {})
+          expect(stdout.string).to_not include("#{@scope}__COMMANDLOG__#{@target}")
+          expect(stdout.string).to_not include("#{@scope}__DECOMCMDLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__PACKETLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__DECOMLOG__#{@target}")
+          expect(stdout.string).to include("#{@scope}__DECOM__#{@target}")
+          expect(stdout.string).to include("#{@scope}__REDUCER__#{@target}")
+        end
+        expect(MicroserviceModel.names()).to include(
+          "#{@scope}__PACKETLOG__#{@target}",
+          "#{@scope}__DECOMLOG__#{@target}",
+          "#{@scope}__DECOM__#{@target}",
+          "#{@scope}__REDUCER__#{@target}")
+        FileUtils.rm_rf("#{@target_dir}/targets/#{@target}/cmd_tlm")
       end
     end
 

@@ -120,24 +120,30 @@
             <v-spacer />
             <div v-if="startOrGoButton === 'Start'">
               <v-btn
-                @click="startHandeler"
+                @click="startHandler"
+                class="mx-1"
                 color="primary"
-                class="mx-2"
                 data-test="start-button"
                 :disabled="startOrGoDisabled"
               >
                 <span> Start </span>
               </v-btn>
-              <v-btn
-                @click="environmentHandeler"
-                class="mx-1"
-                data-test="env-button"
-                :disabled="startOrGoDisabled"
-              >
-                <v-icon>
-                  {{ environmentOn ? 'mdi-library' : 'mdi-run' }}
-                </v-icon>
-              </v-btn>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    v-on="on"
+                    v-bind="attrs"
+                    @click="scriptEnvironment.show = !scriptEnvironment.show"
+                    class="mx-1"
+                    data-test="env-button"
+                    :color="environmentIconColor"
+                    :disabled="startOrGoDisabled"
+                  >
+                    <v-icon> {{ environmentIcon }} </v-icon>
+                  </v-btn>
+                </template>
+                <span> Open Environment Dialog </span>
+              </v-tooltip>
             </div>
             <div v-else>
               <v-btn
@@ -177,7 +183,7 @@
     <multipane
       class="horizontal-panes"
       layout="horizontal"
-      @paneResize="editor.resize()"
+      @pane-resize="editor.resize()"
     >
       <div id="editorbox" class="pane">
         <v-snackbar
@@ -326,28 +332,7 @@
         </v-card>
       </div>
     </multipane>
-    <ask-dialog
-      v-if="ask.show"
-      v-model="ask.show"
-      :question="ask.question"
-      :default="ask.default"
-      :password="ask.password"
-      :answer-required="ask.answerRequired"
-      @response="ask.callback"
-    />
-    <prompt-dialog
-      v-if="prompt.show"
-      v-model="prompt.show"
-      :title="prompt.title"
-      :subtitle="prompt.subtitle"
-      :message="prompt.message"
-      :details="prompt.details"
-      :buttons="prompt.buttons"
-      :layout="prompt.layout"
-      @response="prompt.callback"
-    />
-    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <environment-dialog v-if="environmentOpen" v-model="environmentOpen" />
+    <!--- MENUS --->
     <file-open-save-dialog
       v-if="fileOpen"
       v-model="fileOpen"
@@ -366,101 +351,76 @@
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
-    <!-- START -->
-    <v-dialog v-model="startDialog" width="600">
-      <v-card>
-        <v-system-bar>
-          <v-spacer />
-          <span> Start with Environment Options </span>
-          <v-spacer />
-        </v-system-bar>
-        <v-card-text>
-          <div class="pa-3">
-            <environment-chooser @selected="selectedHandeler" />
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            @click="cancelCallback"
-            class="mx-2"
-            outlined
-            data-test="environment-dialog-cancel"
-          >
-            Cancel
-          </v-btn>
-          <v-btn
-            @click="optionCallback"
-            class="mx-2"
-            color="primary"
-            data-test="environment-dialog-start"
-          >
-            Start
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- INFO -->
-    <v-dialog v-model="infoDialog" :width="infoDialogWidth">
-      <v-card>
-        <v-system-bar>
-          <v-spacer />
-          <span> {{ infoTitle }} </span>
-          <v-spacer />
-        </v-system-bar>
-        <v-card-text>
-          <div class="pa-3">
-            <v-row no-gutters v-for="(line, index) in infoText" :key="index">
-              <span v-text="line" />
-            </v-row>
-            <v-row>
-              <v-btn block color="primary" @click="infoDialog = false">
-                Ok
-              </v-btn>
-            </v-row>
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <!-- RESULTS -->
-    <v-dialog v-model="resultsDialog" width="600">
-      <v-card>
-        <v-system-bar>
-          <v-spacer />
-          <span> Script Results </span>
-          <v-spacer />
-        </v-system-bar>
-        <v-card-text>
-          <div class="pa-3">
-            <v-textarea
-              readonly
-              hide-details
-              dense
-              auto-grow
-              :value="scriptResults"
-            />
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn class="mx-2" outlined @click="downloadResults">
-            Download
-          </v-btn>
-          <v-btn class="mx-2" color="primary" @click="resultsDialog = false">
-            Ok
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <environment-dialog v-if="showEnvironment" v-model="showEnvironment" />
+    <ask-dialog
+      v-if="ask.show"
+      v-model="ask.show"
+      :question="ask.question"
+      :default="ask.default"
+      :password="ask.password"
+      :answer-required="ask.answerRequired"
+      @response="ask.callback"
+    />
+    <information-dialog
+      v-if="information.show"
+      v-model="information.show"
+      :title="information.title"
+      :text="information.text"
+    />
+    <input-metadata-dialog
+      v-if="inputMetadata.show"
+      v-model="inputMetadata.show"
+      :target="inputMetadata.target"
+      @response="inputMetadata.callback"
+    />
+    <prompt-dialog
+      v-if="prompt.show"
+      v-model="prompt.show"
+      :title="prompt.title"
+      :subtitle="prompt.subtitle"
+      :message="prompt.message"
+      :details="prompt.details"
+      :buttons="prompt.buttons"
+      :layout="prompt.layout"
+      @response="prompt.callback"
+    />
+    <results-dialog
+      v-if="results.show"
+      v-model="results.show"
+      :results="results.text"
+    />
+    <script-environment-dialog
+      v-if="scriptEnvironment.show"
+      v-model="scriptEnvironment.show"
+      :input-environment="scriptEnvironment.env"
+      @environment="environmentHandler"
+    />
+    <update-metadata-dialog
+      v-if="showUpdateMetadata"
+      v-model="showUpdateMetadata"
+    />
     <simple-text-dialog
       v-model="showSuiteError"
       title="Suite Analysis Error"
       :text="suiteError"
     />
+    <v-bottom-sheet v-model="showStartedScripts">
+      <v-sheet class="pb-11 pt-5 px-5">
+        <running-scripts
+          :connect-in-new-tab="!!fileModified"
+          @close="
+            () => {
+              showStartedScripts = false
+            }
+          "
+        />
+      </v-sheet>
+    </v-bottom-sheet>
   </div>
 </template>
 
 <script>
+import ActionCable from 'actioncable'
 import Api from '@cosmosc2/tool-common/src/services/api'
 import * as ace from 'ace-builds'
 import 'ace-builds/src-min-noconflict/mode-ruby'
@@ -470,16 +430,25 @@ import 'ace-builds/src-min-noconflict/ext-searchbox'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
-import EnvironmentChooser from '@cosmosc2/tool-common/src/components/EnvironmentChooser'
 import EnvironmentDialog from '@cosmosc2/tool-common/src/components/EnvironmentDialog'
-import ActionCable from 'actioncable'
-import AskDialog from './AskDialog.vue'
-import PromptDialog from './PromptDialog.vue'
-import SuiteRunner from './SuiteRunner.vue'
-import { CmdCompleter, TlmCompleter, MnemonicChecker } from './autocomplete'
-import { SleepAnnotator } from './annotations'
-import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
+import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+
+import AskDialog from '@/tools/ScriptRunner/Dialogs/AskDialog'
+import InformationDialog from '@/tools/ScriptRunner/Dialogs/InformationDialog'
+import InputMetadataDialog from '@/tools/ScriptRunner/Dialogs/InputMetadataDialog'
+import PromptDialog from '@/tools/ScriptRunner/Dialogs/PromptDialog'
+import ResultsDialog from '@/tools/ScriptRunner/Dialogs/ResultsDialog'
+import ScriptEnvironmentDialog from '@/tools/ScriptRunner/Dialogs/ScriptEnvironmentDialog'
+import UpdateMetadataDialog from '@/tools/ScriptRunner/Dialogs/UpdateMetadataDialog'
+import SuiteRunner from '@/tools/ScriptRunner/SuiteRunner'
+import {
+  CmdCompleter,
+  TlmCompleter,
+  MnemonicChecker,
+} from '@/tools/ScriptRunner/autocomplete'
+import { SleepAnnotator } from '@/tools/ScriptRunner/annotations'
+import RunningScripts from './RunningScripts.vue'
 
 const NEW_FILENAME = '<Untitled>'
 const START = 'Start'
@@ -490,15 +459,20 @@ const RETRY = 'Retry'
 export default {
   components: {
     FileOpenSaveDialog,
-    EnvironmentChooser,
     EnvironmentDialog,
-    AskDialog,
-    PromptDialog,
-    SuiteRunner,
     Multipane,
     MultipaneResizer,
     TopBar,
+    AskDialog,
+    InformationDialog,
+    InputMetadataDialog,
+    PromptDialog,
+    ResultsDialog,
+    ScriptEnvironmentDialog,
+    UpdateMetadataDialog,
     SimpleTextDialog,
+    SuiteRunner,
+    RunningScripts,
   },
   data() {
     return {
@@ -521,21 +495,19 @@ export default {
         // },
       },
       currentFilename: null,
-      environmentOn: false,
-      environmentOpen: false,
-      environmentOptions: [],
       showSave: false,
       showAlert: false,
       alertType: null,
       alertText: '',
       state: ' ',
       scriptId: ' ',
-      startDialog: false,
       startOrGoButton: START,
       startOrGoDisabled: false,
       pauseOrRetryButton: PAUSE,
       pauseOrRetryDisabled: false,
       stopDisabled: false,
+      showEnvironment: false,
+      showUpdateMetadata: false,
       showDebug: false,
       debug: '',
       debugHistory: [],
@@ -577,21 +549,43 @@ export default {
         layout: 'horizontal',
         callback: () => {},
       },
-      infoDialog: false,
-      infoDialogWidth: 600,
-      infoTitle: '',
-      infoText: [],
+      information: {
+        show: false,
+        title: '',
+        text: [],
+      },
+      inputMetadata: {
+        show: false,
+        target: null,
+        callback: () => {},
+      },
+      results: {
+        show: false,
+        results: '',
+      },
+      scriptEnvironment: {
+        show: false,
+        env: [],
+      },
       showSuiteError: false,
       suiteError: '',
-      resultsDialog: false,
-      scriptResults: '',
       executeSelectionMenu: false,
       menuX: 0,
       menuY: 0,
       mnemonicChecker: new MnemonicChecker(),
+      showStartedScripts: false,
+      activePromptId: '',
     }
   },
   computed: {
+    environmentIcon: function () {
+      return this.scriptEnvironment.env.length > 0
+        ? 'mdi-bookmark'
+        : 'mdi-bookmark-outline'
+    },
+    environmentIconColor: function () {
+      return this.scriptEnvironment.env.length > 0 ? 'primary' : ''
+    },
     readOnly: function () {
       return !!this.lockedBy
     },
@@ -680,11 +674,10 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Open Started Scripts',
+              label: 'View Started Scripts',
               icon: 'mdi-run',
               command: () => {
-                let routeData = this.$router.resolve({ name: 'RunningScripts' })
-                window.open(routeData.href, '_blank')
+                this.showStartedScripts = true
               },
             },
             {
@@ -692,9 +685,16 @@ export default {
             },
             {
               label: 'Show Environment',
-              icon: 'mdi-eye',
+              icon: 'mdi-library',
               command: () => {
-                this.environmentOpen = !this.environmentOpen
+                this.showEnvironment = !this.showEnvironment
+              },
+            },
+            {
+              label: 'Show Metadata',
+              icon: 'mdi-calendar',
+              command: () => {
+                this.showUpdateMetadata = !this.showUpdateMetadata
               },
             },
             {
@@ -787,7 +787,7 @@ export default {
   created: function () {
     window.onbeforeunload = this.unlockFile
   },
-  mounted() {
+  mounted: async function () {
     this.editor = ace.edit('editor')
     this.editor.setTheme('ace/theme/twilight')
     this.editor.session.setMode('ace/mode/ruby')
@@ -813,24 +813,7 @@ export default {
 
     window.addEventListener('keydown', this.keydown)
     this.cable = ActionCable.createConsumer('/script-api/cable')
-    Api.get('/script-api/running-script').then((response) => {
-      const loadRunningScript = response.data.find(
-        (s) => `${s.id}` === `${this.$route.params.id}`
-      )
-      if (loadRunningScript) {
-        this.filename = loadRunningScript.name
-        this.scriptStart(loadRunningScript.id)
-      } else if (this.$route.params.id) {
-        this.$notify.caution({
-          title: '404 Not Found',
-          body: `Failed to load running script id: ${this.$route.params.id}`,
-        })
-      } else {
-        this.alertType = 'success'
-        this.alertText = `Currently ${response.data.length} running scripts.`
-        this.showAlert = true
-      }
-    })
+    await this.tryLoadRunningScript(this.$route.params.id)
     this.autoSaveInterval = setInterval(() => {
       // Only save if modified and visible (e.g. not open in another tab)
       if (
@@ -858,7 +841,48 @@ export default {
     }
     this.cable.disconnect()
   },
+  beforeRouteUpdate: function (to, from, next) {
+    if (to.params.id) {
+      this.tryLoadRunningScript(to.params.id).then(next)
+    } else {
+      next()
+    }
+  },
   methods: {
+    tryLoadRunningScript: function (id) {
+      return Api.get('/script-api/running-script').then((response) => {
+        const loadRunningScript = response.data.find(
+          (s) => `${s.id}` === `${id}`
+        )
+        if (loadRunningScript) {
+          this.filename = loadRunningScript.name
+          this.tryLoadSuites()
+          this.scriptStart(loadRunningScript.id)
+        } else if (id) {
+          this.$notify.caution({
+            title: '404 Not Found',
+            body: `Failed to load running script id: ${id}`,
+          })
+        } else {
+          this.alertType = 'success'
+          this.alertText = `Currently ${response.data.length} running scripts.`
+          this.showAlert = true
+        }
+      })
+    },
+    tryLoadSuites: function () {
+      Api.get(`/script-api/scripts/${this.filename}`).then((response) => {
+        if (response.data.suites) {
+          this.suiteRunner = true
+          this.suiteMap = JSON.parse(response.data.suites)
+          this.startOrGoDisabled = true
+        } else {
+          this.startOrGoDisabled = false
+          this.suiteRunner = false
+          this.suiteMap = {}
+        }
+      })
+    },
     showExecuteSelectionMenu: function ($event) {
       this.menuX = $event.pageX
       this.menuY = $event.pageY
@@ -905,7 +929,7 @@ export default {
               `/script-api/scripts/${selectionTempFilename}/run`,
               {
                 data: {
-                  environment: this.environmentOptions,
+                  environment: this.scriptEnvironment.env,
                 },
               }
             )
@@ -1070,29 +1094,11 @@ export default {
       this.fatal = false
       this.editor.setReadOnly(false)
     },
-    selectedHandeler: function (event) {
-      this.environmentOptions = event ? event : null
+    environmentHandler: function (event) {
+      this.scriptEnvironment.env = event
     },
-    environmentHandeler: function (event) {
-      this.environmentOn = !this.environmentOn
-      const environmentValue = this.environmentOn ? 'ON' : 'OFF'
-      this.alertType = 'success'
-      this.alertText = `Environment dialog toggled: ${environmentValue}`
-      this.showAlert = true
-    },
-    startHandeler: function () {
-      if (this.environmentOn) {
-        this.startDialog = true
-      } else {
-        this.start()
-      }
-    },
-    optionCallback: function () {
-      this.startDialog = false
+    startHandler: function () {
       this.start()
-    },
-    cancelCallback: function () {
-      this.startDialog = false
     },
     start(event, suiteRunner = null) {
       this.saveFile('start')
@@ -1106,7 +1112,7 @@ export default {
         url += '/disconnect'
       }
       let data = {
-        environment: this.environmentOptions,
+        environment: this.scriptEnvironment.env,
       }
       if (suiteRunner) {
         data['suiteRunner'] = event
@@ -1114,7 +1120,7 @@ export default {
       Api.post(url, { data }).then((response) => {
         this.scriptStart(response.data)
       })
-      this.environmentOptions = []
+      this.scriptEnvironment.env = []
     },
     go(event, suiteRunner = null) {
       Api.post(`/script-api/running-script/${this.scriptId}/go`)
@@ -1234,8 +1240,8 @@ export default {
           this.handleScript(data)
           break
         case 'report':
-          this.resultsDialog = true
-          this.scriptResults = data.report
+          this.results.show = true
+          this.results.results = data.report
           break
         case 'complete':
           // Don't complete on fatal because we just sit there on the fatal line
@@ -1255,10 +1261,18 @@ export default {
         data: {
           method: this.prompt.method,
           answer: value,
+          prompt_id: this.activePromptId,
         },
       })
     },
     handleScript(data) {
+      if (data.prompt_complete) {
+        this.activePromptId = ''
+        this.prompt.show = false
+        this.ask.show = false
+        return
+      }
+      this.activePromptId = data.prompt_id
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
       this.prompt.title = 'Prompt'
@@ -1291,6 +1305,7 @@ export default {
                 data: {
                   method: data.method,
                   password: value, // Using password as a key automatically filters it from rails logs
+                  prompt_id: this.activePromptId,
                 },
               })
             } else {
@@ -1298,6 +1313,7 @@ export default {
                 data: {
                   method: data.method,
                   answer: value,
+                  prompt_id: this.activePromptId,
                 },
               })
             }
@@ -1361,10 +1377,22 @@ export default {
           this.prompt.show = true
           break
         case 'backtrace':
-          this.infoTitle = 'Call Stack'
-          this.infoText = data.args
-          this.infoDialogWidth = 600
-          this.infoDialog = true
+          this.information.title = 'Call Stack'
+          this.information.text = data.args
+          this.information.show = true
+          break
+        case 'input_metadata':
+          this.inputMetadata.target = data.args[0]
+          this.inputMetadata.show = true
+          this.inputMetadata.callback = (value) => {
+            this.inputMetadata.show = false
+            Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
+              data: {
+                method: data.method,
+                answer: value,
+              },
+            })
+          }
           break
         default:
           /* console.log(
@@ -1404,7 +1432,7 @@ export default {
 
       if (file.suites) {
         this.suiteRunner = true
-        this.suiteMap = JSON.parse(file.suites)
+        this.suiteMap = file.suites
         this.startOrGoDisabled = true
       } else {
         this.startOrGoDisabled = false
@@ -1543,7 +1571,6 @@ export default {
       link.setAttribute('download', this.filename)
       link.click()
     },
-
     // ScriptRunner Script menu actions
     rubySyntaxCheck() {
       Api.post('/script-api/scripts/syntax', {
@@ -1553,10 +1580,9 @@ export default {
           'Content-Type': 'plain/text',
         },
       }).then((response) => {
-        this.infoTitle = response.data.title
-        this.infoText = JSON.parse(response.data.description)
-        this.infoDialogWidth = 600
-        this.infoDialog = true
+        this.information.title = response.data.title
+        this.information.text = JSON.parse(response.data.description)
+        this.information.show = true
       })
     },
     showInstrumented() {
@@ -1567,10 +1593,9 @@ export default {
           'Content-Type': 'plain/text',
         },
       }).then((response) => {
-        this.infoTitle = response.data.title
-        this.infoText = JSON.parse(response.data.description)
-        this.infoDialogWidth = 'auto'
-        this.infoDialog = true
+        this.information.title = response.data.title
+        this.information.text = JSON.parse(response.data.description)
+        this.information.show = true
       })
     },
     showCallStack() {
@@ -1610,19 +1635,6 @@ export default {
         }
         this.debug = this.debugHistory[this.debugHistoryIndex]
       }
-    },
-    downloadResults() {
-      const blob = new Blob([this.scriptResults], {
-        type: 'text/plain',
-      })
-      // Make a link and then 'click' on it to start the download
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.setAttribute(
-        'download',
-        format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_suite_results.txt'
-      )
-      link.click()
     },
     downloadLog() {
       const output = this.messages.map((message) => message.message).join('\n')

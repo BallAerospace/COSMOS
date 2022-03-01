@@ -23,13 +23,9 @@ require 'cosmos/utilities/authorization'
 class NotificationsApi
   include Cosmos::Authorization
 
-  def initialize(uuid, channel, history_count = 0, start_offset = nil, scope: nil, token: nil)
+  def initialize(uuid, channel, history_count = 0, start_offset = nil, scope:, token:)
     authorize(permission: 'system', scope: scope, token: token)
-    if scope
-      topics = ["#{scope}__cosmos_notifications"]
-    else
-      topics = ["cosmos_notifications"]
-    end
+    topics = ["#{scope}__cosmos_notifications"]
     start_offsets = [start_offset] if start_offset and start_offset != 'undefined'
     @thread = TopicsThread.new(topics, channel, history_count, offsets: start_offsets, transmit_msg_id: true)
     @thread.start

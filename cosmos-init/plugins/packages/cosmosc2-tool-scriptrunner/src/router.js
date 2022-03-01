@@ -27,11 +27,6 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/running-scripts',
-      name: 'RunningScripts',
-      component: () => import('./tools/ScriptRunner/RunningScripts.vue'),
-    },
-    {
       path: '/:id?',
       name: 'ScriptRunner',
       component: () => import('./tools/ScriptRunner/ScriptRunner.vue'),

@@ -61,8 +61,8 @@ module Cosmos
 
     def run_activity(activity)
       case activity.kind.upcase
-      when 'CMD'
-        run_cmd(activity)
+      when 'COMMAND'
+        run_command(activity)
       when 'SCRIPT'
         run_script(activity)
       when 'EXPIRE'
@@ -72,10 +72,10 @@ module Cosmos
       end
     end
 
-    def run_cmd(activity)
-      Logger.info "#{@timeline_name} run_cmd > #{activity.as_json}"
+    def run_command(activity)
+      Logger.info "#{@timeline_name} run_command > #{activity.as_json}"
       begin
-        cmd_no_hazardous_check(activity.data['cmd'], scope: @scope)
+        cmd_no_hazardous_check(activity.data['command'], scope: @scope)
         activity.commit(status: 'completed', fulfillment: true)
       rescue StandardError => e
         activity.commit(status: 'failed', message: e.message)
@@ -293,16 +293,16 @@ module Cosmos
     def topic_lookup_functions
       {
         'timeline' => {
-          'create' => :timeline_nop,
+          'created' => :timeline_nop,
           'refresh' => :schedule_refresh,
-          'update' => :timeline_nop,
-          'delete' => :timeline_nop
+          'updated' => :timeline_nop,
+          'deleted' => :timeline_nop
         },
         'activity' => {
-          'create' => :create_activity_from_event,
           'event' => :timeline_nop,
-          'update' => :schedule_refresh,
-          'delete' => :remove_activity_from_event
+          'created' => :create_activity_from_event,
+          'updated' => :schedule_refresh,
+          'deleted' => :remove_activity_from_event
         }
       }
     end
