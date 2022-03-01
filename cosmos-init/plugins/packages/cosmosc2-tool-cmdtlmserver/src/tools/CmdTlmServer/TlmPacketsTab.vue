@@ -58,6 +58,7 @@
           @click="openPktViewer(item.target_name, item.packet_name)"
         >
           View In Packet Viewer
+          <v-icon right> mdi-open-in-new </v-icon>
         </v-btn>
       </template>
     </v-data-table>

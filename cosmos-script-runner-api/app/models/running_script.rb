@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'json'
+require 'securerandom'
 require 'thread'
 require 'cosmos'
 require 'cosmos/utilities/s3'
@@ -49,7 +50,7 @@ module Cosmos
           if RunningScript.instance
             RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
             Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args, kwargs: kwargs }))
-            RunningScript.instance.perform_pause
+            RunningScript.instance.perform_pause(prompt: {'method' => method, 'args' => args, 'kwargs' => kwargs })
             input = RunningScript.instance.user_input
             # All ask and prompt dialogs should include a 'Cancel' button to enable break
             return input unless input == 'Cancel'
@@ -212,6 +213,7 @@ class RunningScript
   attr_accessor :stdout_max_lines
   attr_reader :script
   attr_accessor :user_input
+  attr_accessor :prompt_id
 
   @@instance = nil
   @@id = nil
@@ -334,6 +336,7 @@ class RunningScript
     @name = name
     @filename = name
     @user_input = ''
+    @prompt_id = nil
     @line_offset = 0
     @output_io = StringIO.new('', 'r+')
     @output_io_mutex = Mutex.new
@@ -472,6 +475,11 @@ class RunningScript
 
   def stop?
     @stop
+  end
+
+  def clear_prompt()
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, prompt_complete: @prompt_id }))
+    @prompt_id = nil
   end
 
   def as_json(*args)
@@ -799,9 +807,9 @@ class RunningScript
     end
   end
 
-  def perform_pause
+  def perform_pause(prompt: nil)
     mark_paused()
-    wait_for_go_or_stop()
+    wait_for_go_or_stop(prompt: prompt)
   end
 
   def perform_breakpoint(filename, line_number)
@@ -959,14 +967,16 @@ class RunningScript
     # Just to avoid warning
   end
 
-  def wait_for_go_or_stop(error = nil)
+  def wait_for_go_or_stop(error = nil, prompt: nil)
     count = 0
     @go = false
+    RunningScript.instance.prompt_id = SecureRandom.uuid
     until (@go or @stop)
       sleep(0.01)
       count += 1
       if (count % 100) == 0 # Approximately Every Second
         Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, method: prompt['method'], prompt_id: RunningScript.instance.prompt_id, args: prompt['args'], kwargs: prompt['kwargs'] })) if prompt
       end
     end
     @go = false

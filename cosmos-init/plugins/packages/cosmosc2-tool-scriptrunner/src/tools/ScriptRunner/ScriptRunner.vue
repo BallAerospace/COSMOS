@@ -177,7 +177,7 @@
     <multipane
       class="horizontal-panes"
       layout="horizontal"
-      @paneResize="editor.resize()"
+      @pane-resize="editor.resize()"
     >
       <div id="editorbox" class="pane">
         <v-snackbar
@@ -457,6 +457,18 @@
       title="Suite Analysis Error"
       :text="suiteError"
     />
+    <v-bottom-sheet v-model="showStartedScripts">
+      <v-sheet class="pb-11 pt-5 px-5">
+        <running-scripts
+          :connect-in-new-tab="!!fileModified"
+          @close="
+            () => {
+              showStartedScripts = false
+            }
+          "
+        />
+      </v-sheet>
+    </v-bottom-sheet>
   </div>
 </template>
 
@@ -480,6 +492,7 @@ import { CmdCompleter, TlmCompleter, MnemonicChecker } from './autocomplete'
 import { SleepAnnotator } from './annotations'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
+import RunningScripts from './RunningScripts.vue'
 
 const NEW_FILENAME = '<Untitled>'
 const START = 'Start'
@@ -499,6 +512,7 @@ export default {
     MultipaneResizer,
     TopBar,
     SimpleTextDialog,
+    RunningScripts,
   },
   data() {
     return {
@@ -589,6 +603,8 @@ export default {
       menuX: 0,
       menuY: 0,
       mnemonicChecker: new MnemonicChecker(),
+      showStartedScripts: false,
+      activePromptId: '',
     }
   },
   computed: {
@@ -680,11 +696,10 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Open Started Scripts',
+              label: 'View Started Scripts',
               icon: 'mdi-run',
               command: () => {
-                let routeData = this.$router.resolve({ name: 'RunningScripts' })
-                window.open(routeData.href, '_blank')
+                this.showStartedScripts = true
               },
             },
             {
@@ -787,7 +802,7 @@ export default {
   created: function () {
     window.onbeforeunload = this.unlockFile
   },
-  mounted() {
+  mounted: async function () {
     this.editor = ace.edit('editor')
     this.editor.setTheme('ace/theme/twilight')
     this.editor.session.setMode('ace/mode/ruby')
@@ -813,24 +828,7 @@ export default {
 
     window.addEventListener('keydown', this.keydown)
     this.cable = ActionCable.createConsumer('/script-api/cable')
-    Api.get('/script-api/running-script').then((response) => {
-      const loadRunningScript = response.data.find(
-        (s) => `${s.id}` === `${this.$route.params.id}`
-      )
-      if (loadRunningScript) {
-        this.filename = loadRunningScript.name
-        this.scriptStart(loadRunningScript.id)
-      } else if (this.$route.params.id) {
-        this.$notify.caution({
-          title: '404 Not Found',
-          body: `Failed to load running script id: ${this.$route.params.id}`,
-        })
-      } else {
-        this.alertType = 'success'
-        this.alertText = `Currently ${response.data.length} running scripts.`
-        this.showAlert = true
-      }
-    })
+    await this.tryLoadRunningScript(this.$route.params.id)
     this.autoSaveInterval = setInterval(() => {
       // Only save if modified and visible (e.g. not open in another tab)
       if (
@@ -858,7 +856,48 @@ export default {
     }
     this.cable.disconnect()
   },
+  beforeRouteUpdate: function (to, from, next) {
+    if (to.params.id) {
+      this.tryLoadRunningScript(to.params.id).then(next)
+    } else {
+      next()
+    }
+  },
   methods: {
+    tryLoadRunningScript: function (id) {
+      return Api.get('/script-api/running-script').then((response) => {
+        const loadRunningScript = response.data.find(
+          (s) => `${s.id}` === `${id}`
+        )
+        if (loadRunningScript) {
+          this.filename = loadRunningScript.name
+          this.tryLoadSuites()
+          this.scriptStart(loadRunningScript.id)
+        } else if (id) {
+          this.$notify.caution({
+            title: '404 Not Found',
+            body: `Failed to load running script id: ${id}`,
+          })
+        } else {
+          this.alertType = 'success'
+          this.alertText = `Currently ${response.data.length} running scripts.`
+          this.showAlert = true
+        }
+      })
+    },
+    tryLoadSuites: function () {
+      Api.get(`/script-api/scripts/${this.filename}`).then((response) => {
+        if (response.data.suites) {
+          this.suiteRunner = true
+          this.suiteMap = JSON.parse(response.data.suites)
+          this.startOrGoDisabled = true
+        } else {
+          this.startOrGoDisabled = false
+          this.suiteRunner = false
+          this.suiteMap = {}
+        }
+      })
+    },
     showExecuteSelectionMenu: function ($event) {
       this.menuX = $event.pageX
       this.menuY = $event.pageY
@@ -1255,10 +1294,18 @@ export default {
         data: {
           method: this.prompt.method,
           answer: value,
+          prompt_id: this.activePromptId,
         },
       })
     },
     handleScript(data) {
+      if (data.prompt_complete) {
+        this.activePromptId = ''
+        this.prompt.show = false
+        this.ask.show = false
+        return
+      }
+      this.activePromptId = data.prompt_id
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
       this.prompt.title = 'Prompt'
@@ -1291,6 +1338,7 @@ export default {
                 data: {
                   method: data.method,
                   password: value, // Using password as a key automatically filters it from rails logs
+                  prompt_id: this.activePromptId,
                 },
               })
             } else {
@@ -1298,6 +1346,7 @@ export default {
                 data: {
                   method: data.method,
                   answer: value,
+                  prompt_id: this.activePromptId,
                 },
               })
             }
@@ -1404,7 +1453,7 @@ export default {
 
       if (file.suites) {
         this.suiteRunner = true
-        this.suiteMap = JSON.parse(file.suites)
+        this.suiteMap = file.suites
         this.startOrGoDisabled = true
       } else {
         this.startOrGoDisabled = false

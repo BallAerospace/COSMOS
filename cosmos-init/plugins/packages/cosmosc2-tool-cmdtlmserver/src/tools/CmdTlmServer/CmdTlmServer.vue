@@ -26,7 +26,7 @@
           {{ tab.name }}
         </v-tab>
       </v-tabs>
-      <router-view :refreshInterval="refreshInterval" />
+      <router-view :refresh-interval="refreshInterval" />
       <v-dialog v-model="optionsDialog" max-width="300">
         <v-card>
           <v-system-bar>

@@ -148,6 +148,7 @@
             @click="navigate(selectedNotification.url)"
           >
             Open
+            <v-icon right> mdi-open-in-new </v-icon>
           </v-btn>
           <v-btn color="primary" text @click="notificationDialog = false">
             Dismiss
