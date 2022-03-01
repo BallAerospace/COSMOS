@@ -23,13 +23,9 @@ require 'cosmos/utilities/authorization'
 class MessagesApi
   include Cosmos::Authorization
 
-  def initialize(uuid, channel, history_count = 0, scope: nil, token: nil)
+  def initialize(uuid, channel, history_count = 0, scope:, token:)
     authorize(permission: 'system', scope: scope, token: token)
-    if scope
-      topics = ["#{scope}__cosmos_log_messages"]
-    else
-      topics = ["cosmos_log_messages"]
-    end
+    topics = ["#{scope}__cosmos_log_messages"]
     @thread = TopicsThread.new(topics, channel, history_count)
     @thread.start
   end

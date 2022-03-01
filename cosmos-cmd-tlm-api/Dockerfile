@@ -1,7 +1,7 @@
 FROM ballaerospace/cosmosc2-base
 
 WORKDIR /src/
-COPY Gemfile .
+COPY Gemfile ./
 
 USER root
 
@@ -21,7 +21,7 @@ RUN ["chown", "-R", "cosmos:cosmos", "/src/"]
 
 USER ${USER_ID}:${GROUP_ID}
 
-COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} . .
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./ ./
 
 EXPOSE 2901
 

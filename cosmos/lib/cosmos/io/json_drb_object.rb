@@ -18,19 +18,11 @@
 # copyright holder
 
 require 'cosmos'
-require 'cosmos/utilities/authentication'
-require 'cosmos/io/json_drb'
-
-require 'thread'
-require 'socket'
-require 'json'
-# require 'drb/acl'
-require 'drb/drb'
-require 'uri'
-require 'httpclient'
-
+require 'cosmos/io/json_api_object'
 
 module Cosmos
+
+  class JsonDRbError < JsonApiError; end
 
   # Used to forward all method calls to the remote server object. Before using
   # this class ensure the remote service has been started in the server class:
@@ -40,39 +32,19 @@ module Cosmos
   #
   # Now the JsonDRbObject can be used to call server methods directly:
   #
-  #   server = JsonDRbObject('http://cosmos-cmd-tlm-api:2901', 1.0, '/cosmos-api/api')
+  #   server = JsonDRbObject('http://cosmos-cmd-tlm-api:2901', 1.0)
   #   server.cmd(*args)
   #
-  class JsonDRbObject
-    attr_reader :request_data
-    attr_reader :response_data
+  class JsonDRbObject < JsonApiObject
+
+    USER_AGENT = 'Cosmos / v5 (ruby/cosmos/lib/io/json_drb_object)'
 
     # @param url [String] The url of cosmos-cmd-tlm-api http://cosmos-cmd-tlm-api:2901
     # @param timeout [Float] The time to wait before disconnecting 1.0
     # @param authentication [CosmosAuthentication] The authentication object if nill initialize will generate
     def initialize(url: ENV['COSMOS_API_URL'], timeout: 1.0, authentication: nil)
-      @id = 0
-      @http = nil
-      @mutex = Mutex.new
-      @request_data = ""
-      @response_data = ""
-      @log = [nil, nil, nil]
+      super(url: url, timeout: timeout, authentication: authentication)
       @uri = URI("#{url}/cosmos-api/api")
-      @authentication = authentication.nil? ? CosmosAuthentication.new() : authentication
-      @timeout = timeout
-      @shutdown = false
-    end
-
-    # Disconnects from http server
-    def disconnect
-      @http.reset_all() if @http
-      @http = nil
-    end
-
-    # Permanently disconnects from the http server
-    def shutdown
-      @shutdown = true
-      disconnect()
     end
 
     # Forwards all method calls to the remote service.
@@ -82,9 +54,9 @@ module Cosmos
     # @param keyword_params [Hash<Symbol, Variable>] Hash of keyword parameters
     # @return The result of the method call. If the method raises an exception
     #   the same exception is also raised. If something goes wrong with the
-    #   protocol a DRb::DRbConnError exception is raised.
+    #   protocol a JsonDRbError exception is raised.
     def method_missing(method_name, *method_params, **keyword_params)
-      raise DRb::DRbConnError, "Shutdown" if @shutdown
+      raise JsonDRbError, "Shutdown" if @shutdown
       @mutex.synchronize do
         for attempt in 1..3
           @log = [nil, nil, nil]
@@ -100,38 +72,28 @@ module Cosmos
           end
         end
         error = "#{attempt} no response from server: #{@log[0]} ::: #{@log[1]} ::: #{@log[2]}"
-        raise DRb::DRbConnError, error
+        raise JsonDRbError, error
       end
     end
 
     private
 
-    def connect
-      begin
-        @http = HTTPClient.new
-        @http.connect_timeout = @timeout
-        @http.receive_timeout = nil # Allow long polling
-      rescue => e
-        raise DRb::DRbConnError, e.message
-      end
-    end
-
     # 
     def make_request(data:)
       headers = {
+        'User-Agent' => USER_AGENT,
         'Content-Type' => 'application/json-rpc',
-        'User-Agent' => 'Cosmos / 5.0.0 (ruby/cosmos/lib/io/json_drb_object)',
         'Authorization' => @authentication.token(),
       }
       begin
-        @log[0] = "Request: #{@uri.to_s} #{headers.to_s} #{data.to_s}"
+        @log[0] = "Request: #{@uri.to_s} #{USER_AGENT} #{data.to_s}"
         STDOUT.puts @log[0] if JsonDRb.debug?
         resp = @http.post(@uri, :body => data, :header => headers)
         @log[1] = "Response: #{resp.status} #{resp.headers} #{resp.body}"
         @response_data = resp.body
         STDOUT.puts @log[1] if JsonDRb.debug?
         return resp.body
-      rescue => e
+      rescue StandardError => e
         @log[2] = "Exception: #{e.class}, #{e.message}, #{e.backtrace}"
       end
     end

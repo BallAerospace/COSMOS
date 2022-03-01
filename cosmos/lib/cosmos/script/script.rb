@@ -21,6 +21,7 @@ require 'cosmos'
 require 'cosmos/api/api'
 require 'cosmos/io/json_drb_object'
 require 'cosmos/script/api_shared'
+require 'cosmos/script/calendar'
 require 'cosmos/script/commands'
 require 'cosmos/script/limits'
 require 'cosmos/script/exceptions'
@@ -227,6 +228,8 @@ module Cosmos
       case method_name
       when :shutdown
         @json_drb.shutdown
+      when :request
+        @json_drb.request(*method_params, **kw_params, scope: $cosmos_scope)
       else
         @json_drb.method_missing(method_name, *method_params, **kw_params, scope: $cosmos_scope)
       end
