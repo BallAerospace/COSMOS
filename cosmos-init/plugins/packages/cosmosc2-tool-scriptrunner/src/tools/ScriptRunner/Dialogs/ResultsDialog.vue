@@ -27,7 +27,7 @@
       </v-system-bar>
       <v-card-text>
         <div class="pa-3">
-          <v-textarea readonly hide-details dense auto-grow :value="results" />
+          <v-textarea readonly hide-details dense auto-grow :value="text" />
         </div>
       </v-card-text>
       <v-card-actions>
@@ -47,7 +47,7 @@ export default {
       type: Boolean,
       required: true,
     },
-    results: {
+    text: {
       type: String,
       required: true,
     },
@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     downloadResults() {
-      const blob = new Blob([this.scriptResults], {
+      const blob = new Blob([this.text], {
         type: 'text/plain',
       })
       // Make a link and then 'click' on it to start the download

@@ -99,13 +99,13 @@ describe('LimitsMonitor', () => {
     cy.contains('Show Ignored').click()
     cy.get('.v-dialog:visible').within(() => {
       // Find the items and delete them to restore them
-      cy.get('[data-test=delete-ignored-item]').eq(0).click()
-      cy.get('[data-test=delete-ignored-item]').eq(0).click() // {multiple:true} wasn't working for some reason
+      cy.get('[data-test=remove-ignore-0]').click()
+      cy.get('[data-test=remove-ignore-0]').click()
       cy.contains('Ok').click()
     })
     // Now we find both items again
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
-      timeout: 30000,
+      timeout: 60000,
     }).should('have.length', 2)
   })
 
@@ -138,7 +138,7 @@ describe('LimitsMonitor', () => {
     cy.contains('Show Ignored').click()
     cy.get('.v-dialog:visible').within(() => {
       // Find the existing item and delete it
-      cy.get('[data-test=delete-ignored-item]').click()
+      cy.get('[data-test=remove-ignore-0]').click()
       cy.contains(/INST\d? PARAMS/).should('not.exist')
       cy.contains('Ok').click()
     })

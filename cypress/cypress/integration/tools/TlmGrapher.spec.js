@@ -18,15 +18,10 @@
 */
 
 describe('TlmGrapher', () => {
-  //
   beforeEach(() => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.wait(1000)
-  })
-
-  afterEach(() => {
-    //
   })
 
   // Creates an alias to the graph width and height
@@ -145,14 +140,18 @@ describe('TlmGrapher', () => {
   })
 
   it('shrinks and expands a graph width and height', () => {
-    aliasWidthHeight()
     cy.get('#gridItem0').within(() => {
       cy.contains('Graph 0')
       cy.get('[data-test=collapseAll]').click({ force: true })
     })
-    checkWidthHeight('be.lt', 0.5, 'be.lt', 0.5)
+    aliasWidthHeight()
     cy.get('#gridItem0').within(() => {
       cy.get('[data-test=expandAll]').click({ force: true })
+    })
+    checkWidthHeight('be.gt', 2, 'be.gt', 2)
+    cy.get('#gridItem0').within(() => {
+      cy.contains('Graph 0')
+      cy.get('[data-test=collapseAll]').click({ force: true })
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
@@ -162,14 +161,10 @@ describe('TlmGrapher', () => {
     cy.get('#gridItem0').within(() => {
       cy.get('[data-test=expandWidth]').click({ force: true })
     })
-    checkWidthHeight('eq', 1, 'eq', 1)
+    checkWidthHeight('be.gt', 2, 'eq', 1)
     cy.get('#gridItem0').within(() => {
       cy.contains('Graph 0')
       cy.get('[data-test=collapseWidth]').click({ force: true })
-    })
-    checkWidthHeight('be.lt', 0.5, 'eq', 1)
-    cy.get('#gridItem0').within(() => {
-      cy.get('[data-test=expandWidth]').click({ force: true })
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })

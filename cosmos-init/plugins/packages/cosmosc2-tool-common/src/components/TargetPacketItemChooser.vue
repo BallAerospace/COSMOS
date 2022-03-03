@@ -66,6 +66,7 @@
           color="primary"
           :disabled="buttonDisabled"
           @click="buttonPressed"
+          data-test="select-send"
         >
           {{ actualButtonText }}
         </v-btn>
