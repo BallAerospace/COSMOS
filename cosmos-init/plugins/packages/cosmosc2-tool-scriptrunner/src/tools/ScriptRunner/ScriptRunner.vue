@@ -387,7 +387,7 @@
     <results-dialog
       v-if="results.show"
       v-model="results.show"
-      :results="results.text"
+      :text="results.text"
     />
     <script-environment-dialog
       v-if="scriptEnvironment.show"
@@ -561,7 +561,7 @@ export default {
       },
       results: {
         show: false,
-        results: '',
+        text: '',
       },
       scriptEnvironment: {
         show: false,
@@ -1240,8 +1240,8 @@ export default {
           this.handleScript(data)
           break
         case 'report':
+          this.results.text = data.report
           this.results.show = true
-          this.results.results = data.report
           break
         case 'complete':
           // Don't complete on fatal because we just sit there on the fatal line

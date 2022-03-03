@@ -12,7 +12,7 @@ const SummarizerFactory = require('./summarizer-factory');
 
 function defaultSourceLookup(path) {
     try {
-        path = path.replace("/cosmos/plugins", process.cwd() + "/../cosmos-frontend-init");
+        path = path.replace("/cosmos", process.cwd() + "/../cosmos-init");
         return fs.readFileSync(path, 'utf8');
     } catch (ex) {
         throw new Error(`Unable to lookup source: ${path} (${ex.message})`);

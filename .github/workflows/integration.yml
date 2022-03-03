@@ -1,0 +1,38 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Cosmos 5 Integration Tests
+
+# Only run on a push to master to avoid running for all the dependabot PRs
+on:
+  push:
+    branches: [master]
+
+jobs:
+  cypress-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: cosmos-control.sh start
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh start
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+          working-directory: cypress
+          wait-on: 'http://localhost:2900'
+          spec: |
+            cypress/integration/tools/Admin*.js
+            cypress/integration/tools/CmdTlm*.js
+            cypress/integration/tools/CommandSender.spec.js
+            cypress/integration/tools/LimitsMonitor.spec.js
+            cypress/integration/tools/PacketViewer.spec.js
+            cypress/integration/tools/Script*.js
+            cypress/integration/tools/TableManager.spec.js
+            cypress/integration/tools/Timeline.spec.js
+            cypress/integration/tools/TlmGrapher.spec.js
+            cypress/integration/tools/TlmViewer.spec.js

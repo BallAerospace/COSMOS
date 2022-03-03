@@ -24,8 +24,7 @@ describe('CmdTlmServer', () => {
   it('changes the polling rate', function () {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
-    cy.wait(5000) // Let things spin up
-    cy.contains('td', 'CONNECTED')
+    cy.contains('td', 'CONNECTED', { timeout: 10000 })
     cy.wait(1000) // Let things spin up
     cy.get('[data-test=interfaces-table]')
       .contains('INST_INT')
@@ -46,11 +45,11 @@ describe('CmdTlmServer', () => {
           })
       })
 
-    cy.contains('TEMP1')
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Options').click()
     cy.get('.v-dialog:visible').within(() => {
-      cy.get('input').clear().type('5000')
+      cy.get('input').clear().type('5000\n')
     })
     cy.get('.v-dialog:visible').type('{esc}')
 

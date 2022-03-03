@@ -70,7 +70,7 @@ describe('TlmViewer', () => {
   it('displays INST LIMITS', () => {
     showScreen('INST', 'LIMITS')
   })
-  // TODO: this screen uses a lot of widgets that aren't implemented yet
+  // TODO: this screen uses widgets that aren't implemented yet
   xit('displays INST OTHER', () => {
     showScreen('INST', 'OTHER')
   })

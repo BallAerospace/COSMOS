@@ -49,22 +49,24 @@ Cypress.Commands.add('chooseVSelect', (inputLabel, selection, options = {}) => {
 Cypress.Commands.add(
   'selectTargetPacketItem',
   (target, packet = null, item = null) => {
-    cy.get('[data-test=select-target]').click({ force: true })
-    cy.contains('.v-list-item__title', new RegExp(`^${target}$`, 'i')).click({
-      force: true,
-    })
+    cy.get('[data-test=select-target]').click({ force: true }).wait(250)
+    cy.contains('.v-list-item__title', new RegExp(`^${target}$`, 'i')).click()
     if (packet) {
-      cy.get('[data-test=select-packet]').click({ force: true })
-      cy.contains('.v-list-item__title', new RegExp(`^${packet}$`, 'i')).click({
-        force: true,
-      })
+      cy.get('[data-test=select-packet]').click({ force: true }).wait(250)
+      cy.contains('.v-list-item__title', new RegExp(`^${packet}$`, 'i')).click()
       if (item) {
-        cy.get('[data-test=select-item]').click({ force: true })
-        cy.contains('.v-list-item__title', new RegExp(`^${item}$`, 'i')).click({
-          force: true,
-        })
+        cy.get('[data-test=select-item]').click({ force: true }).wait(250)
+        cy.contains('.v-list-item__title', new RegExp(`^${item}$`, 'i')).click()
       }
     }
+  }
+)
+
+Cypress.Commands.add(
+  'clickButton',
+  (text) => {
+    cy.get('button').contains(text).should('not.have.class', 'v-btn--disabled')
+    cy.get('button').contains(text).click()
   }
 )
 

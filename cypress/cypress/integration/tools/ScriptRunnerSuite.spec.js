@@ -24,10 +24,6 @@ describe('ScriptRunner Suite', () => {
     cy.wait(1000)
   })
 
-  afterEach(() => {
-    //
-  })
-
   function saveAs(filename) {
     // Save as a suite so we get the suite controls
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
