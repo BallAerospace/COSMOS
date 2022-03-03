@@ -12,31 +12,31 @@ usage() {
 }
 
 saveTar() {
-  docker save minio/minio -o minio_minio.tar
-  docker save ballaerospace/cosmosc2-minio-init -o cosmosc2-minio-init.tar
-  docker save ballaerospace/cosmosc2-ruby -o cosmosc2-ruby.tar
-  docker save ballaerospace/cosmosc2-node -o cosmosc2-node.tar
-  docker save ballaerospace/cosmosc2-base -o cosmosc2-base.tar
-  docker save ballaerospace/cosmosc2-cmd-tlm-api -o cosmosc2-cmd-tlm-api.tar
-  docker save ballaerospace/cosmosc2-script-runner-api -o cosmosc2-script-runner-api.tar
-  docker save ballaerospace/cosmosc2-operator -o cosmosc2-operator.tar
-  docker save ballaerospace/cosmosc2-init  -o cosmosc2-init.tar
-  docker save ballaerospace/cosmosc2-redis -o cosmosc2-redis.tar
-  docker save ballaerospace/cosmosc2-traefik -o cosmosc2-traefik.tar
+  docker save minio/minio -o tmp/minio_minio.tar
+  docker save ballaerospace/cosmosc2-minio-init -o tmp/cosmosc2-minio-init.tar
+  docker save ballaerospace/cosmosc2-redis -o tmp/cosmosc2-redis.tar
+  docker save ballaerospace/cosmosc2-traefik -o tmp/cosmosc2-traefik.tar
+  docker save ballaerospace/cosmosc2-ruby -o tmp/cosmosc2-ruby.tar
+  docker save ballaerospace/cosmosc2-node -o tmp/cosmosc2-node.tar
+  docker save ballaerospace/cosmosc2-base -o tmp/cosmosc2-base.tar
+  docker save ballaerospace/cosmosc2-cmd-tlm-api -o tmp/cosmosc2-cmd-tlm-api.tar
+  docker save ballaerospace/cosmosc2-script-runner-api -o tmp/cosmosc2-script-runner-api.tar
+  docker save ballaerospace/cosmosc2-operator -o tmp/cosmosc2-operator.tar
+  docker save ballaerospace/cosmosc2-init  -o tmp/cosmosc2-init.tar
 }
 
 loadTar() {
-  docker load -i minio_minio.tar
-  docker load -i cosmosc2-minio-init.tar
-  docker load -i cosmosc2-traefik.tar
-  docker load -i cosmosc2-ruby.tar
-  docker load -i cosmosc2-node.tar
-  docker load -i cosmosc2-base.tar
-  docker load -i cosmosc2-cmd-tlm-api.tar
-  docker load -i cosmosc2-script-runner-api.tar
-  docker load -i cosmosc2-operator.tar
-  docker load -i cosmosc2-init.tar
-  docker load -i cosmosc2-redis.tar
+  docker load -i tmp/minio_minio.tar
+  docker load -i tmp/cosmosc2-minio-init.tar
+  docker load -i tmp/cosmosc2-redis.tar
+  docker load -i tmp/cosmosc2-traefik.tar
+  docker load -i tmp/cosmosc2-ruby.tar
+  docker load -i tmp/cosmosc2-node.tar
+  docker load -i tmp/cosmosc2-base.tar
+  docker load -i tmp/cosmosc2-cmd-tlm-api.tar
+  docker load -i tmp/cosmosc2-script-runner-api.tar
+  docker load -i tmp/cosmosc2-operator.tar
+  docker load -i tmp/cosmosc2-init.tar
 }
 
 if [ "$#" -eq 0 ]; then
