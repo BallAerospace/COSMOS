@@ -9,10 +9,13 @@ name: Cosmos 5 Integration Tests
 on:
   push:
     branches: [master]
-
+  pull_request:
+    branches: [master]
+    
 jobs:
   cypress-test:
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - uses: actions/checkout@v2
       - name: cosmos-control.sh start
