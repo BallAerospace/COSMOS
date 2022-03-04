@@ -18,7 +18,6 @@
 */
 
 import { format, add, sub } from 'date-fns'
-import { cy } from 'date-fns/locale'
 
 function formatTime(date) {
   return format(date, 'HH:mm:ss')
@@ -245,8 +244,9 @@ describe('DataExtractor', () => {
     // Preload an ABORT command
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
-    cy.contains('Aborts a collect')
-    cy.get('button').contains('Send').click()
+    // Make sure the Send button is enabled so we're ready
+    cy.get('[data-test=select-send]', { timeout: 10000 }).should('not.have.class', 'v-btn--disabled')
+    cy.get('[data-test=select-send]').click()
     cy.wait(1000)
     cy.contains('cmd("INST ABORT") sent')
     cy.wait(500)

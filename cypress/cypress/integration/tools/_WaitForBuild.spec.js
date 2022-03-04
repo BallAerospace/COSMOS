@@ -17,23 +17,22 @@
 # copyright holder
 */
 
-// Disabled until we fully support light theme
-// describe('Toggle Theme', () => {
-//   it('toggles from dark to light', () => {
-//     cy.visit('/')
-//     cy.get('#app').should('have.class', 'theme--dark')
-//     cy.contains('Toggle Theme').click()
-//     cy.get('#app').should('have.class', 'theme--light')
-//   })
-// })
+describe('WaitForBuild', () => {
+  it('waits for the services to deploy and connect', function () {
+    cy.visit('/tools/cmdtlmserver')
+    cy.hideNav()
 
-describe('Toggle Navigation', () => {
-  it('shows and hides the navigation pane', () => {
-    cy.visit('/')
-    cy.get('.v-navigation-drawer').should('be.visible')
-    cy.get('.v-app-bar__nav-icon').click()
-    cy.get('.v-navigation-drawer').should('be.hidden')
-    cy.get('.v-app-bar__nav-icon').click()
-    cy.get('.v-navigation-drawer').should('be.visible')
+    cy.get('[data-test=interfaces-table]')
+      .contains('INST_INT', { timeout: 300000 })
+      .parent()
+      .children()
+      .eq(2)
+      .contains("CONNECTED")
+    cy.get('[data-test=interfaces-table]')
+      .contains('INST2_INT', { timeout: 60000 })
+      .parent()
+      .children()
+      .eq(2)
+      .contains("CONNECTED")
   })
 })

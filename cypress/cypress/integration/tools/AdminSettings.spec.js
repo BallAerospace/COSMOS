@@ -93,7 +93,7 @@ describe('AdminSettings', () => {
     cy.get('#app').should(
       'have.attr',
       'style',
-      `--classification-text:"${bannerText.toUpperCase()}"; --classification-font-color:#${bannerTextColor.toUpperCase()}; --classification-background-color:#${bannerBackgroundColor.toUpperCase()}; --classification-height-top:${bannerHeight}px; --classification-height-bottom:0px;`
+      `--classification-text:"${bannerText}"; --classification-font-color:#${bannerTextColor}; --classification-background-color:#${bannerBackgroundColor}; --classification-height-top:${bannerHeight}px; --classification-height-bottom:0px;`
     )
   })
 })

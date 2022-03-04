@@ -24,10 +24,6 @@ describe('ScriptRunner Debug', () => {
     cy.wait(1000)
   })
 
-  afterEach(() => {
-    //
-  })
-
   it('runs Ruby Syntax check', () => {
     cy.focused().type('if{enter}end{enter}end{enter}')
     cy.get('.v-toolbar').contains('Script').click({ force: true })
