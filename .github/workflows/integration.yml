@@ -11,31 +11,41 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
-    
+
 jobs:
   cypress-test:
-    runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    container: cypress/browsers:node12.18.3-chrome87-ff82
+    strategy:
+      fail-fast: false
+      matrix:
+        # run copies of the current job in parallel
+        containers: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v2
       - name: cosmos-control.sh start
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
+      - name: Download the build folders
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: build
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
+          # we have already installed all dependencies above
+          install: false
           browser: chrome
           working-directory: cypress
           wait-on: 'http://localhost:2900'
-          spec: |
-            cypress/integration/tools/Admin*.js
-            cypress/integration/tools/CmdTlm*.js
-            cypress/integration/tools/CommandSender.spec.js
-            cypress/integration/tools/LimitsMonitor.spec.js
-            cypress/integration/tools/PacketViewer.spec.js
-            cypress/integration/tools/Script*.js
-            cypress/integration/tools/TableManager.spec.js
-            cypress/integration/tools/Timeline.spec.js
-            cypress/integration/tools/TlmGrapher.spec.js
-            cypress/integration/tools/TlmViewer.spec.js
+          record: true
+          parallel: true
+          group: 'UI - Chrome'
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
