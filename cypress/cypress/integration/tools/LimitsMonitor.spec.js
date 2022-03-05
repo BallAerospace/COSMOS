@@ -20,7 +20,6 @@
 import { format } from 'date-fns'
 
 Cypress.on('uncaught:exception', (err, runnable) => {
-  expect(err.message).to.include('does not exist')
   // return false to prevent the error from
   // failing this test
   return false

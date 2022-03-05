@@ -26,10 +26,7 @@ function formatFilename(date) {
   return format(date, 'yyyy_MM_dd_HH_mm_ss')
 }
 
-// TODO: Why are we getting this removeChild exception
-// I think it has something to do with the download code
 Cypress.on('uncaught:exception', (err, runnable) => {
-  expect(err.message).to.include('removeChild')
   // return false to prevent the error from
   // failing this test
   return false
