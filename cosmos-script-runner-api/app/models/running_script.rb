@@ -54,7 +54,6 @@ module Cosmos
             input = RunningScript.instance.user_input
             # All ask and prompt dialogs should include a 'Cancel' button to enable break
             if input == 'Cancel'
-              puts "#{method} Cancel"
               RunningScript.instance.cancel
             else
               return input

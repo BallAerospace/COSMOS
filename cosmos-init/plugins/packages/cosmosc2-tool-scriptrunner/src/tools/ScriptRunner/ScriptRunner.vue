@@ -1266,7 +1266,6 @@ export default {
       })
     },
     handleScript(data) {
-      console.log(data)
       if (data.prompt_complete) {
         this.activePromptId = ''
         this.prompt.show = false
