@@ -25,8 +25,8 @@ jobs:
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
         # Allow the containers to spin up so we can login
-      - name: Sleep for 3min
-        run: sleep 180s
+      - name: Sleep for 2min
+        run: sleep 120s
         shell: bash
       - name: Cypress run
         uses: cypress-io/github-action@v2

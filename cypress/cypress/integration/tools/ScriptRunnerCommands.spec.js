@@ -26,7 +26,8 @@ describe('ScriptRunner Commands', () => {
 
   it('downloads the log messages', () => {
     cy.focused().type('puts "This is a test"')
-    cy.get('[data-test=start-button]').click()
+    // Force click because we scroll down and can't see the button
+    cy.get('[data-test=start-button]').click({force: true})
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -38,7 +39,8 @@ describe('ScriptRunner Commands', () => {
 
   it('prompts for hazardous commands', () => {
     cy.focused().type('cmd("INST CLEAR")')
-    cy.get('[data-test=start-button]').click()
+    // Force click because we scroll down and can't see the button
+    cy.get('[data-test=start-button]').click({force: true})
     cy.get('.v-dialog', { timeout: 30000 }).should('be.visible').within(() => {
       cy.wait(500)
       cy.contains('Hazardous Command')
@@ -62,7 +64,8 @@ describe('ScriptRunner Commands', () => {
         'cmd_no_checks("INST CLEAR")',
       ].join('\n')
     )
-    cy.get('[data-test=start-button]').click()
+    // Force click because we scroll down and can't see the button
+    cy.get('[data-test=start-button]').click({force: true})
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -72,7 +75,8 @@ describe('ScriptRunner Commands', () => {
 
   it('errors for out of range command parameters', () => {
     cy.focused().type('cmd("INST COLLECT with DURATION 11, TYPE \'NORMAL\'")')
-    cy.get('[data-test=start-button]').click()
+    // Force click because we scroll down and can't see the button
+    cy.get('[data-test=start-button]').click({force: true})
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'error'
@@ -89,7 +93,8 @@ describe('ScriptRunner Commands', () => {
         'cmd_no_checks("INST COLLECT with DURATION 11, TYPE \'NORMAL\'")',
       ].join('\n')
     )
-    cy.get('[data-test=start-button]').click()
+    // Force click because we scroll down and can't see the button
+    cy.get('[data-test=start-button]').click({force: true})
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'

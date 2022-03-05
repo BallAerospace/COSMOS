@@ -63,7 +63,7 @@ describe('AdminSettings', () => {
     })
   })
 
-  it('sets a classification banner', function () {
+  it.only('sets a classification banner', function () {
     const bannerText = 'test classification banner'
     const bannerHeight = '32'
     const bannerTextColor = 'aaa'
@@ -90,10 +90,21 @@ describe('AdminSettings', () => {
       .type(bannerTextColor)
     cy.get('[data-test=saveClassificationBanner]').click()
     cy.reload()
+    cy.wait(1000)
     cy.get('#app').should(
       'have.attr',
       'style',
       `--classification-text:"${bannerText}"; --classification-font-color:#${bannerTextColor}; --classification-background-color:#${bannerBackgroundColor}; --classification-height-top:${bannerHeight}px; --classification-height-bottom:0px;`
+    )
+    // Disable the classification banner
+    cy.get('[data-test=displayTopBanner]').uncheck({ force: true })
+    cy.get('[data-test=saveClassificationBanner]').click()
+    cy.reload()
+    cy.wait(1000)
+    cy.get('#app').should(
+      'not.have.attr',
+      'style',
+      `--classification-text:"${bannerText}"`
     )
   })
 })

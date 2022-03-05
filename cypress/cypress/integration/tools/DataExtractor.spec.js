@@ -270,8 +270,8 @@ describe('DataExtractor', () => {
 
   it('creates CSV output', function () {
     const start = sub(new Date(), { minutes: 5 })
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains(/Comma Delimited/).click()
+    cy.get('.v-toolbar').contains('File').click({force: true})
+    cy.contains(/Comma Delimited/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -297,8 +297,8 @@ describe('DataExtractor', () => {
 
   it('creates tab delimited output', function () {
     const start = sub(new Date(), { minutes: 5 })
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains(/Tab Delimited/).click()
+    cy.get('.v-toolbar').contains('File').click({force: true})
+    cy.contains(/Tab Delimited/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -320,8 +320,8 @@ describe('DataExtractor', () => {
 
   it('outputs full column names', function () {
     let start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Full Column Names/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Full Column Names/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -356,8 +356,8 @@ describe('DataExtractor', () => {
 
   it('fills values', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Fill Down/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Fill Down/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -395,8 +395,8 @@ describe('DataExtractor', () => {
 
   it('adds Matlab headers', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Matlab Header/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Matlab Header/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -415,8 +415,8 @@ describe('DataExtractor', () => {
 
   it('outputs unique values only', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Unique Only/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Unique Only/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
