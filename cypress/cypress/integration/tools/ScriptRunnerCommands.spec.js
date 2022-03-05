@@ -46,7 +46,7 @@ describe('ScriptRunner Commands', () => {
       cy.contains('Hazardous Command')
       cy.contains('No').click()
     })
-    cy.get('[data-test=state]').should('have.value', 'paused')
+    cy.get('[data-test=state]').should('have.value', 'waiting')
     cy.get('[data-test=go-button]').click().wait(1000)
     cy.get('.v-dialog').should('be.visible').within(() => {
       cy.wait(500)
@@ -81,7 +81,7 @@ describe('ScriptRunner Commands', () => {
       'have.value',
       'error'
     )
-    cy.get('[data-test=go-button]').click()
+    cy.get('[data-test=go-button]').click({force: true})
     cy.get('[data-test=output-messages]').contains('Script completed')
     cy.get('[data-test=output-messages]').contains('11 not in valid range')
   })

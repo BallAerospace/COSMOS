@@ -101,8 +101,8 @@ describe('LimitsMonitor', () => {
       .should('include', 'Some items ignored')
 
     // Check the menu
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Show Ignored').click()
+    cy.get('.v-toolbar').contains('File').click({force: true})
+    cy.contains('Show Ignored').click({force: true})
     cy.get('.v-dialog:visible').within(() => {
       // Find the items and delete them to restore them
       cy.get('[data-test=remove-ignore-0]').click()
