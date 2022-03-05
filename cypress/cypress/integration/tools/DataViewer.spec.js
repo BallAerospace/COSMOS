@@ -293,7 +293,7 @@ describe('DataViewer', () => {
     )
   })
 
-  it('saves and loads the configuration', () => {
+  xit('saves and loads the configuration', () => {
     cy.get('[data-test=new-tab]').click().wait(1000)
     cy.get('[data-test=new-packet]').click().wait(1000)
     cy.selectTargetPacketItem('INST', 'ADCS')

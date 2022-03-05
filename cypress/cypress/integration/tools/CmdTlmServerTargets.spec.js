@@ -28,7 +28,7 @@ describe('CmdTlmServer Targets', () => {
     cy.get('[data-test=targets-table]').contains('TEMPLATED')
   })
 
-  it.only('displays the command count', () => {
+  it('displays the command count', () => {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
     cy.wait(1000)

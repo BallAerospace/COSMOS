@@ -97,7 +97,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('Script completed')
   })
 
-  it.only('opens a dialog for ask and returns the value', () => {
+  xit('opens a dialog for ask and returns the value', () => {
     cy.focused().type(
       [
         'value = ask("Enter password:")',
@@ -154,7 +154,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('abc123!')
   })
 
-  it('opens a dialog with buttons for message_box, vertical_message_box', () => {
+  xit('opens a dialog with buttons for message_box, vertical_message_box', () => {
     cy.focused().type(
       [
         'value = message_box("Select", "ONE", "TWO", "THREE")',
@@ -186,7 +186,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('FOUR')
   })
 
-  it('opens a dialog with dropdowns for combo_box', () => {
+  xit('opens a dialog with dropdowns for combo_box', () => {
     cy.focused().type(
       [
         'value = combo_box("Select value from combo", "abc123", "def456")',
@@ -215,7 +215,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('User input: def456')
   })
 
-  it('opens a dialog for prompt', () => {
+  xit('opens a dialog for prompt', () => {
     // Default choices for prompt is Ok and Cancel
     cy.focused().type(['value = prompt("Continue?")', 'puts value'].join('\n'))
     cy.get('[data-test=start-button]').click()
@@ -234,7 +234,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('Ok')
   })
 
-  it('enable environment dialog for prompt and cancel', () => {
+  xit('enable environment dialog for prompt and cancel', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )
@@ -253,7 +253,7 @@ describe('ScriptRunner Commands', () => {
     )
   })
 
-  it('enable environment dialog for prompt and start', () => {
+  xit('enable environment dialog for prompt and start', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )

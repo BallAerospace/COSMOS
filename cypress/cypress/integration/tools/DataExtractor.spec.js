@@ -26,20 +26,21 @@ function formatFilename(date) {
   return format(date, 'yyyy_MM_dd_HH_mm_ss')
 }
 
+// TODO: Why are we getting this removeChild exception
+// I think it has something to do with the download code
+Cypress.on('uncaught:exception', (err, runnable) => {
+  expect(err.message).to.include('removeChild')
+  // return false to prevent the error from
+  // failing this test
+  return false
+})
+
 describe('DataExtractor', () => {
   beforeEach(() => {
     cy.task('clearDownloads')
     cy.visit('/tools/dataextractor')
     cy.hideNav()
     cy.wait(1000)
-    // TODO: Why are we getting this removeChild exception
-    // I think it has something to do with the download code
-    cy.on('uncaught:exception', (err, runnable) => {
-      expect(err.message).to.include('removeChild')
-      // return false to prevent the error from
-      // failing this test
-      return false
-    })
   })
 
   it('loads and saves the configuration', function () {
