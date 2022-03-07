@@ -47,7 +47,7 @@ describe('ScriptRunner Commands', () => {
       cy.contains('No').click()
     })
     cy.get('[data-test=state]').should('have.value', 'waiting')
-    cy.get('[data-test=go-button]').click().wait(1000)
+    cy.get('[data-test=go-button]').click({force: true}).wait(1000)
     cy.get('.v-dialog').should('be.visible').within(() => {
       cy.wait(500)
       cy.contains('Hazardous Command')
@@ -122,6 +122,7 @@ describe('ScriptRunner Commands', () => {
       cy.wait(1000)
       cy.contains('Cancel').click()
     })
+    cy.get('.v-dialog').should('not.be.visible')
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
     // TODO: Popup immediately re-appears
     // cy.get('[data-test=state]').should('have.value', 'paused')
@@ -134,28 +135,32 @@ describe('ScriptRunner Commands', () => {
       cy.get('input').type('12345')
       cy.contains('Ok').click()
     })
+    cy.get('.v-dialog').should('not.be.visible')
     cy.get('[data-test=output-messages]').contains('12345')
     cy.get('.v-dialog').should('be.visible').within(() => {
       // Since nothing is required the Ok button is enabled
       cy.contains('Ok').should('be.enabled')
       cy.contains('Ok').click()
     })
+    cy.get('.v-dialog').should('not.be.visible')
     cy.get('[data-test=output-messages]').contains('blank:true')
     cy.get('.v-dialog').should('be.visible').within(() => {
       // Verify the default value
       cy.get('input').should('have.value', '67890')
       cy.contains('Ok').click()
     })
+    cy.get('.v-dialog').should('not.be.visible')
     cy.get('[data-test=output-messages]').contains('67890')
     cy.get('.v-dialog').should('be.visible').within(() => {
       cy.get('input').type('abc123!')
       cy.contains('Ok').click()
     })
+    cy.get('.v-dialog').should('not.be.visible')
     cy.get('[data-test=state]').should('have.value', 'waiting')
     // Verify we're not outputting the secret password on input
     cy.get('[data-test=output-messages]').should('not.contain', 'abc123!')
     // Once we restart we should see it since we print it
-    cy.get('[data-test=go-button]').click()
+    cy.get('[data-test=go-button]').click({force: true})
     cy.get('[data-test=output-messages]').contains('abc123!')
   })
 
@@ -176,7 +181,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=state]').should('have.value', 'waiting')
 
     // Clicking Go re-launches the dialog
-    cy.get('[data-test=go-button]').click()
+    cy.get('[data-test=go-button]').click({force: true})
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('TWO').click()
     })
@@ -206,7 +211,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=state]').should('have.value', 'waiting')
 
     // Clicking go re-launches the dialog
-    cy.get('[data-test=go-button]').click()
+    cy.get('[data-test=go-button]').click({force: true})
     cy.get('.v-dialog').should('be.visible').within(() => {
       cy.get('[data-test=prompt-select]').click()
     })
@@ -231,7 +236,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
     cy.get('[data-test=state]').should('have.value', 'paused')
     // Clicking Go re-executes the prompt
-    cy.get('[data-test=go-button]').click()
+    cy.get('[data-test=go-button]').click({force: true})
     cy.get('.v-dialog').should('be.visible').within(() => {
       cy.contains('Continue?')
       cy.contains('Ok').click()
@@ -239,38 +244,20 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('Ok')
   })
 
-  xit('enable environment dialog for prompt and cancel', () => {
-    cy.focused().type(
-      ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
-    )
-    cy.get('[data-test=env-button]').click()
-    cy.get('[data-test=start-button]').click()
-    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
-      cy.get('[data-test=tmp-environment-key-input]').type('user')
-      cy.get('[data-test=tmp-environment-value-input]').type('FOOBAR')
-      cy.get('[data-test=add-temp-environment]').click()
-      cy.wait(1000)
-      cy.get('[data-test=environment-dialog-cancel]').click()
-    })
-    cy.get('[data-test=output-messages]').should(
-      'not.contain',
-      'env user: FOOBAR'
-    )
-  })
-
   xit('enable environment dialog for prompt and start', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )
     cy.get('[data-test=env-button]').click()
-    cy.get('[data-test=start-button]').click()
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
-      cy.get('[data-test=tmp-environment-key-input]').type('user')
-      cy.get('[data-test=tmp-environment-value-input]').type('FOOBAR')
-      cy.get('[data-test=add-temp-environment]').click()
+      cy.get('[data-test=new-metadata-icon]').click()
+      cy.get('[data-test=key-0]').type('user')
+      cy.get('[data-test=value-0]').type('FOOBAR')
       cy.wait(1000)
-      cy.get('[data-test=environment-dialog-start]').click()
+      cy.get('[data-test=environment-dialog-save]').click()
     })
+    cy.get('[data-test=start-button]').click({force: true})
+    cy.wait(1000)
     cy.get('[data-test=output-messages]', { timeout: 30000 }).contains(
       'env user: FOOBAR'
     )

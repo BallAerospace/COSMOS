@@ -154,7 +154,7 @@ describe('DataExtractor', () => {
     cy.contains('Process')
     // Verify we still get a file
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     })
   })
 
@@ -229,7 +229,7 @@ describe('DataExtractor', () => {
     })
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('CCSDSSHF (RAW)')
@@ -243,7 +243,7 @@ describe('DataExtractor', () => {
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
     // Make sure the Send button is enabled so we're ready
-    cy.get('[data-test=select-send]', { timeout: 10000 }).should('not.have.class', 'v-btn--disabled')
+    cy.get('[data-test=select-send]', { timeout: 20000 }).should('not.have.class', 'v-btn--disabled')
     cy.get('[data-test=select-send]').click()
     cy.wait(1000)
     cy.contains('cmd("INST ABORT") sent')
@@ -260,7 +260,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[1]).to.contain('INST')
@@ -281,7 +281,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       // Check that we handle raw value types set by the demo
       expect(contents).to.contain('NaN')
@@ -308,7 +308,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.txt', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('TEMP1')
@@ -331,7 +331,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP1')
@@ -347,7 +347,7 @@ describe('DataExtractor', () => {
       .type(formatTime(start))
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('TARGET,PACKET,TEMP1,TEMP2')
@@ -368,7 +368,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('CCSDSSEQCNT')
@@ -406,7 +406,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('% TARGET,PACKET,Q1,Q2')
@@ -424,7 +424,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       console.log(contents)
       var lines = contents.split('\n')
