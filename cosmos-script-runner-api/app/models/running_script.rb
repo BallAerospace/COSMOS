@@ -54,7 +54,11 @@ module Cosmos
             input = RunningScript.instance.user_input
             # All ask and prompt dialogs should include a 'Cancel' button
             # If they cancel we loop right back around and re-display the prompt
-            return input unless input == 'Cancel'
+            if input == 'Cancel'
+              RunningScript.instance.perform_pause
+            else
+              return input
+            end
           else
             raise "Script input method called outside of running script"
           end
@@ -434,7 +438,6 @@ class RunningScript
   # Let the script continue pausing if in step mode
   def continue
     @go = true
-    @cancel = false
     @pause = true if @step
   end
 
