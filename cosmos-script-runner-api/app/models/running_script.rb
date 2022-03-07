@@ -52,12 +52,9 @@ module Cosmos
             Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args, kwargs: kwargs }))
             RunningScript.instance.perform_pause(prompt: {'method' => method, 'args' => args, 'kwargs' => kwargs })
             input = RunningScript.instance.user_input
-            # All ask and prompt dialogs should include a 'Cancel' button to enable break
-            if input == 'Cancel'
-              RunningScript.instance.cancel
-            else
-              return input
-            end
+            # All ask and prompt dialogs should include a 'Cancel' button
+            # If they cancel we loop right back around and re-display the prompt
+            return input unless input == 'Cancel'
           else
             raise "Script input method called outside of running script"
           end
@@ -446,7 +443,6 @@ class RunningScript
     @step = true
     @go = true
     @pause = true
-    @cancel = false
   end
 
   # Clears step mode and lets the script continue
@@ -454,7 +450,6 @@ class RunningScript
     @step = false
     @go = true
     @pause = false
-    @cancel = false
   end
 
   def go?
@@ -484,11 +479,9 @@ class RunningScript
     @stop
   end
 
-  def cancel
-    @cancel = true
-  end
-
-  def clear_prompt()
+  def clear_prompt
+    # Allow things to continue once the prompt is cleared
+    @go = true
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, prompt_complete: @prompt_id }))
     @prompt_id = nil
   end
@@ -509,7 +502,6 @@ class RunningScript
     @pause = false
     @step = false
     @stop = false
-    @cancel = false
     @retry_needed = false
     @use_instrumentation = true
     @call_stack = []
@@ -986,8 +978,7 @@ class RunningScript
     until (@go or @stop)
       sleep(0.01)
       count += 1
-      # Only send the prompt if it hasn't been cancelled
-      if !@cancel and (count % 100) == 0 # Approximately Every Second
+      if count % 100 == 0 # Approximately Every Second
         Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
         Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, method: prompt['method'], prompt_id: RunningScript.instance.prompt_id, args: prompt['args'], kwargs: prompt['kwargs'] })) if prompt
       end
