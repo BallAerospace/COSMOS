@@ -114,14 +114,12 @@ begin
               if running_script.prompt_id == parsed_cmd["prompt_id"]
                 if parsed_cmd["password"]
                   running_script.user_input = parsed_cmd["password"].to_s
-                  running_script.continue if running_script.user_input != 'Cancel'
                 else
                   running_script.user_input = Cosmos::ConfigParser.handle_true_false(parsed_cmd["result"].to_s)
                   running_script.user_input = running_script.user_input.convert_to_value if parsed_cmd["method"] == 'ask'
                   run_script_log(id, "User input: #{running_script.user_input}")
-                  running_script.continue if running_script.user_input != 'Cancel'
                 end
-                running_script.clear_prompt
+                running_script.continue
               else
                 run_script_log(id, "INFO: Received answer for prompt #{parsed_cmd["prompt_id"]} when looking for #{running_script.prompt_id}.")
               end

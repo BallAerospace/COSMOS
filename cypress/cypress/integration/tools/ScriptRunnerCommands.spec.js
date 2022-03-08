@@ -27,7 +27,7 @@ describe('ScriptRunner Commands', () => {
   it('downloads the log messages', () => {
     cy.focused().type('puts "This is a test"')
     // Force click because we scroll down and can't see the button
-    cy.get('[data-test=start-button]').click({force: true})
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -40,19 +40,23 @@ describe('ScriptRunner Commands', () => {
   it('prompts for hazardous commands', () => {
     cy.focused().type('cmd("INST CLEAR")')
     // Force click because we scroll down and can't see the button
-    cy.get('[data-test=start-button]').click({force: true})
-    cy.get('.v-dialog', { timeout: 30000 }).should('be.visible').within(() => {
-      cy.wait(500)
-      cy.contains('Hazardous Command')
-      cy.contains('No').click()
-    })
+    cy.get('[data-test=start-button]').click({ force: true })
+    cy.get('.v-dialog', { timeout: 30000 })
+      .should('be.visible')
+      .within(() => {
+        cy.wait(500)
+        cy.contains('Hazardous Command')
+        cy.contains('No').click()
+      })
     cy.get('[data-test=state]').should('have.value', 'waiting')
-    cy.get('[data-test=go-button]').click({force: true}).wait(1000)
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      cy.wait(500)
-      cy.contains('Hazardous Command')
-      cy.contains('Yes').click()
-    })
+    cy.get('[data-test=go-button]').click({ force: true }).wait(1000)
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        cy.wait(500)
+        cy.contains('Hazardous Command')
+        cy.contains('Yes').click()
+      })
     cy.get('[data-test=state]').should('have.value', 'stopped')
     cy.get('[data-test=output-messages]').contains('Script completed')
   })
@@ -65,7 +69,7 @@ describe('ScriptRunner Commands', () => {
       ].join('\n')
     )
     // Force click because we scroll down and can't see the button
-    cy.get('[data-test=start-button]').click({force: true})
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -76,12 +80,12 @@ describe('ScriptRunner Commands', () => {
   it('errors for out of range command parameters', () => {
     cy.focused().type('cmd("INST COLLECT with DURATION 11, TYPE \'NORMAL\'")')
     // Force click because we scroll down and can't see the button
-    cy.get('[data-test=start-button]').click({force: true})
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'error'
     )
-    cy.get('[data-test=go-button]').click({force: true})
+    cy.get('[data-test=go-button]').click({ force: true })
     cy.get('[data-test=output-messages]').contains('Script completed')
     cy.get('[data-test=output-messages]').contains('11 not in valid range')
   })
@@ -94,7 +98,7 @@ describe('ScriptRunner Commands', () => {
       ].join('\n')
     )
     // Force click because we scroll down and can't see the button
-    cy.get('[data-test=start-button]').click({force: true})
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -102,7 +106,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('Script completed')
   })
 
-  xit('opens a dialog for ask and returns the value', () => {
+  it('opens a dialog for ask and returns the value', () => {
     cy.focused().type(
       [
         'value = ask("Enter password:")',
@@ -117,54 +121,60 @@ describe('ScriptRunner Commands', () => {
       ].join('\n')
     )
     // Force click because we probably scrolled and the Start button is hidden
-    cy.get('[data-test=start-button]').click({force: true})
-    cy.get('.v-dialog', { timeout: 30000 }).should('be.visible').within(() => {
-      cy.wait(1000)
-      cy.contains('Cancel').click()
-    })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('[data-test=start-button]').click({ force: true })
+    cy.get('.v-dialog', { timeout: 30000 })
+      .should('be.visible')
+      .within(() => {
+        cy.wait(1000)
+        cy.contains('Cancel').click()
+      })
+    cy.get('.v-dialog').should('not.exist')
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
-    // TODO: Popup immediately re-appears
-    // cy.get('[data-test=state]').should('have.value', 'paused')
+    cy.get('[data-test=state]').should('have.value', 'paused')
 
     // Clicking go re-launches the dialog
-    // cy.get('[data-test=go-button]').click()
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      // Since there was no default the Ok button is disabled
-      cy.contains('Ok').should('be.disabled')
-      cy.get('input').type('12345')
-      cy.contains('Ok').click()
-    })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('[data-test=go-button]').click()
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        // Since there was no default the Ok button is disabled
+        cy.contains('Ok').should('be.disabled')
+        cy.get('input').type('12345')
+        cy.contains('Ok').click()
+      })
     cy.get('[data-test=output-messages]').contains('12345')
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      // Since nothing is required the Ok button is enabled
-      cy.contains('Ok').should('be.enabled')
-      cy.contains('Ok').click()
-    })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        // Since nothing is required the Ok button is enabled
+        cy.contains('Ok').should('be.enabled')
+        cy.contains('Ok').click()
+      })
     cy.get('[data-test=output-messages]').contains('blank:true')
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      // Verify the default value
-      cy.get('input').should('have.value', '67890')
-      cy.contains('Ok').click()
-    })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        // Verify the default value
+        cy.get('input').should('have.value', '67890')
+        cy.contains('Ok').click()
+      })
     cy.get('[data-test=output-messages]').contains('67890')
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      cy.get('input').type('abc123!')
-      cy.contains('Ok').click()
-    })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        cy.get('input').type('abc123!')
+        cy.contains('Ok').click()
+      })
+    cy.get('.v-dialog').should('not.exist')
     cy.get('[data-test=state]').should('have.value', 'waiting')
     // Verify we're not outputting the secret password on input
     cy.get('[data-test=output-messages]').should('not.contain', 'abc123!')
     // Once we restart we should see it since we print it
-    cy.get('[data-test=go-button]').click({force: true})
+    cy.get('[data-test=go-button]').click({ force: true })
     cy.get('[data-test=output-messages]').contains('abc123!')
   })
 
-  xit('opens a dialog with buttons for message_box, vertical_message_box', () => {
+  it('opens a dialog with buttons for message_box, vertical_message_box', () => {
     cy.focused().type(
       [
         'value = message_box("Select", "ONE", "TWO", "THREE")',
@@ -178,25 +188,26 @@ describe('ScriptRunner Commands', () => {
       cy.contains('Cancel').click()
     })
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
-    cy.get('[data-test=state]').should('have.value', 'waiting')
+    cy.get('[data-test=state]').should('have.value', 'paused')
 
     // Clicking Go re-launches the dialog
-    cy.get('[data-test=go-button]').click({force: true})
+    cy.get('[data-test=go-button]').click({ force: true })
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('TWO').click()
     })
-    cy.get('.v-dialog').should('be.visible').should('not.exist')
-
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      cy.contains('FOUR').click().wait(1000)
-    })
+    cy.wait(1000)
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        cy.contains('FOUR').click().wait(1000)
+      })
     cy.wait(1000)
     cy.get('[data-test=state]').should('have.value', 'stopped')
     cy.get('[data-test=output-messages]').contains('TWO')
     cy.get('[data-test=output-messages]').contains('FOUR')
   })
 
-  xit('opens a dialog with dropdowns for combo_box', () => {
+  it('opens a dialog with dropdowns for combo_box', () => {
     cy.focused().type(
       [
         'value = combo_box("Select value from combo", "abc123", "def456")',
@@ -208,13 +219,16 @@ describe('ScriptRunner Commands', () => {
       cy.contains('Cancel').click()
     })
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
-    cy.get('[data-test=state]').should('have.value', 'waiting')
+    cy.get('[data-test=state]').should('have.value', 'paused')
 
     // Clicking go re-launches the dialog
-    cy.get('[data-test=go-button]').click({force: true})
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      cy.get('[data-test=prompt-select]').click()
-    })
+    cy.get('[data-test=go-button]').click({ force: true })
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        cy.wait(1000)
+        cy.get('[data-test=prompt-select]').click({ force: true })
+      })
     cy.get('[data-test=state]').should('have.value', 'waiting')
 
     // This check has to be outside the .v-dialog since it's a floating menu
@@ -225,7 +239,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('User input: def456')
   })
 
-  xit('opens a dialog for prompt', () => {
+  it('opens a dialog for prompt', () => {
     // Default choices for prompt is Ok and Cancel
     cy.focused().type(['value = prompt("Continue?")', 'puts value'].join('\n'))
     cy.get('[data-test=start-button]').click()
@@ -236,27 +250,29 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
     cy.get('[data-test=state]').should('have.value', 'paused')
     // Clicking Go re-executes the prompt
-    cy.get('[data-test=go-button]').click({force: true})
-    cy.get('.v-dialog').should('be.visible').within(() => {
-      cy.contains('Continue?')
-      cy.contains('Ok').click()
-    })
+    cy.get('[data-test=go-button]').click({ force: true })
+    cy.get('.v-dialog')
+      .should('be.visible')
+      .within(() => {
+        cy.contains('Continue?')
+        cy.contains('Ok').click()
+      })
     cy.get('[data-test=output-messages]').contains('Ok')
   })
 
-  xit('enable environment dialog for prompt and start', () => {
+  it('enable environment dialog for prompt and start', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )
     cy.get('[data-test=env-button]').click()
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.get('[data-test=new-metadata-icon]').click()
-      cy.get('[data-test=key-0]').type('user')
+      cy.get('[data-test=key-0]').type('USER')
       cy.get('[data-test=value-0]').type('FOOBAR')
       cy.wait(1000)
       cy.get('[data-test=environment-dialog-save]').click()
     })
-    cy.get('[data-test=start-button]').click({force: true})
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.wait(1000)
     cy.get('[data-test=output-messages]', { timeout: 30000 }).contains(
       'env user: FOOBAR'
