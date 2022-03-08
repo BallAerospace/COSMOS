@@ -59,8 +59,7 @@ begin
   if script['environment']
     script['environment'].each do |env|
       begin
-        env_key, env_value = env.split('=', 2)
-        ENV[env_key] = env_value
+        ENV[env['key']] = env['value']
         run_script_log(id, "Loaded environment: #{env}", 'BLACK')
       rescue StandardError
         run_script_log(id, "Failed to load environment: #{env}", 'RED')
