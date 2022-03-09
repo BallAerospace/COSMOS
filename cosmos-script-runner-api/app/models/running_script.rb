@@ -49,11 +49,16 @@ module Cosmos
         while true
           if RunningScript.instance
             RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
-            Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args, kwargs: kwargs }))
-            RunningScript.instance.perform_pause(prompt: {'method' => method, 'args' => args, 'kwargs' => kwargs })
+            prompt_id = SecureRandom.uuid
+            RunningScript.instance.perform_wait(prompt: {'method' => method, 'id' => prompt_id, 'args' => args, 'kwargs' => kwargs })
             input = RunningScript.instance.user_input
-            # All ask and prompt dialogs should include a 'Cancel' button to enable break
-            return input unless input == 'Cancel'
+            # All ask and prompt dialogs should include a 'Cancel' button
+            # If they cancel we loop right back around and re-display the prompt
+            if input == 'Cancel'
+              RunningScript.instance.perform_pause
+            else
+              return input
+            end
           else
             raise "Script input method called outside of running script"
           end
@@ -112,7 +117,7 @@ module Cosmos
       end
 
       def prompt_for_script_abort
-        RunningScript.instance.perform_pause
+        RunningScript.instance.perform_wait
         return false # Not aborted - Retry
       end
 
@@ -265,6 +270,18 @@ class RunningScript
       JSON.parse(result)
     else
       return nil
+    end
+  end
+
+  def self.delete(id)
+    Cosmos::Store.del("running-script:#{id}")
+    running = Cosmos::Store.smembers("running-scripts")
+    running.each do |item|
+      parsed = JSON.parse(item)
+      if parsed["id"].to_s == id.to_s
+        Cosmos::Store.srem("running-scripts", item)
+        break
+      end
     end
   end
 
@@ -477,7 +494,8 @@ class RunningScript
     @stop
   end
 
-  def clear_prompt()
+  def clear_prompt
+    # Allow things to continue once the prompt is cleared
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, prompt_complete: @prompt_id }))
     @prompt_id = nil
   end
@@ -782,8 +800,8 @@ class RunningScript
       detail_string = nil
       if filename
         detail_string = File.basename(filename) << ':' << line_number.to_s
+        Cosmos::Logger.detail_string = detail_string
       end
-      Cosmos::Logger.detail_string = detail_string
 
       Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
       handle_pause(filename, line_number)
@@ -807,9 +825,14 @@ class RunningScript
     end
   end
 
-  def perform_pause(prompt: nil)
-    mark_paused()
+  def perform_wait(prompt: nil)
+    mark_waiting()
     wait_for_go_or_stop(prompt: prompt)
+  end
+
+  def perform_pause
+    mark_paused()
+    wait_for_go_or_stop()
   end
 
   def perform_breakpoint(filename, line_number)
@@ -923,7 +946,7 @@ class RunningScript
       string.each_line do |out_line|
         begin
           json = JSON.parse(out_line)
-          time_formatted = json["@timestamp"] if json["@timestamp"]
+          time_formatted = Time.parse(json["@timestamp"]).sys.formatted if json["@timestamp"]
           out_line = json["log"] if json["log"]
         rescue
           # Regular output
@@ -968,17 +991,19 @@ class RunningScript
   end
 
   def wait_for_go_or_stop(error = nil, prompt: nil)
-    count = 0
+    count = -1
     @go = false
-    RunningScript.instance.prompt_id = SecureRandom.uuid
+    @prompt_id = prompt['id'] if prompt
     until (@go or @stop)
       sleep(0.01)
       count += 1
-      if (count % 100) == 0 # Approximately Every Second
-        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
-        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, method: prompt['method'], prompt_id: RunningScript.instance.prompt_id, args: prompt['args'], kwargs: prompt['kwargs'] })) if prompt
+      if count % 100 == 0 # Approximately Every Second
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :script, method: prompt['method'], prompt_id: prompt['id'], args: prompt['args'], kwargs: prompt['kwargs'] })) if prompt
       end
     end
+    clear_prompt() if prompt
+    RunningScript.instance.prompt_id = nil
     @go = false
     mark_running()
     raise Cosmos::StopScript if @stop
@@ -992,7 +1017,7 @@ class RunningScript
       sleep(0.01)
       count += 1
       if (count % 100) == 0 # Approximately Every Second
-        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
       end
     end
     @go = false
@@ -1011,14 +1036,24 @@ class RunningScript
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused }))
   end
 
+  def mark_waiting
+    @state = :waiting
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+  end
+
   def mark_error
     @state = :error
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
   end
 
+  def mark_fatal
+    @state = :fatal
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
+  end
+
   def mark_stopped
-    @state = :stopped
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped }))
+    @state = :stopped unless @state == :fatal
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
       Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::SuiteRunner.suite_results.report }))
@@ -1095,20 +1130,20 @@ class RunningScript
           end
         end
 
-        scriptrunner_puts "Script completed: #{File.basename(@filename)}" unless close_on_complete
         handle_output_io()
+        scriptrunner_puts "Script completed: #{File.basename(@filename)}" unless close_on_complete
 
       rescue Exception => error
         if error.class <= Cosmos::StopScript or error.class <= Cosmos::SkipScript
-          scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
           handle_output_io()
+          scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
         else
           uncaught_exception = true
           filename, line_number = error.source
           handle_exception(error, true, filename, line_number)
-          scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           handle_output_io()
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
+          scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
+          mark_fatal()
         end
       ensure
         # Stop Capturing STDOUT and STDERR
@@ -1217,11 +1252,13 @@ class RunningScript
     if error.class == DRb::DRbConnError
       Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
     elsif error.class == Cosmos::CheckError
-      Cosmos::Logger.error(error.message)
-    else
+      Cosmos::Logger.error(error.message)#
+    # Don't bother logging the error and backtrace if it's this file
+    # because that's confusing to the end user who doesn't see this
+    elsif File.basename(filename) != File.basename(__FILE__)
       Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
+      Cosmos::Logger.error(error.backtrace.join("\n"))
     end
-    Cosmos::Logger.error(error.backtrace.join("\n")) # if @@show_backtrace
     handle_output_io(filename, line_number)
 
     raise error if !@@pause_on_error and !@continue_after_error and !fatal

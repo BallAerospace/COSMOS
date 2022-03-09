@@ -63,6 +63,24 @@ class RunningScriptController < ApplicationController
     end
   end
 
+  def delete
+    begin
+      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    running_script = RunningScript.find(params[:id].to_i)
+    if running_script
+      RunningScript.delete(params[:id].to_i)
+      Cosmos::Logger.info("Script deleted: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      head :ok
+    else
+      head :not_found
+    end
+  end
+
   def pause
     begin
       authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])

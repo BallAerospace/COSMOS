@@ -90,10 +90,21 @@ describe('AdminSettings', () => {
       .type(bannerTextColor)
     cy.get('[data-test=saveClassificationBanner]').click()
     cy.reload()
+    cy.wait(1000)
     cy.get('#app').should(
       'have.attr',
       'style',
-      `--classification-text:"${bannerText.toUpperCase()}"; --classification-font-color:#${bannerTextColor.toUpperCase()}; --classification-background-color:#${bannerBackgroundColor.toUpperCase()}; --classification-height-top:${bannerHeight}px; --classification-height-bottom:0px;`
+      `--classification-text:"${bannerText}"; --classification-font-color:#${bannerTextColor}; --classification-background-color:#${bannerBackgroundColor}; --classification-height-top:${bannerHeight}px; --classification-height-bottom:0px;`
+    )
+    // Disable the classification banner
+    cy.get('[data-test=displayTopBanner]').uncheck({ force: true })
+    cy.get('[data-test=saveClassificationBanner]').click()
+    cy.reload()
+    cy.wait(1000)
+    cy.get('#app').should(
+      'not.have.attr',
+      'style',
+      `--classification-text:"${bannerText}"`
     )
   })
 })

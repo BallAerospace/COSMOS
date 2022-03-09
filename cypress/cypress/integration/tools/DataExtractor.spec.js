@@ -18,7 +18,6 @@
 */
 
 import { format, add, sub } from 'date-fns'
-import { cy } from 'date-fns/locale'
 
 function formatTime(date) {
   return format(date, 'HH:mm:ss')
@@ -27,20 +26,18 @@ function formatFilename(date) {
   return format(date, 'yyyy_MM_dd_HH_mm_ss')
 }
 
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // return false to prevent the error from
+  // failing this test
+  return false
+})
+
 describe('DataExtractor', () => {
   beforeEach(() => {
     cy.task('clearDownloads')
     cy.visit('/tools/dataextractor')
     cy.hideNav()
     cy.wait(1000)
-    // TODO: Why are we getting this removeChild exception
-    // I think it has something to do with the download code
-    cy.on('uncaught:exception', (err, runnable) => {
-      expect(err.message).to.include('removeChild')
-      // return false to prevent the error from
-      // failing this test
-      return false
-    })
   })
 
   it('loads and saves the configuration', function () {
@@ -157,7 +154,7 @@ describe('DataExtractor', () => {
     cy.contains('Process')
     // Verify we still get a file
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     })
   })
 
@@ -232,7 +229,7 @@ describe('DataExtractor', () => {
     })
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('CCSDSSHF (RAW)')
@@ -245,8 +242,9 @@ describe('DataExtractor', () => {
     // Preload an ABORT command
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
-    cy.contains('Aborts a collect')
-    cy.get('button').contains('Send').click()
+    // Make sure the Send button is enabled so we're ready
+    cy.get('[data-test=select-send]', { timeout: 20000 }).should('not.have.class', 'v-btn--disabled')
+    cy.get('[data-test=select-send]').click()
     cy.wait(1000)
     cy.contains('cmd("INST ABORT") sent')
     cy.wait(500)
@@ -262,7 +260,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[1]).to.contain('INST')
@@ -272,8 +270,8 @@ describe('DataExtractor', () => {
 
   it('creates CSV output', function () {
     const start = sub(new Date(), { minutes: 5 })
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains(/Comma Delimited/).click()
+    cy.get('.v-toolbar').contains('File').click({force: true})
+    cy.contains(/Comma Delimited/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -283,7 +281,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       // Check that we handle raw value types set by the demo
       expect(contents).to.contain('NaN')
@@ -299,8 +297,8 @@ describe('DataExtractor', () => {
 
   it('creates tab delimited output', function () {
     const start = sub(new Date(), { minutes: 5 })
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains(/Tab Delimited/).click()
+    cy.get('.v-toolbar').contains('File').click({force: true})
+    cy.contains(/Tab Delimited/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -310,7 +308,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.txt', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('TEMP1')
@@ -322,8 +320,8 @@ describe('DataExtractor', () => {
 
   it('outputs full column names', function () {
     let start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Full Column Names/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Full Column Names/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -333,7 +331,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP1')
@@ -349,7 +347,7 @@ describe('DataExtractor', () => {
       .type(formatTime(start))
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('TARGET,PACKET,TEMP1,TEMP2')
@@ -358,8 +356,8 @@ describe('DataExtractor', () => {
 
   it('fills values', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Fill Down/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Fill Down/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -370,7 +368,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('CCSDSSEQCNT')
@@ -397,8 +395,8 @@ describe('DataExtractor', () => {
 
   it('adds Matlab headers', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Matlab Header/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Matlab Header/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -408,7 +406,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('% TARGET,PACKET,Q1,Q2')
@@ -417,8 +415,8 @@ describe('DataExtractor', () => {
 
   it('outputs unique values only', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.get('.v-toolbar').contains('Mode').click()
-    cy.contains(/Unique Only/).click()
+    cy.get('.v-toolbar').contains('Mode').click({force: true})
+    cy.contains(/Unique Only/).click({force: true})
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
@@ -426,7 +424,7 @@ describe('DataExtractor', () => {
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-      timeout: 10000,
+      timeout: 20000,
     }).then((contents) => {
       console.log(contents)
       var lines = contents.split('\n')

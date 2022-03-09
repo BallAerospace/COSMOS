@@ -24,16 +24,11 @@ describe('ScriptRunner Debug', () => {
     cy.wait(1000)
   })
 
-  afterEach(() => {
-    //
-  })
-
   it('runs Ruby Syntax check', () => {
     cy.focused().type('if{enter}end{enter}end{enter}')
     cy.get('.v-toolbar').contains('Script').click({ force: true })
     cy.contains('Ruby Syntax Check').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
-      // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
       cy.contains("unexpected `end'")
       cy.contains('Ok').click({ force: true })
@@ -41,7 +36,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
-      'stopped'
+      'fatal'
     )
     cy.get('[data-test=output-messages]').contains('Exception')
   })
@@ -51,7 +46,6 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-toolbar').contains('Script').click({ force: true })
     cy.contains('Ruby Syntax Check').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
-      // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
       cy.contains("unexpected `end'")
       cy.contains('Ok').click({ force: true })
@@ -59,7 +53,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
-      'stopped'
+      'fatal'
     )
     cy.get('[data-test=output-messages]').contains('Exception')
   })

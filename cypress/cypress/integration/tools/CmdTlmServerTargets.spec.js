@@ -27,26 +27,56 @@ describe('CmdTlmServer Targets', () => {
     cy.get('[data-test=targets-table]').contains('EXAMPLE')
     cy.get('[data-test=targets-table]').contains('TEMPLATED')
   })
+
   it('displays the command count', () => {
+    cy.visit('/tools/cmdtlmserver')
+    cy.hideNav()
+    cy.wait(1000)
+    // Connect the EXAMPLE interface since it doesn't automatically send packets
+    // it is a stable target to work with the command count
+    cy.get('[data-test=interfaces-table]')
+      .contains('EXAMPLE_INT')
+      .parent()
+      .children()
+      .eq(2)
+      .invoke('text')
+      .then((connection) => {
+        // Check for DISCONNECTED and if so click connect
+        if (connection === ' DISCONNECTED ') {
+          cy.get('[data-test=interfaces-table]')
+            .contains('EXAMPLE_INT')
+            .parent()
+            .children()
+            .eq(1)
+            .click()
+        }
+      })
+    cy.get('[data-test=interfaces-table]')
+      .contains('EXAMPLE_INT', { timeout: 10000 })
+      .parent()
+      .children()
+      .eq(2)
+      .invoke('text')
+      .should('eq', ' CONNECTED ')
     cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
     cy.wait(1000)
     cy.get('[data-test=targets-table]', { timeout: 10000 })
-      .contains('INST2_INT')
+      .contains('EXAMPLE_INT')
       .parent()
       .children()
       .eq(2)
       .invoke('text')
       .then((cmdCnt) => {
-        cy.visit('/tools/cmdsender/INST2/ABORT')
-        cy.hideNav()
-        cy.contains('Aborts a collect')
-        cy.clickButton('Send')
+        cy.visit('/tools/cmdsender/EXAMPLE/START')
+        // Make sure the Send button is enabled so we're ready
+        cy.get('[data-test=select-send]', { timeout: 10000 }).should('not.have.class', 'v-btn--disabled')
+        cy.get('[data-test=select-send]').click().wait(1000)
         cy.visit('/tools/cmdtlmserver')
         cy.hideNav()
         cy.get('.v-tab').contains('Targets').click({ force: true })
         cy.get('[data-test=targets-table]')
-          .contains('INST2_INT')
+          .contains('EXAMPLE_INT')
           .parent()
           .children()
           .eq(2)
@@ -56,6 +86,7 @@ describe('CmdTlmServer Targets', () => {
           })
       })
   })
+
   it('displays the telemetry count', () => {
     cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()

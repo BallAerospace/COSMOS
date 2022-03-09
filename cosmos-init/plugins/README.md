@@ -64,10 +64,7 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
         cosmos-cmd-tlm-api> docker ps
         # Look for the container with name including cmd-tlm-api
         cosmos-cmd-tlm-api> docker stop cosmos_cosmos-cmd-tlm-api_1
-        # Set all the environment variables in the .env file
-        # except set COSMOS_REDIS_HOSTNAME=127.0.0.1
-        # Set RUBYGEMS_URL=https://rubygems.org
-        # Set COSMOS_DEVEL=<Absolute path to the 'cosmos' dir>
+        cosmos-cmd-tlm-api> dev_server.bat
         cosmos-cmd-tlm-api> bundle install
         cosmos-cmd-tlm-api> bundle exec rails s
 
