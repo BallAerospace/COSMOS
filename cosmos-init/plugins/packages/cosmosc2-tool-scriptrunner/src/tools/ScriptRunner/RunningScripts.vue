@@ -59,6 +59,12 @@
             <v-icon right> mdi-close-circle-outline </v-icon>
           </v-btn>
         </template>
+        <template v-slot:item.delete="{ item }">
+          <v-btn color="primary" @click="deleteScript(item)">
+            <span>Delete</span>
+            <v-icon right> mdi-alert-octagon-outline </v-icon>
+          </v-btn>
+        </template>
       </v-data-table>
     </v-card>
     <v-card class="mt-3" flat>
@@ -129,6 +135,12 @@ export default {
           sortable: false,
           filterable: false,
         },
+        {
+          text: 'Force Quit',
+          value: 'delete',
+          sortable: false,
+          filterable: false,
+        },
       ],
       completedSearch: '',
       completedScripts: [],
@@ -175,7 +187,7 @@ export default {
     stopScript: function (script) {
       this.$dialog
         .confirm(
-          `Are you sure you want to stop script: ${script.id} ${script.name}`,
+          `Are you sure you want to stop script: ${script.id} ${script.name}?`,
           {
             okText: 'Stop',
             cancelText: 'Cancel',
@@ -183,6 +195,33 @@ export default {
         )
         .then((dialog) => {
           return Api.post(`/script-api/running-script/${script.id}/stop`)
+        })
+        .then((response) => {
+          this.$notify.normal({
+            body: `Stopped script: ${script.id} ${script.name}`,
+          })
+          this.getRunningScripts()
+        })
+        .catch((error) => {
+          if (error) {
+            this.$notify.caution({
+              body: `Failed to stop script: ${script.id} ${script.name}`,
+            })
+          }
+        })
+    },
+    deleteScript: function (script) {
+      this.$dialog
+        .confirm(
+          `Are you sure you want to force quit script: ${script.id} ${script.name}?\n` +
+            'Did you try to stop the script first to allow the script to stop gracefully?',
+          {
+            okText: 'Force Quit',
+            cancelText: 'Cancel',
+          }
+        )
+        .then((dialog) => {
+          return Api.post(`/script-api/running-script/${script.id}/delete`)
         })
         .then((response) => {
           this.$notify.normal({

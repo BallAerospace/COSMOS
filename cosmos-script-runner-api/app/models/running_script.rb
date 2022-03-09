@@ -273,6 +273,18 @@ class RunningScript
     end
   end
 
+  def self.delete(id)
+    Cosmos::Store.del("running-script:#{id}")
+    running = Cosmos::Store.smembers("running-scripts")
+    running.each do |item|
+      parsed = JSON.parse(item)
+      if parsed["id"].to_s == id.to_s
+        Cosmos::Store.srem("running-scripts", item)
+        break
+      end
+    end
+  end
+
   def self.spawn(scope, name, suite_runner = nil, disconnect = false, environment = nil)
     runner_path = File.join(RAILS_ROOT, 'scripts', 'run_script.rb')
     running_script_id = Cosmos::Store.incr('running-script-id')
@@ -788,8 +800,8 @@ class RunningScript
       detail_string = nil
       if filename
         detail_string = File.basename(filename) << ':' << line_number.to_s
+        Cosmos::Logger.detail_string = detail_string
       end
-      Cosmos::Logger.detail_string = detail_string
 
       Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
       handle_pause(filename, line_number)
@@ -934,7 +946,7 @@ class RunningScript
       string.each_line do |out_line|
         begin
           json = JSON.parse(out_line)
-          time_formatted = json["@timestamp"] if json["@timestamp"]
+          time_formatted = Time.parse(json["@timestamp"]).sys.formatted if json["@timestamp"]
           out_line = json["log"] if json["log"]
         rescue
           # Regular output
@@ -1235,11 +1247,13 @@ class RunningScript
     if error.class == DRb::DRbConnError
       Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
     elsif error.class == Cosmos::CheckError
-      Cosmos::Logger.error(error.message)
-    else
+      Cosmos::Logger.error(error.message)#
+    # Don't bother logging the error and backtrace if it's this file
+    # because that's confusing to the end user who doesn't see this
+    elsif File.basename(filename) != File.basename(__FILE__)
       Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
+      Cosmos::Logger.error(error.backtrace.join("\n"))
     end
-    Cosmos::Logger.error(error.backtrace.join("\n")) # if @@show_backtrace
     handle_output_io(filename, line_number)
 
     raise error if !@@pause_on_error and !@continue_after_error and !fatal
