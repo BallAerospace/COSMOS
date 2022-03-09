@@ -260,7 +260,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('Ok')
   })
 
-  it('enable environment dialog for prompt and start', () => {
+  it('sets environment variables for the script', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )
