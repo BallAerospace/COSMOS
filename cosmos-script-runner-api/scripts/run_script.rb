@@ -154,7 +154,7 @@ ensure
         break
       end
     end
-    sleep 0.1 # Allow the message queue to be emptied before signaling complete
+    sleep 0.2 # Allow the message queue to be emptied before signaling complete
     Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
   ensure
     running_script.stop_message_log if running_script
