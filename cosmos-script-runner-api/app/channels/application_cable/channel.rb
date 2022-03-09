@@ -17,6 +17,39 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'action_cable/channel/streams'
+require 'action_cable/subscription_adapter/redis'
+
+# Monkey Patches to Make ActionCable output synchronous
+# Based on Rails 6.1
+module ActionCable
+  module SubscriptionAdapter
+    class Redis < Base # :nodoc:
+      private
+        class Listener < SubscriberMap
+          def invoke_callback(callback, message)
+            callback.call message
+          end
+        end
+    end
+  end
+
+  module Channel
+    module Streams
+      private
+        def worker_pool_stream_handler(broadcasting, user_handler, coder: nil)
+          handler = stream_handler(broadcasting, user_handler, coder: coder)
+
+          -> message do
+            # Make this synchronous to force in order messaging until we can come up with something
+            # fancier that is asynchronous
+            handler.call(message)
+          end
+        end
+    end
+  end
+end
+
 module ApplicationCable
   class Channel < ActionCable::Channel::Base
   end

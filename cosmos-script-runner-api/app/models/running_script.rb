@@ -1034,9 +1034,14 @@ class RunningScript
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
   end
 
+  def mark_fatal
+    @state = :fatal
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
+  end
+
   def mark_stopped
-    @state = :stopped
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped }))
+    @state = :stopped unless @state == :fatal
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
       Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::SuiteRunner.suite_results.report }))
@@ -1113,20 +1118,20 @@ class RunningScript
           end
         end
 
-        scriptrunner_puts "Script completed: #{File.basename(@filename)}" unless close_on_complete
         handle_output_io()
+        scriptrunner_puts "Script completed: #{File.basename(@filename)}" unless close_on_complete
 
       rescue Exception => error
         if error.class <= Cosmos::StopScript or error.class <= Cosmos::SkipScript
-          scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
           handle_output_io()
+          scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
         else
           uncaught_exception = true
           filename, line_number = error.source
           handle_exception(error, true, filename, line_number)
-          scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           handle_output_io()
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
+          scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
+          mark_fatal()
         end
       ensure
         # Stop Capturing STDOUT and STDERR
