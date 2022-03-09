@@ -63,7 +63,7 @@ describe('AdminSettings', () => {
     })
   })
 
-  it.only('sets a classification banner', function () {
+  it('sets a classification banner', function () {
     const bannerText = 'test classification banner'
     const bannerHeight = '32'
     const bannerTextColor = 'aaa'
