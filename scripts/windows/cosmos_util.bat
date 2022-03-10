@@ -30,6 +30,7 @@ GOTO :EOF
 GOTO :EOF
 
 :save
+  if not exist tmp md tmp
   docker save minio/minio -o tmp/minio_minio.tar || exit /b
   docker save ballaerospace/cosmosc2-redis -o tmp/cosmosc2-redis.tar || exit /b
   docker save ballaerospace/cosmosc2-minio-init -o tmp/cosmosc2-minio-init.tar || exit /b
