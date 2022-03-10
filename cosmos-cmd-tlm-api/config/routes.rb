@@ -129,7 +129,7 @@ Rails.application.routes.draw do
     match '/metadata/:id', to: 'metadata#update', id: /[^\/]+/, via: [:patch, :put]
     delete '/metadata/:id', to: 'metadata#delete', id: /[^\/]+/
     get '/metadata/_search', to: 'metadata#search'
-    get '/metadata/_get/:name', to: 'metadata#get'
+    get '/metadata/_get/:name', to: 'metadata#get', name: /[^\/]+/
 
     get '/narrative', to: 'narrative#index'
     post '/narrative', to: 'narrative#create'
