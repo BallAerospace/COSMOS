@@ -43,6 +43,13 @@ jobs:
         ruby-version: ["2.7", "3.0", "3.1"]
 
     steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          working-directory: cosmos
       - name: Run unit tests
         run: bundle exec rake build spec
         working-directory: cosmos
@@ -77,6 +84,7 @@ jobs:
         working-directory: cosmos-cmd-tlm-api
         env:
           COSMOS_DEVEL: ../cosmos
+          RUBYLIB: ../cosmos
 
   script-runner-api:
     needs: build-cosmos
@@ -100,3 +108,4 @@ jobs:
         working-directory: cosmos-script-runner-api
         env:
           COSMOS_DEVEL: ../cosmos
+          RUBYLIB: ../cosmos
