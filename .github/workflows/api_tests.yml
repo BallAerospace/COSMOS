@@ -17,6 +17,7 @@ on:
 
 env:
   RUBYGEMS_URL: https://rubygems.org
+  BUNDLE_WITHOUT: development
 
 jobs:
   cmd-tlm-api:
