@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos 5 Ruby Tests
+name: Cosmos 5 API Tests
 
 on:
   push:
@@ -19,54 +19,6 @@ env:
   RUBYGEMS_URL: https://rubygems.org
 
 jobs:
-  build-cosmos:
-    if: ${{ github.actor != 'dependabot[bot]' }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ["2.7", "3.0", "3.1"]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby ${{ matrix.ruby-version }}
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
-      - name: Build cosmos
-        run: bundle exec rake build
-        working-directory: cosmos
-        env:
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
-
-  unit-test:
-    needs: build-cosmos
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ["2.7", "3.0", "3.1"]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Ruby ${{ matrix.ruby-version }}
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
-          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
-      - name: Run unit tests
-        run: bundle exec rspec
-        working-directory: cosmos
-        env:
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
-      - name: Run unit tests without extensions
-        run: bundle exec rspec --tag no_ext
-        working-directory: cosmos
-        env:
-          COSMOS_NO_EXT: 1
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
-
   cmd-tlm-api:
     needs: build-cosmos
     runs-on: ubuntu-latest
@@ -84,6 +36,11 @@ jobs:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           working-directory: cosmos-cmd-tlm-api
+      - name: Build cosmos
+        run: bundle exec rake build
+        working-directory: cosmos
+        env:
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
       - name: Run cmd-tlm-api tests
         run: bundle exec rspec
         working-directory: cosmos-cmd-tlm-api
@@ -107,6 +64,9 @@ jobs:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           working-directory: cosmos-script-runner-api
+      - name: Build cosmos
+        run: bundle exec rake build
+        working-directory: cosmos
       - name: Run script-runner-api tests
         run: bundle exec rspec
         working-directory: cosmos-script-runner-api

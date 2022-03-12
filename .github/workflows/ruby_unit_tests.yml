@@ -1,0 +1,47 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+
+# Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
+
+name: Cosmos 5 Ruby Unit Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  RUBYGEMS_URL: https://rubygems.org
+
+jobs:
+  unit-test:
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ["2.7", "3.0", "3.1"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          working-directory: cosmos
+      - name: Run unit tests
+        run: bundle exec rake build spec
+        working-directory: cosmos
+        env:
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+      - name: Run unit tests without extensions
+        run: bundle exec rspec --tag no_ext
+        working-directory: cosmos
+        env:
+          COSMOS_NO_EXT: 1
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
