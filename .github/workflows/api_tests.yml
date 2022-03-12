@@ -18,6 +18,10 @@ on:
 env:
   RUBYGEMS_URL: https://rubygems.org
   BUNDLE_WITHOUT: development
+  COSMOS_REDIS_USERNAME: cosmos
+  COSMOS_REDIS_PASSWORD: cosmospassword
+  COSMOS_REDIS_HOSTNAME: 127.0.0.1
+  COSMOS_REDIS_PORT: 6379
 
 jobs:
   cmd-tlm-api:
