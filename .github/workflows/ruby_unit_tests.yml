@@ -38,11 +38,11 @@ jobs:
         working-directory: cosmos
         env:
           RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
       - name: Run unit tests without extensions
         run: bundle exec rspec --tag no_ext
         working-directory: cosmos
         env:
           COSMOS_NO_EXT: 1
           RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
