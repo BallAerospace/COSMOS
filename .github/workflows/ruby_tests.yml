@@ -84,7 +84,7 @@ jobs:
         working-directory: cosmos-cmd-tlm-api
         env:
           COSMOS_DEVEL: ../cosmos
-          RUBYLIB: ../cosmos
+          RUBYLIB: ../cosmos/lib
 
   script-runner-api:
     needs: build-cosmos
@@ -108,4 +108,4 @@ jobs:
         working-directory: cosmos-script-runner-api
         env:
           COSMOS_DEVEL: ../cosmos
-          RUBYLIB: ../cosmos
+          RUBYLIB: ../cosmos/lib
