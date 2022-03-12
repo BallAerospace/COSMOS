@@ -20,7 +20,6 @@ env:
 
 jobs:
   cmd-tlm-api:
-    needs: build-cosmos
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -48,7 +47,6 @@ jobs:
           COSMOS_DEVEL: ../cosmos
 
   script-runner-api:
-    needs: build-cosmos
     runs-on: ubuntu-latest
     strategy:
       matrix:

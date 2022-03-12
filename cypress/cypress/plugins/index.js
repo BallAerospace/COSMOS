@@ -77,18 +77,10 @@ module.exports = (on, config) => {
 
   on('task', {
     clearDownloads: function () {
-      fs.readdir(downloadDirectory, (err, files) => {
-        if (err) throw err
-
-        for (const file of files) {
-          fs.unlink(path.join(downloadDirectory, file), (err) => {
-            if (err) throw err
-          })
-        }
-      })
-      return null
+      return fs
+        .readdirSync(downloadDirectory)
+        .map((file) => fs.rmSync(path.join(downloadDirectory, file)))
     },
-
     readDownloads: function () {
       return fs
         .readdirSync(downloadDirectory)
