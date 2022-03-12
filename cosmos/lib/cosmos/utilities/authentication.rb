@@ -27,8 +27,6 @@ module Cosmos
 
   # Cosmos base / open source authentication code
   class CosmosAuthentication
-
-    #
     def initialize()
       @token = ENV['COSMOS_API_PASSWORD'] || ENV['COSMOS_SERVICE_PASSWORD']
       if @token.nil?
@@ -40,7 +38,6 @@ module Cosmos
     def token()
       @token
     end
-
   end
 
   # Cosmos enterprise Keycloak authentication code
@@ -139,7 +136,5 @@ module Cosmos
         raise CosmosAuthenticationError, "authentication request failed #{@log[0]} ::: #{@log[1]}"
       end
     end
-
   end
-
 end
