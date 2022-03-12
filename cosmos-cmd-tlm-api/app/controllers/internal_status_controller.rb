@@ -23,7 +23,7 @@ require 'cosmos/models/ping_model'
 
 class InternalStatusController < ActionController::Base
   # InternalStatusController is designed to check the status of Cosmos. Status will
-  # check that Redis is up but that does not equal that everything is 
+  # check that Redis is up but that does not equal that everything is
   # working just that Cosmos can talk to Redis.
 
   def status
@@ -33,5 +33,4 @@ class InternalStatusController < ActionController::Base
       render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 500
     end
   end
-
 end

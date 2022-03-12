@@ -1,0 +1,6 @@
+example_id                                                      | status | run_time        |
+--------------------------------------------------------------- | ------ | --------------- |
+./spec/controllers/completed_script_controller_spec.rb[1:1:1:1] | passed | 0.0026 seconds  |
+./spec/controllers/completed_script_controller_spec.rb[1:1:2:1] | passed | 0.00412 seconds |
+./spec/controllers/completed_script_controller_spec.rb[1:1:2:2] | passed | 0.00674 seconds |
+./spec/controllers/completed_script_controller_spec.rb[1:1:2:3] | passed | 0.34654 seconds |

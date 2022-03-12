@@ -18,28 +18,17 @@
 # copyright holder
 
 require 'rails_helper'
-require 'cosmos/models/auth_model'
-require 'cosmos/models/info_model'
 
-RSpec.describe InternalHealthController, :type => :controller do
-
-  AUTH = 'foobar'
-
+RSpec.describe InternalStatusController, :type => :controller do
   before(:each) do
     mock_redis()
-    Cosmos::AuthModel.set(AUTH)
   end
 
-  # TODO
-
-  describe "GET health" do
-    it "returns a Hash<> and status code 200" do
-      request.headers["Authorization"] = AUTH
-      get :health
-      json = JSON.parse(response.body)
-      expect(json).to eql([])
+  describe "GET status" do
+    it "returns a Hash<string, string> and status code 200" do
+      get :status
+      expect(JSON.parse(response.body, symbolize_names: true)).to include(status: 'UP')
       expect(response).to have_http_status(:ok)
     end
   end
-
 end

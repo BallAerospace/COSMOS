@@ -30,8 +30,6 @@
 # a separate helper file that requires the additional dependencies and performs
 # the additional setup, and require it from the spec files that actually need
 # it.
-#
-# See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
 # NOTE: You MUST require simplecov before anything else!
 if !ENV['COSMOS_NO_SIMPLECOV']
@@ -58,54 +56,8 @@ if !ENV['COSMOS_NO_SIMPLECOV']
   end
 end
 
-# Disable Redis and Fluentd in the Logger
-ENV['COSMOS_NO_STORE'] = 'true'
-# Set some passwords
-ENV['COSMOS_API_PASSWORD'] = 'cosmos'
-# Set internal cosmos password
-ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmosservice'
-# Set redis host
-ENV['COSMOS_REDIS_HOSTNAME'] = '127.0.0.1'
-# Set redis port
-ENV['COSMOS_REDIS_PORT'] = '6379'
-# Set redis username
-ENV['COSMOS_REDIS_USERNAME'] = 'cosmos'
-# Set redis password
-ENV['COSMOS_REDIS_PASSWORD'] = 'cosmospassword'
-# Set minio password
-ENV['COSMOS_MINIO_USERNAME'] = 'cosmosminio'
-# Set minio password
-ENV['COSMOS_MINIO_PASSWORD'] = 'cosmosminiopassword'
-# Set cosmos scope
-ENV['COSMOS_SCOPE'] = 'DEFAULT'
-
-$cosmos_scope = ENV['COSMOS_SCOPE']
-$cosmos_token = ENV['COSMOS_API_PASSWORD']
-
-def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
-  require 'cosmos/system'
-  dir = File.join(__dir__, '..', '..', 'cosmos', 'spec', 'install', 'config', 'targets')
-  Cosmos::System.class_variable_set(:@@instance, nil)
-  Cosmos::System.instance(targets, dir)
-  require 'cosmos/utilities/logger'
-  Cosmos::Logger.stdout = false
-end
-
-def mock_redis
-  require 'redis'
-  require 'mock_redis'
-  redis = MockRedis.new
-  allow(Redis).to receive(:new).and_return(redis)
-  Cosmos::Store.class_variable_set(:@@instance, nil)
-  redis
-end
-
+# See https://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
-  config.before(:all) do
-    # Most tests want to disable authorization for simplicity
-    $cosmos_authorize = false
-  end
-
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
@@ -150,9 +102,7 @@ RSpec.configure do |config|
 
   # Limits the available syntax to the non-monkey patched syntax that is
   # recommended. For more details, see:
-  #   - http://rspec.info/blog/2012/06/rspecs-new-expectation-syntax/
-  #   - http://www.teaisaweso.me/blog/2013/05/27/rspecs-new-message-expectation-syntax/
-  #   - http://rspec.info/blog/2014/05/notable-changes-in-rspec-3/#zero-monkey-patching-mode
+  # https://relishapp.com/rspec/rspec-core/docs/configuration/zero-monkey-patching-mode
   config.disable_monkey_patching!
 
   # This setting enables warnings. It's recommended, but in some cases may
