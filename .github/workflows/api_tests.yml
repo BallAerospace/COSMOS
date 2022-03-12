@@ -29,7 +29,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         env:
           RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          COSMOS_DEVEL: ../cosmos
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
@@ -39,7 +39,7 @@ jobs:
         working-directory: cosmos-cmd-tlm-api
         env:
           RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          COSMOS_DEVEL: ../cosmos
 
   script-runner-api:
     if: ${{ github.actor != 'dependabot[bot]' }}
@@ -54,7 +54,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         env:
           RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          COSMOS_DEVEL: ../cosmos
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
@@ -64,4 +64,4 @@ jobs:
         working-directory: cosmos-script-runner-api
         env:
           RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          COSMOS_DEVEL: ../cosmos
