@@ -34,6 +34,11 @@ jobs:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           working-directory: cosmos
+      - name: Build cosmos
+        run: bundle exec rake build
+        working-directory: cosmos
+        env:
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
 
   unit-test:
     needs: build-cosmos
@@ -51,7 +56,7 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           working-directory: cosmos
       - name: Run unit tests
-        run: bundle exec rake build spec
+        run: bundle exec rspec
         working-directory: cosmos
         env:
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
@@ -84,7 +89,6 @@ jobs:
         working-directory: cosmos-cmd-tlm-api
         env:
           COSMOS_DEVEL: ../cosmos
-          RUBYLIB: ../cosmos/lib
 
   script-runner-api:
     needs: build-cosmos
@@ -108,4 +112,3 @@ jobs:
         working-directory: cosmos-script-runner-api
         env:
           COSMOS_DEVEL: ../cosmos
-          RUBYLIB: ../cosmos/lib
