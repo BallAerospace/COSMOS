@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos 5 Unit Tests
+name: Cosmos 5 API Tests
 
 on:
   push:
@@ -16,7 +16,8 @@ on:
     branches: [master]
 
 jobs:
-  unit-test:
+  cmd-tlm-api:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,26 +32,31 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
-      - name: Run unit tests
-        run: bundle exec rake build spec
-        working-directory: cosmos
-        env:
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
-      - name: Run unit tests without extensions
-        run: bundle exec rspec --tag no_ext
-        working-directory: cosmos
-        env:
-          COSMOS_NO_EXT: 1
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+          working-directory: cosmos-cmd-tlm-api
       - name: Run cmd-tlm-api tests
         run: bundle exec rspec
         working-directory: cosmos-cmd-tlm-api
         env:
           RUBYGEMS_URL: https://rubygems.org
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+
+  script-runner-api:
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: ["2.7", "3.0", "3.1"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby-version }}
+        uses: ruby/setup-ruby@v1
+        env:
+          RUBYGEMS_URL: https://rubygems.org
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          working-directory: cosmos-script-runner-api
       - name: Run script-runner-api tests
         run: bundle exec rspec
         working-directory: cosmos-script-runner-api
