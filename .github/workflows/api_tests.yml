@@ -29,6 +29,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         env:
           RUBYGEMS_URL: https://rubygems.org
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
@@ -36,9 +37,9 @@ jobs:
       - name: Run cmd-tlm-api tests
         run: bundle exec rspec
         working-directory: cosmos-cmd-tlm-api
-        env:
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+        # env:
+        #   RUBYGEMS_URL: https://rubygems.org
+        #   COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
 
   script-runner-api:
     if: ${{ github.actor != 'dependabot[bot]' }}
@@ -53,6 +54,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         env:
           RUBYGEMS_URL: https://rubygems.org
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
@@ -60,6 +62,6 @@ jobs:
       - name: Run script-runner-api tests
         run: bundle exec rspec
         working-directory: cosmos-script-runner-api
-        env:
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+        # env:
+        #   RUBYGEMS_URL: https://rubygems.org
+        #   COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
