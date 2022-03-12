@@ -23,6 +23,8 @@ gem 'bootsnap', '>= 1.9.3', require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors', '~> 1.1'
 
+gem 'ruby-termios', '>= 0.9' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
+
 group :development do
   gem 'ruby-debug-ide', '~> 0.7.2'
   # This is the only version of this gem that works with Ruby 3.x
