@@ -22,6 +22,7 @@
 require 'base64'
 require 'cosmos'
 
+Cosmos.require_file 'cosmos/packets/packet'
 Cosmos.require_file 'cosmos/utilities/store'
 Cosmos.require_file 'cosmos/utilities/s3_file_cache'
 Cosmos.require_file 'cosmos/packets/json_packet'
@@ -363,7 +364,10 @@ class StreamingApi
         type = (@cmd_or_tlm == :CMD) ? 'COMMAND' : 'TELEMETRY'
       elsif stream_mode == :DECOM
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
-        if key_split.length > 4
+        # If our value type is the 4th param we're streaming a packet, otherwise item
+        if Cosmos::Packet::VALUE_TYPES.include?(key_split[3].intern)
+          @value_type = key_split[3].intern
+        else
           @item_name = key_split[3]
           @value_type = key_split[4].intern
         end

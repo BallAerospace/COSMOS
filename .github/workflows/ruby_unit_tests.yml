@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos 5 Unit Tests
+name: Cosmos 5 Ruby Unit Tests
 
 on:
   push:
@@ -15,8 +15,12 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  RUBYGEMS_URL: https://rubygems.org
+
 jobs:
   unit-test:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,22 +30,18 @@ jobs:
       - uses: actions/checkout@v2
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
-        env:
-          RUBYGEMS_URL: https://rubygems.org
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
           working-directory: cosmos
-      - name: Run tests
+      - name: Run unit tests
         run: bundle exec rake build spec
         working-directory: cosmos
         env:
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
-      - name: Run tests without extensions
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+      - name: Run unit tests without extensions
         run: bundle exec rspec --tag no_ext
         working-directory: cosmos
         env:
           COSMOS_NO_EXT: 1
-          RUBYGEMS_URL: https://rubygems.org
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos

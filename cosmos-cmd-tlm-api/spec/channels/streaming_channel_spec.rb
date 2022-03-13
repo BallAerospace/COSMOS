@@ -31,7 +31,7 @@ module ActionCable
 end
 
 RSpec.describe StreamingChannel, :type => :channel do
-  before do
+  before(:all) do
     stub_connection uuid: '12345'
   end
 

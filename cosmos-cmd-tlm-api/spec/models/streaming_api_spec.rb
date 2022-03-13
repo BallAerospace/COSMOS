@@ -165,6 +165,7 @@ RSpec.describe StreamingApi, type: :model do
             @api.remove(data)
             sleep 0.15
             expect(@messages.length).to eq(5) # One more, plus the empty one
+            puts @messages
             expect(@messages[-1]).to eq("[]") # Last message after removing the subscription should be empty
             sleep 0.15
             expect(@messages.length).to eq(5) # No more
@@ -174,6 +175,7 @@ RSpec.describe StreamingApi, type: :model do
             @api.add(data)
             while true
               sleep 0.05
+              puts @messages
               break if @messages.length > 4
             end
             @api.kill
