@@ -26,6 +26,7 @@ env:
 
 jobs:
   cmd-tlm-api:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -53,6 +54,7 @@ jobs:
           COSMOS_DEVEL: ../cosmos
 
   script-runner-api:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
