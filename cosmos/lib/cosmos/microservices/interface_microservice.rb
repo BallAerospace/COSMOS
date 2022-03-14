@@ -50,7 +50,7 @@ module Cosmos
     end
 
     def graceful_kill
-      InterfaceTopic.shutdown(@interface.name, scope: @scope)
+      InterfaceTopic.shutdown(@interface, scope: @scope)
     end
 
     def run
