@@ -186,7 +186,7 @@ module Cosmos
     end
 
     def graceful_kill
-      RouterTopic.shutdown(@router.name, scope: @scope)
+      RouterTopic.shutdown(@router, scope: @scope)
     end
 
     def run

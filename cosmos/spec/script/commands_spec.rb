@@ -88,7 +88,7 @@ module Cosmos
 
     after(:each) do
       shutdown_script()
-      InterfaceTopic.shutdown(@interface.name, scope: 'DEFAULT')
+      InterfaceTopic.shutdown(@interface, scope: 'DEFAULT')
       count = 0
       while (@int_thread.alive? or count < 100) do
         sleep 0.01
