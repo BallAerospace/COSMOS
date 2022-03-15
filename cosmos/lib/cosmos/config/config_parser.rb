@@ -250,11 +250,14 @@ module Cosmos
 
       indeces_to_check.each do |index|
         param = @parameters[index - 1]
-        if param.start_with? '_' or param.end_with? '_'
-          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot begin or end with an underscore ('_').", usage, @url)
+        if param.end_with? '_'
+          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot end with an underscore ('_').", usage, @url)
         end
         if param.include? '__'
           raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot contain a double underscore ('__').", usage, @url)
+        end
+        if param.include? ' '
+          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot contain a space (' ').", usage, @url)
         end
       end
     end
