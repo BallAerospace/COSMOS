@@ -190,7 +190,7 @@ module Cosmos
       end
     end
 
-    it "handles exceptions in monitor thread" do
+    xit "handles exceptions in monitor thread" do
       $read_allowed_raise = true
       im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
       all = InterfaceStatusModel.all(scope: "DEFAULT")
