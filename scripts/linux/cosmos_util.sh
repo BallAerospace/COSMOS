@@ -12,6 +12,7 @@ usage() {
 }
 
 saveTar() {
+  mkdir -p tmp
   docker save minio/minio -o tmp/minio_minio.tar
   docker save ballaerospace/cosmosc2-minio-init -o tmp/cosmosc2-minio-init.tar
   docker save ballaerospace/cosmosc2-redis -o tmp/cosmosc2-redis.tar
