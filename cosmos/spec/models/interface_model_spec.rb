@@ -215,30 +215,24 @@ module Cosmos
       end
     end
 
-    describe "deploy" do
+    describe "deploy, undeploy" do
       it "creates and deploys a MicroserviceModel" do
         dir = Dir.pwd
         variables = { "test" => "example" }
+
+        intmodel = double(InterfaceStatusModel)
+        expect(intmodel).to receive(:destroy)
+        expect(InterfaceStatusModel).to receive(:get_model).and_return(intmodel)
         # double MicroserviceModel because we're not testing that here
         umodel = double(MicroserviceModel)
         expect(umodel).to receive(:create)
         expect(umodel).to receive(:deploy).with(dir, variables)
+        expect(umodel).to receive(:destroy)
+        expect(MicroserviceModel).to receive(:get_model).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).and_return(umodel)
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", plugin: "PLUG")
         model.create
         model.deploy(dir, variables)
-      end
-    end
-
-    describe "undeploy" do
-      it "calls destroy on a deployed MicroserviceModel" do
-        intmodel = double(InterfaceStatusModel)
-        expect(intmodel).to receive(:destroy)
-        expect(InterfaceStatusModel).to receive(:get_model).and_return(intmodel)
-        umodel = double(MicroserviceModel)
-        expect(umodel).to receive(:destroy)
-        expect(MicroserviceModel).to receive(:get_model).and_return(umodel)
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", plugin: "PLUG")
         model.undeploy
       end
     end
