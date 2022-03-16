@@ -100,7 +100,12 @@ module Cosmos
     def self.set_packet(target_name, packet_name, packet, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
 
-      Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+      begin
+        Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+      rescue JSON::GeneratorError => err
+        Logger.error("Invalid text present in #{target_name} #{packet_name} #{type.to_s.downcase} packet")
+        raise err
+      end
     end
 
     # @return [Hash] Item hash or raises an exception
@@ -422,7 +427,12 @@ module Cosmos
         Store.del("#{@scope}__cosmostlm__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
-          Store.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          begin
+            Store.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          rescue JSON::GeneratorError => err
+            Logger.error("Invalid text present in #{target_name} #{packet_name} tlm packet")
+            raise err
+          end
           json_hash = Hash.new
           packet.sorted_items.each do |item|
             json_hash[item.name] = nil
@@ -434,12 +444,22 @@ module Cosmos
         Store.del("#{@scope}__cosmoscmd__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring cmd packet: #{target_name} #{packet_name}"
-          Store.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          begin
+            Store.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          rescue JSON::GeneratorError => err
+            Logger.error("Invalid text present in #{target_name} #{packet_name} cmd packet")
+            raise err
+          end
         end
       end
       # Store Limits Groups
       system.limits.groups.each do |group, items|
-        Store.hset("#{@scope}__limits_groups", group, JSON.generate(items))
+        begin
+          Store.hset("#{@scope}__limits_groups", group, JSON.generate(items))
+        rescue JSON::GeneratorError => err
+          Logger.error("Invalid text present in #{group} limits group")
+          raise err
+        end
       end
       # Merge in Limits Sets
       sets = Store.hgetall("#{@scope}__limits_sets")
