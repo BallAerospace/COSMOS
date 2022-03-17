@@ -24,6 +24,7 @@ export class Utilities {
           .click();
       }
     }
+    await this.sleep(100) // Ensure selects are stable before clicking
     await this.page.locator('[data-test="select-send"]').click();
   }
 }

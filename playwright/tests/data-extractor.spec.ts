@@ -10,7 +10,6 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("body")).toContainText("Data Extractor");
   await page.locator(".v-app-bar__nav-icon").click();
   utils = new Utilities(page);
-  await utils.sleep(500);
 });
 
 test("loads and saves the configuration", async ({ page }) => {
@@ -128,6 +127,7 @@ test("cancels a process", async ({ page }) => {
 
 test("adds an entire target", async ({ page }) => {
   await utils.selectTargetPacketItem("INST");
+  await utils.sleep(500); // Allow list to populate
   expect(
     await page.locator("[data-test=itemList] > div").count()
   ).toBeGreaterThan(50);
@@ -135,6 +135,7 @@ test("adds an entire target", async ({ page }) => {
 
 test("adds an entire packet", async ({ page }) => {
   await utils.selectTargetPacketItem("INST", "HEALTH_STATUS");
+  await utils.sleep(500); // Allow list to populate
   expect(await page.locator("[data-test=itemList] > div").count()).toBeLessThan(
     50
   );
@@ -181,24 +182,24 @@ test("add, edits, deletes items", async ({ page }) => {
     encoding: "utf-8",
   });
   const lines = contents.split("\n");
-  expect(lines[0]).toContain('CCSDSSHF (RAW)')
-  expect(lines[1]).not.toContain('FALSE')
-  expect(lines[1]).toContain('0')
+  expect(lines[0]).toContain("CCSDSSHF (RAW)");
+  expect(lines[1]).not.toContain("FALSE");
+  expect(lines[1]).toContain("0");
 });
 
-test('processes commands', async ({ page }) => {
+test("processes commands", async ({ page }) => {
   // Preload an ABORT command
   await page.goto("/tools/cmdsender/INST/ABORT");
   await page.locator("[data-test=select-send]").click();
-  await page.locator('text=cmd("INST ABORT") sent')
+  await page.locator('text=cmd("INST ABORT") sent');
 
-  const start = sub(new Date(), { minutes: 5 })
+  const start = sub(new Date(), { minutes: 5 });
   await page.goto("/tools/dataextractor");
   await page.locator(".v-app-bar__nav-icon").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
 
-  await utils.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
+  await utils.selectTargetPacketItem("INST", "ABORT", "RECEIVED_TIMEFORMATTED");
   const [download] = await Promise.all([
     // Start waiting for the download
     page.waitForEvent("download"),
@@ -211,17 +212,17 @@ test('processes commands', async ({ page }) => {
     encoding: "utf-8",
   });
   const lines = contents.split("\n");
-  expect(lines[1]).toContain('INST')
-  expect(lines[1]).toContain('ABORT')
-})
+  expect(lines[1]).toContain("INST");
+  expect(lines[1]).toContain("ABORT");
+});
 
-test('creates CSV output', async ({ page }) => {
-  const start = sub(new Date(), { minutes: 5 })
+test("creates CSV output", async ({ page }) => {
+  const start = sub(new Date(), { minutes: 5 });
   await page.locator('[data-test="Data\\ Extractor-File"]').click();
   await page.locator("text=Comma Delimited").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
-  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
   const [download] = await Promise.all([
     // Start waiting for the download
@@ -235,23 +236,23 @@ test('creates CSV output', async ({ page }) => {
     encoding: "utf-8",
   });
   // Check that we handle raw value types set by the demo
-  expect(contents).toContain('NaN')
-  expect(contents).toContain('Infinity')
-  expect(contents).toContain('-Infinity')
-  var lines = contents.split('\n')
-  expect(lines[0]).toContain('TEMP1')
-  expect(lines[0]).toContain('TEMP2')
-  expect(lines[0]).toContain(',') // csv
-  expect(lines.length).toBeGreaterThan(290) // 5 min at 60Hz is 300 samples
-})
+  expect(contents).toContain("NaN");
+  expect(contents).toContain("Infinity");
+  expect(contents).toContain("-Infinity");
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("TEMP1");
+  expect(lines[0]).toContain("TEMP2");
+  expect(lines[0]).toContain(","); // csv
+  expect(lines.length).toBeGreaterThan(290); // 5 min at 60Hz is 300 samples
+});
 
-test('creates tab delimited output', async ({ page }) => {
-  const start = sub(new Date(), { minutes: 5 })
+test("creates tab delimited output", async ({ page }) => {
+  const start = sub(new Date(), { minutes: 5 });
   await page.locator('[data-test="Data\\ Extractor-File"]').click();
   await page.locator("text=Tab Delimited").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
-  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
   const [download] = await Promise.all([
     // Start waiting for the download
@@ -265,176 +266,148 @@ test('creates tab delimited output', async ({ page }) => {
     encoding: "utf-8",
   });
   // Check that we handle raw value types set by the demo
-  var lines = contents.split('\n')
-  expect(lines[0]).toContain('TEMP1')
-  expect(lines[0]).toContain('TEMP2')
-  expect(lines[0]).toContain('\t')
-  expect(lines.length).toBeGreaterThan(290) // 5 min at 60Hz is 300 samples
-})
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("TEMP1");
+  expect(lines[0]).toContain("TEMP2");
+  expect(lines[0]).toContain("\t");
+  expect(lines.length).toBeGreaterThan(290); // 5 min at 60Hz is 300 samples
+});
 
-test('outputs full column names', async ({ page }) => {
-  let start = sub(new Date(), { minutes: 1 })
+test("outputs full column names", async ({ page }) => {
+  let start = sub(new Date(), { minutes: 1 });
   await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
   await page.locator("text=Full Column Names").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
-  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
-  let [download] = await Promise.all([
+  const [download1] = await Promise.all([
     // Start waiting for the download
     page.waitForEvent("download"),
     // Initiate the download
     page.locator("text=Process").click(),
   ]);
   // Wait for the download process to complete
-  let path = await download.path();
+  let path = await download1.path();
   let contents = await fs.readFileSync(path, {
     encoding: "utf-8",
   });
   // Check that we handle raw value types set by the demo
-  var lines = contents.split('\n')
-  expect(lines[0]).toContain('INST HEALTH_STATUS TEMP1')
-  expect(lines[0]).toContain('INST HEALTH_STATUS TEMP2')
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("INST HEALTH_STATUS TEMP1");
+  expect(lines[0]).toContain("INST HEALTH_STATUS TEMP2");
+  await utils.sleep(1000);
 
   // Switch back and verify
   await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
   await page.locator("text=Normal Columns").click();
   // Create a new end time so we get a new filename
-  start = sub(new Date(), { minutes: 2 })
+  start = sub(new Date(), { minutes: 2 });
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
 
-  [download] = await Promise.all([
+  const [download2] = await Promise.all([
     // Start waiting for the download
     page.waitForEvent("download"),
     // Initiate the download
     page.locator("text=Process").click(),
   ]);
   // Wait for the download process to complete
-  path = await download.path();
+  path = await download2.path();
   contents = await fs.readFileSync(path, {
     encoding: "utf-8",
   });
   // Check that we handle raw value types set by the demo
-  var lines = contents.split('\n')
-  expect(lines[0]).toContain('TARGET,PACKET,TEMP1,TEMP2')
-})
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("TARGET,PACKET,TEMP1,TEMP2");
+});
 
-// test('fills values', async ({ page }) => {
-//   const start = sub(new Date(), { minutes: 1 })
-//   cy.get('.v-toolbar').contains('Mode').click({force: true})
-//   cy.contains(/Fill Down/).click({force: true})
-//   cy.get('[data-test=startTime]')
-//     .clear({ force: true })
-//     .type(formatTime(start))
-//   // Deliberately test with two different packets
-//   await utils.selectTargetPacketItem('INST', 'ADCS', 'CCSDSSEQCNT')
-//   cy.contains('Add Item').click()
-//   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSSEQCNT')
-//   cy.contains('Add Item').click()
-//   page.locator("text=Process").click()
-//   cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-//     timeout: 20000,
-//   }).then((contents) => {
-//     var lines = contents.split('\n')
-//     expect(lines[0]).toContain('CCSDSSEQCNT')
-//     var firstHS = -1
-//     for (let i = 1; i < lines.length; i++) {
-//       if (firstHS !== -1) {
-//         var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(',')
-//         var [tgt2, pkt2, hs2, adcs2] = lines[i].split(',')
-//         expect(tgt1).to.eq(tgt2) // Both INST
-//         expect(pkt1).to.eq('HEALTH_STATUS')
-//         expect(pkt2).to.eq('ADCS')
-//         expect(parseInt(adcs1) + 1).to.eq(parseInt(adcs2)) // ADCS goes up by one each time
-//         expect(parseInt(hs1)).toBeGreaterThan(1) // Double check for a value
-//         expect(hs1).to.eq(hs2) // HEALTH_STATUS should be the same
-//         break
-//       } else if (lines[i].includes('HEALTH_STATUS')) {
-//         // Look for the first line containing HEALTH_STATUS
-//         console.log('Found first HEALTH_STATUS on line ' + i)
-//         firstHS = i
-//       }
-//     }
-//   })
-// })
+test("fills values", async ({ page }) => {
+  const start = sub(new Date(), { minutes: 1 });
+  await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
+  await page.locator("text=Fill Down").click();
+  await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
+  // Deliberately test with two different packets
+  await utils.selectTargetPacketItem("INST", "ADCS", "CCSDSSEQCNT");
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSSEQCNT");
 
-// test('adds Matlab headers', async ({ page }) => {
-//   const start = sub(new Date(), { minutes: 1 })
-//   cy.get('.v-toolbar').contains('Mode').click({force: true})
-//   cy.contains(/Matlab Header/).click({force: true})
-//   cy.get('[data-test=startTime]')
-//     .clear({ force: true })
-//     .type(formatTime(start))
-//   await utils.selectTargetPacketItem('INST', 'ADCS', 'Q1')
-//   cy.contains('Add Item').click()
-//   await utils.selectTargetPacketItem('INST', 'ADCS', 'Q2')
-//   cy.contains('Add Item').click()
-//   page.locator("text=Process").click()
-//   cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-//     timeout: 20000,
-//   }).then((contents) => {
-//     var lines = contents.split('\n')
-//     expect(lines[0]).toContain('% TARGET,PACKET,Q1,Q2')
-//   })
-// })
+  const [download] = await Promise.all([
+    // Start waiting for the download
+    page.waitForEvent("download"),
+    // Initiate the download
+    page.locator("text=Process").click(),
+  ]);
+  // Wait for the download process to complete
+  const path = await download.path();
+  const contents = await fs.readFileSync(path, {
+    encoding: "utf-8",
+  });
+  // Check that we handle raw value types set by the demo
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("CCSDSSEQCNT");
+  var firstHS = -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (firstHS !== -1) {
+      var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(",");
+      var [tgt2, pkt2, hs2, adcs2] = lines[i].split(",");
+      expect(tgt1).toEqual(tgt2); // Both INST
+      expect(pkt1).toEqual("HEALTH_STATUS");
+      expect(pkt2).toEqual("ADCS");
+      expect(parseInt(adcs1) + 1).toEqual(parseInt(adcs2)); // ADCS goes up by one each time
+      expect(parseInt(hs1)).toBeGreaterThan(1); // Double check for a value
+      expect(hs1).toEqual(hs2); // HEALTH_STATUS should be the same
+      break;
+    } else if (lines[i].includes("HEALTH_STATUS")) {
+      // Look for the first line containing HEALTH_STATUS
+      // console.log("Found first HEALTH_STATUS on line " + i);
+      firstHS = i;
+    }
+  }
+});
 
-// test('outputs unique values only', async ({ page }) => {
-//   const start = sub(new Date(), { minutes: 1 })
-//   cy.get('.v-toolbar').contains('Mode').click({force: true})
-//   cy.contains(/Unique Only/).click({force: true})
-//   cy.get('[data-test=startTime]')
-//     .clear({ force: true })
-//     .type(formatTime(start))
-//   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSVER')
-//   cy.contains('Add Item').click()
-//   page.locator("text=Process").click()
-//   cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
-//     timeout: 20000,
-//   }).then((contents) => {
-//     console.log(contents)
-//     var lines = contents.split('\n')
-//     expect(lines[0]).toContain('CCSDSVER')
-//     expect(lines.length).to.eq(2) // header and a single value
-//   })
-// })
+test("adds Matlab headers", async ({ page }) => {
+  const start = sub(new Date(), { minutes: 1 });
+  await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
+  await page.locator("text=Matlab Header").click();
+  await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
+  await utils.selectTargetPacketItem("INST", "ADCS", "Q1");
+  await utils.selectTargetPacketItem("INST", "ADCS", "Q2");
 
-// Playwright Test Generator output:
-//   // Click label:has-text("Command")
-//   await page.locator('label:has-text("Command")').click();
-//   // Click text=Day
-//   await page.locator('text=Day').click();
-//   // Click .v-input--radio-group__input div:nth-child(2) .v-input--selection-controls__input .v-input--selection-controls__ripple >> nth=0
-//   await page.locator('.v-input--radio-group__input div:nth-child(2) .v-input--selection-controls__input .v-input--selection-controls__ripple').first().click();
-//   // Click div[role="button"]:has-text("Select Item")
-//   await page.locator('div[role="button"]:has-text("Select Item")').click();
-//   // Click div:nth-child(4) .col .v-input .v-input__control .v-input__slot .v-input--radio-group__input div .v-input--selection-controls__input .v-input--selection-controls__ripple >> nth=0
-//   await page.locator('div:nth-child(4) .col .v-input .v-input__control .v-input__slot .v-input--radio-group__input div .v-input--selection-controls__input .v-input--selection-controls__ripple').first().click();
-//   // Click div[role="button"]:has-text("Select ItemTEMP1")
-//   await page.locator('div[role="button"]:has-text("Select ItemTEMP1")').click();
-//   // Click #list-item-293-13 div:has-text("TEMP2") >> nth=0
-//   await page.locator('#list-item-293-13 div:has-text("TEMP2")').first().click();
-//   // Click [data-test="select-send"]
-//   await page.locator('[data-test="select-send"]').click();
-//   // Click div[role="button"]:has-text("Select ItemTEMP2")
-//   await page.locator('div[role="button"]:has-text("Select ItemTEMP2")').click();
-//   // Click text=TEMP3
-//   await page.locator('text=TEMP3').click();
-//   // Click [data-test="select-send"]
-//   await page.locator('[data-test="select-send"]').click();
-//   // Click .v-icon.notranslate.v-icon--link >> nth=0
-//   await page.locator('.v-icon.notranslate.v-icon--link').first().click();
-//   // Click text=​Value TypeCONVERTED
-//   await page.locator('text=​Value TypeCONVERTED').click();
-//   // Click text=RAW
-//   await page.locator('text=RAW').click();
-//   // Click button:has-text("Ok")
-//   await page.locator('button:has-text("Ok")').click();
-//   // Click .v-list div:nth-child(2) .v-list-item div .v-icon >> nth=0
-//   await page.locator('.v-list div:nth-child(2) .v-list-item div .v-icon').first().click();
-//   // Click text=Edit INST - HEALTH_STATUS - TEMP2​Value TypeCONVERTED Ok >> button
-//   await page.locator('text=Edit INST - HEALTH_STATUS - TEMP2​Value TypeCONVERTED Ok >> button').click();
-//   // Click div:nth-child(3) .v-list-item div .v-icon >> nth=0
-//   await page.locator('div:nth-child(3) .v-list-item div .v-icon').first().click();
-//   // Click text=Edit INST - HEALTH_STATUS - TEMP3​Value TypeCONVERTED Ok >> button
-//   await page.locator('text=Edit INST - HEALTH_STATUS - TEMP3​Value TypeCONVERTED Ok >> button').click();
-// });
+  const [download] = await Promise.all([
+    // Start waiting for the download
+    page.waitForEvent("download"),
+    // Initiate the download
+    page.locator("text=Process").click(),
+  ]);
+  // Wait for the download process to complete
+  const path = await download.path();
+  const contents = await fs.readFileSync(path, {
+    encoding: "utf-8",
+  });
+  // Check that we handle raw value types set by the demo
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("% TARGET,PACKET,Q1,Q2");
+});
+
+test("outputs unique values only", async ({ page }) => {
+  const start = sub(new Date(), { minutes: 1 });
+  await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
+  await page.locator("text=Unique Only").click();
+  await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSVER");
+
+  const [download] = await Promise.all([
+    // Start waiting for the download
+    page.waitForEvent("download"),
+    // Initiate the download
+    page.locator("text=Process").click(),
+  ]);
+  // Wait for the download process to complete
+  const path = await download.path();
+  const contents = await fs.readFileSync(path, {
+    encoding: "utf-8",
+  });
+  // Check that we handle raw value types set by the demo
+  var lines = contents.split("\n");
+  expect(lines[0]).toContain("CCSDSVER");
+  expect(lines.length).toEqual(2); // header and a single value
+});
