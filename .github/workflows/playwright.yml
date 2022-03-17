@@ -18,19 +18,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: cosmos-control.sh start
-        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
-        shell: 'script -q -e -c "bash {0}"'
-        run: ./cosmos-control.sh start
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
       - name: Install dependencies
-        run: npm ci
+        run: yarn
         working-directory: playwright
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-        working-directory: playwright
+      - name: cosmos-control.sh start
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh start
       - name: Run Playwright tests
-        run: npx playwright test
+        run: yarn playwright test
         working-directory: playwright

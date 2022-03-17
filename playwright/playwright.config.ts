@@ -1,5 +1,5 @@
 // playwright.config.ts
-import { PlaywrightTestConfig, devices } from '@playwright/test';
+import { PlaywrightTestConfig, devices } from "@playwright/test";
 
 /**
  * Read environment variables from file.
@@ -7,16 +7,15 @@ import { PlaywrightTestConfig, devices } from '@playwright/test';
  */
 // require('dotenv').config();
 
-
 /**
  * @see https://playwright.dev/docs/test-configuration
  * @type {import('@playwright/test').PlaywrightTestConfig}
  */
- const config: PlaywrightTestConfig = {
+const config: PlaywrightTestConfig = {
   // This runs global-setup.ts and generates storageState.json
-  globalSetup: require.resolve('./global-setup'),
+  globalSetup: require.resolve("./global-setup"),
 
-  testDir: './tests',
+  testDir: "./tests",
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {
@@ -24,7 +23,7 @@ import { PlaywrightTestConfig, devices } from '@playwright/test';
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 5000
+    timeout: 5000,
   },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
@@ -33,24 +32,28 @@ import { PlaywrightTestConfig, devices } from '@playwright/test';
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? 'github' : 'list',
+  reporter: process.env.CI ? "github" : "list",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    /* Tell the browser to slow everything down for debugging
+    launchOptions: {
+      slowMo: 100,
+    }, */
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:2900',
+    baseURL: "http://localhost:2900",
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on', //'on-first-retry',
+    trace: "on", //'on-first-retry',
     // Tell all tests to load signed-in state from 'storageState.json'.
-    storageState: 'storageState.json',
-    screenshot: 'only-on-failure'
+    storageState: "storageState.json",
+    screenshot: "only-on-failure",
   },
 
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     // {
     //   name: 'firefox',
