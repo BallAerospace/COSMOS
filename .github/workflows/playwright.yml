@@ -16,21 +16,24 @@ jobs:
   playwright-test:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      - name: Install dependencies
-        run: yarn
-        working-directory: playwright
-      - name: Install dependencies
-        run: yarn playwright install --with-deps
-        working-directory: playwright
       - name: cosmos-control.sh start
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
+        # Allow the containers to spin up so we can login
+      - name: Sleep for 1min
+        run: sleep 60s
+        shell: bash
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install dependencies
+        run: yarn; yarn playwright install --with-deps
+        working-directory: playwright
       - name: Run Playwright tests
         run: yarn playwright test
         working-directory: playwright
