@@ -49,14 +49,22 @@ test("loads and saves the configuration", async ({ page }) => {
   await page.locator('[data-test="open-config-cancel-btn"]').click();
 });
 
-test("validates dates and times", async ({ page }) => {
+test.only("validates dates and times", async ({ page }) => {
   // Date validation
   const d = new Date();
   await expect(page.locator("text=Required")).not.toBeVisible();
+  // await page.locator("[data-test=startDate]").click();
+  // await page.keyboard.press('Delete')
   await page.locator("[data-test=startDate]").fill("");
   await expect(page.locator("text=Required")).toBeVisible();
-  // Since we just started we're only able to fill in the day
-  await page.locator("[data-test=startDate]").type("01");
+  // Note: Firefox doesn't implement min/max the same way as Chrome
+  // Chromium limits you to just putting in the day since it has a min/max value
+  // Firefox doesn't apppear to limit at all so you need to enter entire date
+  // End result is that in Chromium the date gets entered as the 2 digit year
+  // e.g. "22", which is fine because even if you go big it will round down.
+  await page.locator("[data-test=startDate]").type(format(d, "MM"));
+  await page.locator("[data-test=startDate]").type(format(d, "dd"));
+  await page.locator("[data-test=startDate]").type(format(d, "yyyy"));
   await expect(page.locator("text=Required")).not.toBeVisible();
   // Time validation
   await page.locator("[data-test=startTime]").fill("");

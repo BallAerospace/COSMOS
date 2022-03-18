@@ -24,9 +24,9 @@ jobs:
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
-        # Allow the containers to spin up so we can login
-      - name: Sleep for 1min
-        run: sleep 60s
+        # Allow the containers to spin up (Note: reduce to 1min once we add additional tests)
+      - name: Sleep for 4min
+        run: sleep 240s
         shell: bash
       - uses: actions/setup-node@v2
         with:
