@@ -49,7 +49,7 @@ test("loads and saves the configuration", async ({ page }) => {
   await page.locator('[data-test="open-config-cancel-btn"]').click();
 });
 
-test.only("validates dates and times", async ({ page }) => {
+test("validates dates and times", async ({ page }) => {
   // Date validation
   const d = new Date();
   await expect(page.locator("text=Required")).not.toBeVisible();
