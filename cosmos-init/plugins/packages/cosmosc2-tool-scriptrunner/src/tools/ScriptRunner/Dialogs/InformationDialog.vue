@@ -26,16 +26,17 @@
         <span v-text="title" />
         <v-spacer />
       </v-system-bar>
-      <v-card-text>
-        <div class="pa-3">
+      <div class="pa-2">
+        <v-card-text>
           <v-row no-gutters v-for="(line, index) in text" :key="index">
             <span v-text="line" />
           </v-row>
-          <v-row>
-            <v-btn block color="primary" @click="show = !show"> Ok </v-btn>
-          </v-row>
-        </div>
-      </v-card-text>
+        </v-card-text>
+      </div>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="primary" @click="show = !show"> Ok </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

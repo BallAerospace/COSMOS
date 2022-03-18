@@ -25,11 +25,11 @@
         <span> Script Results </span>
         <v-spacer />
       </v-system-bar>
-      <v-card-text>
-        <div class="pa-3">
+      <div class="pa-2">
+        <v-card-text>
           <v-textarea readonly hide-details dense auto-grow :value="text" />
-        </div>
-      </v-card-text>
+        </v-card-text>
+      </div>
       <v-card-actions>
         <v-spacer />
         <v-btn class="mx-2" outlined @click="downloadResults"> Download </v-btn>

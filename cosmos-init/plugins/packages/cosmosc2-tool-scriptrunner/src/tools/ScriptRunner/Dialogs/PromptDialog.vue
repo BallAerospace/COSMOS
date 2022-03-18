@@ -25,8 +25,8 @@
         <span v-text="title" />
         <v-spacer />
       </v-system-bar>
-      <v-card-text>
-        <div class="pa-2">
+      <div class="pa-2">
+        <v-card-text>
           <v-row v-if="subtitle">
             <v-card-subtitle v-text="subtitle" />
           </v-row>
@@ -36,64 +36,64 @@
           <v-row v-if="details" class="mt-1">
             <span v-text="details" />
           </v-row>
-          <div v-if="layout === 'combo'">
-            <v-row class="mt-1">
-              <v-select
-                @change="selectOkDisabled = false"
-                v-model="selectedItem"
-                label="Select"
-                color="secondary"
-                class="ma-1"
-                data-test="prompt-select"
-                :items="computedButtons"
-              />
-            </v-row>
-            <v-row class="mt-1">
-              <v-spacer />
-              <v-btn
-                @click="cancelHandeler"
-                outlined
-                data-test="prompt-cancel"
-                class="mx-1"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                @click="submitHandeler"
-                class="mx-1"
-                color="primary"
-                data-test="prompt-ok"
-                :disabled="selectOkDisabled"
-              >
-                Ok
-              </v-btn>
-            </v-row>
+        </v-card-text>
+      </div>
+      <div v-if="layout === 'combo'">
+        <v-row class="mt-1">
+          <v-select
+            @change="selectOkDisabled = false"
+            v-model="selectedItem"
+            label="Select"
+            color="secondary"
+            class="ma-1"
+            data-test="prompt-select"
+            :items="computedButtons"
+          />
+        </v-row>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="cancelHandler"
+            outlined
+            data-test="prompt-cancel"
+            class="mx-1"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            @click="submitHandler"
+            class="mx-1"
+            color="primary"
+            data-test="prompt-ok"
+            :disabled="selectOkDisabled"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </div>
+      <div v-else>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="cancelHandler"
+            outlined
+            data-test="prompt-cancel"
+            class="mx-1"
+          >
+            Cancel
+          </v-btn>
+          <div v-for="(button, index) in computedButtons" :key="index">
+            <v-btn
+              @click="submitWrapper(button.value)"
+              class="mx-1"
+              :data-test="`prompt-${button.text}`"
+              :color="button.value ? 'primary' : ''"
+            >
+              {{ button.text }}
+            </v-btn>
           </div>
-          <div v-else>
-            <v-row class="my-1">
-              <v-spacer />
-              <v-btn
-                @click="cancelHandeler"
-                outlined
-                data-test="prompt-cancel"
-                class="mx-1"
-              >
-                Cancel
-              </v-btn>
-              <div v-for="(button, index) in computedButtons" :key="index">
-                <v-btn
-                  @click="submitWrapper(button.value)"
-                  class="mx-1"
-                  :data-test="`prompt-${button.text}`"
-                  :color="button.value ? 'primary' : ''"
-                >
-                  {{ button.text }}
-                </v-btn>
-              </div>
-            </v-row>
-          </div>
-        </div>
-      </v-card-text>
+        </v-card-actions>
+      </div>
     </v-card>
   </v-dialog>
 </template>
@@ -164,12 +164,12 @@ export default {
   methods: {
     submitWrapper: function (output) {
       this.selectedItem = output
-      this.submitHandeler()
+      this.submitHandler()
     },
-    submitHandeler: function () {
+    submitHandler: function () {
       this.$emit('response', this.selectedItem)
     },
-    cancelHandeler: function () {
+    cancelHandler: function () {
       this.$emit('response', 'Cancel')
     },
   },

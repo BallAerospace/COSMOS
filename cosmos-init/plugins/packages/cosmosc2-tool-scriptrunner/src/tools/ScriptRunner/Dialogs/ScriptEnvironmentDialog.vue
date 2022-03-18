@@ -25,11 +25,11 @@
         <span> Start Environment Configuration </span>
         <v-spacer />
       </v-system-bar>
-      <v-card-text>
-        <div class="pa-3">
+      <div class="pa-2">
+        <v-card-text>
           <environment-chooser v-model="selected" />
-        </div>
-      </v-card-text>
+        </v-card-text>
+      </div>
       <v-card-actions>
         <v-spacer />
         <v-btn

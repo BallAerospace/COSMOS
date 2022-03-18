@@ -20,14 +20,14 @@
 <template>
   <v-dialog persistent v-model="show" width="600">
     <v-card>
-      <v-form v-model="valid" v-on:submit.prevent="submitHandeler">
+      <v-form v-model="valid" v-on:submit.prevent="submitHandler">
         <v-system-bar>
           <v-spacer />
           <span> User Input Required </span>
           <v-spacer />
         </v-system-bar>
-        <v-card-text>
-          <div class="px-3">
+        <div class="pa-2">
+          <v-card-text>
             <v-row>
               <v-card-title v-text="question" />
             </v-row>
@@ -40,29 +40,29 @@
                 :rules="rules"
               />
             </v-row>
-            <v-row class="my-1">
-              <v-spacer />
-              <v-btn
-                @click="cancelHandeler"
-                outlined
-                class="mx-1"
-                data-test="ask-cancel"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                @click.prevent="submitHandeler"
-                class="mx-1"
-                color="primary"
-                type="submit"
-                data-test="ask-cancel"
-                :disabled="!valid"
-              >
-                Ok
-              </v-btn>
-            </v-row>
-          </div>
-        </v-card-text>
+          </v-card-text>
+        </div>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="cancelHandler"
+            outlined
+            class="mx-1"
+            data-test="ask-cancel"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            @click.prevent="submitHandler"
+            class="mx-1"
+            color="primary"
+            type="submit"
+            data-test="ask-cancel"
+            :disabled="!valid"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
       </v-form>
     </v-card>
   </v-dialog>
@@ -117,10 +117,10 @@ export default {
     },
   },
   methods: {
-    submitHandeler: function () {
+    submitHandler: function () {
       this.$emit('response', this.inputValue)
     },
-    cancelHandeler: function () {
+    cancelHandler: function () {
       this.$emit('response', 'Cancel')
     },
   },
