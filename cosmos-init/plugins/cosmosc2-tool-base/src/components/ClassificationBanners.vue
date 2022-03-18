@@ -73,11 +73,9 @@ export default {
   top: var(--classification-height-top);
 }
 #cosmos-nav-drawer .v-navigation-drawer__content {
-  /* this hardcoded 44px will need to be changed if more
-  buttons are added to the nav drawer append section */
   height: calc(
     100% - var(--classification-height-top) -
-      var(--classification-height-bottom) - 44px
+      var(--classification-height-bottom)
   );
 }
 #footer {

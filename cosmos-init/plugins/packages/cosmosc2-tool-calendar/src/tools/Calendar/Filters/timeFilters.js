@@ -28,7 +28,7 @@ export default {
     },
     dateTime: function (val, utc) {
       if (utc) {
-        return val.toUTCString()
+        return val.toISOString()
       } else {
         return val.toLocaleString() // TODO: support other locales besides en-US
       }
@@ -37,7 +37,7 @@ export default {
   methods: {
     generateDateTime(date, utc) {
       if (utc) {
-        return date.toUTCString()
+        return date.toISOString()
       } else {
         return date.toLocaleString() // TODO: support other locales besides en-US
       }

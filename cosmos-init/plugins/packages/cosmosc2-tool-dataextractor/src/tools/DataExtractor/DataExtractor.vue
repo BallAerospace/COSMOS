@@ -24,7 +24,7 @@
       <v-row>
         <v-col> Oldest found log data: </v-col>
         <v-col>
-          {{ oldestLogDateTime }}
+          {{ oldestLogDate | dateTime(utcOrLocal) }}
         </v-col>
       </v-row>
       <v-row>
@@ -33,7 +33,7 @@
             v-model="startDate"
             label="Start Date"
             type="date"
-            :min="oldestLogDate"
+            :min="oldestLogDateStr"
             :max="todaysDate"
             :rules="[rules.required]"
             data-test="startDate"
@@ -42,7 +42,7 @@
             v-model="endDate"
             label="End Date"
             type="date"
-            :min="oldestLogDate"
+            :min="oldestLogDateStr"
             :max="todaysDate"
             :rules="[rules.required]"
             data-test="endDate"
@@ -276,6 +276,7 @@ import TargetPacketItemChooser from '@cosmosc2/tool-common/src/components/Target
 import Cable from '@cosmosc2/tool-common/src/services/cable.js'
 import { isValid, parse, format, getTime } from 'date-fns'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+import TimeFilters from '@/tools/DataExtractor/Filters/timeFilters.js'
 
 export default {
   components: {
@@ -284,6 +285,7 @@ export default {
     TargetPacketItemChooser,
     TopBar,
   },
+  mixins: [TimeFilters],
   data() {
     return {
       api: null,
@@ -293,9 +295,8 @@ export default {
       saveConfig: false,
       progress: 0,
       processButtonText: 'Process',
+      oldestLogDate: new Date(),
       todaysDate: format(new Date(), 'yyyy-MM-dd'),
-      oldestLogDate: format(new Date(), 'yyyy-MM-dd'),
-      oldestLogDateTime: '',
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
       endTime: format(new Date(), 'HH:mm:ss'),
@@ -421,17 +422,19 @@ export default {
       ],
     }
   },
+  computed: {
+    oldestLogDateStr: function () {
+      // Set the start date / time to the earliest data found
+      return format(this.oldestLogDate, 'yyyy-MM-dd')
+    },
+  },
   created: function () {
     this.api = new CosmosApi()
     this.api
       .get_oldest_logfile({ params: { scope: localStorage.scope } })
       .then((response) => {
         // Server returns time as UTC so create date with 'Z'
-        let date = new Date(response + 'Z')
-        this.oldestLogDate = format(date, 'yyyy-MM-dd')
-        // Set the start date / time to the earliest data found
-        // This clues the user in to how much data they have to work with
-        this.oldestLogDateTime = format(date, 'yyyy-MM-dd HH:mm:ss')
+        this.oldestLogDate = new Date(response + 'Z')
       })
   },
   mounted: function () {
