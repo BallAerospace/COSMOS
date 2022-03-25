@@ -21,48 +21,42 @@
   <div>
     <v-row no-gutters align="center" class="px-2">
       <v-col>
-        <div class="px-2">
-          <v-btn
-            block
-            data-test="pluginDownload"
-            :disabled="files.length > 0"
-            @click="showDownloadDialog = true"
-          >
-            Download
-            <v-icon right dark>mdi-cloud-download</v-icon>
-          </v-btn>
-        </div>
+        <v-file-input
+          v-model="files"
+          multiple
+          show-size
+          accept=".gem"
+          class="mx-2"
+          label="Click to select plugin .gem file(s)"
+          ref="fileInput"
+        />
       </v-col>
-      <v-col>
-        <div class="px-2">
-          <v-btn
-            block
-            color="primary"
-            data-test="pluginUpload"
-            :disabled="files.length < 1"
-            :loading="loadingPlugin"
-            @click="upload()"
-          >
-            Upload
-            <v-icon right dark>mdi-cloud-upload</v-icon>
-            <template v-slot:loader>
-              <span>Loading...</span>
-            </template>
-          </v-btn>
-        </div>
-      </v-col>
-      <v-col cols="9">
-        <div class="px-4">
-          <v-file-input
-            multiple
-            show-size
-            v-model="files"
-            ref="fileInput"
-            accept=".gem"
-            label="Click to select plugin .gem file(s)"
-          />
-        </div>
-      </v-col>
+    </v-row>
+    <v-row no-gutters class="px-2 pb-2">
+      <v-btn
+        @click="showDownloadDialog = true"
+        class="mx-2"
+        data-test="pluginDownload"
+        :disabled="files.length > 0"
+      >
+        <v-icon left>mdi-cloud-download</v-icon>
+        <span> Download </span>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        @click="upload()"
+        class="mx-2"
+        color="primary"
+        data-test="pluginUpload"
+        :disabled="files.length < 1"
+        :loading="loadingPlugin"
+      >
+        <v-icon left dark>mdi-cloud-upload</v-icon>
+        <span> Upload </span>
+        <template v-slot:loader>
+          <span>Loading...</span>
+        </template>
+      </v-btn>
     </v-row>
     <!-- TODO This alert shows both success and failure. Make consistent with rest of COSMOS. -->
     <v-alert

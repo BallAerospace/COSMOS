@@ -37,11 +37,16 @@
           </v-tooltip>
         </div>
       </v-system-bar>
-      <v-card-text>
-        <div class="pa-3">
-          <span style="white-space: pre-wrap">{{ text }}</span>
-        </div>
-      </v-card-text>
+      <div class="pa-2">
+        <v-card-text>
+          <v-textarea
+            v-model="dialogText"
+            readonly
+            rows="15"
+            data-test="dialogText"
+          />
+        </v-card-text>
+      </div>
       <v-card-actions>
         <v-spacer />
         <v-btn class="mx-2" color="primary" @click="show = !show"> Ok </v-btn>
@@ -58,6 +63,9 @@ export default {
     title: String,
   },
   computed: {
+    dialogText: function () {
+      return this.text
+    },
     show: {
       get() {
         return this.value
@@ -69,13 +77,13 @@ export default {
   },
   methods: {
     download: function () {
-      const blob = new Blob([this.text], {
+      const blob = new Blob([this.dialogText], {
         type: 'text/plain',
       })
       // Make a link and then 'click' on it to start the download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.setAttribute('download', `${this.title}.txt`)
+      link.setAttribute('download', `${this.title}__error.txt`)
       link.click()
     },
   },
