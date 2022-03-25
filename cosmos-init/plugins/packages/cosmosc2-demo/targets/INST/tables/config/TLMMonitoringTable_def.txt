@@ -1,12 +1,12 @@
-TABLE "TLM Monitoring" BIG_ENDIAN ROW_COLUMN 100 "Telemetry Monitoring Table"
+TABLE "TLM_Monitoring" BIG_ENDIAN ROW_COLUMN 100 "Telemetry Monitoring Table"
   APPEND_PARAMETER "Threshold" 32 UINT MIN MAX 0 "Telemetry item threshold at which point persistance is incremented"
   APPEND_PARAMETER "Offset" 32 UINT MIN MAX 0 "Offset into the telemetry packet to monitor"
-  APPEND_PARAMETER "Data Size" 32 UINT 0 3 0 "Amount of data to monitor (bytes)"
+  APPEND_PARAMETER "Data_Size" 32 UINT 0 3 0 "Amount of data to monitor (bytes)"
     STATE BITS 0
     STATE BYTE 1
     STATE WORD 2
     STATE LONGWORD 3
-  APPEND_PARAMETER "Bit Mask" 32 UINT MIN MAX 0 "Bit Mask to apply to the Data Size before the value is compared ot the Threshold"
+  APPEND_PARAMETER "Bit_Mask" 32 UINT MIN MAX 0 "Bit Mask to apply to the Data Size before the value is compared ot the Threshold"
   APPEND_PARAMETER "Persistence" 32 UINT MIN MAX 0 "Number of times the Threshold must be exceeded before Action is triggered"
   APPEND_PARAMETER "Type" 32 UINT 0 3 0 "How the Threshold is compared against"
     STATE LESS_THAN 0
@@ -29,4 +29,3 @@ TABLE "TLM Monitoring" BIG_ENDIAN ROW_COLUMN 100 "Telemetry Monitoring Table"
 <% 100.times do %>
 DEFAULT 0x0 0 BITS 0x0 0 LESS_THAN NO_ACTION_REQUIRED ALL_MODES UNSIGNED
 <% end %>
-
