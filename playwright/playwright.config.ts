@@ -13,7 +13,7 @@ import { PlaywrightTestConfig, devices } from "@playwright/test";
  */
 const config: PlaywrightTestConfig = {
   // This runs global-setup.ts and generates storageState.json
-  // globalSetup: require.resolve("./global-setup"),
+  globalSetup: require.resolve("./global-setup"),
 
   testDir: "./tests",
   /* Maximum time one test can run for. */
