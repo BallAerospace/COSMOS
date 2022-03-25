@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2916,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2916/tools/tablemanager',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/tablemanager',
+          port: 2916,
+        },
+      },
     },
   },
   chainWebpack(config) {

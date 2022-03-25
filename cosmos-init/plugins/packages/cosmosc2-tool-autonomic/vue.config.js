@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2922,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2922/tools/autonomic',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/autonomic',
+          port: 2922,
+        },
+      },
     },
   },
   chainWebpack(config) {

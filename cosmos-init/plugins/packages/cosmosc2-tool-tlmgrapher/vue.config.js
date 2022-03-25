@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2917,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2917/tools/tlmgrapher',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/tlmgrapher',
+          port: 2917,
+        },
+      },
     },
   },
   chainWebpack(config) {

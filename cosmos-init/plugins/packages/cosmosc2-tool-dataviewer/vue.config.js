@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2919,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2919/tools/dataviewer',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/dataviewer',
+          port: 2919,
+        },
+      },
     },
   },
   chainWebpack(config) {

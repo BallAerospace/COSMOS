@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2921,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2921/tools/calendar',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/calendar',
+          port: 2921,
+        },
+      },
     },
   },
   chainWebpack(config) {

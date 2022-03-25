@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2914,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2914/tools/scriptrunner',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/scriptrunner',
+          port: 2914,
+        },
+      },
     },
   },
   chainWebpack(config) {

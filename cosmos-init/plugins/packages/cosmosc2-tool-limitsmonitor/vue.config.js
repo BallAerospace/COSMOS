@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2912,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2912/tools/limitsmonitor',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/limitsmonitor',
+          port: 2912,
+        },
+      },
     },
   },
   chainWebpack(config) {

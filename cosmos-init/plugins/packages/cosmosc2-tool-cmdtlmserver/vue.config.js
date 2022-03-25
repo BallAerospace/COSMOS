@@ -6,15 +6,16 @@ module.exports = {
   configureWebpack: {
     devServer: {
       port: 2911,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2911/tools/cmdtlmserver',
+      client: {
+        webSocketURL: {
+          hostname: 'localhost',
+          pathname: '/tools/cmdtlmserver',
+          port: 2911,
+        },
+      },
     },
   },
   chainWebpack(config) {
