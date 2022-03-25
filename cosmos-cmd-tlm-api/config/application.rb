@@ -40,5 +40,7 @@ module CmdTlmApi
     config.action_cable.mount_path = '/cosmos-api/cable'
 
     Rails.backtrace_cleaner.remove_silencers!
+
+    Cosmos::Logger.microservice_name = 'CMD__TLM__API'
   end
 end

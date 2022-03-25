@@ -38,5 +38,7 @@ module ScriptRunnerApi
 
     config.action_cable.disable_request_forgery_protection = true
     config.action_cable.mount_path = '/script-api/cable'
+
+    Cosmos::Logger.microservice_name = 'SCRIPT__RUNNER__API'
   end
 end

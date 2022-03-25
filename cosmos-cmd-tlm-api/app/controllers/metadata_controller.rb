@@ -28,9 +28,7 @@ class MetadataController < ApplicationController
     now = DateTime.now.new_offset(0)
     start = x_start.nil? ? (now - 7) : DateTime.parse(x_start) # minus 7 days
     stop = x_stop.nil? ? (now + 7) : DateTime.parse(x_stop) # plus 7 days
-    start = start.strftime('%s%3N').to_i
-    stop = stop.strftime('%s%3N').to_i
-    return start, stop
+    return start.strftime('%s%3N').to_i, stop.strftime('%s%3N').to_i
   end
 
   # Returns a single metadata in json
@@ -54,10 +52,8 @@ class MetadataController < ApplicationController
         return
       end
       render :json => model.as_json(), :status => 200
-    rescue Cosmos::MetadataInputError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -76,16 +72,13 @@ class MetadataController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      now = DateTime.now.new_offset(0)
       start, stop = parse_time_input(x_start: params[:start], x_stop: params[:stop])
-      model_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
-      render :json => model_array, :status => 200
+      json_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
+      render :json => json_array, :status => 200
     rescue ArgumentError
-      render :json => { :status => 'error', :message => 'Invalid date provided. Recommend ISO format' }, :status => 400
-    rescue Cosmos::MetadataInputError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => 'Invalid input provided' }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -107,17 +100,17 @@ class MetadataController < ApplicationController
     end
     begin
       start, stop = parse_time_input(x_start: params[:start], x_stop: params[:stop])
-      model_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
+      json_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
       key, value = [params[:key], params[:value]]
       raise MetadataInputError "Must include key, value in metadata search" if key.nil? || value.nil?
-      model = model_array.select { | model | model.metadata[key] == value }
-      render :json => model_array, :status => 200
-    rescue ArgumentError
-      render :json => { :status => 'error', :message => 'Invalid date provided. Recommend ISO format' }, :status => 400
-    rescue Cosmos::MetadataInputError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      selected_array = json_array.select { | json_model | json_model['metadata'][key] == value }
+      render :json => selected_array, :status => 200
+    rescue ArgumentError => e
+      render :json => { :status => 'error', :message => 'Invalid input provided' }, :status => 400
+    rescue Cosmos::MetadataError => e
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -144,7 +137,7 @@ class MetadataController < ApplicationController
       count = @model_class.count(scope: params[:scope])
       render :json => { 'name' => params[:name], 'count' => count }, :status => 200
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -176,7 +169,7 @@ class MetadataController < ApplicationController
       end
       render :json => model_hash, :status => 200
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -226,13 +219,13 @@ class MetadataController < ApplicationController
       render :json => model.as_json, :status => 201
     rescue ArgumentError, TypeError => e
       message = "Invalid input: #{JSON.parse(hash)}"
-      render :json => { :status => 'error', :message => message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => message, :type => e.class }, :status => 400
     rescue Cosmos::MetadataInputError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue Cosmos::MetadataError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 418
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 418
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -285,13 +278,13 @@ class MetadataController < ApplicationController
       render :json => model.as_json, :status => 200
     rescue ArgumentError, TypeError
       message = "Invalid input: #{hash}"
-      render :json => { :status => 'error', :message => message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => message, :type => e.class }, :status => 400
     rescue Cosmos::MetadataInputError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue Cosmos::MetadataError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 418
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 418
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -330,9 +323,9 @@ class MetadataController < ApplicationController
       )
       render :json => { "status" => 1 }, :status => 204
     rescue Cosmos::MetadataError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 

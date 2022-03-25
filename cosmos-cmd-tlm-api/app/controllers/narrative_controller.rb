@@ -54,9 +54,9 @@ class NarrativeController < ApplicationController
     rescue ArgumentError
       render :json => { :status => 'error', :message => 'Invalid date provided. Recommend ISO format' }, :status => 400
     rescue Cosmos::NarrativeInputError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -85,9 +85,9 @@ class NarrativeController < ApplicationController
     rescue ArgumentError
       render :json => { :status => 'error', :message => 'Invalid date provided. Recommend ISO format' }, :status => 400
     rescue Cosmos::NarrativeInputError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -114,7 +114,7 @@ class NarrativeController < ApplicationController
       count = @model_class.count(scope: params[:scope])
       render :json => { 'name' => params[:name], 'count' => count }, :status => 200
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -146,7 +146,7 @@ class NarrativeController < ApplicationController
       end
       render :json => model_hash, :status => 200
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -197,13 +197,13 @@ class NarrativeController < ApplicationController
       render :json => model.as_json, :status => 201
     rescue ArgumentError, TypeError
       message = "Invalid input: #{JSON.parse(hash)}"
-      render :json => { :status => 'error', :message => message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => message, :type => e.class }, :status => 400
     rescue Cosmos::NarrativeInputError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue Cosmos::NarrativeError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 418
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 418
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -262,15 +262,15 @@ class NarrativeController < ApplicationController
       render :json => model.as_json, :status => 200
     rescue ArgumentError, TypeError => e
       message = "Invalid input: #{JSON.parse(hash)}"
-      render :json => { :status => 'error', :message => message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => message, :type => e.class }, :status => 400
     rescue Cosmos::NarrativeInputError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue Cosmos::NarrativeOverlapError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 409
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 409
     rescue Cosmos::NarrativeError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 418
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 418
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 
@@ -309,9 +309,9 @@ class NarrativeController < ApplicationController
       )
       render :json => { "status" => 1 }, :status => 204
     rescue Cosmos::NarrativeError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
 end
