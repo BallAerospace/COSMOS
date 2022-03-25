@@ -13,8 +13,8 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("loads and saves the configuration", async ({ page }) => {
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
   let config = "spec" + Math.floor(Math.random() * 10000);
   await page.locator('[data-test="Data\\ Extractor-File"]').click();
@@ -78,7 +78,7 @@ test("won't start with 0 items", async ({ page }) => {
 });
 
 test("warns with duplicate item", async ({ page }) => {
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
   await page.locator('[data-test="select-send"]').click(); // Send again
   await expect(
     page.locator("text=This item has already been added")
@@ -86,7 +86,7 @@ test("warns with duplicate item", async ({ page }) => {
 });
 
 test("warns with no time delta", async ({ page }) => {
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
   await page.locator("text=Process").click();
   await expect(
     page.locator("text=Start date/time is equal to end date/time")
@@ -98,7 +98,7 @@ test("warns with no data", async ({ page }) => {
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
   let utils = new Utilities(page);
-  await utils.selectTargetPacketItem(
+  await utils.addTargetPacketItem(
     "INST",
     "ARYCMD",
     "RECEIVED_TIMEFORMATTED"
@@ -113,7 +113,7 @@ test("cancels a process", async ({ page }) => {
   await page
     .locator("[data-test=endTime]")
     .fill(format(add(start, { hours: 1 }), "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "ADCS", "CCSDSVER");
+  await utils.addTargetPacketItem("INST", "ADCS", "CCSDSVER");
   await page.locator("text=Process").click();
   await expect(
     page.locator("text=End date/time is greater than current date/time")
@@ -134,7 +134,7 @@ test("cancels a process", async ({ page }) => {
 });
 
 test("adds an entire target", async ({ page }) => {
-  await utils.selectTargetPacketItem("INST");
+  await utils.addTargetPacketItem("INST");
   await utils.sleep(500); // Allow list to populate
   expect(
     await page.locator("[data-test=itemList] > div").count()
@@ -142,7 +142,7 @@ test("adds an entire target", async ({ page }) => {
 });
 
 test("adds an entire packet", async ({ page }) => {
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS");
   await utils.sleep(500); // Allow list to populate
   expect(await page.locator("[data-test=itemList] > div").count()).toBeLessThan(
     50
@@ -155,9 +155,9 @@ test("adds an entire packet", async ({ page }) => {
 test("add, edits, deletes items", async ({ page }) => {
   const start = sub(new Date(), { minutes: 1 });
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "ADCS", "CCSDSVER");
-  await utils.selectTargetPacketItem("INST", "ADCS", "CCSDSTYPE");
-  await utils.selectTargetPacketItem("INST", "ADCS", "CCSDSSHF");
+  await utils.addTargetPacketItem("INST", "ADCS", "CCSDSVER");
+  await utils.addTargetPacketItem("INST", "ADCS", "CCSDSTYPE");
+  await utils.addTargetPacketItem("INST", "ADCS", "CCSDSSHF");
   await expect(page.locator("[data-test=itemList] > div")).toHaveCount(3);
   // Delete CCSDSVER by clicking Delete icon
   await page
@@ -207,7 +207,7 @@ test("processes commands", async ({ page }) => {
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
 
-  await utils.selectTargetPacketItem("INST", "ABORT", "RECEIVED_TIMEFORMATTED");
+  await utils.addTargetPacketItem("INST", "ABORT", "RECEIVED_TIMEFORMATTED");
   const [download] = await Promise.all([
     // Start waiting for the download
     page.waitForEvent("download"),
@@ -229,8 +229,8 @@ test("creates CSV output", async ({ page }) => {
   await page.locator('[data-test="Data\\ Extractor-File"]').click();
   await page.locator("text=Comma Delimited").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
   const [download] = await Promise.all([
     // Start waiting for the download
@@ -259,8 +259,8 @@ test("creates tab delimited output", async ({ page }) => {
   await page.locator('[data-test="Data\\ Extractor-File"]').click();
   await page.locator("text=Tab Delimited").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
   const [download] = await Promise.all([
     // Start waiting for the download
@@ -286,8 +286,8 @@ test("outputs full column names", async ({ page }) => {
   await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
   await page.locator("text=Full Column Names").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
   const [download1] = await Promise.all([
     // Start waiting for the download
@@ -335,8 +335,8 @@ test("fills values", async ({ page }) => {
   await page.locator("text=Fill Down").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   // Deliberately test with two different packets
-  await utils.selectTargetPacketItem("INST", "ADCS", "CCSDSSEQCNT");
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSSEQCNT");
+  await utils.addTargetPacketItem("INST", "ADCS", "CCSDSSEQCNT");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSSEQCNT");
 
   const [download] = await Promise.all([
     // Start waiting for the download
@@ -377,8 +377,8 @@ test("adds Matlab headers", async ({ page }) => {
   await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
   await page.locator("text=Matlab Header").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "ADCS", "Q1");
-  await utils.selectTargetPacketItem("INST", "ADCS", "Q2");
+  await utils.addTargetPacketItem("INST", "ADCS", "Q1");
+  await utils.addTargetPacketItem("INST", "ADCS", "Q2");
 
   const [download] = await Promise.all([
     // Start waiting for the download
@@ -401,7 +401,7 @@ test("outputs unique values only", async ({ page }) => {
   await page.locator('[data-test="Data\\ Extractor-Mode"]').click();
   await page.locator("text=Unique Only").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSVER");
+  await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSVER");
 
   const [download] = await Promise.all([
     // Start waiting for the download
