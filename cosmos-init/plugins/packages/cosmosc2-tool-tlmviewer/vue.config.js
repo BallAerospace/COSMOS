@@ -26,6 +26,10 @@ module.exports = {
           port: 2920,
         },
       },
+      // TODO: Necessary?
+      static: {
+        watch: true
+      }
     },
   },
   chainWebpack(config) {
