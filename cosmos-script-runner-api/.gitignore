@@ -4,6 +4,9 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+# See spec_helper.rb: config.example_status_persistence_file_path
+/spec/examples.txt
+
 # Ignore bundler config.
 /.bundle
 

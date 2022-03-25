@@ -57,7 +57,7 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.hideNav()
     cy.wait(1000)
     cy.contains('Aborts a collect')
-    cy.get('button').contains('Send').click({ force: true })
+    cy.get('button').contains('Send').click()
     cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.wait(1000)
@@ -81,11 +81,9 @@ describe('CmdTlmServer CmdPackets', () => {
     // Send a command to ensure it's there
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
-    cy.wait(1000)
-    cy.scrollTo(0, 0)
-    cy.contains('Aborts a collect')
-    cy.get('button').contains('Send').click({ force: true })
-    cy.wait(2000)
+    // Make sure the Send button is enabled so we're ready
+    cy.get('[data-test=select-send]', { timeout: 10000 }).should('not.have.class', 'v-btn--disabled')
+    cy.get('[data-test=select-send]').click()
     cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.wait(1000)
@@ -94,6 +92,7 @@ describe('CmdTlmServer CmdPackets', () => {
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
+        // Force click since it will be at the top and we probably scrolled past
         cy.get('button').eq(0).click({ force: true }).wait(4000)
       })
     cy.get('.v-dialog:visible').within(() => {
@@ -110,6 +109,7 @@ describe('CmdTlmServer CmdPackets', () => {
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
+        // Force click since it will be at the top and we probably scrolled past
         cy.get('button').eq(0).click({ force: true }).wait(4000)
       })
     cy.get('.v-dialog:visible').within(() => {
@@ -132,6 +132,7 @@ describe('CmdTlmServer CmdPackets', () => {
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
+        // Force click since it will be at the top and we probably scrolled past
         cy.get('button').eq(1).click({ force: true }).wait(4000)
       })
     cy.get('@windowOpen').should('be.calledWith', '/tools/cmdsender/INST/ABORT')

@@ -30,31 +30,32 @@ GOTO :EOF
 GOTO :EOF
 
 :save
-  docker save ballaerospace/cosmosc2-redis -o cosmosc2-redis.tar || exit /b
-  docker save minio/minio -o minio_minio.tar || exit /b
-  docker save ballaerospace/cosmosc2-minio-init -o cosmosc2-minio-init.tar || exit /b
-  docker save ballaerospace/cosmosc2-traefik -o cosmosc2-traefik.tar || exit /b
-  docker save ballaerospace/cosmosc2-ruby -o cosmosc2-ruby.tar || exit /b
-  docker save ballaerospace/cosmosc2-node -o cosmosc2-node.tar || exit /b
-  docker save ballaerospace/cosmosc2-base -o cosmosc2-base.tar || exit /b
-  docker save ballaerospace/cosmosc2-cmd-tlm-api -o cosmosc2-cmd-tlm-api.tar || exit /b
-  docker save ballaerospace/cosmosc2-script-runner-api -o cosmosc2-script-runner-api.tar || exit /b
-  docker save ballaerospace/cosmosc2-operator -o cosmosc2-operator.tar || exit /b
-  docker save ballaerospace/cosmosc2-init  -o cosmosc2-init.tar || exit /b
+  if not exist tmp md tmp
+  docker save minio/minio -o tmp/minio_minio.tar || exit /b
+  docker save ballaerospace/cosmosc2-redis -o tmp/cosmosc2-redis.tar || exit /b
+  docker save ballaerospace/cosmosc2-minio-init -o tmp/cosmosc2-minio-init.tar || exit /b
+  docker save ballaerospace/cosmosc2-traefik -o tmp/cosmosc2-traefik.tar || exit /b
+  docker save ballaerospace/cosmosc2-ruby -o tmp/cosmosc2-ruby.tar || exit /b
+  docker save ballaerospace/cosmosc2-node -o tmp/cosmosc2-node.tar || exit /b
+  docker save ballaerospace/cosmosc2-base -o tmp/cosmosc2-base.tar || exit /b
+  docker save ballaerospace/cosmosc2-cmd-tlm-api -o tmp/cosmosc2-cmd-tlm-api.tar || exit /b
+  docker save ballaerospace/cosmosc2-script-runner-api -o tmp/cosmosc2-script-runner-api.tar || exit /b
+  docker save ballaerospace/cosmosc2-operator -o tmp/cosmosc2-operator.tar || exit /b
+  docker save ballaerospace/cosmosc2-init  -o tmp/cosmosc2-init.tar || exit /b
 GOTO :EOF
 
 :load
-  docker load -i cosmosc2-redis.tar || exit /b
-  docker load -i minio_minio.tar || exit /b
-  docker load -i cosmosc2-minio-init.tar || exit /b
-  docker load -i cosmosc2-traefik.tar || exit /b
-  docker load -i cosmosc2-ruby.tar || exit /b
-  docker load -i cosmosc2-node.tar || exit /b
-  docker load -i cosmosc2-base.tar || exit /b
-  docker load -i cosmosc2-cmd-tlm-api.tar || exit /b
-  docker load -i cosmosc2-script-runner-api.tar || exit /b
-  docker load -i cosmosc2-operator.tar || exit /b
-  docker load -i cosmosc2-init.tar || exit /b
+  docker load -i tmp/minio_minio.tar || exit /b
+  docker load -i tmp/cosmosc2-redis.tar || exit /b
+  docker load -i tmp/cosmosc2-minio-init.tar || exit /b
+  docker load -i tmp/cosmosc2-traefik.tar || exit /b
+  docker load -i tmp/cosmosc2-ruby.tar || exit /b
+  docker load -i tmp/cosmosc2-node.tar || exit /b
+  docker load -i tmp/cosmosc2-base.tar || exit /b
+  docker load -i tmp/cosmosc2-cmd-tlm-api.tar || exit /b
+  docker load -i tmp/cosmosc2-script-runner-api.tar || exit /b
+  docker load -i tmp/cosmosc2-operator.tar || exit /b
+  docker load -i tmp/cosmosc2-init.tar || exit /b
 GOTO :EOF
 
 :zip

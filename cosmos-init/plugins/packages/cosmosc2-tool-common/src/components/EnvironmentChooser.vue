@@ -22,49 +22,83 @@
     <v-row no-gutters>
       <span> Select from Cosmos environment variables </span>
     </v-row>
-    <v-row>
-      <v-autocomplete
-        v-model="selected"
-        cache-items
-        flat
-        multiple
-        hide-no-data
-        hide-details
-        solo-inverted
-        class="mx-4"
-        label="Environment Options"
-        data-test="environment-autocomplete"
-        :loading="loading"
-        :items="environment"
-      />
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-text-field
-          v-model="key"
-          label="Key"
-          data-test="tmp-environment-key-input"
-        />
-      </v-col>
-      <v-col>
-        <v-text-field
-          v-model="keyValue"
-          label="Value"
-          data-test="tmp-environment-value-input"
-        />
-      </v-col>
-    </v-row>
-    <v-row class="mx-1 mb-2 mt-0">
-      <v-btn
-        block
-        color="primary"
-        data-test="add-temp-environment"
-        @click="addTempEnv()"
-        :disabled="!key || !keyValue"
+    <v-row class="ma-0">
+      <v-select
+        v-model="deadSelect"
+        @change="addEnvironmentItem"
+        persistent-hint
+        return-object
+        label="Select Environment Options"
+        hint="Inject Environment Variables"
+        :items="environmentItems"
       >
-        Add a temporary environment variable
-      </v-btn>
+        <template v-slot:selection="">
+          <div>
+            <span> Select Environment Options </span>
+          </div>
+        </template>
+        <template v-slot:item="{ item }">
+          <div>
+            <span v-text="`${item.key}=${item.value}`" />
+          </div>
+        </template>
+      </v-select>
     </v-row>
+    <div class="mt-2" />
+    <v-simple-table dense>
+      <tbody>
+        <tr>
+          <th class="text-left">Key</th>
+          <th class="text-left">Value</th>
+          <th class="text-right">
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-icon data-test="new-metadata-icon" @click="newEnvironment">
+                    mdi-plus
+                  </v-icon>
+                </div>
+              </template>
+              <span> Add Environment </span>
+            </v-tooltip>
+          </th>
+        </tr>
+        <template v-for="(env, i) in selected">
+          <tr :key="`tr-${i}`">
+            <td>
+              <v-text-field
+                v-model="env.key"
+                dense
+                type="text"
+                :readonly="env.readonly"
+                :data-test="`key-${i}`"
+              />
+            </td>
+            <td>
+              <v-text-field
+                v-model="env.value"
+                dense
+                type="text"
+                :readonly="env.readonly"
+                :data-test="`value-${i}`"
+              />
+            </td>
+            <td>
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <div v-on="on" v-bind="attrs">
+                    <v-icon :data-test="`remove-env-icon-${i}`" @click="rm(i)">
+                      mdi-delete
+                    </v-icon>
+                  </div>
+                </template>
+                <span> Delete Environment </span>
+              </v-tooltip>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </v-simple-table>
   </div>
 </template>
 
@@ -73,50 +107,65 @@ import Api from '../services/api'
 
 export default {
   props: {
-    value: Array, // value is the default prop when using v-model
+    value: {
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
-      key: '',
-      keyValue: '',
-      selected: [],
-      loading: false,
-      environment: [],
-      error: null,
+      deadSelect: null,
+      environmentOptions: [],
     }
   },
   mounted() {
-    this.loading = true
-    Api.get('/cosmos-api/environment')
-      .then((response) => {
-        this.environment = response.data.map(
-          (env) => `${env.key.toUpperCase()}=${env.value}`
-        )
-      })
-      .catch((error) => {
-        this.error = error
-      })
-    if (this.value) {
-      this.selected = this.value
-      this.environment = this.value
-    }
-    this.loading = false
+    this.getEnvironment()
   },
-  watch: {
-    selected(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$emit('selected', newVal)
-      }
+  computed: {
+    selected: {
+      get() {
+        return this.value
+      },
+      set(value) {
+        this.$emit('input', value) // input is the default event when using v-model
+      },
+    },
+    environmentItems: function () {
+      return this.environmentOptions.filter(
+        (env) => !this.selected.find((s) => s.key === env.key)
+      )
     },
   },
   methods: {
-    addTempEnv: function () {
-      const env = `${this.key.toUpperCase()}=${this.keyValue}`
-      this.environment.push(env)
-      this.selected.push(env)
-      this.$emit('selected', this.selected)
-      this.key = ''
-      this.keyValue = ''
+    getEnvironment: function () {
+      Api.get('/cosmos-api/environment').then((response) => {
+        this.environmentOptions = response.data
+      })
+    },
+    addEnvironmentItem: function (event) {
+      this.selected.push({
+        key: event.key,
+        value: event.value,
+        readonly: true,
+      })
+      const envIndex = this.environmentOptions.findIndex(
+        (env) => env.key === event.key && env.value === event.value
+      )
+      this.environmentOptions.splice(envIndex, envIndex >= 0 ? 1 : 0)
+      this.deadSelect = null
+    },
+    newEnvironment: function () {
+      this.selected.push({
+        key: '',
+        value: '',
+        readonly: false,
+      })
+    },
+    rm: function (index) {
+      const env = this.selected.splice(index, 1)[0]
+      if (env && env.readonly) {
+        this.environmentOptions.push(env)
+      }
     },
   },
 }

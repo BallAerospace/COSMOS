@@ -5,11 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
-    "serve:standalone": "vue-cli-service serve --mode standalone",
-    "test": "jest --config=./jest.config.js --coverage --ci --reporters=default --reporters=jest-junit",
-    "test:components": "vue-cli-service test:components"
+    "serve:standalone": "vue-cli-service serve --mode standalone"
   },
   "resolutions": {
     "acorn": "npm:acorn-with-stage3"
@@ -38,7 +35,6 @@
     "@vue/cli-plugin-vuex": "~5.0.1",
     "@vue/cli-service": "~5.0.1",
     "@vue/eslint-config-prettier": "6.0.0",
-    "@vue/test-utils": "1.2.2",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.2.3",
     "babel-plugin-istanbul": "6.1.1",

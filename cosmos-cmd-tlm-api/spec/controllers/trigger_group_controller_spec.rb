@@ -18,17 +18,12 @@
 # copyright holder
 
 require 'rails_helper'
-require 'cosmos/models/auth_model'
-require 'cosmos/models/trigger_model'
 
 RSpec.describe TriggerGroupController, :type => :controller do
-
-  AUTH = 'foobar'.freeze
   NAME = 'systemGroup'.freeze
 
   before(:each) do
     mock_redis()
-    Cosmos::AuthModel.set(AUTH)
     allow_any_instance_of(Cosmos::MicroserviceModel).to receive(:create).and_return(nil)
   end
 
@@ -41,7 +36,6 @@ RSpec.describe TriggerGroupController, :type => :controller do
 
   describe 'GET index' do
     it 'returns an empty array and status code 200' do
-      request.headers['Authorization'] = AUTH
       get :index, params: {'scope'=>'DEFAULT'}
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -51,7 +45,6 @@ RSpec.describe TriggerGroupController, :type => :controller do
 
   describe 'POST create' do
     it 'returns a json hash of name and status code 201' do
-      request.headers['Authorization'] = AUTH
       hash = generate_trigger_group_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
@@ -62,7 +55,6 @@ RSpec.describe TriggerGroupController, :type => :controller do
 
   describe 'POST then GET index with Triggers' do
     it 'returns an array and status code 200' do
-      request.headers['Authorization'] = AUTH
       hash = generate_trigger_group_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
@@ -77,9 +69,8 @@ RSpec.describe TriggerGroupController, :type => :controller do
     end
   end
 
-  describe 'POST two triggers with the same name on different scopes then GET index' do
+  xdescribe 'POST two triggers with the same name on different scopes then GET index' do
     it 'returns an array of one and status code 200' do
-      request.headers['Authorization'] = AUTH
       hash = generate_trigger_group_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
@@ -101,7 +92,6 @@ RSpec.describe TriggerGroupController, :type => :controller do
 
   # describe 'PUT update' do
   #   it 'returns a json hash of name and status code 200' do
-  #     request.headers['Authorization'] = AUTH
   #     hash = generate_trigger_hash()
   #     post :create, params: hash.merge({'scope'=>'DEFAULT'})
   #     expect(response).to have_http_status(:created)
@@ -117,20 +107,16 @@ RSpec.describe TriggerGroupController, :type => :controller do
   #   end
   # end
 
-  describe 'POST error' do
-    it 'returns a hash and status code 400' do
-      request.headers['Authorization'] = AUTH
+  xdescribe 'POST' do
+    it 'returns a hash and status code 400 on error' do
       post :create, params: {'scope'=>'DEFAULT'}
       json = JSON.parse(response.body)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(400)
     end
-  end
 
-  describe 'POST error bad operand' do
-    it 'returns a hash and status code 400' do
-      request.headers['Authorization'] = AUTH
+    it 'returns a hash and status code 400 with bad operand' do
       post :create, params: {'scope'=>'DEFAULT', 'left' => 'name'}
       json = JSON.parse(response.body)
       expect(json['status']).to eql('error')
@@ -139,21 +125,17 @@ RSpec.describe TriggerGroupController, :type => :controller do
     end
   end
 
-  describe 'DELETE error not found' do
-    it 'returns a json hash of name and status code 404' do
-      request.headers['Authorization'] = AUTH
+  xdescribe 'DELETE' do
+    it 'returns a json hash of name and status code 404 when not found' do
       delete :destroy, params: {'scope'=>'DEFAULT', 'name'=>'test'}
       expect(response).to have_http_status(:not_found)
       json = JSON.parse(response.body)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
     end
-  end
 
-  describe 'DELETE' do
     it 'returns a json hash of name and status code 204' do
       allow_any_instance_of(Cosmos::MicroserviceModel).to receive(:undeploy).and_return(nil)
-      request.headers['Authorization'] = AUTH
       hash = generate_trigger_group_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
@@ -164,5 +146,4 @@ RSpec.describe TriggerGroupController, :type => :controller do
       expect(json['name']).to eql('test')
     end
   end
-
 end

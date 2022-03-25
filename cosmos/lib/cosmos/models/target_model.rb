@@ -100,7 +100,12 @@ module Cosmos
     def self.set_packet(target_name, packet_name, packet, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
 
-      Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+      begin
+        Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+      rescue JSON::GeneratorError => err
+        Logger.error("Invalid text present in #{target_name} #{packet_name} #{type.to_s.downcase} packet")
+        raise err
+      end
     end
 
     # @return [Hash] Item hash or raises an exception
@@ -422,7 +427,12 @@ module Cosmos
         Store.del("#{@scope}__cosmostlm__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
-          Store.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          begin
+            Store.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          rescue JSON::GeneratorError => err
+            Logger.error("Invalid text present in #{target_name} #{packet_name} tlm packet")
+            raise err
+          end
           json_hash = Hash.new
           packet.sorted_items.each do |item|
             json_hash[item.name] = nil
@@ -434,12 +444,22 @@ module Cosmos
         Store.del("#{@scope}__cosmoscmd__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring cmd packet: #{target_name} #{packet_name}"
-          Store.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          begin
+            Store.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          rescue JSON::GeneratorError => err
+            Logger.error("Invalid text present in #{target_name} #{packet_name} cmd packet")
+            raise err
+          end
         end
       end
       # Store Limits Groups
       system.limits.groups.each do |group, items|
-        Store.hset("#{@scope}__limits_groups", group, JSON.generate(items))
+        begin
+          Store.hset("#{@scope}__limits_groups", group, JSON.generate(items))
+        rescue JSON::GeneratorError => err
+          Logger.error("Invalid text present in #{group} limits group")
+          raise err
+        end
       end
       # Merge in Limits Sets
       sets = Store.hgetall("#{@scope}__limits_sets")
@@ -473,139 +493,140 @@ module Cosmos
       rescue
         # No telemetry packets for this target
       end
-      # It's ok to call this with an empty array
+      # It's ok to call initialize_streams with an empty array
       Store.initialize_streams(command_topic_list)
       Store.initialize_streams(decom_command_topic_list)
-      # Might as well return if there are no packets
-      return unless packet_topic_list.length > 0
-
       Store.initialize_streams(packet_topic_list)
       Store.initialize_streams(decom_topic_list)
 
-      # Decommutation Microservice
-      microservice_name = "#{@scope}__DECOM__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "decom_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        topics: packet_topic_list,
-        target_names: [@name],
-        plugin: plugin,
-        needs_dependencies: @needs_dependencies,
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
+      unless command_topic_list.empty?
+        # CommandLog Microservice
+        microservice_name = "#{@scope}__COMMANDLOG__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          folder_name: @folder_name,
+          cmd: ["ruby", "log_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          options: [
+            ["RAW_OR_DECOM", "RAW"],
+            ["CMD_OR_TLM", "CMD"],
+            ["CYCLE_TIME", @cmd_log_cycle_time],
+            ["CYCLE_SIZE", @cmd_log_cycle_size]
+          ],
+          topics: command_topic_list,
+          target_names: [@name],
+          plugin: plugin,
+          needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
 
-      # Reducer Microservice
-      microservice_name = "#{@scope}__REDUCER__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "reducer_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        topics: decom_topic_list,
-        plugin: plugin,
-        needs_dependencies: @needs_dependencies,
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
+        # DecomCmdLog Microservice
+        microservice_name = "#{@scope}__DECOMCMDLOG__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          folder_name: @folder_name,
+          cmd: ["ruby", "log_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          options: [
+            ["RAW_OR_DECOM", "DECOM"],
+            ["CMD_OR_TLM", "CMD"],
+            ["CYCLE_TIME", @cmd_decom_log_cycle_time],
+            ["CYCLE_SIZE", @cmd_decom_log_cycle_size]
+          ],
+          topics: decom_command_topic_list,
+          target_names: [@name],
+          plugin: plugin,
+          needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
+      end
 
-      # CommandLog Microservice
-      microservice_name = "#{@scope}__COMMANDLOG__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "log_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [
-          ["RAW_OR_DECOM", "RAW"],
-          ["CMD_OR_TLM", "CMD"],
-          ["CYCLE_TIME", @cmd_log_cycle_time],
-          ["CYCLE_SIZE", @cmd_log_cycle_size]
-        ],
-        topics: command_topic_list,
-        target_names: [@name],
-        plugin: plugin,
-        needs_dependencies: @needs_dependencies,
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
+      unless packet_topic_list.empty?
+        # PacketLog Microservice
+        microservice_name = "#{@scope}__PACKETLOG__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          folder_name: @folder_name,
+          cmd: ["ruby", "log_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          options: [
+            ["RAW_OR_DECOM", "RAW"],
+            ["CMD_OR_TLM", "TLM"],
+            ["CYCLE_TIME", @tlm_log_cycle_time],
+            ["CYCLE_SIZE", @tlm_log_cycle_size]
+          ],
+          topics: packet_topic_list,
+          target_names: [@name],
+          plugin: plugin,
+          needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
 
-      # DecomCmdLog Microservice
-      microservice_name = "#{@scope}__DECOMCMDLOG__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "log_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [
-          ["RAW_OR_DECOM", "DECOM"],
-          ["CMD_OR_TLM", "CMD"],
-          ["CYCLE_TIME", @cmd_decom_log_cycle_time],
-          ["CYCLE_SIZE", @cmd_decom_log_cycle_size]
-        ],
-        topics: decom_command_topic_list,
-        target_names: [@name],
-        plugin: plugin,
-        needs_dependencies: @needs_dependencies,
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
+        # DecomLog Microservice
+        microservice_name = "#{@scope}__DECOMLOG__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          folder_name: @folder_name,
+          cmd: ["ruby", "log_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          options: [
+            ["RAW_OR_DECOM", "DECOM"],
+            ["CMD_OR_TLM", "TLM"],
+            ["CYCLE_TIME", @tlm_decom_log_cycle_time],
+            ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
+          ],
+          topics: decom_topic_list,
+          target_names: [@name],
+          plugin: plugin,
+          needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
 
-      # PacketLog Microservice
-      microservice_name = "#{@scope}__PACKETLOG__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "log_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [
-          ["RAW_OR_DECOM", "RAW"],
-          ["CMD_OR_TLM", "TLM"],
-          ["CYCLE_TIME", @tlm_log_cycle_time],
-          ["CYCLE_SIZE", @tlm_log_cycle_size]
-        ],
-        topics: packet_topic_list,
-        target_names: [@name],
-        plugin: plugin,
-        needs_dependencies: @needs_dependencies,
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
+        # Decommutation Microservice
+        microservice_name = "#{@scope}__DECOM__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          folder_name: @folder_name,
+          cmd: ["ruby", "decom_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          topics: packet_topic_list,
+          target_names: [@name],
+          plugin: plugin,
+          needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
 
-      # DecomLog Microservice
-      microservice_name = "#{@scope}__DECOMLOG__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "log_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [
-          ["RAW_OR_DECOM", "DECOM"],
-          ["CMD_OR_TLM", "TLM"],
-          ["CYCLE_TIME", @tlm_decom_log_cycle_time],
-          ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
-        ],
-        topics: decom_topic_list,
-        target_names: [@name],
-        plugin: plugin,
-        needs_dependencies: @needs_dependencies,
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
+        # Reducer Microservice
+        microservice_name = "#{@scope}__REDUCER__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          folder_name: @folder_name,
+          cmd: ["ruby", "reducer_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          topics: decom_topic_list,
+          plugin: plugin,
+          needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
+      end
     end
   end
 end

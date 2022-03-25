@@ -59,8 +59,7 @@ begin
   if script['environment']
     script['environment'].each do |env|
       begin
-        env_key, env_value = env.split('=', 2)
-        ENV[env_key] = env_value
+        ENV[env['key']] = env['value']
         run_script_log(id, "Loaded environment: #{env}", 'BLACK')
       rescue StandardError
         run_script_log(id, "Failed to load environment: #{env}", 'RED')
@@ -109,15 +108,22 @@ begin
       else
         if parsed_cmd["method"]
           case parsed_cmd["method"]
-          when "ask", "ask_string", "message_box", "vertical_message_box", "combo_box", "prompt", "prompt_for_hazardous", "prompt_for_script_abort"
-            if parsed_cmd["password"]
-              running_script.user_input = parsed_cmd["password"].to_s
-              running_script.continue if running_script.user_input != 'Cancel'
+          when "ask", "ask_string", "message_box", "vertical_message_box", "combo_box", "prompt", "prompt_for_hazardous", "prompt_for_script_abort", "input_metadata"
+            unless running_script.prompt_id.nil?
+              if running_script.prompt_id == parsed_cmd["prompt_id"]
+                if parsed_cmd["password"]
+                  running_script.user_input = parsed_cmd["password"].to_s
+                else
+                  running_script.user_input = Cosmos::ConfigParser.handle_true_false(parsed_cmd["result"].to_s)
+                  running_script.user_input = running_script.user_input.convert_to_value if parsed_cmd["method"] == 'ask'
+                  run_script_log(id, "User input: #{running_script.user_input}")
+                end
+                running_script.continue
+              else
+                run_script_log(id, "INFO: Received answer for prompt #{parsed_cmd["prompt_id"]} when looking for #{running_script.prompt_id}.")
+              end
             else
-              running_script.user_input = Cosmos::ConfigParser.handle_true_false(parsed_cmd["result"].to_s)
-              running_script.user_input = running_script.user_input.convert_to_value if parsed_cmd["method"] == 'ask'
-              run_script_log(id, "User input: #{running_script.user_input}")
-              running_script.continue if running_script.user_input != 'Cancel'
+              run_script_log(id, "INFO: Unexpectedly received answer for unknown prompt #{parsed_cmd["prompt_id"]}.")
             end
           when "backtrace"
             Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :script, method: :backtrace, args: running_script.current_backtrace }))
@@ -148,6 +154,7 @@ ensure
         break
       end
     end
+    sleep 0.2 # Allow the message queue to be emptied before signaling complete
     Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
   ensure
     running_script.stop_message_log if running_script

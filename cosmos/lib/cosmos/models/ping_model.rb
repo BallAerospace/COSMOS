@@ -21,16 +21,14 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class PingModel
-
     # @return String ['UP' or 'DOWN']
     def self.get()
-      response = Store.ping('PING')
+      response = Store.ping()
       if response
         return 'UP'
       else
         return 'DOWN'
       end
     end
-
   end
 end

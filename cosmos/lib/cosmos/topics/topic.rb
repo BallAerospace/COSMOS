@@ -28,5 +28,11 @@ module Cosmos
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
       Store.read_topics(topics, offsets, timeout_ms, &block)
     end
+
+    def self.clear_topics(topics, maxlen = 0)
+      topics.each do |topic|
+        Store.xtrim(topic, maxlen)
+      end
+    end
   end
 end

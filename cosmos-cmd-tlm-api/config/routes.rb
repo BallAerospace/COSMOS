@@ -123,6 +123,21 @@ Rails.application.routes.draw do
     post '/autonomic/reaction/:name/deactivate', to: 'reaction#deactivate', name: /[^\/]+/
     delete '/autonomic/reaction/:name', to: 'reaction#destroy', name: /[^\/]+/
 
+    get '/metadata', to: 'metadata#index'
+    post '/metadata', to: 'metadata#create'
+    get '/metadata/_search', to: 'metadata#search'
+    get '/metadata/_get/:name', to: 'metadata#get', name: /[^\/]+/
+    get '/metadata/:id', to: 'metadata#show', id: /[^\/]+/
+    match '/metadata/:id', to: 'metadata#update', id: /[^\/]+/, via: [:patch, :put]
+    delete '/metadata/:id', to: 'metadata#delete', id: /[^\/]+/
+
+    get '/narrative', to: 'narrative#index'
+    post '/narrative', to: 'narrative#create'
+    get '/narrative/_search', to: 'narrative#search'
+    get '/narrative/:id', to: 'narrative#show', id: /[^\/]+/
+    match '/narrative/:id', to: 'narrative#update', id: /[^\/]+/, via: [:patch, :put]
+    delete '/narrative/:id', to: 'narrative#delete', id: /[^\/]+/
+
     get '/autocomplete/reserved-item-names', to: 'script_autocomplete#get_reserved_item_names'
     get '/autocomplete/keywords/:type', to: 'script_autocomplete#get_keywords', type: /[^\/]+/
     get '/autocomplete/data/:type', to: 'script_autocomplete#get_ace_autocomplete_data', type: /[^\/]+/

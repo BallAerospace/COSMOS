@@ -21,14 +21,20 @@ require 'cosmos/topics/topic'
 
 module Cosmos
   class InterfaceTopic < Topic
-    def self.receive_commands(interface, scope:)
+    # Generate a list of topics for this interface. This includes the interface itself
+    # and all the targets which are assigned to this interface.
+    def self.topics(interface, scope:)
       topics = []
       topics << "{#{scope}__CMD}INTERFACE__#{interface.name}"
       interface.target_names.each do |target_name|
         topics << "{#{scope}__CMD}TARGET__#{target_name}"
       end
+      topics
+    end
+
+    def self.receive_commands(interface, scope:)
       while true
-        Store.read_topics(topics) do |topic, msg_id, msg_hash, redis|
+        Store.read_topics(InterfaceTopic.topics(interface, scope: scope)) do |topic, msg_id, msg_hash, redis|
           result = yield topic, msg_hash
           ack_topic = topic.split("__")
           ack_topic[1] = 'ACK' + ack_topic[1]
@@ -58,8 +64,10 @@ module Cosmos
       Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'false' }, '*', 100)
     end
 
-    def self.shutdown(interface_name, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'shutdown' => 'true' }, '*', 100)
+    def self.shutdown(interface, scope:)
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface.name}", { 'shutdown' => 'true' }, '*', 100)
+      sleep 1 # Give some time for the interface to shutdown
+      InterfaceTopic.clear_topics(InterfaceTopic.topics(interface, scope: scope))
     end
   end
 end

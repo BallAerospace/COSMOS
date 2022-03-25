@@ -40,7 +40,6 @@ module Cosmos
 
       def read_allowed?
         raise 'test-error' if $read_allowed_raise
-
         super
       end
 
@@ -65,7 +64,6 @@ module Cosmos
 
       def read_interface
         raise 'test-error' if $read_interface_raise
-
         sleep 0.1
         @data
       end
@@ -94,6 +92,11 @@ module Cosmos
       $disconnect_count = 0
     end
 
+    after(:each) do
+      sleep 0.1
+      kill_leftover_threads
+    end
+
     describe "initialize" do
       it "creates an interface, updates status, and starts cmd thread" do
         init_threads = Thread.list.count
@@ -117,36 +120,37 @@ module Cosmos
       end
     end
 
-    describe "run" do
-      xit "handles exceptions in connect" do
+    xdescribe "run" do
+      it "handles exceptions in connect" do
         $connect_raise = true
-        capture_io do |stdout|
-          im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-          all = InterfaceStatusModel.all(scope: "DEFAULT")
-          expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
-          interface = im.instance_variable_get(:@interface)
-          interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
+        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+        interface = im.instance_variable_get(:@interface)
+        interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
 
+        capture_io do |stdout|
           im_thread = Thread.new { im.run }
-          sleep 0.1
+          sleep 0.5
           expect(stdout.string).to include("Connecting ...")
           expect(stdout.string).to_not include("Connection Success")
           expect(stdout.string).to include("Connection Failed: RuntimeError : test-error")
           all = InterfaceStatusModel.all(scope: "DEFAULT")
           expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+        end
 
+        capture_io do |stdout|
           $connect_raise = false
           sleep 0.5 # Allow it to reconnect successfully
-          expect(stdout.string).to include("Connection Success")
+          expect(stdout.string).to match(/Connection Success/)
           all = InterfaceStatusModel.all(scope: "DEFAULT")
           expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
 
           im.shutdown
         end
-        sleep 0.1 # Allow threads to exit
       end
 
-      xit "handles exceptions while reading" do
+      it "handles exceptions while reading" do
         i = 0
         allow(System).to receive_message_chain("telemetry.identify!") do
           i += 1
@@ -157,13 +161,13 @@ module Cosmos
         allow(System).to receive_message_chain("telemetry.update!") { Packet.new("TGT", "PKT") }
 
         $read_interface_raise = true
-        capture_io do |stdout|
-          im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-          all = InterfaceStatusModel.all(scope: "DEFAULT")
-          expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
-          interface = im.instance_variable_get(:@interface)
-          interface.reconnect_delay = 0.3 # Override the reconnect delay to be quick
+        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+        interface = im.instance_variable_get(:@interface)
+        interface.reconnect_delay = 0.3 # Override the reconnect delay to be quick
 
+        capture_io do |stdout|
           im_thread = Thread.new { im.run }
           sleep 0.25
           expect(stdout.string).to include("Connecting ...")
@@ -183,25 +187,24 @@ module Cosmos
 
           im.shutdown
         end
-        sleep 0.1 # Allow threads to exit
       end
     end
 
     xit "handles exceptions in monitor thread" do
       $read_allowed_raise = true
-      capture_io do |stdout|
-        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
-        interface = im.instance_variable_get(:@interface)
-        interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
+      im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+      all = InterfaceStatusModel.all(scope: "DEFAULT")
+      expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+      interface = im.instance_variable_get(:@interface)
+      interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
 
+      capture_io do |stdout|
         im_thread = Thread.new { im.run }
-        sleep 0.01 # Allow to start and immediately crash
+        sleep 0.1 # Allow to start and immediately crash
         expect(stdout.string).to include("Fatal Exception!")
         copy = stdout.string.dup
 
-        sleep 0.3 # Give it time but it shouldn't connect
+        sleep 0.5 # Give it time but it shouldn't connect
         expect(stdout.string).to eql copy
         all = InterfaceStatusModel.all(scope: "DEFAULT")
         expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
@@ -209,61 +212,25 @@ module Cosmos
 
         im.shutdown
       end
-      sleep 0.1 # Allow threads to exit
     end
 
     xit "handles a clean disconnect" do
-      capture_io do |stdout|
-        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
-        interface = im.instance_variable_get(:@interface)
-        interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
+      im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+      all = InterfaceStatusModel.all(scope: "DEFAULT")
+      expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+      interface = im.instance_variable_get(:@interface)
+      interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
 
+      capture_io do |stdout|
         im_thread = Thread.new { im.run }
-        sleep 0.1 # Allow to start
+        sleep 0.5 # Allow to start
         all = InterfaceStatusModel.all(scope: "DEFAULT")
         expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
         expect(stdout.string).to include("Connecting ...")
         expect(stdout.string).to include("Connection Success")
 
         @api.disconnect_interface("TEST_INT")
-        sleep 0.2 # Allow disconnect
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
-        expect(stdout.string).to include("Disconnect requested")
-        expect(stdout.string).to include("Clean disconnect")
-        expect(stdout.string).to include("Connection Lost")
-
-        # Wait and verify still DISCONNECTED and not ATTEMPTING
-        sleep 0.2
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
-        expect($disconnect_count).to eql 1
-
-        im.shutdown
-      end
-      sleep 0.1 # Allow threads to exit
-    end
-
-    xit "handles long disconnect delays" do
-      capture_io do |stdout|
-        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
-        interface = im.instance_variable_get(:@interface)
-        interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
-
-        im_thread = Thread.new { im.run }
-        sleep 0.01 # Allow to start
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
-        expect(stdout.string).to include("Connecting ...")
-        expect(stdout.string).to include("Connection Success")
-
-        $disconnect_delay = 0.5
-        @api.disconnect_interface("TEST_INT")
-        sleep 0.7 # Allow disconnect
+        sleep 0.5 # Allow disconnect
         all = InterfaceStatusModel.all(scope: "DEFAULT")
         expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
         expect(stdout.string).to include("Disconnect requested")
@@ -278,21 +245,54 @@ module Cosmos
 
         im.shutdown
       end
-      sleep 0.1 # Allow threads to exit
+    end
+
+    xit "handles long disconnect delays" do
+      im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+      all = InterfaceStatusModel.all(scope: "DEFAULT")
+      expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+      interface = im.instance_variable_get(:@interface)
+      interface.reconnect_delay = 0.1 # Override the reconnect delay to be quick
+
+      capture_io do |stdout|
+        im_thread = Thread.new { im.run }
+        sleep 0.5 # Allow to start
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
+        expect(stdout.string).to include("Connecting ...")
+        expect(stdout.string).to include("Connection Success")
+
+        $disconnect_delay = 0.5
+        @api.disconnect_interface("TEST_INT")
+        sleep 1 # Allow disconnect
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
+        expect(stdout.string).to include("Disconnect requested")
+        expect(stdout.string).to include("Clean disconnect")
+        expect(stdout.string).to include("Connection Lost")
+
+        # Wait and verify still DISCONNECTED and not ATTEMPTING
+        sleep 0.5
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
+        expect($disconnect_count).to eql 1
+
+        im.shutdown
+      end
     end
 
     xit "handles a interface that doesn't allow reads" do
-      capture_io do |stdout|
-        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-        all = InterfaceStatusModel.all(scope: "DEFAULT")
-        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
-        interface = im.instance_variable_get(:@interface)
-        interface.instance_variable_set(:@read_allowed, false)
+      im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+      all = InterfaceStatusModel.all(scope: "DEFAULT")
+      expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+      interface = im.instance_variable_get(:@interface)
+      interface.instance_variable_set(:@read_allowed, false)
 
+      capture_io do |stdout|
         # Shouldn't cause error because read_interface shouldn't be called
         $read_interface_raise = true
         im_thread = Thread.new { im.run }
-        sleep 0.1 # Allow to start
+        sleep 0.5 # Allow to start
         all = InterfaceStatusModel.all(scope: "DEFAULT")
         expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
         expect(stdout.string).to include("Connecting ...")
@@ -300,21 +300,20 @@ module Cosmos
         expect(stdout.string).to include("Starting connection maintenance")
 
         @api.disconnect_interface("TEST_INT")
-        sleep 1.1 # Allow disconnect and wait for @interface_thread_sleeper.sleep(1)
+        sleep 2 # Allow disconnect and wait for @interface_thread_sleeper.sleep(1)
         all = InterfaceStatusModel.all(scope: "DEFAULT")
         expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
-        expect(stdout.string).to include("Disconnect requested")
-        expect(stdout.string).to include("Connection Lost")
+        expect(stdout.string).to match(/Disconnect requested/m)
+        expect(stdout.string).to match(/Connection Lost/m)
 
         # Wait and verify still DISCONNECTED and not ATTEMPTING
-        sleep 0.2
+        sleep 0.5
         all = InterfaceStatusModel.all(scope: "DEFAULT")
         expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
         expect($disconnect_count).to eql 1
 
         im.shutdown
       end
-      sleep 0.1 # Allow threads to exit
     end
   end
 end

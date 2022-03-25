@@ -214,7 +214,7 @@ module Cosmos
     # @param id [Integer] The identifier which will be matched to the response
     def initialize(method_name, method_params, keyword_params, id)
       super()
-      @hash['jsonrpc'.freeze] = "2.0".freeze
+      @hash['jsonrpc'.freeze] = '2.0'.freeze
       @hash['method'.freeze] = method_name.to_s
       if method_params and method_params.length != 0
         @hash['params'.freeze] = method_params

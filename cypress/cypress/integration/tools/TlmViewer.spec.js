@@ -26,10 +26,8 @@ describe('TlmViewer', () => {
     cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait(100)
     cy.chooseVSelect('Select Target', target)
-    cy.scrollTo(0, 0)
     cy.wait(1000)
     cy.chooseVSelect('Select Screen', screen)
-    cy.scrollTo(0, 0)
     cy.wait(1000)
     cy.contains('Show Screen').click({ force: true })
     cy.contains(target + ' ' + screen).should('be.visible')
@@ -70,7 +68,7 @@ describe('TlmViewer', () => {
   it('displays INST LIMITS', () => {
     showScreen('INST', 'LIMITS')
   })
-  // TODO: this screen uses a lot of widgets that aren't implemented yet
+  // TODO: this screen uses widgets that aren't implemented yet
   xit('displays INST OTHER', () => {
     showScreen('INST', 'OTHER')
   })

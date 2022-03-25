@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <mounting-portal mountTo="#cosmos-menu" append>
+  <mounting-portal mount-to="#cosmos-menu" append>
     <div class="v-toolbar__content">
       <v-menu offset-y v-for="(menu, i) in menus" :key="i">
         <template v-slot:activator="{ on, attrs }">

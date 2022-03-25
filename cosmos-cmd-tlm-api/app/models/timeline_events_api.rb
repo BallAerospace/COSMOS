@@ -23,13 +23,9 @@ require 'cosmos/utilities/authorization'
 class TimelineEventsApi
   include Cosmos::Authorization
 
-  def initialize(uuid, channel, history_count = 0, scope: nil, token: nil)
+  def initialize(uuid, channel, history_count = 0, scope:, token:)
     authorize(permission: 'system', scope: scope, token: token)
-    if scope
-      topics = ["#{scope}__cosmos_timelines"] # MUST be equal to `ActivityModel::PRIMARY_KEY`
-    else
-      topics = ["cosmos_timelines"] # MUST be equal to `ActivityModel::PRIMARY_KEY`
-    end
+    topics = ["#{scope}__cosmos_timelines"] # MUST be equal to `ActivityTopic::PRIMARY_KEY`
     @thread = TopicsThread.new(topics, channel, history_count)
     @thread.start
   end

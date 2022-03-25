@@ -24,10 +24,6 @@ describe('ScriptRunner Suite', () => {
     cy.wait(1000)
   })
 
-  afterEach(() => {
-    //
-  })
-
   function saveAs(filename) {
     // Save as a suite so we get the suite controls
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
@@ -117,7 +113,7 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=start-button]').should('be.disabled')
   })
 
-  it('starts a suite', () => {
+  xit('starts a suite', () => {
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup < Cosmos::Group\n')
     cy.get('#editor').type('def test_test; puts "test"; end\n')
@@ -200,7 +196,7 @@ describe('ScriptRunner Suite', () => {
     deleteFile()
   })
 
-  it('starts a group', () => {
+  xit('starts a group', () => {
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup1 < Cosmos::Group\n')
     cy.get('#editor').type('def setup; Cosmos::Group.puts("setup"); end\n')

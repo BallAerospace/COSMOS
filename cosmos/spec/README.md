@@ -4,6 +4,7 @@
 
 ```
 set COSMOS_DEVEL=\path\to\cosmos\cosmos
+set RUBYGEMS_URL=https://rubygems.org
 ```
 
 ## Build

@@ -27,7 +27,7 @@
       </v-system-bar>
       <v-card-text>
         <div class="pa-3">
-          <v-textarea readonly hide-details dense auto-grow :value="text" />
+          <span style="white-space: pre-wrap">{{ text }}</span>
         </div>
       </v-card-text>
       <v-card-actions>

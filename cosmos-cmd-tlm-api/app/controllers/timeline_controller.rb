@@ -67,7 +67,7 @@ class TimelineController < ApplicationController
   #```
   def create
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -109,7 +109,7 @@ class TimelineController < ApplicationController
   #```
   def color
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -126,7 +126,7 @@ class TimelineController < ApplicationController
     begin
       model.update_color(color: params['color'])
       model.update()
-      model.notify(kind: 'update')
+      model.notify(kind: 'updated')
       render :json => model.as_json, :status => 200
     rescue RuntimeError, JSON::ParserError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
@@ -144,7 +144,7 @@ class TimelineController < ApplicationController
   # @return [String] hash/object of timeline name in json with a 204 no-content status code
   def destroy
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -162,7 +162,7 @@ class TimelineController < ApplicationController
       use_force = params[:force].nil? == false && params[:force] == 'true'
       ret = @model_class.delete(name: params[:name], scope: params[:scope], force: use_force)
       model.undeploy()
-      model.notify(kind: 'delete')
+      model.notify(kind: 'deleted')
       Cosmos::Logger.info("Timeline destroyed: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => { 'name' => params[:name]}, :status => 204
     rescue Cosmos::TimelineError => e

@@ -21,7 +21,9 @@ require 'cosmos/topics/topic'
 
 module Cosmos
   class RouterTopic < Topic
-    def self.receive_telemetry(router, scope:)
+    # Generate a list of topics for this router. This includes the router itself
+    # and all the targets which are assigned to this router.
+    def self.topics(router, scope:)
       topics = []
       topics << "{#{scope}__CMD}ROUTER__#{router.name}"
       router.target_names.each do |target_name|
@@ -29,8 +31,12 @@ module Cosmos
           topics << "#{scope}__TELEMETRY__{#{packet.target_name}}__#{packet.packet_name}"
         end
       end
+      topics
+    end
+
+    def self.receive_telemetry(router, scope:)
       while true
-        Store.read_topics(topics) do |topic, msg_id, msg_hash, redis|
+        Store.read_topics(RouterTopic.topics(router, scope: scope)) do |topic, msg_id, msg_hash, redis|
           result = yield topic, msg_hash
           if /CMD}ROUTER/.match?(topic)
             ack_topic = topic.split("__")
@@ -70,8 +76,10 @@ module Cosmos
       Store.write_topic("{#{scope}__CMD}ROUTER__#{router_name}", { 'log_raw' => 'false' }, '*', 100)
     end
 
-    def self.shutdown(router_name, scope:)
-      Store.write_topic("{#{scope}__CMD}ROUTER__#{router_name}", { 'shutdown' => 'true' }, '*', 100)
+    def self.shutdown(router, scope:)
+      Store.write_topic("{#{scope}__CMD}ROUTER__#{router.name}", { 'shutdown' => 'true' }, '*', 100)
+      sleep 1 # Give some time for the interface to shutdown
+      RouterTopic.clear_topics(RouterTopic.topics(router, scope: scope))
     end
   end
 end

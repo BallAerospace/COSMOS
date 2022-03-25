@@ -48,7 +48,7 @@
         </v-list-item>
         <v-divider />
         <div v-for="(tool, name) in shownTools" :key="name">
-          <v-list-item>
+          <v-list-item class="pr-0">
             <v-list-item-icon>
               <a :href="tool.url" onclick="singleSpaNavigate(event)">
                 <v-icon>{{ tool.icon }}</v-icon>
@@ -59,9 +59,10 @@
                 <v-list-item-title>{{ name }}</v-list-item-title>
               </a>
             </v-list-item-content>
+            <v-divider vertical />
             <v-list-item-icon>
               <a :href="tool.url" target="_blank">
-                <v-icon>mdi-arrow-top-right-thin-circle-outline</v-icon>
+                <v-icon>mdi-open-in-new</v-icon>
               </a>
             </v-list-item-icon>
           </v-list-item>
@@ -70,6 +71,7 @@
     </v-navigation-drawer>
     <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-divider vertical class="top-bar-divider-full-height" />
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
       <div class="justify-right"><alert-history /></div>
@@ -177,5 +179,10 @@ export default {
 }
 .v-list-item__title {
   color: white;
+}
+
+#cosmos-app-toolbar .top-bar-divider-full-height {
+  margin: -4px 4px;
+  min-height: calc(100% + 8px);
 }
 </style>

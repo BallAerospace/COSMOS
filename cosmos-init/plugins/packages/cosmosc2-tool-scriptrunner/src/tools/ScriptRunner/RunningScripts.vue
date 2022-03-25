@@ -19,8 +19,7 @@
 
 <template>
   <div>
-    <top-bar :title="title" />
-    <v-card>
+    <v-card flat>
       <v-card-title> Running Scripts </v-card-title>
       <v-card-text>
         <div class="row">
@@ -51,7 +50,7 @@
         <template v-slot:item.connect="{ item }">
           <v-btn color="primary" @click="connectScript(item)">
             <span>Connect</span>
-            <v-icon right> mdi-eye-outline </v-icon>
+            <v-icon right v-show="connectInNewTab"> mdi-open-in-new </v-icon>
           </v-btn>
         </template>
         <template v-slot:item.stop="{ item }">
@@ -60,9 +59,15 @@
             <v-icon right> mdi-close-circle-outline </v-icon>
           </v-btn>
         </template>
+        <template v-slot:item.delete="{ item }">
+          <v-btn color="primary" @click="deleteScript(item)">
+            <span>Delete</span>
+            <v-icon right> mdi-alert-octagon-outline </v-icon>
+          </v-btn>
+        </template>
       </v-data-table>
     </v-card>
-    <v-card class="mt-3">
+    <v-card class="mt-3" flat>
       <v-card-title> Completed Scripts </v-card-title>
       <v-card-text>
         <div class="row">
@@ -102,15 +107,12 @@
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
-import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 export default {
-  components: {
-    TopBar,
-  },
   props: {
     tabId: Number,
     curTab: Number,
+    connectInNewTab: Boolean,
   },
   data() {
     return {
@@ -130,6 +132,12 @@ export default {
         {
           text: 'Stop',
           value: 'stop',
+          sortable: false,
+          filterable: false,
+        },
+        {
+          text: 'Force Quit',
+          value: 'delete',
           sortable: false,
           filterable: false,
         },
@@ -164,12 +172,22 @@ export default {
       })
     },
     connectScript: function (script) {
-      this.$router.push({ name: 'ScriptRunner', params: { id: script.id } })
+      const destination = {
+        name: 'ScriptRunner',
+        params: { id: script.id },
+      }
+      if (this.connectInNewTab) {
+        let { href } = this.$router.resolve(destination)
+        window.open(href, '_blank')
+      } else {
+        this.$router.push(destination)
+        this.$emit('close')
+      }
     },
     stopScript: function (script) {
       this.$dialog
         .confirm(
-          `Are you sure you want to stop script: ${script.id} ${script.name}`,
+          `Are you sure you want to stop script: ${script.id} ${script.name}?`,
           {
             okText: 'Stop',
             cancelText: 'Cancel',
@@ -177,6 +195,33 @@ export default {
         )
         .then((dialog) => {
           return Api.post(`/script-api/running-script/${script.id}/stop`)
+        })
+        .then((response) => {
+          this.$notify.normal({
+            body: `Stopped script: ${script.id} ${script.name}`,
+          })
+          this.getRunningScripts()
+        })
+        .catch((error) => {
+          if (error) {
+            this.$notify.caution({
+              body: `Failed to stop script: ${script.id} ${script.name}`,
+            })
+          }
+        })
+    },
+    deleteScript: function (script) {
+      this.$dialog
+        .confirm(
+          `Are you sure you want to force quit script: ${script.id} ${script.name}?\n` +
+            'Did you try to stop the script first to allow the script to stop gracefully?',
+          {
+            okText: 'Force Quit',
+            cancelText: 'Cancel',
+          }
+        )
+        .then((dialog) => {
+          return Api.post(`/script-api/running-script/${script.id}/delete`)
         })
         .then((response) => {
           this.$notify.normal({

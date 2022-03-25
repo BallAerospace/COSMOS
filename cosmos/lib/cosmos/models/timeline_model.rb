@@ -64,6 +64,15 @@ module Cosmos
       return name
     end
 
+    # @return [TimelineModel] Model generated from the passed JSON
+    def self.from_json(json, name:, scope:)
+      json = JSON.parse(json) if String === json
+      raise "json data is nil" if json.nil?
+
+      json.transform_keys!(&:to_sym)
+      self.new(**json, name: name, scope: scope)
+    end
+
     def initialize(name:, scope:, updated_at: nil, color: nil)
       if name.nil? || scope.nil?
         raise TimelineInputError.new "name or scope must not be nil"
@@ -100,15 +109,6 @@ module Cosmos
       }
     end
 
-    # @return [TimelineModel] Model generated from the passed JSON
-    def self.from_json(json, name:, scope:)
-      json = JSON.parse(json) if String === json
-      raise "json data is nil" if json.nil?
-
-      json.transform_keys!(&:to_sym)
-      self.new(**json, name: name, scope: scope)
-    end
-
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:)
       notification = {
@@ -117,7 +117,11 @@ module Cosmos
         'type' => 'timeline',
         'timeline' => @timeline_name
       }
-      TimelineTopic.write_activity(notification, scope: @scope)
+      begin
+        TimelineTopic.write_activity(notification, scope: @scope)
+      rescue StandardError => e
+        raise TimelineInputError.new "Failed to write to stream: #{notification}, #{e}"
+      end
     end
 
     def deploy
@@ -136,12 +140,15 @@ module Cosmos
         scope: @scope
       )
       microservice.create
-      notify(kind: 'create')
+      notify(kind: 'created')
     end
 
     def undeploy
       model = MicroserviceModel.get_model(name: @name, scope: @scope)
-      model.destroy if model
+      if model
+        model.destroy
+        notify(kind: 'deleted')
+      end
     end
   end
 end

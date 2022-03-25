@@ -96,18 +96,16 @@ def mock_redis
   require 'mock_redis'
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
-  # pool = double(ConnectionPool)
-  # allow(pool).to receive(:with) { redis }
-  # allow(ConnectionPool).to receive(:new).and_return(pool)
   Cosmos::Store.class_variable_set(:@@instance, nil)
-
-  $cosmos_authorize = false
-  require 'cosmos/models/auth_model'
-  Cosmos::AuthModel.set($cosmos_token, nil)
   redis
 end
 
 RSpec.configure do |config|
+  config.before(:all) do
+    # Most tests want to disable authorization for simplicity
+    $cosmos_authorize = false
+  end
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
