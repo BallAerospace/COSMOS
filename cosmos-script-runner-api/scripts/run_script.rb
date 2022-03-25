@@ -54,7 +54,7 @@ end
 
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
-  run_script_log(id, "Script #{path} spawned in #{startup_time} seconds", 'BLACK')
+  run_script_log(id, "Script #{path} spawned in #{startup_time} seconds <ruby #{RUBY_VERSION}>", 'BLACK')
 
   if script['environment']
     script['environment'].each do |env|
