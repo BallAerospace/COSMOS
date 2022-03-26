@@ -65,8 +65,6 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
         # Look for the container with name including cmd-tlm-api
         cosmos-cmd-tlm-api> docker stop cosmos_cosmos-cmd-tlm-api_1
         cosmos-cmd-tlm-api> dev_server.bat
-        cosmos-cmd-tlm-api> bundle install
-        cosmos-cmd-tlm-api> bundle exec rails s
 
 # MINIO development
 

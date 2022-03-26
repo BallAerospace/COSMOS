@@ -67,13 +67,15 @@
             <v-icon v-if="showDisconnect" class="mr-2" color="red">
               mdi-connection
             </v-icon>
-            <v-text-field
+            <v-select
               outlined
               dense
-              readonly
               hide-details
+              :items="fileList"
+              :disabled="fileList.length <= 1"
               label="Filename"
               v-model="fullFilename"
+              @change="fileNameChanged"
               id="filename"
               data-test="filename"
             />
@@ -578,6 +580,12 @@ export default {
     }
   },
   computed: {
+    fileList: function () {
+      const filenames = Object.keys(this.files)
+      filenames.push(this.fullFilename)
+      console.log([...new Set(filenames)])
+      return [...new Set(filenames)] // ensure unique
+    },
     environmentIcon: function () {
       return this.scriptEnvironment.env.length > 0
         ? 'mdi-bookmark'
@@ -589,9 +597,9 @@ export default {
     readOnly: function () {
       return !!this.lockedBy
     },
-    fullFilename() {
+    fullFilename: function () {
       if (this.currentFilename) return this.currentFilename
-      return `${this.filename} ${this.fileModified}`.trim()
+      return this.filename //`${this.filename} ${this.fileModified}`.trim()
     },
     menus: function () {
       return [
@@ -849,6 +857,12 @@ export default {
     }
   },
   methods: {
+    fileNameChanged(filename) {
+      this.editor.setValue(this.files[filename])
+      this.restoreBreakpoints(filename)
+      this.editor.clearSelection()
+      this.filename = filename
+    },
     tryLoadRunningScript: function (id) {
       return Api.get('/script-api/running-script').then((response) => {
         const loadRunningScript = response.data.find(
@@ -1420,6 +1434,7 @@ export default {
     },
     // Called by the FileOpenDialog to set the file contents
     setFile({ file, locked, breakpoints }) {
+      this.files = {} // Clear the cached file list
       this.unlockFile() // first unlock what was just being edited
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
