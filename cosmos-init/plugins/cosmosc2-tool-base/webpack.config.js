@@ -33,7 +33,7 @@ module.exports = (webpackConfigEnv, argv) => {
     // modify the webpack config however you'd like to by adding to this object
     output: {
       path: path.resolve(__dirname, 'tools/base'),
-      libraryTarget: 'system',
+      libraryTarget: 'system', // This line is in all the vue.config.js files, is it needed here?
     },
     plugins: [
       new HtmlWebpackPlugin({
@@ -53,13 +53,13 @@ module.exports = (webpackConfigEnv, argv) => {
     module: {
       rules: [
         {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+        },
+        {
           test: /\.html$/i,
           exclude: /node_modules/,
           use: { loader: 'vue-loader' },
-        },
-        {
-          test: /\.vue$/,
-          loader: 'vue-loader',
         },
         {
           test: /\.s[ac]ss$/i,

@@ -3,22 +3,22 @@ module.exports = {
   outputDir: 'tools/cmdtlmserver',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2911,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/cmdtlmserver',
+        port: 2911,
+      },
+    },
+  },
   configureWebpack: {
     output: {
       libraryTarget: 'system',
-    },
-    devServer: {
-      port: 2911,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/cmdtlmserver',
-          port: 2911,
-        },
-      },
     },
   },
   chainWebpack(config) {
