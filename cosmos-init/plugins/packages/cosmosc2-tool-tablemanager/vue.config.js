@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/tablemanager',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2916,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/tablemanager',
+        port: 2916,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2916,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/tablemanager',
-          port: 2916,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

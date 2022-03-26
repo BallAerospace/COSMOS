@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/admin',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2930,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/admin',
+        port: 2930,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2930,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/admin',
-          port: 2930,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

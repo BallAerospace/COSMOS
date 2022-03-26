@@ -33,7 +33,6 @@ module.exports = (webpackConfigEnv, argv) => {
     // modify the webpack config however you'd like to by adding to this object
     output: {
       path: path.resolve(__dirname, 'tools/base'),
-      // TODO: Necessary?
       libraryTarget: 'system',
     },
     plugins: [
@@ -77,8 +76,6 @@ module.exports = (webpackConfigEnv, argv) => {
           test: /\.(png|jpe?g|gif)$/i,
           type: 'asset/resource',
         },
-        // TODO: Necessary?
-        { parser: { system: false } },
       ],
     },
     resolve: {

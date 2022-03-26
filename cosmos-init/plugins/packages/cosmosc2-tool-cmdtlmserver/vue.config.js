@@ -4,6 +4,9 @@ module.exports = {
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
   configureWebpack: {
+    output: {
+      libraryTarget: 'system',
+    },
     devServer: {
       port: 2911,
       headers: {

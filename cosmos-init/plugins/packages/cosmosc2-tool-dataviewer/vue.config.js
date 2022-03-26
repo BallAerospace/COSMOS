@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/dataviewer',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2919,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/dataviewer',
+        port: 2919,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2919,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/dataviewer',
-          port: 2919,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

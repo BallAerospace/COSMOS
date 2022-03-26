@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/tlmgrapher',
   filenameHashing: false,
   transpileDependencies: ['uplot', 'vuetify'],
+  devServer: {
+    port: 2917,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/tlmgrapher',
+        port: 2917,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2917,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/tlmgrapher',
-          port: 2917,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

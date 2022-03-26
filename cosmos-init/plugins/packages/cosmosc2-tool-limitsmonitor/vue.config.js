@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/limitsmonitor',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2912,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/limitsmonitor',
+        port: 2912,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2912,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/limitsmonitor',
-          port: 2912,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

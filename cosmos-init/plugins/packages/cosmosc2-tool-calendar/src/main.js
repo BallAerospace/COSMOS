@@ -1,4 +1,4 @@
-import "systemjs-webpack-interop/auto-public-path/2"
+import 'systemjs-webpack-interop/auto-public-path/2'
 import Vue from 'vue'
 import VuejsDialog from 'vuejs-dialog'
 import singleSpaVue from 'single-spa-vue'

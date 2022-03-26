@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/packetviewer',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2915,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/packetviewer',
+        port: 2915,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2915,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/packetviewer',
-          port: 2915,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

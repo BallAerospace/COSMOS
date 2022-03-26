@@ -3,19 +3,22 @@ module.exports = {
   outputDir: 'tools/scriptrunner',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2914,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/scriptrunner',
+        port: 2914,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2914,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/scriptrunner',
-          port: 2914,
-        },
-      },
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {

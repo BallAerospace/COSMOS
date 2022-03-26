@@ -3,33 +3,22 @@ module.exports = {
   outputDir: 'tools/tlmviewer',
   filenameHashing: false,
   transpileDependencies: ['uplot', 'vuetify'],
+  devServer: {
+    port: 2920,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/tlmviewer',
+        port: 2920,
+      },
+    },
+  },
   configureWebpack: {
-    // TODO: Necessary?
-    // module: {
-    //   rules: [{ parser: { system: false } }],
-    // },
-    // TODO: Necessary?
-    // output: {
-    //   libraryTarget: 'system',
-    // },
-    devServer: {
-      port: 2920,
-      // TODO: Necessary?
-      allowedHosts: 'auto',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      client: {
-        webSocketURL: {
-          hostname: 'localhost',
-          pathname: '/tools/tlmviewer',
-          port: 2920,
-        },
-      },
-      // TODO: Necessary?
-      static: {
-        watch: true
-      }
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {
