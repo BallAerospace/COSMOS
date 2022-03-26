@@ -583,7 +583,6 @@ export default {
     fileList: function () {
       const filenames = Object.keys(this.files)
       filenames.push(this.fullFilename)
-      console.log([...new Set(filenames)])
       return [...new Set(filenames)] // ensure unique
     },
     environmentIcon: function () {
