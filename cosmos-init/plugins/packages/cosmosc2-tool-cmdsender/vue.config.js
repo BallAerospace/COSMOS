@@ -3,21 +3,25 @@ module.exports = {
   outputDir: 'tools/cmdsender',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
-  configureWebpack: {
-    devServer: {
-      port: 2913,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
+  devServer: {
+    port: 2913,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/cmdtlmserver',
+        port: 2913,
       },
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      public: 'localhost:2913/tools/cmdsender',
     },
   },
-  chainWebpack(config) {
+  configureWebpack: {
+    output: {
+      libraryTarget: 'system',
+    },
+  },
+  chainWebpack: config => {
     config.module
       .rule('js')
       .use('babel-loader')
@@ -27,7 +31,6 @@ module.exports = {
         }
       })
     config.externals([
-      'portal-vue',
       'vue',
       'vuejs-dialog',
       'vuetify',

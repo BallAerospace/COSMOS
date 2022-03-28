@@ -3,18 +3,22 @@ module.exports = {
   outputDir: 'tools/tlmgrapher',
   filenameHashing: false,
   transpileDependencies: ['uplot', 'vuetify'],
+  devServer: {
+    port: 2917,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/tlmgrapher',
+        port: 2917,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2917,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      public: 'localhost:2917/tools/tlmgrapher',
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {
@@ -27,7 +31,6 @@ module.exports = {
         }
       })
     config.externals([
-      'portal-vue',
       'vue',
       'vuejs-dialog',
       'vuetify',

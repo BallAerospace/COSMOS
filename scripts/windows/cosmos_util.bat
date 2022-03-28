@@ -18,6 +18,9 @@ if "%1" == "load" (
 if "%1" == "zip" (
   GOTO zip
 )
+if "%1" == "clean" (
+  GOTO clean
+)
 
 GOTO usage
 
@@ -62,6 +65,21 @@ GOTO :EOF
   zip -r cosmos.zip *.* -x "*.git*" -x "*coverage*" -x "*tmp/cache*" -x "*node_modules*" -x "*yarn.lock"
 GOTO :EOF
 
+:clean
+  for /d /r %%i in (*node_modules*) do (
+    echo Removing "%%i"
+    @rmdir /s /q "%%i"
+  )
+  for /d /r %%i in (*coverage*) do (
+    echo Removing "%%i"
+    @rmdir /s /q "%%i"
+  )
+  REM Prompt for removing yarn.lock files
+  forfiles /S /M yarn.lock /C "cmd /c del /P @path"
+  REM Prompt for removing Gemfile.lock files
+  forfiles /S /M Gemfile.lock /C "cmd /c del /P @path"
+GOTO :EOF
+
 :usage
   @echo Usage: %1 [encode, hash, save, load] 1>&2
   @echo *  encode: encode a string to base64 1>&2
@@ -69,5 +87,6 @@ GOTO :EOF
   @echo *  save: save cosmos to tar files 1>&2
   @echo *  load: load cosmos tar files 1>&2
   @echo *  zip: create cosmos zipfile 1>&2
+  @echo *  clean: remove node_modules, coverage, etc 1>&2
 
 @echo on

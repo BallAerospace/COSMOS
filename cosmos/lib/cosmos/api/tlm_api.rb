@@ -203,7 +203,7 @@ module Cosmos
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       packet = TargetModel.packet(target_name, packet_name, scope: scope)
       t = _validate_tlm_type(type)
-      raise ArgumentError "Unknown type '#{type}' for #{target_name} #{packet_name}" if t.nil?
+      raise ArgumentError, "Unknown type '#{type}' for #{target_name} #{packet_name}" if t.nil?
       items = packet['items'].map { | item | item['name'] }
       cvt_items = items.map { | item | "#{target_name}__#{packet_name}__#{item}__#{type}" }
       current_values = CvtModel.get_tlm_values(cvt_items, scope: scope)

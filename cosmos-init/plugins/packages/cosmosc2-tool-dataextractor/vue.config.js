@@ -3,18 +3,22 @@ module.exports = {
   outputDir: 'tools/dataextractor',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
+  devServer: {
+    port: 2918,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
+    client: {
+      webSocketURL: {
+        hostname: 'localhost',
+        pathname: '/tools/dataextractor',
+        port: 2918,
+      },
+    },
+  },
   configureWebpack: {
-    devServer: {
-      port: 2918,
-      watchOptions: {
-        ignored: ['node_modules'],
-        aggregateTimeout: 300,
-        poll: 1500,
-      },
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      public: 'localhost:2918/tools/dataextractor',
+    output: {
+      libraryTarget: 'system',
     },
   },
   chainWebpack(config) {
@@ -27,7 +31,6 @@ module.exports = {
         }
       })
     config.externals([
-      'portal-vue',
       'vue',
       'vuejs-dialog',
       'vuetify',
