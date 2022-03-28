@@ -292,7 +292,7 @@ module Cosmos
         expect { @api.inject_tlm("INST", "HEALTH_STATUS", { 'BLAH' => 0 }) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      xit "injects a packet into the system" do
+      it "injects a packet into the system" do
         @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 10, TEMP2: 20 }, type: :CONVERTED)
         sleep 2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
@@ -461,82 +461,83 @@ module Cosmos
 
       it "reads all telemetry items as CONVERTED with their limits states" do
         vals = @api.get_tlm_packet("INST", "HEALTH_STATUS")
-        expect(vals[0][0]).to eql "PACKET_TIMESECONDS"
-        expect(vals[0][1]).to be > 0
-        expect(vals[0][2]).to be_nil
-        expect(vals[1][0]).to eql "PACKET_TIMEFORMATTED"
-        expect(vals[1][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0] # Match the date
-        expect(vals[1][2]).to be_nil
-        expect(vals[2][0]).to eql "RECEIVED_TIMESECONDS"
-        expect(vals[2][1]).to be > 0
-        expect(vals[2][2]).to be_nil
-        expect(vals[3][0]).to eql "RECEIVED_TIMEFORMATTED"
-        expect(vals[3][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0] # Match the date
-        expect(vals[3][2]).to be_nil
-        expect(vals[4][0]).to eql "RECEIVED_COUNT"
-        expect(vals[4][1]).to eql 0
-        expect(vals[4][2]).to be_nil
-        # Spot check a few more
-        expect(vals[24][0]).to eql "TEMP1"
-        expect(vals[24][1]).to eql(-100.0)
-        expect(vals[24][2]).to eql "RED_LOW"
-        expect(vals[25][0]).to eql "TEMP2"
-        expect(vals[25][1]).to eql(-100.0)
-        expect(vals[25][2]).to eql "RED_LOW"
-        expect(vals[26][0]).to eql "TEMP3"
-        expect(vals[26][1]).to eql(-100.0)
-        expect(vals[26][2]).to eql "RED_LOW"
-        expect(vals[27][0]).to eql "TEMP4"
-        expect(vals[27][1]).to eql(-100.0)
-        expect(vals[27][2]).to eql "RED_LOW"
+        # Spot check a few
+        expect(vals[11][0]).to eql "TEMP1"
+        expect(vals[11][1]).to eql(-100.0)
+        expect(vals[11][2]).to eql :RED_LOW
+        expect(vals[12][0]).to eql "TEMP2"
+        expect(vals[12][1]).to eql(-100.0)
+        expect(vals[12][2]).to eql :RED_LOW
+        expect(vals[13][0]).to eql "TEMP3"
+        expect(vals[13][1]).to eql(-100.0)
+        expect(vals[13][2]).to eql :RED_LOW
+        expect(vals[14][0]).to eql "TEMP4"
+        expect(vals[14][1]).to eql(-100.0)
+        expect(vals[14][2]).to eql :RED_LOW
+        # Derived items are last
+        expect(vals[23][0]).to eql "PACKET_TIMESECONDS"
+        expect(vals[23][1]).to be > 0
+        expect(vals[23][2]).to be_nil
+        expect(vals[24][0]).to eql "PACKET_TIMEFORMATTED"
+        expect(vals[24][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0] # Match the date
+        expect(vals[24][2]).to be_nil
+        expect(vals[25][0]).to eql "RECEIVED_TIMESECONDS"
+        expect(vals[25][1]).to be > 0
+        expect(vals[25][2]).to be_nil
+        expect(vals[26][0]).to eql "RECEIVED_TIMEFORMATTED"
+        expect(vals[26][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0] # Match the date
+        expect(vals[26][2]).to be_nil
+        expect(vals[27][0]).to eql "RECEIVED_COUNT"
+        expect(vals[27][1]).to eql 0
+        expect(vals[27][2]).to be_nil
       end
 
       it "reads all telemetry items as RAW" do
         vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :RAW)
-        expect(vals[24][0]).to eql "TEMP1"
-        expect(vals[24][1]).to eql 0
-        expect(vals[24][2]).to eql "RED_LOW"
-        expect(vals[25][0]).to eql "TEMP2"
-        expect(vals[25][1]).to eql 0
-        expect(vals[25][2]).to eql "RED_LOW"
-        expect(vals[26][0]).to eql "TEMP3"
-        expect(vals[26][1]).to eql 0
-        expect(vals[26][2]).to eql "RED_LOW"
-        expect(vals[27][0]).to eql "TEMP4"
-        expect(vals[27][1]).to eql 0
-        expect(vals[27][2]).to eql "RED_LOW"
+        expect(vals[11][0]).to eql "TEMP1"
+        expect(vals[11][1]).to eql 0
+        expect(vals[11][2]).to eql :RED_LOW
+        expect(vals[12][0]).to eql "TEMP2"
+        expect(vals[12][1]).to eql 0
+        expect(vals[12][2]).to eql :RED_LOW
+        expect(vals[13][0]).to eql "TEMP3"
+        expect(vals[13][1]).to eql 0
+        expect(vals[13][2]).to eql :RED_LOW
+        expect(vals[14][0]).to eql "TEMP4"
+        expect(vals[14][1]).to eql 0
+        expect(vals[14][2]).to eql :RED_LOW
       end
 
       it "reads all telemetry items as FORMATTED" do
         vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :FORMATTED)
-        expect(vals[24][0]).to eql "TEMP1"
-        expect(vals[24][1]).to eql "-100.000"
-        expect(vals[24][2]).to eql "RED_LOW"
-        expect(vals[25][0]).to eql "TEMP2"
-        expect(vals[25][1]).to eql "-100.000"
-        expect(vals[25][2]).to eql "RED_LOW"
-        expect(vals[26][0]).to eql "TEMP3"
-        expect(vals[26][1]).to eql "-100.000"
-        expect(vals[26][2]).to eql "RED_LOW"
-        expect(vals[27][0]).to eql "TEMP4"
-        expect(vals[27][1]).to eql "-100.000"
-        expect(vals[27][2]).to eql "RED_LOW"
+        expect(vals[11][0]).to eql "TEMP1"
+        expect(vals[11][1]).to eql "-100.000"
+        expect(vals[11][2]).to eql :RED_LOW
+        expect(vals[12][0]).to eql "TEMP2"
+        expect(vals[12][1]).to eql "-100.000"
+        expect(vals[12][2]).to eql :RED_LOW
+        expect(vals[13][0]).to eql "TEMP3"
+        expect(vals[13][1]).to eql "-100.000"
+        expect(vals[13][2]).to eql :RED_LOW
+        expect(vals[14][0]).to eql "TEMP4"
+        expect(vals[14][1]).to eql "-100.000"
+        expect(vals[14][2]).to eql :RED_LOW
       end
 
       it "reads all telemetry items as WITH_UNITS" do
         vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :WITH_UNITS)
-        expect(vals[24][0]).to eql "TEMP1"
-        expect(vals[24][1]).to eql "-100.000 C"
-        expect(vals[24][2]).to eql "RED_LOW"
-        expect(vals[25][0]).to eql "TEMP2"
-        expect(vals[25][1]).to eql "-100.000 C"
-        expect(vals[25][2]).to eql "RED_LOW"
-        expect(vals[26][0]).to eql "TEMP3"
-        expect(vals[26][1]).to eql "-100.000 C"
-        expect(vals[26][2]).to eql "RED_LOW"
-        expect(vals[27][0]).to eql "TEMP4"
-        expect(vals[27][1]).to eql "-100.000 C"
-        expect(vals[27][2]).to eql "RED_LOW"
+        expect(vals[11][0]).to eql "TEMP1"
+        expect(vals[11][1]).to eql "-100.000 C"
+        expect(vals[11][2]).to eql :RED_LOW
+        expect(vals[12][0]).to eql "TEMP2"
+        expect(vals[12][1]).to eql "-100.000 C"
+        expect(vals[12][2]).to eql :RED_LOW
+        expect(vals[13][0]).to eql "TEMP3"
+        expect(vals[13][1]).to eql "-100.000 C"
+        expect(vals[13][2]).to eql :RED_LOW
+        expect(vals[14][0]).to eql "TEMP4"
+        expect(vals[14][1]).to eql "-100.000 C"
+        expect(vals[14][2]).to eql :RED_LOW
       end
     end
 
