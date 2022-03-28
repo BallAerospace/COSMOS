@@ -179,11 +179,12 @@
       </v-row>
     </v-container>
     <!-- Create Multipane container to support resizing.
-         NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues -->
+         NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues,
+         The event must be paneResize and not pane-resize -->
     <multipane
       class="horizontal-panes"
       layout="horizontal"
-      @pane-resize="editor.resize()"
+      @paneResize="editor.resize()"
     >
       <div id="editorbox" class="pane">
         <v-snackbar
@@ -410,6 +411,7 @@ export default {
         // },
       },
       currentFilename: null,
+      currentLineNo: 0,
       showSave: false,
       showAlert: false,
       alertType: null,
@@ -1138,7 +1140,9 @@ export default {
               marker,
               'fullLine'
             )
-            if (this.editor.getSelectedText() === '') {
+            // Only goto if the line changes
+            if (this.currentLineNo != data.line_no) {
+              this.currentLineNo = data.line_no
               this.editor.gotoLine(data.line_no)
             }
           }
