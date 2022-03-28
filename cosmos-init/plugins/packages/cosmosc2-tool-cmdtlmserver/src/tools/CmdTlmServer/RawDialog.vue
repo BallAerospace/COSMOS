@@ -18,30 +18,73 @@
 -->
 
 <template>
-  <v-row justify="center">
-    <v-dialog
-      v-model="isVisible"
-      @keydown.esc="isVisible = false"
-      width="790px"
-    >
-      <v-card>
-        <v-card-title>{{ header }}</v-card-title>
-        <v-card-text>
-          Packet Time: {{ packetTime }}
-          <br />
-          Received Time: {{ receivedTime }}
-          <br />
-          <v-btn color="primary" class="mt-2" @click="pause">
-            {{ buttonLabel }}
-          </v-btn>
-          <v-textarea class="pa-0 ma-0" v-model="rawData" auto-grow readonly />
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-  </v-row>
+  <v-dialog v-model="isVisible" @keydown.esc="isVisible = false" width="790px">
+    <v-card>
+      <v-system-bar>
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <v-icon data-test="copy-icon" @click="copyRawData">
+                mdi-content-copy
+              </v-icon>
+            </div>
+          </template>
+          <span> Copy </span>
+        </v-tooltip>
+        <v-spacer />
+        <span> {{ type }} </span>
+        <v-spacer />
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <v-icon data-test="download" @click="downloadRawData">
+                mdi-download
+              </v-icon>
+            </div>
+          </template>
+          <span> Download </span>
+        </v-tooltip>
+      </v-system-bar>
+      <v-card-title>
+        <span> {{ header }} </span>
+        <v-spacer />
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <v-btn icon data-test="pause" @click="pause">
+                <v-icon> {{ buttonIcon }} </v-icon>
+              </v-btn>
+            </div>
+          </template>
+          <span> {{ buttonLabel }} </span>
+        </v-tooltip>
+      </v-card-title>
+      <v-card-text>
+        <v-row dense>
+          <v-col cols="4">
+            <span> Received Time: </span>
+          </v-col>
+          <v-col class="text-right">
+            <span> {{ receivedTime }} </span>
+          </v-col>
+        </v-row>
+        <v-row dense>
+          <v-col cols="4">
+            <span> Count: </span>
+          </v-col>
+          <v-col class="text-right">
+            <span> {{ receivedCount }} </span>
+          </v-col>
+        </v-row>
+        <v-textarea v-model="rawData" class="pa-0 ma-0" auto-grow readonly />
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
+import { format } from 'date-fns'
+
 import Updater from './Updater'
 
 export default {
@@ -55,14 +98,27 @@ export default {
   data() {
     return {
       header: '',
-      packetTime: '',
       receivedTime: '',
       rawData: '',
       paused: false,
-      buttonLabel: 'Pause',
+      receivedCount: '',
     }
   },
   computed: {
+    buttonLabel: function () {
+      if (this.paused) {
+        return 'Resume'
+      } else {
+        return 'Pause'
+      }
+    },
+    buttonIcon: function () {
+      if (this.paused) {
+        return 'mdi-play'
+      } else {
+        return 'mdi-pause'
+      }
+    },
     isVisible: {
       get: function () {
         return this.visible
@@ -70,9 +126,9 @@ export default {
       // Reset all the data to defaults
       set: function (bool) {
         this.header = ''
-        this.packetTime = ''
         this.receivedTime = ''
         this.rawData = ''
+        this.receivedCount = ''
         this.paused = false
         this.buttonLabel = 'Pause'
         this.$emit('display', bool)
@@ -80,66 +136,62 @@ export default {
     },
   },
   methods: {
-    pause() {
-      this.paused = !this.paused
-      if (this.paused) {
-        this.buttonLabel = 'Resume'
-      } else {
-        this.buttonLabel = 'Pause'
-      }
+    copyRawData: function () {
+      navigator.clipboard.writeText(this.rawData)
     },
-    update() {
+    downloadRawData: function () {
+      const blob = new Blob([this.rawData], {
+        type: 'plain/text',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      const dt = format(Date.now(), 'yyyy_MM_dd_HH_mm_ss')
+      link.setAttribute(
+        'download',
+        `${dt}_${this.targetName}_${this.packetName}.txt`
+      )
+      link.click()
+    },
+    pause: function () {
+      this.paused = !this.paused
+    },
+    update: function () {
       if (!this.isVisible || this.paused) return
-      this.header =
-        'Raw ' +
-        this.type +
-        ' Packet: ' +
-        this.targetName +
-        ' ' +
-        this.packetName
+      this.header = `Raw ${this.type} Packet: ${this.targetName} ${this.packetName}`
 
       if (this.type === 'Telemetry') {
-        this.api
-          .get_tlm_values([
-            `${this.targetName}__${this.packetName}__PACKET_TIMEFORMATTED__CONVERTED`,
-            `${this.targetName}__${this.packetName}__RECEIVED_TIMEFORMATTED__CONVERTED`,
-          ])
-          .then((values) => {
-            this.packetTime = values[0][0]
-            this.receivedTime = values[1][0]
-          })
-        this.api
-          .get_tlm_buffer(this.targetName, this.packetName)
-          .then((value) => {
-            this.rawData =
-              'Address   Data                                             Ascii\n' +
-              '---------------------------------------------------------------------------\n' +
-              this.formatBuffer(value.raw)
-          })
+        this.updateTelemetry()
       } else {
-        // Command
-        this.api
-          .get_cmd_value(
-            this.targetName,
-            this.packetName,
-            'RECEIVED_TIMEFORMATTED'
-          )
-          .then((value) => {
-            this.packetTime = value
-            this.receivedTime = value
-          })
-        this.api
-          .get_cmd_buffer(this.targetName, this.packetName)
-          .then((value) => {
-            this.rawData =
-              'Address   Data                                             Ascii\n' +
-              '---------------------------------------------------------------------------\n' +
-              this.formatBuffer(value.raw)
-          })
+        this.updateCommand()
       }
     },
+    updateTelemetry: function () {
+      this.api
+        .get_tlm_buffer(this.targetName, this.packetName)
+        .then((result) => {
+          this.receivedTime = new Date(result.time / 1000000)
+          this.receivedCount = result.received_count
+          this.rawData =
+            'Address   Data                                             Ascii\n' +
+            '---------------------------------------------------------------------------\n' +
+            this.formatBuffer(result.buffer.raw)
+        })
+    },
+    updateCommand: function () {
+      this.api
+        .get_cmd_buffer(this.targetName, this.packetName)
+        .then((result) => {
+          this.receivedTime = new Date(result.time / 1000000)
+          this.receivedCount = result.received_count
+          this.rawData =
+            'Address   Data                                             Ascii\n' +
+            '---------------------------------------------------------------------------\n' +
+            this.formatBuffer(result.buffer.raw)
+        })
+    },
     // TODO: Perhaps move this to a utility library
-    formatBuffer(buffer) {
+    formatBuffer: function (buffer) {
       var string = ''
       var index = 0
       var ascii = ''
@@ -186,11 +238,6 @@ export default {
 }
 </script>
 <style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
-}
-
 .v-textarea >>> textarea {
   margin-top: 10px;
   font-family: 'Courier New', Courier, monospace;

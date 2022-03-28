@@ -84,7 +84,7 @@ module Cosmos
             next 'SUCCESS'
           end
           if msg_hash['inject_tlm']
-            Logger.info "#{@interface.name}: Inject telemetry"
+            Logger.info "#{@interface.name}: Inject telemetry" if msg_hash['log']
             @tlm.inject_tlm(msg_hash)
             next 'SUCCESS'
           end
@@ -401,14 +401,12 @@ module Cosmos
         unknown_packet.stored = packet.stored
         unknown_packet.extra = packet.extra
         packet = unknown_packet
-        data_length = packet.length
-        string = "#{@interface.name}: Unknown #{data_length} byte packet starting: "
-        num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
-        data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
-        data_to_print.each_byte do |byte|
-          string << sprintf("%02X", byte)
-        end
-        Logger.warn string
+        json_hash = CvtModel.build_json_from_packet(packet)
+        CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
+        num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, packet.length].min
+        data = packet.buffer(false)[0..(num_bytes_to_print - 1)]
+        prefix = data.each_byte.map { | byte | sprintf("%02X", byte) }.join()
+        Logger.warn "#{@interface.name} #{packet.target_name} packet length: #{packet.length} starting with: #{prefix}"
       end
 
       # Write to stream

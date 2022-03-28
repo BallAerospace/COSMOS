@@ -112,7 +112,7 @@ module Cosmos
     # @param packet_name[String] Packet name of the packet
     # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
     # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
-    def inject_tlm(target_name, packet_name, item_hash = nil, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+    def inject_tlm(target_name, packet_name, item_hash = nil, log: true, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       unless CvtModel::VALUE_TYPES.include?(type.intern)
         raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
@@ -127,6 +127,7 @@ module Cosmos
       end
       inject = {}
       inject['inject_tlm'] = true
+      inject['log'] = log
       inject['target_name'] = target_name
       inject['packet_name'] = packet_name
       inject['item_hash'] = JSON.generate(item_hash) if item_hash
@@ -188,9 +189,11 @@ module Cosmos
       TargetModel.packet(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      return msg_hash['buffer'].b if msg_id # Return as binary
-
-      nil
+      if msg_id
+        msg_hash['buffer'] = msg_hash['buffer'].b
+        return msg_hash
+      end
+      return nil
     end
 
     # Returns all the values (along with their limits state) for a packet.
@@ -320,7 +323,21 @@ module Cosmos
     #
     # @return [Array<String, String, Numeric>] Receive count for all telemetry
     def get_all_tlm_info(scope: $cosmos_scope, token: $cosmos_token)
-      get_all_cmd_tlm_info("TELEMETRY", scope: scope, token: token)
+      authorize(permission: 'system', scope: scope, token: token)
+      result = []
+      TargetModel.names(scope: scope).each do | target_name |
+        TargetModel.packets(target_name, scope: scope).each do | packet |
+          packet_name = packet['packet_name']
+          key = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
+          result << [target_name, packet_name, _get_cnt(key)]
+        end
+      end
+      ['UNKNOWN'].each do | x |
+        key = "#{scope}__TELEMETRY__{#{x}}__#{x}"
+        result << [x, x, _get_cnt(key)]
+      end
+      # Return the results sorted by target, packet
+      result.sort_by { |a| [a[0], a[1]] }
     end
 
     # Get the list of derived telemetry items for a packet
