@@ -87,5 +87,6 @@ GOTO :EOF
   @echo *  save: save cosmos to tar files 1>&2
   @echo *  load: load cosmos tar files 1>&2
   @echo *  zip: create cosmos zipfile 1>&2
+  @echo *  clean: remove node_modules, coverage, etc 1>&2
 
 @echo on

@@ -23,6 +23,7 @@ usage() {
   echo "*    hash: hash a string using SHA-256" >&2
   echo "*    save: save images to tar files" >&2
   echo "*    load: load images to tar files" >&2
+  echo "*    clean: remove node_modules, coverage, etc" >&2
   exit 1
 }
 
