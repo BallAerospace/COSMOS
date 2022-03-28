@@ -1,9 +1,10 @@
 const webpack = require('webpack')
+const systemjsInterop = require('systemjs-webpack-interop/webpack-config')
 const { mergeWithRules } = require('webpack-merge')
 const singleSpaDefaults = require('webpack-config-single-spa')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const { VueLoaderPlugin } = require('vue-loader')
 const path = require('path')
 
 function resolve(dir) {
@@ -32,6 +33,7 @@ module.exports = (webpackConfigEnv, argv) => {
     // modify the webpack config however you'd like to by adding to this object
     output: {
       path: path.resolve(__dirname, 'tools/base'),
+      libraryTarget: 'system', // This line is in all the vue.config.js files, is it needed here?
     },
     plugins: [
       new HtmlWebpackPlugin({
@@ -50,15 +52,14 @@ module.exports = (webpackConfigEnv, argv) => {
     ],
     module: {
       rules: [
-        // ... other rules
+        {
+          test: /\.vue$/,
+          loader: 'vue-loader',
+        },
         {
           test: /\.html$/i,
           exclude: /node_modules/,
           use: { loader: 'vue-loader' },
-        },
-        {
-          test: /\.vue$/,
-          loader: 'vue-loader',
         },
         {
           test: /\.s[ac]ss$/i,
@@ -93,3 +94,6 @@ module.exports = (webpackConfigEnv, argv) => {
     ],
   })
 }
+
+// Throws errors if your webpack config won't interop well with SystemJS
+systemjsInterop.checkWebpackConfig(module.exports)
