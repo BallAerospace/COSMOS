@@ -42,16 +42,12 @@ module Cosmos
       end
 
       it "creates UNKNOWN cmd/tlm packets" do
-        unknown_pkt = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
         # Only one target called "UNKNOWN"
         expect(@pc.commands.keys).to eql ["UNKNOWN"]
         expect(@pc.telemetry.keys).to eql ["UNKNOWN"]
         # Only one cmd/tlm packet called "UNKNOWN"
         expect(@pc.commands["UNKNOWN"].keys).to eql ["UNKNOWN"]
         expect(@pc.telemetry["UNKNOWN"].keys).to eql ["UNKNOWN"]
-        # Verify default reserved items
-        expect(@pc.commands['UNKNOWN']['UNKNOWN'].items.keys.sort).to eql Packet::RESERVED_ITEM_NAMES.sort
-        expect(@pc.telemetry['UNKNOWN']['UNKNOWN'].items.keys.sort).to eql Packet::RESERVED_ITEM_NAMES.sort
       end
 
       it "outputs parsed definitions back to a file" do

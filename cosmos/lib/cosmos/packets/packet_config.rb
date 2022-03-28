@@ -97,10 +97,8 @@ module Cosmos
       # Create unknown packets
       @commands['UNKNOWN'] = {}
       @commands['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
-      @commands['UNKNOWN']['UNKNOWN'].define_reserved_items()
       @telemetry['UNKNOWN'] = {}
       @telemetry['UNKNOWN']['UNKNOWN'] = Packet.new('UNKNOWN', 'UNKNOWN', :BIG_ENDIAN)
-      @telemetry['UNKNOWN']['UNKNOWN'].define_reserved_items()
 
       reset_processing_variables()
     end
