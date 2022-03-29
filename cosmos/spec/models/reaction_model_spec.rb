@@ -24,16 +24,15 @@ require 'cosmos/models/trigger_model'
 
 module Cosmos
   describe ReactionModel do
-    SCOPE = 'DEFAULT'
-    GROUP = 'GROUP'
+    RMO_GROUP = 'GROUP'
 
     def generate_trigger_group_model(
-      name: GROUP,
+      name: RMO_GROUP,
       color: '#ff0000'
     )
       return TriggerGroupModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         color: color
       )
     end
@@ -46,8 +45,8 @@ module Cosmos
     )
       return TriggerModel.new(
         name: name,
-        scope: SCOPE,
-        group: GROUP,
+        scope: $cosmos_scope,
+        group: RMO_GROUP,
         left: left,
         operator: operator,
         right: right,
@@ -58,12 +57,12 @@ module Cosmos
     def generate_custom_reaction(
       name: 'foobar',
       description: 'another test',
-      triggers: [{'name' => 'foobar', 'group' => GROUP}],
+      triggers: [{'name' => 'foobar', 'group' => RMO_GROUP}],
       actions: [{'type' => 'command', 'value' => 'TEST'}]
     )
       return ReactionModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         description: description,
         snooze: 300,
         triggers: triggers,
@@ -87,7 +86,7 @@ module Cosmos
       it "Cosmos::ReactionModel" do
         model = generate_reaction()
         expect(model.name).to eql('foobar')
-        expect(model.scope).to eql(SCOPE)
+        expect(model.scope).to eql($cosmos_scope)
         expect(model.description).to eql('another test')
         expect(model.active).to be_truthy()
         expect(model.snooze).to eql(300)
@@ -108,11 +107,11 @@ module Cosmos
     describe "self.all" do
       it "returns all the reactions" do
         generate_reaction()
-        all = ReactionModel.all(scope: SCOPE)
+        all = ReactionModel.all(scope: $cosmos_scope)
         expect(all.empty?).to be_falsey()
         expect(all['foobar'].empty?).to be_falsey()
         expect(all['foobar']['name']).to eql('foobar')
-        expect(all['foobar']['scope']).to eql(SCOPE)
+        expect(all['foobar']['scope']).to eql($cosmos_scope)
         expect(all['foobar']['triggers']).to_not be_nil()
         expect(all['foobar']['actions']).to_not be_nil()
       end
@@ -121,7 +120,7 @@ module Cosmos
     describe "self.names" do
       it "returns reaction names" do
         generate_reaction()
-        all = ReactionModel.names(scope: SCOPE)
+        all = ReactionModel.names(scope: $cosmos_scope)
         expect(all.empty?).to be_falsey()
         expect(all[0]).to eql('foobar')
       end
@@ -130,9 +129,9 @@ module Cosmos
     describe "self.get" do
       it "returns a single reaction model" do
         generate_reaction()
-        foobar = ReactionModel.get(name: 'foobar', scope: SCOPE)
+        foobar = ReactionModel.get(name: 'foobar', scope: $cosmos_scope)
         expect(foobar.name).to eql('foobar')
-        expect(foobar.scope).to eql(SCOPE)
+        expect(foobar.scope).to eql($cosmos_scope)
         expect(foobar.description).to eql('another test')
         expect(foobar.triggers.empty?).to be_falsey()
         expect(foobar.actions.empty?).to be_falsey()
@@ -142,10 +141,10 @@ module Cosmos
     describe "single reaction test" do
       it "delete an reaction" do
         generate_reaction()
-        ReactionModel.delete(name: 'foobar', scope: SCOPE)
-        all = ReactionModel.all(scope: SCOPE)
+        ReactionModel.delete(name: 'foobar', scope: $cosmos_scope)
+        all = ReactionModel.all(scope: $cosmos_scope)
         expect(all.empty?).to be_truthy()
-        trigger = TriggerModel.get(name: 'foobar', group: GROUP, scope: SCOPE)
+        trigger = TriggerModel.get(name: 'foobar', group: RMO_GROUP, scope: $cosmos_scope)
         expect(trigger.dependents.empty?).to be_truthy()
       end
     end
@@ -155,7 +154,7 @@ module Cosmos
         model = generate_reaction()
         json = model.as_json
         expect(json['name']).to eql('foobar')
-        expect(json['scope']).to eql(SCOPE)
+        expect(json['scope']).to eql($cosmos_scope)
         expect(json['description']).to eql('another test')
         expect(json['snooze']).to eql(300)
         expect(json['triggers']).to_not be_nil()
@@ -172,7 +171,7 @@ module Cosmos
         }.to raise_error(ReactionInputError)
         expect {
           generate_custom_reaction(
-            triggers: [{'name' => 'bad-trigger', 'group' => GROUP}],
+            triggers: [{'name' => 'bad-trigger', 'group' => RMO_GROUP}],
           ).create()
         }.to raise_error(ReactionInputError)
       end

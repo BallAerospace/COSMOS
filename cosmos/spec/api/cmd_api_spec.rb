@@ -449,9 +449,11 @@ module Cosmos
 
       it "returns a command packet buffer" do
         @api.cmd("INST ABORT")
-        expect(@api.get_cmd_buffer("INST", "ABORT")[6..7].unpack("n")[0]).to eq 2
+        output = @api.get_cmd_buffer("INST", "ABORT")
+        expect(output["buffer"][6..7].unpack("n")[0]).to eq 2
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
-        expect(@api.get_cmd_buffer("INST", "COLLECT")[6..7].unpack("n")[0]).to eq 1
+        output = @api.get_cmd_buffer("INST", "COLLECT")
+        expect(output["buffer"][6..7].unpack("n")[0]).to eq 1
       end
     end
 
@@ -650,18 +652,22 @@ module Cosmos
         @api.cmd("INST ABORT")
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
-        baseline = @api.get_all_cmd_info()
+        base = @api.get_all_cmd_info()
+        a_base = base.index { | x | x[1] == "ABORT" }
+        c_base = base.index { | x | x[1] == "COLLECT" }
         @api.cmd("INST ABORT")
         @api.cmd("INST ABORT")
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
         info = @api.get_all_cmd_info()
-        expect(info[0][0]).to eql "INST"
-        expect(info[0][1]).to eql "ABORT"
-        expect(info[0][2]).to eql baseline[0][2] + 2
-        expect(info[1][0]).to eql "INST"
-        expect(info[1][1]).to eql "COLLECT"
-        expect(info[1][2]).to eql baseline[1][2] + 1
+        a_info = info.index { | x | x[1] == "ABORT" }
+        c_info = info.index { | x | x[1] == "COLLECT" }
+        expect(info[a_info][0]).to eql "INST"
+        expect(info[a_info][1]).to eql "ABORT"
+        expect(info[a_info][2]).to eql base[a_base][2] + 2
+        expect(info[c_info][0]).to eql "INST"
+        expect(info[c_info][1]).to eql "COLLECT"
+        expect(info[c_info][2]).to eql base[c_base][2] + 1
       end
     end
   end

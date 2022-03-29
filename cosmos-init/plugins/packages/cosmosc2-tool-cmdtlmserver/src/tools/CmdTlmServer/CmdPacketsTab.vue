@@ -54,7 +54,7 @@
       <template v-slot:item.view_in_cmd_sender="{ item }">
         <span v-if="item.target_name === 'UNKNOWN'">N/A</span>
         <v-btn
-          v-if="item.target_name != 'UNKNOWN'"
+          v-else
           block
           color="primary"
           @click="openCmdSender(item.target_name, item.packet_name)"
