@@ -27,7 +27,7 @@ module Cosmos
   describe TimelineMicroservice do
     # Turn on tests here these test can take up to three minutes so
     # if you want to test them set TEST = true
-    TEST = false
+    TMI_TEST = false
 
     def generate_timeline()
       timeline = TimelineModel.new(
@@ -117,7 +117,7 @@ module Cosmos
         timeline_microservice.shutdown
         sleep 5
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline manager" do
       it "run the timeline manager and add an expire." do
@@ -137,7 +137,7 @@ module Cosmos
         expect(activity.events.length).to eql(1)
         expect(valid_events?(activity.events, "completed")).to eql(true)
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline manager" do
       it "run the timeline manager and request update" do
@@ -154,7 +154,7 @@ module Cosmos
         timeline_manager.shutdown
         sleep 5
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline" do
       it "add a cmd while microservice is running" do
@@ -176,7 +176,7 @@ module Cosmos
         expect(activity.events.length).to eql(3)
         expect(valid_events?(activity.events, "completed")).to eql(true)
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline" do
       it "add a cmd activty to run and complete" do
@@ -198,7 +198,7 @@ module Cosmos
         expect(activity.events.length).to eql(3)
         expect(valid_events?(activity.events, "completed")).to eql(true)
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline" do
       it "add a script activity to run and complete" do
@@ -224,7 +224,7 @@ module Cosmos
         expect(activity.events.length).to eql(3)
         expect(valid_events?(activity.events, "completed")).to eql(true)
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline" do
       it "add a cmd activity to run and fail" do
@@ -246,7 +246,7 @@ module Cosmos
         expect(activity.events.length).to eql(3)
         expect(valid_events?(activity.events, "failed")).to eql(true)
       end
-    end if TEST
+    end if TMI_TEST
 
     describe "timeline" do
       it "add a script activity to run and fail" do
@@ -270,6 +270,6 @@ module Cosmos
         expect(activity.events.length).to eql(3)
         expect(valid_events?(activity.events, "failed")).to eql(true)
       end
-    end if TEST
+    end if TMI_TEST
   end
 end

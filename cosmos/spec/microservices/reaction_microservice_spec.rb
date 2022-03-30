@@ -27,19 +27,18 @@ require 'cosmos/microservices/reaction_microservice'
 module Cosmos
   describe ReactionMicroservice do
     # Turn on tests here these tests can take up to three minutes so
-    # if you want to test them set TEST = true
-    TEST = false
+    # if you want to test them set RMI_TEST = true
+    RMI_TEST = false
 
-    SCOPE = 'DEFAULT'.freeze
-    GROUP = 'GROUP'.freeze
+    RMI_GROUP = 'GROUP'.freeze
 
     def generate_custom_trigger_group(
-      name: GROUP,
+      name: RMI_GROUP,
       color: '#ff0000'
     )
       return TriggerGroupModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         color: color
       )
     end
@@ -52,8 +51,8 @@ module Cosmos
     )
       return TriggerModel.new(
         name: name,
-        scope: SCOPE,
-        group: GROUP,
+        scope: $cosmos_scope,
+        group: RMI_GROUP,
         left: left,
         operator: operator,
         right: right,
@@ -64,12 +63,12 @@ module Cosmos
     def generate_custom_reaction(
       name: 'foobar',
       description: 'another test',
-      triggers: [{'name' => 'foobar', 'group' => GROUP}],
-      actions: [{'type' => 'command', 'value' => 'TEST'}]
+      triggers: [{'name' => 'foobar', 'group' => RMI_GROUP}],
+      actions: [{'type' => 'command', 'value' => 'RMI_TEST'}]
     )
       return ReactionModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         description: description,
         snooze: 300,
         triggers: triggers,
@@ -110,7 +109,7 @@ module Cosmos
       ).and_yield(
         'topic',
         'id-2',
-        { 'type' => 'log', 'kind' => 'event', 'data' => '{"name":"TEST"}' },
+        { 'type' => 'log', 'kind' => 'event', 'data' => '{"name":"RMI_TEST"}' },
         nil
       ).and_yield(
         'topic',
@@ -148,7 +147,7 @@ module Cosmos
 
     describe "ReactionMicroservice" do
       it "start and stop the ReactionMicroservice" do
-        reaction_microservice = ReactionMicroservice.new("#{SCOPE}__COSMOS__REACTION")
+        reaction_microservice = ReactionMicroservice.new("#{$cosmos_scope}__COSMOS__REACTION")
         reaction_thread = Thread.new { reaction_microservice.run }
         sleep 2
         expect(reaction_thread.alive?).to be_truthy()
@@ -164,11 +163,11 @@ module Cosmos
           expect(worker.alive?).to be_falsey()
         end
       end
-    end if TEST
+    end if RMI_TEST
 
     describe "ReactionMicroservice" do
       it "validate that kit.triggers is populated with a trigger" do
-        reaction_microservice = ReactionMicroservice.new("#{SCOPE}__COSMOS__REACTION")
+        reaction_microservice = ReactionMicroservice.new("#{$cosmos_scope}__COSMOS__REACTION")
         reaction_thread = Thread.new { reaction_microservice.run }
         sleep 4
         expect(
@@ -177,12 +176,12 @@ module Cosmos
         reaction_microservice.shutdown
         sleep 5
       end
-    end if TEST
+    end if RMI_TEST
 
     describe "ReactionMicroservice" do
       it "validate that kit.triggers is populated with multiple triggers" do
         create_reaction()
-        reaction_microservice = ReactionMicroservice.new("#{SCOPE}__COSMOS__REACTION")
+        reaction_microservice = ReactionMicroservice.new("#{$cosmos_scope}__COSMOS__REACTION")
         reaction_thread = Thread.new { reaction_microservice.run }
         sleep 4
         expect(
@@ -191,7 +190,7 @@ module Cosmos
         reaction_microservice.shutdown
         sleep 5
       end
-    end if TEST
+    end if RMI_TEST
 
   end
 end

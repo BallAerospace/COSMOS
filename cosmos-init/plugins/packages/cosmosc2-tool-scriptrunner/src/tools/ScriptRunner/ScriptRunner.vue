@@ -245,94 +245,7 @@
             />
           </v-row>
         </v-container>
-        <v-card>
-          <v-card-title>
-            <v-tooltip top>
-              <template v-slot:activator="{ on, attrs }">
-                <div v-on="on" v-bind="attrs">
-                  <v-btn
-                    icon
-                    class="mx-2"
-                    data-test="download-log"
-                    @click="downloadLog"
-                  >
-                    <v-icon> mdi-download </v-icon>
-                  </v-btn>
-                </div>
-              </template>
-              <span> Download Log </span>
-            </v-tooltip>
-            Log Messages
-            <v-menu :close-on-content-click="false" offset-y>
-              <template v-slot:activator="{ on, attrs }">
-                <div v-on="on" v-bind="attrs">
-                  <v-tooltip top>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        data-test="searchClearLogs"
-                        class="mx-2"
-                        v-on="on"
-                        v-bind="attrs"
-                      >
-                        <v-icon v-if="search === ''"> mdi-magnify </v-icon>
-                        <v-icon v-else @click="search = ''">
-                          mdi-cancel
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>
-                      {{ search === '' ? 'Search Log' : 'Clear Search' }}
-                    </span>
-                  </v-tooltip>
-                </div>
-              </template>
-              <v-card outlined width="500px">
-                <div class="pa-3">
-                  <v-text-field
-                    v-model="search"
-                    single-line
-                    hide-details
-                    autofocus
-                    label="Search"
-                    data-test="search-output-messages"
-                  />
-                </div>
-              </v-card>
-            </v-menu>
-            <div v-show="search" class="mx-2">
-              <span> Search: {{ search }} </span>
-            </div>
-            <v-spacer />
-            <v-tooltip top>
-              <template v-slot:activator="{ on, attrs }">
-                <div v-on="on" v-bind="attrs">
-                  <v-btn
-                    icon
-                    class="mx-2"
-                    data-test="clear-log"
-                    @click="clearLog"
-                  >
-                    <v-icon> mdi-delete </v-icon>
-                  </v-btn>
-                </div>
-              </template>
-              <span> Clear Log </span>
-            </v-tooltip>
-          </v-card-title>
-          <v-data-table
-            :headers="headers"
-            :items="messages"
-            :search="search"
-            calculate-widths
-            disable-pagination
-            hide-default-footer
-            multi-sort
-            dense
-            height="45vh"
-            data-test="output-messages"
-          />
-        </v-card>
+        <script-log-messages v-model="messages" />
       </div>
     </multipane>
     <!--- MENUS --->
@@ -445,6 +358,7 @@ import ResultsDialog from '@/tools/ScriptRunner/Dialogs/ResultsDialog'
 import ScriptEnvironmentDialog from '@/tools/ScriptRunner/Dialogs/ScriptEnvironmentDialog'
 import UpdateMetadataDialog from '@/tools/ScriptRunner/Dialogs/UpdateMetadataDialog'
 import SuiteRunner from '@/tools/ScriptRunner/SuiteRunner'
+import ScriptLogMessages from '@/tools/ScriptRunner/ScriptLogMessages'
 import {
   CmdCompleter,
   TlmCompleter,
@@ -476,6 +390,7 @@ export default {
     SimpleTextDialog,
     SuiteRunner,
     RunningScripts,
+    ScriptLogMessages,
   },
   data() {
     return {
@@ -529,9 +444,7 @@ export default {
       subscription: null,
       cable: null,
       fatal: false,
-      search: '',
       messages: [],
-      headers: [{ text: 'Message', value: 'message' }],
       maxArrayLength: 30,
       Range: ace.require('ace/range').Range,
       ask: {
@@ -1259,9 +1172,9 @@ export default {
           }
           break
         case 'output':
-          this.messages.push({ message: data.line })
+          this.messages.unshift({ message: data.line })
           while (this.messages.length > this.maxArrayLength) {
-            this.messages.shift()
+            this.messages.pop()
           }
           break
         case 'script':
@@ -1665,31 +1578,7 @@ export default {
         this.debug = this.debugHistory[this.debugHistoryIndex]
       }
     },
-    downloadLog() {
-      const output = this.messages.map((message) => message.message).join('\n')
-      const blob = new Blob([output], {
-        type: 'text/plain',
-      })
-      // Make a link and then 'click' on it to start the download
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.setAttribute(
-        'download',
-        format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_sr_message_log.txt'
-      )
-      link.click()
-    },
-    clearLog: function () {
-      this.$dialog
-        .confirm('Are you sure you want to clear the logs?', {
-          okText: 'Clear',
-          cancelText: 'Cancel',
-        })
-        .then((dialog) => {
-          this.messages = []
-        })
-    },
-    removeAllMarkers: function () {
+    removeAllRunningMarkers: function () {
       const allMarkers = this.editor.session.getMarkers()
       Object.keys(allMarkers)
         .filter((key) => allMarkers[key].type === 'fullLine')
