@@ -25,6 +25,19 @@ module Cosmos
     # Stores telemetry item overrides which are returned on every request to get_item
     @overrides = {}
 
+    def self.build_json_from_packet(packet)
+      json_hash = {}
+      packet.sorted_items.each do |item|
+        json_hash[item.name] = packet.read_item(item, :RAW)
+        json_hash["#{item.name}__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
+        json_hash["#{item.name}__F"] = packet.read_item(item, :FORMATTED) if item.format_string
+        json_hash["#{item.name}__U"] = packet.read_item(item, :WITH_UNITS) if item.units
+        limits_state = item.limits.state
+        json_hash["#{item.name}__L"] = limits_state if limits_state
+      end
+      json_hash
+    end
+
     # Delete the current value table for a target
     def self.del(target_name:, packet_name:, scope:)
       Store.hdel("#{scope}__tlm__#{target_name}", packet_name)

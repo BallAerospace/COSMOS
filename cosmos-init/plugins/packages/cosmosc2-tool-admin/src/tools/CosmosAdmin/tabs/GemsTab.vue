@@ -19,57 +19,51 @@
 
 <template>
   <div>
-    <v-row no-gutters align="center" class="px-2">
+    <v-row no-gutters>
       <v-col>
-        <div class="px-2">
-          <v-btn
-            block
-            data-test="gemDownload"
-            :disabled="files.length > 0"
-            @click="showDownloadDialog = true"
-          >
-            Download
-            <v-icon right dark>mdi-cloud-download</v-icon>
-          </v-btn>
-        </div>
-      </v-col>
-      <v-col>
-        <div class="px-2">
-          <v-btn
-            block
-            color="primary"
-            data-test="gemUpload"
-            :disabled="files.length < 1"
-            :loading="loadingGem"
-            @click="upload()"
-          >
-            Upload
-            <template v-slot:loader>
-              <span>Loading...</span>
-            </template>
-            <v-icon right dark>mdi-cloud-upload</v-icon>
-          </v-btn>
-        </div>
-      </v-col>
-      <v-col cols="9">
-        <div class="px-4">
-          <v-file-input
-            multiple
-            show-size
-            v-model="files"
-            ref="fileInput"
-            accept=".gem"
-            label="Click to select .gem file(s) to add to internal gem server"
-          />
-        </div>
+        <v-file-input
+          v-model="files"
+          multiple
+          show-size
+          accept=".gem"
+          class="mx-2"
+          label="Click to select .gem file(s) to add to internal gem server"
+          ref="fileInput"
+        />
       </v-col>
     </v-row>
+    <v-row no-gutters class="px-2 pb-2">
+      <v-btn
+        @click="showDownloadDialog = true"
+        class="mx-2"
+        data-test="gemDownload"
+        :disabled="files.length > 0"
+      >
+        <v-icon left dark>mdi-cloud-download</v-icon>
+        <span> Download </span>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        @click="upload()"
+        class="mx-2"
+        color="primary"
+        data-test="gemUpload"
+        :disabled="files.length < 1"
+        :loading="loadingGem"
+      >
+        <v-icon left dark>mdi-cloud-upload</v-icon>
+        <span> Upload </span>
+        <template v-slot:loader>
+          <span>Loading...</span>
+        </template>
+      </v-btn>
+    </v-row>
     <v-alert
-      dismissible
       v-model="showAlert"
       v-text="alert"
-      :type="alertType"
+      dismissible
       transition="scale-transition"
+      :type="alertType"
     />
     <v-list v-if="Object.keys(processes).length > 0" data-test="processList">
       <div v-for="process in processes" :key="process.name">

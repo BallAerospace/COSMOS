@@ -80,7 +80,7 @@ INTERFACE:
       description: Ruby file to use when instantiating the interface.
       values:
         <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
-      documentation: Additional parameters are required. Please see the [Interfaces](/docs/interfaces)
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/v5/interfaces)
         documentation for more details.
 ROUTER:
   modifiers:
@@ -109,7 +109,7 @@ ROUTER:
       description: Ruby file to use when instantiating the interface.
       values:
         <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
-      documentation: Additional parameters are required. Please see the [Interfaces](/docs/interfaces)
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/v5/interfaces)
         documentation for more details.
 COLLECT_METADATA:
   summary: Prompts the user for meta data when starting the Command and Telemetry Server

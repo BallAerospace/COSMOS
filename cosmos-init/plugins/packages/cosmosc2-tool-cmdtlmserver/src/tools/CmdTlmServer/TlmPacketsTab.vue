@@ -24,26 +24,27 @@
       <v-spacer />
       <v-text-field
         v-model="search"
-        append-icon="$astro-search"
+        append-icon="mdi-magnify"
         label="Search"
         single-line
         hide-details
       />
     </v-card-title>
     <v-data-table
-      :headers="headers"
-      :items="data"
-      :search="search"
       calculate-widths
       disable-pagination
       hide-default-footer
       multi-sort
       data-test="tlm-packets-table"
+      :headers="headers"
+      :items="data"
+      :search="search"
     >
       <template v-slot:item.view_raw="{ item }">
         <v-btn
           block
           color="primary"
+          :disabled="item.count < 1"
           @click="openViewRaw(item.target_name, item.packet_name)"
         >
           View Raw
@@ -113,22 +114,14 @@ export default {
       this.viewRaw = true
     },
     openPktViewer(target_name, packet_name) {
-      window.open(
-        '/tools/packetviewer/' + target_name + '/' + packet_name,
-        '_blank'
-      )
+      window.open(`/tools/packetviewer/${target_name}/${packet_name}`, '_blank')
     },
     update() {
       if (this.tabId != this.curTab) return
       this.api.get_all_tlm_info().then((info) => {
-        this.data = []
-        for (let x of info) {
-          this.data.push({
-            target_name: x[0],
-            packet_name: x[1],
-            count: x[2],
-          })
-        }
+        this.data = info.map((x) => {
+          return { target_name: x[0], packet_name: x[1], count: x[2] }
+        })
       })
     },
   },

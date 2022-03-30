@@ -112,7 +112,7 @@ module Cosmos
     # @param packet_name[String] Packet name of the packet
     # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
     # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
-    def inject_tlm(target_name, packet_name, item_hash = nil, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+    def inject_tlm(target_name, packet_name, item_hash = nil, log: true, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       unless CvtModel::VALUE_TYPES.include?(type.intern)
         raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
@@ -127,6 +127,7 @@ module Cosmos
       end
       inject = {}
       inject['inject_tlm'] = true
+      inject['log'] = log
       inject['target_name'] = target_name
       inject['packet_name'] = packet_name
       inject['item_hash'] = JSON.generate(item_hash) if item_hash
@@ -188,9 +189,11 @@ module Cosmos
       TargetModel.packet(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      return msg_hash['buffer'].b if msg_id # Return as binary
-
-      nil
+      if msg_id
+        msg_hash['buffer'] = msg_hash['buffer'].b
+        return msg_hash
+      end
+      return nil
     end
 
     # Returns all the values (along with their limits state) for a packet.
@@ -201,47 +204,13 @@ module Cosmos
     # @return (see Cosmos::Packet#read_all_with_limits_states)
     def get_tlm_packet(target_name, packet_name, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet(target_name, packet_name, scope: scope)
-      case type.intern
-      when :RAW
-        desired_item_type = ''
-      when :CONVERTED
-        desired_item_type = 'C'
-      when :FORMATTED
-        desired_item_type = 'F'
-      when :WITH_UNITS
-        desired_item_type = 'U'
-      else
-        raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
-      end
-      result_hash = {}
-      topic = "#{scope}__DECOM__{#{target_name}}__#{packet_name}"
-      msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        json = msg_hash['json_data']
-        hash = JSON.parse(json)
-        # This should be ordered as desired... need to verify
-        hash.each do |key, value|
-          split_key = key.split("__")
-          item_name = split_key[0].to_s
-          item_type = split_key[1]
-          result_hash[item_name] ||= [item_name]
-          if item_type == 'L'
-            result_hash[item_name][2] = value
-          else
-            if item_type.to_s <= desired_item_type.to_s
-              if desired_item_type == 'F' or desired_item_type == 'U'
-                result_hash[item_name][1] = value.to_s
-              else
-                result_hash[item_name][1] = value
-              end
-            end
-          end
-        end
-        return result_hash.values
-      else
-        return nil
-      end
+      packet = TargetModel.packet(target_name, packet_name, scope: scope)
+      t = _validate_tlm_type(type)
+      raise ArgumentError, "Unknown type '#{type}' for #{target_name} #{packet_name}" if t.nil?
+      items = packet['items'].map { | item | item['name'] }
+      cvt_items = items.map { | item | "#{target_name}__#{packet_name}__#{item}__#{type}" }
+      current_values = CvtModel.get_tlm_values(cvt_items, scope: scope)
+      items.zip(current_values).map { | item , values | [item, values[0], values[1]]}
     end
 
     # Returns all the item values (along with their limits state). The items
@@ -354,7 +323,21 @@ module Cosmos
     #
     # @return [Array<String, String, Numeric>] Receive count for all telemetry
     def get_all_tlm_info(scope: $cosmos_scope, token: $cosmos_token)
-      get_all_cmd_tlm_info("TELEMETRY", scope: scope, token: token)
+      authorize(permission: 'system', scope: scope, token: token)
+      result = []
+      TargetModel.names(scope: scope).each do | target_name |
+        TargetModel.packets(target_name, scope: scope).each do | packet |
+          packet_name = packet['packet_name']
+          key = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
+          result << [target_name, packet_name, _get_cnt(key)]
+        end
+      end
+      ['UNKNOWN'].each do | x |
+        key = "#{scope}__TELEMETRY__{#{x}}__#{x}"
+        result << [x, x, _get_cnt(key)]
+      end
+      # Return the results sorted by target, packet
+      result.sort_by { |a| [a[0], a[1]] }
     end
 
     # Get the list of derived telemetry items for a packet
@@ -382,6 +365,20 @@ module Cosmos
     end
 
     # PRIVATE
+
+    def _validate_tlm_type(type)
+      case type.intern
+      when :RAW
+        return ''
+      when :CONVERTED
+        return 'C'
+      when :FORMATTED
+        return 'F'
+      when :WITH_UNITS
+        return 'U'
+      end
+      return nil
+    end
 
     def tlm_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
       case args.length

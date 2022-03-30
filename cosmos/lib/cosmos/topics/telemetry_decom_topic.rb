@@ -29,31 +29,19 @@ module Cosmos
       # If nothing - item does not exist - nil
       # __ as seperators ITEM1, ITEM1__C, ITEM1__F, ITEM1__U
 
-      json_hash = self.build_json(packet)
+      json_hash = CvtModel.build_json_from_packet(packet)
       # Write to stream
-      msg_hash = { time: packet.packet_time.to_nsec_from_epoch,
-                   stored: packet.stored,
-                   target_name: packet.target_name,
-                   packet_name: packet.packet_name,
-                   received_count: packet.received_count,
-                   json_data: JSON.generate(json_hash.as_json) }
-
+      msg_hash = {
+        :time => packet.packet_time.to_nsec_from_epoch,
+        :stored => packet.stored,
+        :target_name => packet.target_name,
+        :packet_name => packet.packet_name,
+        :received_count => packet.received_count,
+        :json_data => JSON.generate(json_hash.as_json),
+      }
       Store.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id)
       # Also update the current value table with the latest decommutated data
       CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
-    end
-
-    def self.build_json(packet)
-      json_hash = {}
-      packet.sorted_items.each do |item|
-        json_hash[item.name] = packet.read_item(item, :RAW)
-        json_hash["#{item.name}__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
-        json_hash["#{item.name}__F"] = packet.read_item(item, :FORMATTED) if item.format_string
-        json_hash["#{item.name}__U"] = packet.read_item(item, :WITH_UNITS) if item.units
-        limits_state = item.limits.state
-        json_hash["#{item.name}__L"] = limits_state if limits_state
-      end
-      json_hash
     end
   end
 end

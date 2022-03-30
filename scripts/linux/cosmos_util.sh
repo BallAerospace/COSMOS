@@ -8,6 +8,7 @@ usage() {
   echo "*  hash: hash a string using SHA-256" >&2
   echo "*  save: save images to a tar file" >&2
   echo "*  load: load images from a tar file" >&2
+  echo "*  clean: remove node_modules, coverage, etc" >&2
   exit 1
 }
 
@@ -40,6 +41,15 @@ loadTar() {
   docker load -i tmp/cosmosc2-init.tar
 }
 
+cleanFiles() {
+  find . -type d -name "node_modules" | xargs -I {} echo "Removing {}"; rm -rf {}
+  find . -type d -name "coverage" | xargs -I {} echo "Removing {}"; rm -rf {}
+  # Prompt for removing yarn.lock files
+  find . -type f -name "yarn.lock" | xargs -I {} rm -i {}
+  # Prompt for removing Gemfile.lock files
+  find . -type f -name "Gemfile.lock" | xargs -I {} rm -i {}
+}
+
 if [ "$#" -eq 0 ]; then
   usage $0
 fi
@@ -56,6 +66,9 @@ case $1 in
     ;;
   load )
     loadTar
+    ;;
+  clean )
+    cleanFiles
     ;;
   * )
     usage $0

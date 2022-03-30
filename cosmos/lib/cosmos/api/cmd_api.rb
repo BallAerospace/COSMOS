@@ -195,9 +195,11 @@ module Cosmos
       TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       topic = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      return msg_hash['buffer'].b if msg_id # Return as binary
-
-      nil
+      if msg_id
+        msg_hash['buffer'] = msg_hash['buffer'].b
+        return msg_hash
+      end
+      return nil
     end
 
     # Returns an array of all the commands as a hash
@@ -343,7 +345,17 @@ module Cosmos
     #
     # @return [Array<String, String, Numeric>] Transmit count for all commands
     def get_all_cmd_info(scope: $cosmos_scope, token: $cosmos_token)
-      get_all_cmd_tlm_info("COMMAND", scope: scope, token: token)
+      authorize(permission: 'system', scope: scope, token: token)
+      result = []
+      TargetModel.names(scope: scope).each do | target_name |
+        TargetModel.packets(target_name, type: :CMD, scope: scope).each do | packet |
+          command_name = packet['packet_name']
+          key = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
+          result << [target_name, command_name, _get_cnt(key)]
+        end
+      end
+      # Return the results sorted by target, packet
+      result.sort_by { |a| [a[0], a[1]] }
     end
 
     ###########################################################################
