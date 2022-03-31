@@ -1,5 +1,5 @@
 // @ts-check
-import { test, expect } from "@playwright/test";
+import { test, expect } from "playwright-test-coverage";
 import { Utilities } from "../utilities";
 import { format, add, sub } from "date-fns";
 import * as fs from "fs";
