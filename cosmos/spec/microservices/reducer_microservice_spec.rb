@@ -106,7 +106,7 @@ module Cosmos
       @pkt.write("TEMP1", 0)
 
       num_pkts.times do
-        json_hash = TelemetryDecomTopic.build_json(@pkt)
+        json_hash = CvtModel.build_json_from_packet(@pkt)
         plw.write(:JSON_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @pkt.received_time.to_nsec_from_epoch,
           true, JSON.generate(json_hash.as_json))
         @pkt.received_time += time_delta

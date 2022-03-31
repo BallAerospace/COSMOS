@@ -26,19 +26,18 @@ require 'cosmos/microservices/trigger_group_microservice'
 module Cosmos
   describe TriggerGroupMicroservice do
     # Turn on tests here these tests can take up to three minutes so
-    # if you want to test them set TEST = true
-    TEST = false
+    # if you want to test them set TGMI_TEST = true
+    TGMI_TEST = false
 
-    SCOPE = 'DEFAULT'.freeze
-    GROUP = 'GROUP'.freeze
+    TGMI_GROUP = 'GROUP'.freeze
 
     def generate_trigger_group_model(
-      name: GROUP,
+      name: TGMI_GROUP,
       color: '#ff0000'
     )
       return TriggerGroupModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         color: color
       )
     end
@@ -51,8 +50,8 @@ module Cosmos
     )
       return TriggerModel.new(
         name: name,
-        scope: SCOPE,
-        group: GROUP,
+        scope: $cosmos_scope,
+        group: TGMI_GROUP,
         left: left,
         operator: operator,
         right: right,
@@ -170,7 +169,7 @@ module Cosmos
 
     describe "TriggerGroupMicroservice" do
       it "start and stop the TriggerGroupMicroservice" do
-        trigger_microservice = TriggerGroupMicroservice.new("#{SCOPE}__TRIGGER__#{GROUP}")
+        trigger_microservice = TriggerGroupMicroservice.new("#{$cosmos_scope}__TRIGGER__#{TGMI_GROUP}")
         trigger_thread = Thread.new { trigger_microservice.run }
         sleep 2
         expect(trigger_thread.alive?).to be_truthy()
@@ -186,30 +185,30 @@ module Cosmos
           expect(worker.alive?).to be_falsey()
         end
       end
-    end if TEST
+    end if TGMI_TEST
 
     describe "TriggerGroupMicroservice" do
       it "validate that kit.triggers is populated with a trigger" do
-        trigger_microservice = TriggerGroupMicroservice.new("#{SCOPE}__TRIGGER__#{GROUP}")
+        trigger_microservice = TriggerGroupMicroservice.new("#{$cosmos_scope}__TRIGGER__#{TGMI_GROUP}")
         trigger_thread = Thread.new { trigger_microservice.run }
         sleep 4
         expect(trigger_microservice.share.trigger_base.triggers.empty?).to be_falsey()
         trigger_microservice.shutdown
         sleep 5
       end
-    end if TEST
+    end if TGMI_TEST
 
     describe "TriggerGroupMicroservice" do
       it "validate that kit.triggers is populated with multiple triggers" do
         generate_trigger_dependent_model()
-        trigger_microservice = TriggerGroupMicroservice.new("#{SCOPE}__TRIGGER__#{GROUP}")
+        trigger_microservice = TriggerGroupMicroservice.new("#{$cosmos_scope}__TRIGGER__#{TGMI_GROUP}")
         trigger_thread = Thread.new { trigger_microservice.run }
         sleep 4
         expect(trigger_microservice.share.trigger_base.triggers.empty?).to be_falsey()
         trigger_microservice.shutdown
         sleep 5
       end
-    end if TEST
+    end if TGMI_TEST
 
     describe "TriggerGroupMicroservice" do
       it "validate that kit.triggers is populated with a second layer dependent trigger" do
@@ -221,14 +220,14 @@ module Cosmos
           right: {'type' => 'trigger', 'trigger' => 'C'}
         )
         d.create()
-        trigger_microservice = TriggerGroupMicroservice.new("#{SCOPE}__TRIGGER__#{GROUP}")
+        trigger_microservice = TriggerGroupMicroservice.new("#{$cosmos_scope}__TRIGGER__#{TGMI_GROUP}")
         trigger_thread = Thread.new { trigger_microservice.run }
         sleep 4
         expect(trigger_microservice.share.trigger_base.triggers.empty?).to be_falsey()
         trigger_microservice.shutdown
         sleep 5
       end
-    end if TEST
+    end if TGMI_TEST
 
     describe "TriggerGroupMicroservice" do
       it "validate that kit.triggers is populated with a third layer dependent trigger" do
@@ -247,21 +246,13 @@ module Cosmos
           right: {'type' => 'trigger', 'trigger' => 'D'}
         )
         e.create()
-        trigger_microservice = TriggerGroupMicroservice.new("#{SCOPE}__TRIGGER__#{GROUP}")
+        trigger_microservice = TriggerGroupMicroservice.new("#{$cosmos_scope}__TRIGGER__#{TGMI_GROUP}")
         trigger_thread = Thread.new { trigger_microservice.run }
         sleep 4
         expect(trigger_microservice.share.trigger_base.triggers.empty?).to be_falsey()
         trigger_microservice.shutdown
         sleep 5
       end
-    end if TEST
-
-    describe "TriggerGroupMicroservice" do
-      it "validate that kit.triggers is populated with a loop" do
-        # TODO
-      end
-    end if TEST
-
-
+    end if TGMI_TEST
   end
 end
