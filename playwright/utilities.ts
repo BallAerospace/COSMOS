@@ -26,7 +26,7 @@ export class Utilities {
     }
   }
   async addTargetPacketItem(target: string, packet: string, item: string) {
-    this.addTargetPacketItem(target, packet, item)
+    this.selectTargetPacketItem(target, packet, item)
     await this.sleep(100) // Ensure selects are stable before clicking
     await this.page.locator('[data-test="select-send"]').click();
     await this.sleep(100) // Allow item to be added
