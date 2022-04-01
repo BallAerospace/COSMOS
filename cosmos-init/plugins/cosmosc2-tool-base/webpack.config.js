@@ -85,9 +85,7 @@ module.exports = (webpackConfigEnv, argv) => {
       },
     },
     externals: [
-      'portal-vue',
       'vue',
-      'vuejs-dialog',
       'vuetify',
       'vuex',
       'vue-router',
