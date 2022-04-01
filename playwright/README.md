@@ -21,4 +21,14 @@ NOTE: All commands are assumed to be executed from this (playwright) directory u
 
         playwright> yarn playwright --headed --project=chromium
 
+1.  Enable the playwright inspector / debugger with
+
+        playwright> set PWDEBUG=1
+        playwright> yarn playwright --headed --project=chromium
+
+1.  Create code coverage
+
+        playwright> yarn fixwindows
+        playwright> yarn coverage
+
 Code coverage reports can be viewed at [playwright/coverage/index.html](./coverage/index.html)

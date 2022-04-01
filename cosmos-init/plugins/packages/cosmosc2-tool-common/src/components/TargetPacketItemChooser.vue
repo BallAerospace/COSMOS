@@ -20,7 +20,7 @@
 <template>
   <v-container class="c-chooser px-0">
     <v-row>
-      <v-col :cols="colSize">
+      <v-col :cols="colSize" data-test="select-target">
         <v-select
           label="Select Target"
           hide-details
@@ -30,10 +30,9 @@
           item-text="label"
           item-value="value"
           v-model="selectedTargetName"
-          data-test="select-target"
         />
       </v-col>
-      <v-col :cols="colSize">
+      <v-col :cols="colSize" data-test="select-packet">
         <v-select
           label="Select Packet"
           hide-details
@@ -44,10 +43,13 @@
           item-text="label"
           item-value="value"
           v-model="selectedPacketName"
-          data-test="select-packet"
         />
       </v-col>
-      <v-col v-if="chooseItem && !buttonDisabled" :cols="colSize">
+      <v-col
+        v-if="chooseItem && !buttonDisabled"
+        :cols="colSize"
+        data-test="select-item"
+      >
         <v-select
           label="Select Item"
           hide-details
@@ -58,7 +60,6 @@
           item-text="label"
           item-value="value"
           v-model="selectedItemName"
-          data-test="select-item"
         />
       </v-col>
       <v-col v-if="buttonText" :cols="colSize">
