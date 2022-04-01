@@ -11,6 +11,79 @@ test.beforeEach(async ({ page }) => {
   utils = new Utilities(page);
 });
 
+test.only("loads and saves the configuration", async ({ page }) => {
+  // Setup a tab
+  await page.locator('[data-test="new-tab"]').click();
+  await page.locator('text=New Tab').click({
+    button: 'right'
+  });
+  await page.locator('[data-test="context-menu-rename"]').click();
+  await page.locator('[data-test="rename-tab-input"]').fill('Test1');
+  await page.locator('[data-test="rename"]').click();
+  await page.locator('[data-test=new-packet]').click()
+  await utils.selectTargetPacketItem('INST', 'ADCS')
+  await page.locator('[data-test="add-packet-button"]').click();
+
+  // Setup another tab
+  await page.locator('[data-test="new-tab"]').click();
+  await page.locator('text=New Tab').click({
+    button: 'right'
+  });
+  await page.locator('[data-test="context-menu-rename"]').click();
+  await page.locator('[data-test="rename-tab-input"]').fill('Test2');
+  await page.locator('[data-test="rename"]').click();
+  await page.locator('div[role="tab"]:has-text("Test2")').click();
+  // Get the last data-test=new-packet (on the new tab)
+  await page.locator('[data-test=new-packet] >> nth=-1').click()
+  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
+  await page.locator('[data-test="add-packet-button"]').click();
+
+  let config = "spec" + Math.floor(Math.random() * 10000);
+  await page.locator('[data-test="Data\\ Viewer-File"]').click();
+  await page.locator("text=Save Configuration").click();
+  await page
+    .locator('[data-test="name-input-save-config-dialog"]')
+    .fill(config);
+  await page.locator('button:has-text("Ok")').click();
+
+  // Reload page
+  await page.reload()
+  // Verify the config automatically comes back
+  await page.locator('div[role="tab"]:has-text("Test1")').click();
+  await expect(page.locator('text=INST ADCS')).toBeVisible();
+  await page.locator('div[role="tab"]:has-text("Test2")').click();
+  await expect(page.locator('text=INST HEALTH_STATUS')).toBeVisible();
+
+  // Delete the tabs
+  await page.locator('div[role="tab"]:has-text("Test1")').click({
+    button: 'right'
+  });
+  await page.locator('[data-test="context-menu-delete"]').click();
+  await page.locator('div[role="tab"]:has-text("Test2")').click({
+    button: 'right'
+  });
+  await page.locator('[data-test="context-menu-delete"]').click();
+
+  await page.locator('[data-test="Data\\ Viewer-File"]').click();
+  await page.locator("text=Open Configuration").click();
+  await page.locator(`td:has-text("${config}")`).click();
+  await page.locator('button:has-text("Ok")').click();
+
+  // Verify the config again
+  await page.locator('div[role="tab"]:has-text("Test1")').click();
+  await expect(page.locator('text=INST ADCS')).toBeVisible();
+  await page.locator('div[role="tab"]:has-text("Test2")').click();
+  await expect(page.locator('text=INST HEALTH_STATUS')).toBeVisible();
+
+  // Delete this test configuation
+  await page.locator('[data-test="Data\\ Viewer-File"]').click();
+  await page.locator("text=Open Configuration").click();
+  // Note: Only works if you don't have any other configs saved
+  await page.locator('[data-test="item-delete"]').click();
+  await page.locator('button:has-text("Delete")').click();
+  await page.locator('[data-test="open-config-cancel-btn"]').click();
+});
+
 test('adds a raw packet to a new tab', async ({ page }) => {
   await page.locator('[data-test=new-tab]').click()
   await page.locator('[data-test=new-packet]').click()
@@ -192,70 +265,4 @@ test('downloads a file', async ({ page }) => {
 //     'contain',
 //     'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until 4000-01-01 12:15:15 is reached.'
 //   )
-// })
-
-// test('saves and loads the configuration', async ({ page }) => {
-//   await page.locator('[data-test=new-tab]').click()
-//   await page.locator('[data-test=new-packet]').click()
-//   await utils.selectTargetPacketItem('INST', 'ADCS')
-//
-//   await page.locator('[data-test=add-packet-button]').click()
-//   let config = 'spec' + Math.floor(Math.random() * 10000)
-//   await page.locator('.v-toolbar').contains('File').click()
-//   cy.contains('Save Configuration').click()
-//   await page.locator('.v-dialog:visible').within(() => {
-//     await page.locator('[data-test=name-input-save-config-dialog]')
-//       .clear()
-//       .type(config)
-//     cy.contains('Ok').click()
-//   })
-//   await page.locator('.v-dialog:visible').should('not.exist')
-//   // Verify we get a warning if trying to save over existing
-//   await page.locator('.v-toolbar').contains('File').click()
-//   cy.contains('Save Configuration').click()
-//   await page.locator('.v-dialog:visible').within(() => {
-//     await page.locator('[data-test=name-input-save-config-dialog]')
-//       .clear()
-//       .type(config)
-//     cy.contains('Ok').click()
-//     cy.contains("'" + config + "' already exists")
-//     cy.contains('Cancel').click()
-//   })
-//   await page.locator('.v-dialog:visible').should('not.exist')
-//   // Totally refresh the page
-//   cy.vistest('/tools/dataviewer')
-//   cy.hideNav()
-//
-//   // the last config should open automatically
-//   await page.locator('.v-window-item > .v-card > .v-card__title').should(
-//     'contain',
-//     'INST ADCS'
-//   )
-
-//   await page.locator('.v-toolbar').contains('File').click()
-//   cy.contains('Open Configuration').click()
-//   await page.locator('.v-dialog:visible').within(() => {
-//     // Try to click OK without anything selected
-//     cy.contains('Ok').click()
-//     cy.contains('Select a configuration')
-//     cy.contains(config).click()
-//     cy.contains('Ok').click()
-//   })
-//   // Verify we're back
-//   await page.locator('.v-window-item > .v-card > .v-card__title').should(
-//     'contain',
-//     'INST ADCS'
-//   )
-//   // Delete this test configuation
-//   await page.locator('.v-toolbar').contains('File').click()
-//   cy.contains('Open Configuration').click()
-//   await page.locator('.v-dialog:visible').within(() => {
-//     cy.contains(config)
-//       .parents('.v-list-item')
-//       .eq(0)
-//       .within(() => {
-//         await page.locator('button').click()
-//       })
-//     cy.contains('Cancel').click()
-//   })
 // })

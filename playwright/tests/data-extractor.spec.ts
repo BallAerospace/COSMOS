@@ -171,7 +171,7 @@ test("add, edits, deletes items", async ({ page }) => {
   await expect(page.locator("[data-test=itemList] > div")).toHaveCount(1);
   // Edit CCSDSSHF
   await page.locator('[data-test="itemList"] button').first().click();
-  await page.locator("text=​Value Type").click();
+  await page.locator("text=Value Type").click();
   await page.locator("text=RAW").click();
   await page.locator('button:has-text("Ok")').click();
   await page.locator(
@@ -193,6 +193,32 @@ test("add, edits, deletes items", async ({ page }) => {
   expect(lines[0]).toContain("CCSDSSHF (RAW)");
   expect(lines[1]).not.toContain("FALSE");
   expect(lines[1]).toContain("0");
+});
+
+test("edit all items", async ({ page }) => {
+  const start = sub(new Date(), { minutes: 1 });
+  await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
+  await utils.addTargetPacketItem("INST", "ADCS");
+  expect(
+    await page.locator("[data-test=itemList] > div").count()
+  ).toBeGreaterThan(20);
+  await page.locator('[data-test="editAll"]').click();
+  await page.locator("text=Value Type").click();
+  await page.locator("text=RAW").click();
+  await page.locator('button:has-text("Ok")').click();
+  // Spot check a few items ... they have all changed to (RAW)
+  await page.locator(
+    '[data-test="itemList"] >> text=INST - ADCS - CCSDSSHF + (RAW)'
+  );
+  await page.locator(
+    '[data-test="itemList"] >> text=INST - ADCS - POSX + (RAW)'
+  );
+  await page.locator(
+    '[data-test="itemList"] >> text=INST - ADCS - VELX + (RAW)'
+  );
+  await page.locator(
+    '[data-test="itemList"] >> text=INST - ADCS - Q1 + (RAW)'
+  );
 });
 
 test("processes commands", async ({ page }) => {
