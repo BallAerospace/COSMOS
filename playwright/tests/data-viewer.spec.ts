@@ -11,7 +11,7 @@ test.beforeEach(async ({ page }) => {
   utils = new Utilities(page);
 });
 
-test.only("loads and saves the configuration", async ({ page }) => {
+test("loads and saves the configuration", async ({ page }) => {
   // Setup a tab
   await page.locator('[data-test="new-tab"]').click();
   await page.locator('text=New Tab').click({
