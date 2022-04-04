@@ -7,9 +7,11 @@ async function globalSetup(config: FullConfig) {
   const page = await browser.newPage();
 
   await page.goto(`${baseURL}/login`);
+  // Just wait a bit and ensure everything is truly loaded
+  await new Promise((resolve) => setTimeout(resolve, 2000));
 
   // On the initial load you might get the Clock out of sync dialog
-  if (await page.waitForSelector('text=Clock out of sync', { state: 'visible', timeout: 5000 })) {
+  if (await page.$('text=Clock out of sync')) {
     await page.locator('text=Don\'t show this again').click();
     await page.locator('button:has-text("Dismiss")').click();
   }

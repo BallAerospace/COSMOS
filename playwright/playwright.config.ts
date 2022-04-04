@@ -17,7 +17,7 @@ const config: PlaywrightTestConfig = {
 
   testDir: "./tests",
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
+  timeout: 120 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -26,6 +26,7 @@ const config: PlaywrightTestConfig = {
     timeout: 5000,
   },
   /* Fail the build on CI if you accidentally left test.only in the source code.
+     Commented out because I'd rather know at least one test passed or failed.
   forbidOnly: !!process.env.CI, */
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
