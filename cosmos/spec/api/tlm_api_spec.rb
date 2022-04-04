@@ -391,7 +391,8 @@ module Cosmos
         packet = System.telemetry.packet('INST', 'HEALTH_STATUS')
         packet.buffer = buffer
         TelemetryTopic.write_packet(packet, scope: 'DEFAULT')
-        expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[0..3]).to eq buffer
+        output = @api.get_tlm_buffer("INST", "HEALTH_STATUS")
+        expect(output["buffer"][0..3]).to eq buffer
       end
     end
 

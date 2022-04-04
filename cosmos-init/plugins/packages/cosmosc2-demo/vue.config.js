@@ -16,9 +16,7 @@ module.exports = {
         }
       })
     config.externals([
-      'portal-vue',
       'vue',
-      'vuejs-dialog',
       'vuetify',
       'vuex',
       'vue-router',

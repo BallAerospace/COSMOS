@@ -32,7 +32,6 @@ module.exports = {
       })
     config.externals([
       'vue',
-      'vuejs-dialog',
       'vuetify',
       'vuex',
       'vue-router',

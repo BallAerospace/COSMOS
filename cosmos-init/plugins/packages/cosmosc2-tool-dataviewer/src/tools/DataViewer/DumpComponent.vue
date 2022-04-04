@@ -25,7 +25,7 @@
           v-model="filterText"
           class="pt-0 mt-0"
           label="Search"
-          append-icon="$astro-search"
+          append-icon="mdi-magnify"
           single-line
           hide-details
         />

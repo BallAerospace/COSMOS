@@ -30,7 +30,7 @@
             <v-text-field
               v-model="runningSearch"
               class="pt-0"
-              append-icon="$astro-search"
+              append-icon="mdi-magnify"
               label="Search"
               single-line
               hide-details
@@ -78,7 +78,7 @@
             <v-text-field
               v-model="completedSearch"
               class="pt-0"
-              append-icon="$astro-search"
+              append-icon="mdi-magnify"
               label="Search"
               single-line
               hide-details

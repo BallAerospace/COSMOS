@@ -368,17 +368,18 @@ export default {
           label: 'Mode',
           radioGroup: 'Normal Columns', // Default radio selected
           items: [
-            {
-              label: 'Skip Ignored on Add',
-              checkbox: true,
-              checked: true, // Skip Ignored is the default
-              command: () => {
-                this.skipIgnored = !this.skipIgnored
-              },
-            },
-            {
-              divider: true,
-            },
+            // TODO: Currently unimplemented
+            // {
+            //   label: 'Skip Ignored on Add',
+            //   checkbox: true,
+            //   checked: true, // Skip Ignored is the default
+            //   command: () => {
+            //     this.skipIgnored = !this.skipIgnored
+            //   },
+            // },
+            // {
+            //   divider: true,
+            // },
             {
               label: 'Fill Down',
               checkbox: true,
@@ -510,7 +511,7 @@ export default {
       item.cmdOrTlm = this.cmdOrTlm.toUpperCase()
       item.edit = false
       item.valueType = 'CONVERTED'
-      item.uniqueIgnoreAdd = 'NO'
+      // item.uniqueIgnoreAdd = 'NO'
       this.items.push(item)
     },
     deleteItem: function (item) {

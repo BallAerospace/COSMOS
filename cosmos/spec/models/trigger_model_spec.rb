@@ -23,19 +23,18 @@ require 'cosmos/models/trigger_model'
 
 module Cosmos
   describe TriggerModel do
-    SCOPE = 'DEFAULT'.freeze
-    GROUP = 'ALPHA'.freeze
+    TMO_GROUP = 'ALPHA'.freeze
 
     def generate_trigger(
       name: 'foobar',
       left: {'type' => 'float', 'float' => '9000'},
       operator: '>',
       right: {'type' => 'float', 'float' => '42'},
-      group: GROUP
+      group: TMO_GROUP
     )
       return TriggerModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         group: group,
         left: left,
         operator: operator,
@@ -58,12 +57,12 @@ module Cosmos
     end
 
     def generate_trigger_group_model(
-      name: GROUP,
+      name: TMO_GROUP,
       color: '#ff0000'
     )
       return TriggerGroupModel.new(
         name: name,
-        scope: SCOPE,
+        scope: $cosmos_scope,
         color: color
       )
     end
@@ -76,12 +75,12 @@ module Cosmos
     describe "self.all" do
       it "returns all trigger models" do
         generate_trigger().create()
-        all = TriggerModel.all(group: GROUP, scope: SCOPE)
+        all = TriggerModel.all(group: TMO_GROUP, scope: $cosmos_scope)
         expect(all.empty?).to be_falsey()
         expect(all['foobar'].empty?).to be_falsey()
-        expect(all['foobar']['scope']).to eql(SCOPE)
+        expect(all['foobar']['scope']).to eql($cosmos_scope)
         expect(all['foobar']['name']).to eql('foobar')
-        expect(all['foobar']['group']).to eql(GROUP)
+        expect(all['foobar']['group']).to eql(TMO_GROUP)
         expect(all['foobar']['left']).to_not be_nil()
         expect(all['foobar']['state']).to be_falsey()
         expect(all['foobar']['active']).to be_truthy()
@@ -89,7 +88,7 @@ module Cosmos
         expect(all['foobar']['right']).to_not be_nil()
         expect(all['foobar']['dependents']).to be_truthy()
         # scope seperation returns no trigger models
-        all = TriggerModel.all(group: GROUP, scope: 'foobar')
+        all = TriggerModel.all(group: TMO_GROUP, scope: 'foobar')
         expect(all.empty?).to be_truthy()
       end
     end
@@ -97,7 +96,7 @@ module Cosmos
     describe "self.names" do
       it "returns trigger names" do
         generate_trigger().create()
-        all = TriggerModel.names(scope: SCOPE, group: GROUP)
+        all = TriggerModel.names(scope: $cosmos_scope, group: TMO_GROUP)
         expect(all.empty?).to be_falsey()
         expect(all[0]).to eql('foobar')
       end
@@ -106,10 +105,10 @@ module Cosmos
     describe "self.get" do
       it "returns a single trigger model" do
         generate_trigger().create()
-        foobar = TriggerModel.get(name: 'foobar', scope: SCOPE, group: GROUP)
+        foobar = TriggerModel.get(name: 'foobar', scope: $cosmos_scope, group: TMO_GROUP)
         expect(foobar.name).to eql('foobar')
-        expect(foobar.scope).to eql(SCOPE)
-        expect(foobar.group).to eql(GROUP)
+        expect(foobar.scope).to eql($cosmos_scope)
+        expect(foobar.group).to eql(TMO_GROUP)
         expect(foobar.left).to have_key('float')
         expect(foobar.operator).to eql('>')
         expect(foobar.right).to have_key('type')
@@ -123,8 +122,8 @@ module Cosmos
     describe "self.delete" do
       it "delete a trigger" do
         generate_trigger().create()
-        TriggerModel.delete(name: 'foobar', scope: SCOPE, group: GROUP)
-        all = TriggerModel.all(group: GROUP, scope: SCOPE)
+        TriggerModel.delete(name: 'foobar', scope: $cosmos_scope, group: TMO_GROUP)
+        all = TriggerModel.all(group: TMO_GROUP, scope: $cosmos_scope)
         expect(all.empty?).to be_truthy()
       end
     end
@@ -133,8 +132,8 @@ module Cosmos
       it "Cosmos::TriggerModel" do
         model = generate_trigger()
         expect(model.name).to eql('foobar')
-        expect(model.scope).to eql(SCOPE)
-        expect(model.group).to eql(GROUP)
+        expect(model.scope).to eql($cosmos_scope)
+        expect(model.group).to eql(TMO_GROUP)
         expect(model.left).to have_key('float')
         expect(model.operator).to eql('>')
         expect(model.right).to have_key('type')
@@ -148,9 +147,9 @@ module Cosmos
     describe "instance destory" do
       it "remove an instance of a trigger" do
         generate_trigger().create()
-        model = TriggerModel.get(name: 'foobar', scope: SCOPE, group: GROUP)
+        model = TriggerModel.get(name: 'foobar', scope: $cosmos_scope, group: TMO_GROUP)
         model.destroy()
-        all = TriggerModel.all(group: GROUP, scope: SCOPE)
+        all = TriggerModel.all(group: TMO_GROUP, scope: $cosmos_scope)
         expect(all.empty?).to be_truthy()
       end
     end
@@ -180,10 +179,10 @@ module Cosmos
       it "encodes all the input parameters" do
         json = generate_trigger().as_json
         expect(json['name']).to eql('foobar')
-        expect(json['scope']).to eql(SCOPE)
+        expect(json['scope']).to eql($cosmos_scope)
         expect(json['active']).to be_truthy()
         expect(json['state']).to be_falsey()
-        expect(json['group']).to eql(GROUP)
+        expect(json['group']).to eql(TMO_GROUP)
         expect(json['left']).to_not be_nil()
         expect(json['operator']).to eql('>')
         expect(json['right']).to_not be_nil()
@@ -285,9 +284,9 @@ module Cosmos
       it "create a trigger that references another trigger" do
         foobar = generate_trigger_dependent_model()
         expect(foobar.roots.empty?).to be_falsey()
-        left = TriggerModel.get(name: 'left', group: GROUP, scope: SCOPE)
+        left = TriggerModel.get(name: 'left', group: TMO_GROUP, scope: $cosmos_scope)
         expect(left.dependents.empty?).to be_falsey()
-        right = TriggerModel.get(name: 'right', group: GROUP, scope: SCOPE)
+        right = TriggerModel.get(name: 'right', group: TMO_GROUP, scope: $cosmos_scope)
         expect(right.dependents.empty?).to be_falsey()
       end
     end
@@ -296,9 +295,9 @@ module Cosmos
       it "delete a trigger that references another trigger" do
         generate_trigger_dependent_model()
         expect {
-          TriggerModel.delete(name: 'left', group: GROUP, scope: SCOPE)
+          TriggerModel.delete(name: 'left', group: TMO_GROUP, scope: $cosmos_scope)
         }.to raise_error(TriggerError)
-        all = TriggerModel.all(group: GROUP, scope: SCOPE)
+        all = TriggerModel.all(group: TMO_GROUP, scope: $cosmos_scope)
         expect(all.size).to eql(3)
         expect(all.empty?).to be_falsey()
       end
@@ -307,10 +306,10 @@ module Cosmos
     describe "dependent trigger test" do
       it "delete a trigger" do
         generate_trigger_dependent_model()
-        TriggerModel.delete(name: 'foobar', group: GROUP, scope: SCOPE)
-        TriggerModel.delete(name: 'left', group: GROUP, scope: SCOPE)
-        TriggerModel.delete(name: 'right', group: GROUP, scope: SCOPE)
-        all = TriggerModel.all(group: GROUP, scope: SCOPE)
+        TriggerModel.delete(name: 'foobar', group: TMO_GROUP, scope: $cosmos_scope)
+        TriggerModel.delete(name: 'left', group: TMO_GROUP, scope: $cosmos_scope)
+        TriggerModel.delete(name: 'right', group: TMO_GROUP, scope: $cosmos_scope)
+        all = TriggerModel.all(group: TMO_GROUP, scope: $cosmos_scope)
         expect(all.empty?).to be_truthy()
       end
     end
@@ -325,7 +324,7 @@ module Cosmos
           right: {'type' => 'trigger', 'trigger' => 'right'}
         )
         model.create()
-        all = TriggerModel.all(group: GROUP, scope: SCOPE)
+        all = TriggerModel.all(group: TMO_GROUP, scope: $cosmos_scope)
         expect(all.size).to eql(4)
       end
     end
