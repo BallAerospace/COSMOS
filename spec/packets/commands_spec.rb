@@ -158,7 +158,7 @@ module Cosmos
         expect(pkt.item1).to eql 1
         expect(pkt.item2).to eql 2
         expect(pkt.item3).to eql 1
-        expect(pkt.item4).to eql 2        
+        expect(pkt.item4).to eql 2
         target.cmd_unique_id_mode = false
       end
 

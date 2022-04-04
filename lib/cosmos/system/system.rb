@@ -996,7 +996,20 @@ module Cosmos
         # in CommandSender since they don't have write conversions due to:
         # commands.build_cmd -> packet.restore_defaults -> packet.write_item
         next if Packet::RESERVED_ITEM_NAMES.include?(item.name)
-        cmd_meta.define(item.clone)
+        item = cmd_meta.define(item.clone)
+        # Define defaults so commands.build_cmd -> packet.restore_defaults will work
+        if item.array_size
+          item.default = []
+        else
+          case item.data_type
+          when :INT, :UINT
+            item.default = 0
+          when :FLOAT
+            item.default = 0.0
+          when :STRING, :BLOCK
+            item.default = ''
+          end
+        end
       end
       @config.commands['SYSTEM'] ||= {}
       @config.commands['SYSTEM']['META'] = cmd_meta
