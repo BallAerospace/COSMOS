@@ -169,6 +169,7 @@ module Cosmos
           file.puts "APPEND_ITEM USER_VERSION 240 STRING"
           file.puts "APPEND_ITEM RUBY_VERSION 240 STRING"
           file.puts "APPEND_ITEM TEST 240 STRING"
+          file.puts "APPEND_ARRAY_ITEM ARRAY 8 UINT 16"
           file.close
 
           expect(Logger).to_not receive(:error)
@@ -177,6 +178,7 @@ module Cosmos
           tf.close
           System.class_variable_set(:@@instance, nil)
           System.new(tf.path)
+          tf.unlink
           tlm = System.telemetry.packet("SYSTEM", "META")
           expect(tlm.read("PKTID")).to_not be_nil
           expect(tlm.read("CONFIG")).to_not be_nil
@@ -184,6 +186,7 @@ module Cosmos
           expect(tlm.read("RUBY_VERSION")).to_not be_nil
           expect(tlm.read("USER_VERSION")).to_not be_nil
           expect(tlm.read("TEST")).to_not be_nil
+          expect(tlm.read("ARRAY")).to_not be_nil
           cmd = System.commands.packet("SYSTEM", "META")
           expect(cmd.read("PKTID")).to eql tlm.read("PKTID")
           expect(cmd.read("CONFIG")).to eql tlm.read("CONFIG")
@@ -191,7 +194,9 @@ module Cosmos
           expect(cmd.read("RUBY_VERSION")).to eql tlm.read("RUBY_VERSION")
           expect(cmd.read("USER_VERSION")).to eql tlm.read("USER_VERSION")
           expect(cmd.read("TEST")).to eql tlm.read("TEST")
-          tf.unlink
+          expect(cmd.read("ARRAY")).to eql tlm.read("ARRAY")
+          # Attempt to build the SYSTEM META command like we would in Command Sender
+          System.commands.build_cmd("SYSTEM", "META")
         end
       end
     end

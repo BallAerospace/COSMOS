@@ -997,13 +997,18 @@ module Cosmos
         # commands.build_cmd -> packet.restore_defaults -> packet.write_item
         next if Packet::RESERVED_ITEM_NAMES.include?(item.name)
         item = cmd_meta.define(item.clone)
-        case item.data_type
-        when :INT, :UINT
-          item.default = 0
-        when :FLOAT
-          item.default = 0.0
-        when :STRING, :BLOCK
-          item.default = ''
+        # Define defaults so commands.build_cmd -> packet.restore_defaults will work
+        if item.array_size
+          item.default = []
+        else
+          case item.data_type
+          when :INT, :UINT
+            item.default = 0
+          when :FLOAT
+            item.default = 0.0
+          when :STRING, :BLOCK
+            item.default = ''
+          end
         end
       end
       @config.commands['SYSTEM'] ||= {}
