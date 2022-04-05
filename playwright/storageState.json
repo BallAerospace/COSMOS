@@ -1,0 +1,26 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:2900",
+      "localStorage": [
+        {
+          "name": "scope",
+          "value": "DEFAULT"
+        },
+        {
+          "name": "cosmosToken",
+          "value": "password"
+        },
+        {
+          "name": "suppresswarning__clock_out_of_sync_with_server",
+          "value": "true"
+        },
+        {
+          "name": "notoast",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

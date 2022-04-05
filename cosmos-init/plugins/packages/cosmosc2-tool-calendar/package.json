@@ -25,7 +25,6 @@
     "systemjs-webpack-interop": "2.3.7",
     "vue": "2.6.14",
     "vue-router": "3.5.3",
-    "vuejs-dialog": "1.4.2",
     "vuetify": "2.6.4",
     "vuex": "3.6.2"
   },
@@ -47,11 +46,11 @@
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-vue": "8.5.0",
     "prettier": "2.6.1",
-    "sass": "1.49.9",
+    "sass": "1.49.10",
     "sass-loader": "12.6.0",
     "vue-cli-plugin-single-spa": "3.3.0",
     "vue-cli-plugin-vuetify": "2.4.8",
     "vue-template-compiler": "2.6.14",
-    "webpack": "5.70.0"
+    "webpack": "5.71.0"
   }
 }
