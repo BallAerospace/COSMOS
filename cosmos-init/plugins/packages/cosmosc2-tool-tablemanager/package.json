@@ -25,7 +25,6 @@
     "systemjs-webpack-interop": "2.3.7",
     "vue": "2.6.14",
     "vue-router": "3.5.3",
-    "vuejs-dialog": "1.4.2",
     "vuetify": "2.6.4",
     "vuex": "3.6.2"
   },

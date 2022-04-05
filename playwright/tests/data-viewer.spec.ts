@@ -80,6 +80,7 @@ test("loads and saves the configuration", async ({ page }) => {
   await page.locator("text=Open Configuration").click();
   // Note: Only works if you don't have any other configs saved
   await page.locator('[data-test="item-delete"]').click();
+  await page.locator('button:has-text("Delete")').click(); // Confirm the delete
   await page.locator('[data-test="open-config-cancel-btn"]').click();
 });
 

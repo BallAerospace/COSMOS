@@ -27,7 +27,6 @@
     "vue": "2.6.14",
     "vue-multipane": "0.9.5",
     "vue-router": "3.5.3",
-    "vuejs-dialog": "1.4.2",
     "vuetify": "2.6.4",
     "vuex": "3.6.2"
   },

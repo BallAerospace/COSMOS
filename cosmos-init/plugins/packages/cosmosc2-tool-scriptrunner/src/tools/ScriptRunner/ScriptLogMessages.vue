@@ -41,12 +41,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn
-                icon
-                class="mx-2"
-                data-test="clear-log"
-                @click="clearLog"
-              >
+              <v-btn icon class="mx-2" data-test="clear-log" @click="clearLog">
                 <v-icon> mdi-delete </v-icon>
               </v-btn>
             </div>
