@@ -202,7 +202,7 @@ export default {
       }
     },
     getCurrentLimitsSet: function () {
-      this.api.get_current_limits_set().then((result) => {
+      this.api.get_limits_set().then((result) => {
         this.currentLimitsSet = result
       })
     },
