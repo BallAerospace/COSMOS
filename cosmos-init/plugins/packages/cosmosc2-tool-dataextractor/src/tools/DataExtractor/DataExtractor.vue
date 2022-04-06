@@ -108,7 +108,7 @@
             @click="addItem($event)"
             button-text="Add Item"
             :mode="cmdOrTlm"
-            :reduced="this.reduced != 'DECOM'"
+            :reduced="reduced"
             choose-item
             allow-all
           />
@@ -178,10 +178,15 @@
                 <v-dialog
                   v-model="item.edit"
                   @keydown.esc="item.edit = false"
-                  max-width="700"
+                  max-width="600"
                 >
                   <v-card>
-                    <v-card-title>Edit {{ getItemLabel(item) }}</v-card-title>
+                    <v-system-bar>
+                      <v-spacer />
+                      <span> DataExtractor: Edit Item Mode </span>
+                      <v-spacer />
+                    </v-system-bar>
+                    <v-card-title v-text="getItemLabel(item)" />
                     <v-card-text>
                       <v-col>
                         <v-select
@@ -203,8 +208,8 @@
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer />
-                      <v-btn color="primary" text @click="item.edit = false">
-                        Ok
+                      <v-btn color="primary" @click="item.edit = false">
+                        Close
                       </v-btn>
                     </v-card-actions>
                   </v-card>
@@ -229,10 +234,14 @@
         </v-list>
       </v-row>
     </v-container>
-    <v-dialog v-model="editAll" @keydown.esc="editAll = false" max-width="700">
+    <v-dialog v-model="editAll" @keydown.esc="cancelEditAll" max-width="600">
       <v-card>
-        <v-card-title>Edit All Items</v-card-title>
-        <v-card-text>
+        <v-system-bar>
+          <v-spacer />
+          <span> DataExtractor: Edit All Items</span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text class="mt-2">
           This will change all items to the following data type!
           <v-col>
             <v-select
@@ -246,8 +255,17 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="editAllValueTypes()"> Ok </v-btn>
-          <v-btn color="primary" text @click="editAll = false"> Cancel </v-btn>
+          <v-btn outlined class="mx-2" @click="editAll = !editAll">
+            Cancel
+          </v-btn>
+          <v-btn
+            :disabled="!allItemValueType"
+            color="primary"
+            class="mx-2"
+            @click="editAllValueTypes()"
+          >
+            Ok
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -528,11 +546,15 @@ export default {
       }
     },
     getItemLabel: function (item) {
-      let label = `${item.targetName} - ${item.packetName} - ${item.itemName}`
+      console.log({ item })
+      let label = [`${item.targetName} - ${item.packetName} - ${item.itemName}`]
       if (item.valueType !== 'CONVERTED') {
-        label += ` + (${item.valueType})`
+        label.push(`+ ( ${item.valueType} )`)
       }
-      return label
+      if (item.reduced !== 'DECOM') {
+        label.push(`[ ${item.reduced} ]`)
+      }
+      return label.join(' ')
     },
     setTimestamps: function () {
       this.startDateTimeFilename = this.startDate + '_' + this.startTime
