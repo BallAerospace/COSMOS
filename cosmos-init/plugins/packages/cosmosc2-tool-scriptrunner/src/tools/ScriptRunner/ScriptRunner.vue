@@ -1086,6 +1086,7 @@ export default {
       Api.post(`/script-api/running-script/${this.scriptId}/step`)
     },
     received(data) {
+      // console.log(data) // Uncomment for debugging
       switch (data.type) {
         case 'file':
           this.files[data.filename] = { content: data.text, lineNo: 0 }
@@ -1579,7 +1580,7 @@ export default {
         this.debug = this.debugHistory[this.debugHistoryIndex]
       }
     },
-    removeAllRunningMarkers: function () {
+    removeAllMarkers: function () {
       const allMarkers = this.editor.session.getMarkers()
       Object.keys(allMarkers)
         .filter((key) => allMarkers[key].type === 'fullLine')
