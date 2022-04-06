@@ -243,4 +243,56 @@ describe String do
       expect("String".to_class).to eql String
     end
   end
+
+  describe "to_utf8" do
+    it "Handles Windows-1252 marked ASCII-8BIT" do
+      input = "\xB0\x99\x85".force_encoding('ASCII-8BIT')
+      output = input.to_utf8
+      expect(output.encoding).to eql Encoding::UTF_8
+      expect(output.length).to eql 3
+      expect(output.force_encoding('ASCII-8BIT')).to eql "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6"
+    end
+
+    it "Handles UTF-8 marked ASCII-8BIT" do
+      input = "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6".force_encoding('ASCII-8BIT')
+      output = input.to_utf8
+      expect(output.encoding).to eql Encoding::UTF_8
+      expect(output.length).to eql 3
+      expect(output.force_encoding('ASCII-8BIT')).to eql "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6"
+    end
+
+    it "Handles Windows-1252 marked Windows-1252" do
+      input = "\xB0\x99\x85".force_encoding('Windows-1252')
+      output = input.to_utf8
+      expect(output.encoding).to eql Encoding::UTF_8
+      expect(output.length).to eql 3
+      expect(output.force_encoding('ASCII-8BIT')).to eql "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6"
+    end
+
+    it "Handles UTF-8 marked UTF-8" do
+      input = "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6".force_encoding('UTF-8')
+      output = input.to_utf8
+      expect(output.encoding).to eql Encoding::UTF_8
+      expect(output.length).to eql 3
+      expect(output.force_encoding('ASCII-8BIT')).to eql "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6"
+    end
+
+    it "Handles Other Encodings marked ASCII-8BIT" do
+      input = "\x00\x00\xFE\xFF\x00\x00\x00\xB0\x00\x00\x21\x22\x00\x00\x20\x26".force_encoding('ASCII-8BIT')
+      output = input.to_utf8
+      expect(output.encoding).to eql Encoding::UTF_8
+      expect(output.length).to eql 16
+      # This is a wacky result but is a correct conversion from assumed Windows-1252 to UTF-8
+      expect(output.force_encoding('ASCII-8BIT')).to eql "\x00\x00\xC3\xBE\xC3\xBF\x00\x00\x00\xC2\xB0\x00\x00\x21\x22\x00\x00\x20\x26"
+    end
+
+    it "Handles Other Encodings marked as Other Encodings" do
+      input = "\x00\x00\xFE\xFF\x00\x00\x00\xB0\x00\x00\x21\x22\x00\x00\x20\x26".force_encoding('UTF-32')
+      output = input.to_utf8
+      expect(output.encoding).to eql Encoding::UTF_8
+      expect(output.length).to eql 3
+      expect(output.force_encoding('ASCII-8BIT')).to eql "\xC2\xB0\xE2\x84\xA2\xE2\x80\xA6"
+    end
+
+  end
 end

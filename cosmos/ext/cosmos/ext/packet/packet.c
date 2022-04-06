@@ -31,6 +31,7 @@ static ID id_method_packet_name_equals = 0;
 static ID id_method_description_equals = 0;
 static ID id_method_upcase = 0;
 static ID id_method_clone = 0;
+static ID id_method_to_utf8 = 0;
 static ID id_method_clear = 0;
 
 static ID id_ivar_id_items = 0;
@@ -108,7 +109,7 @@ static VALUE description_equals(VALUE self, VALUE description)
     {
       rb_raise(rb_eArgError, "description must be a String but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(description, id_method_class, 0), id_method_to_s, 0)));
     }
-    rb_ivar_set(self, id_ivar_description, rb_funcall(rb_funcall(description, id_method_clone, 0), id_method_freeze, 0));
+    rb_ivar_set(self, id_ivar_description, rb_funcall(rb_funcall(description, id_method_to_utf8, 0), id_method_freeze, 0));
   }
   else
   {
@@ -278,6 +279,7 @@ void Init_packet(void)
   id_method_description_equals = rb_intern("description=");
   id_method_upcase = rb_intern("upcase");
   id_method_clone = rb_intern("clone");
+  id_method_to_utf8 = rb_intern("to_utf8");
   id_method_clear = rb_intern("clear");
 
   id_ivar_id_items = rb_intern("@id_items");
