@@ -1145,17 +1145,18 @@ export default {
               break
             case 'fatal':
               this.fatal = true
-              // Deliberate fall through (no break)
+            // Deliberate fall through (no break)
             case 'error':
               this.pauseOrRetryButton = RETRY
-              this.startOrGoDisabled = (this.state === 'fatal' ? true : false)
-              this.pauseOrRetryDisabled = (this.state === 'fatal' ? true : false)
-              this.stopDisabled = (this.state === 'fatal' ? true : false)
-              // Deliberate fall through (no break)
+              this.startOrGoDisabled = this.state === 'fatal' ? true : false
+              this.pauseOrRetryDisabled = this.state === 'fatal' ? true : false
+              this.stopDisabled = this.state === 'fatal' ? true : false
+            // Deliberate fall through (no break)
             case 'waiting':
             case 'paused':
-              let existing = Object.keys(markers)
-                .filter((key) => markers[key].clazz === `${this.state}Marker`)
+              let existing = Object.keys(markers).filter(
+                (key) => markers[key].clazz === `${this.state}Marker`
+              )
               if (existing.length === 0) {
                 this.removeAllMarkers()
                 this.editor.session.addMarker(
@@ -1585,18 +1586,18 @@ export default {
         .forEach((marker) => this.editor.session.removeMarker(marker))
     },
     confirmLocalUnlock: function () {
-      // this.$dialog
-      //   .confirm(
-      //     'Are you sure you want to unlock this script for editing? If another user is editing this script, your changes might conflict with each other.',
-      //     {
-      //       okText: 'Force Unlock',
-      //       cancelText: 'Cancel',
-      //     }
-      //   )
-      //   .then(() => {
-      this.lockedBy = null
-      return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
-      // })
+      this.$dialog
+        .confirm(
+          'Are you sure you want to unlock this script for editing? If another user is editing this script, your changes might conflict with each other.',
+          {
+            okText: 'Force Unlock',
+            cancelText: 'Cancel',
+          }
+        )
+        .then(() => {
+          this.lockedBy = null
+          return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
+        })
     },
     lockFile: function () {
       return Api.post(`/script-api/scripts/${this.filename}/lock`)
@@ -1647,7 +1648,7 @@ hr {
 }
 .waitingMarker {
   position: absolute;
-  background: rgba(0, 155, 0, 1.0);
+  background: rgba(0, 155, 0, 1);
   z-index: 20;
 }
 .pausedMarker {
