@@ -67,13 +67,15 @@
             <v-icon v-if="showDisconnect" class="mr-2" color="red">
               mdi-connection
             </v-icon>
-            <v-text-field
+            <v-select
               outlined
               dense
-              readonly
               hide-details
+              :items="fileList"
+              :disabled="fileList.length <= 1"
               label="Filename"
               v-model="fullFilename"
+              @change="fileNameChanged"
               id="filename"
               data-test="filename"
             />
@@ -179,11 +181,12 @@
       </v-row>
     </v-container>
     <!-- Create Multipane container to support resizing.
-         NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues -->
+         NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues,
+         The event must be paneResize and not pane-resize -->
     <multipane
       class="horizontal-panes"
       layout="horizontal"
-      @pane-resize="editor.resize()"
+      @paneResize="editor.resize()"
     >
       <div id="editorbox" class="pane">
         <v-snackbar
@@ -491,6 +494,11 @@ export default {
     }
   },
   computed: {
+    fileList: function () {
+      const filenames = Object.keys(this.files)
+      filenames.push(this.fullFilename)
+      return [...new Set(filenames)] // ensure unique
+    },
     environmentIcon: function () {
       return this.scriptEnvironment.env.length > 0
         ? 'mdi-bookmark'
@@ -502,9 +510,9 @@ export default {
     readOnly: function () {
       return !!this.lockedBy
     },
-    fullFilename() {
+    fullFilename: function () {
       if (this.currentFilename) return this.currentFilename
-      return `${this.filename} ${this.fileModified}`.trim()
+      return this.filename //`${this.filename} ${this.fileModified}`.trim()
     },
     menus: function () {
       return [
@@ -762,6 +770,24 @@ export default {
     }
   },
   methods: {
+    fileNameChanged(filename) {
+      this.editor.setValue(this.files[filename].content)
+      this.restoreBreakpoints(filename)
+      this.editor.clearSelection()
+      this.removeAllMarkers()
+      this.editor.session.addMarker(
+        new this.Range(
+          this.files[filename].lineNo - 1,
+          0,
+          this.files[filename].lineNo - 1,
+          1
+        ),
+        `${this.state}Marker`,
+        'fullLine'
+      )
+      this.editor.gotoLine(this.files[filename].lineNo)
+      this.filename = filename
+    },
     tryLoadRunningScript: function (id) {
       return Api.get('/script-api/running-script').then((response) => {
         const loadRunningScript = response.data.find(
@@ -1050,7 +1076,7 @@ export default {
       // We previously encountered a fatal error so remove the marker
       // and cleanup by calling scriptComplete()
       if (this.fatal) {
-        this.removeAllRunningMarkers()
+        this.removeAllMarkers()
         this.scriptComplete()
       } else {
         Api.post(`/script-api/running-script/${this.scriptId}/stop`)
@@ -1062,7 +1088,7 @@ export default {
     received(data) {
       switch (data.type) {
         case 'file':
-          this.files[data.filename] = data.text
+          this.files[data.filename] = { content: data.text, lineNo: 0 }
           this.breakpoints[data.filename] = data.breakpoints
           if (this.currentFilename === data.filename) {
             this.restoreBreakpoints(data.filename)
@@ -1073,14 +1099,17 @@ export default {
             if (!this.files[data.filename]) {
               // We don't have the contents of the running file (probably because connected to running script)
               // Set the contents initially to an empty string so we don't start slamming the API
-              this.files[data.filename] = ''
+              this.files[data.filename] = { content: '', lineNo: 0 }
 
               // Request the script we need
               Api.get(`/script-api/scripts/${data.filename}`)
                 .then((response) => {
-                  // Success - Save thes script text and mark the currentFilename as null
+                  // Success - Save the script text and mark the currentFilename as null
                   // so it will get loaded in on the next line executed
-                  this.files[data.filename] = response.data.contents
+                  this.files[data.filename] = {
+                    content: response.data.contents,
+                    lineNo: 0,
+                  }
                   this.breakpoints[data.filename] = response.data.breakpoints
                   this.restoreBreakpoints(data.filename)
                   this.currentFilename = null
@@ -1090,57 +1119,56 @@ export default {
                   this.files[data.filename] = null
                 })
             } else {
-              this.editor.setValue(this.files[data.filename])
+              this.editor.setValue(this.files[data.filename].content)
               this.restoreBreakpoints(data.filename)
               this.editor.clearSelection()
               this.currentFilename = data.filename
             }
           }
-          if (!this.fatal) {
-            this.removeAllRunningMarkers()
-          }
-          let marker = null
-          switch (data.state) {
+          this.state = data.state
+          const markers = this.editor.session.getMarkers()
+          switch (this.state) {
             case 'running':
-              marker = 'runningMarker'
               this.startOrGoDisabled = false
               this.pauseOrRetryDisabled = false
               this.stopDisabled = false
               this.pauseOrRetryButton = PAUSE
-              break
-            case 'waiting':
-              marker = 'waitingMarker'
-              break
-            case 'paused':
-              marker = 'pausedMarker'
-              break
-            case 'error':
-              marker = 'errorMarker'
-              this.pauseOrRetryButton = RETRY
-              this.startOrGoDisabled = false
-              this.pauseOrRetryDisabled = false
-              this.stopDisabled = false
+
+              this.removeAllMarkers()
+              this.editor.session.addMarker(
+                new this.Range(data.line_no - 1, 0, data.line_no - 1, 1),
+                'runningMarker',
+                'fullLine'
+              )
+              this.editor.gotoLine(data.line_no)
+              this.files[data.filename].lineNo = data.line_no
               break
             case 'fatal':
-              marker = 'fatalMarker'
               this.fatal = true
-              this.startOrGoDisabled = true
-              this.pauseOrRetryDisabled = true
+              // Deliberate fall through (no break)
+            case 'error':
+              this.pauseOrRetryButton = RETRY
+              this.startOrGoDisabled = (this.state === 'fatal' ? true : false)
+              this.pauseOrRetryDisabled = (this.state === 'fatal' ? true : false)
+              this.stopDisabled = (this.state === 'fatal' ? true : false)
+              // Deliberate fall through (no break)
+            case 'waiting':
+            case 'paused':
+              let existing = Object.keys(markers)
+                .filter((key) => markers[key].clazz === `${this.state}Marker`)
+              if (existing.length === 0) {
+                this.removeAllMarkers()
+                this.editor.session.addMarker(
+                  new this.Range(data.line_no - 1, 0, data.line_no - 1, 1),
+                  `${this.state}Marker`,
+                  'fullLine'
+                )
+                this.editor.gotoLine(data.line_no)
+                this.files[data.filename].lineNo = data.line_no
+              }
               break
             default:
-              marker = null
               break
-          }
-          this.state = data.state
-          if (marker) {
-            this.editor.session.addMarker(
-              new this.Range(data.line_no - 1, 0, data.line_no - 1, 1),
-              marker,
-              'fullLine'
-            )
-            if (this.editor.getSelectedText() === '') {
-              this.editor.gotoLine(data.line_no)
-            }
           }
           break
         case 'output':
@@ -1159,7 +1187,7 @@ export default {
         case 'complete':
           // Don't complete on fatal because we just sit there on the fatal line
           if (!this.fatal) {
-            this.removeAllRunningMarkers()
+            this.removeAllMarkers()
             this.scriptComplete()
           }
         default:
@@ -1333,6 +1361,7 @@ export default {
     },
     // Called by the FileOpenDialog to set the file contents
     setFile({ file, locked, breakpoints }) {
+      this.files = {} // Clear the cached file list
       this.unlockFile() // first unlock what was just being edited
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
@@ -1556,18 +1585,18 @@ export default {
         .forEach((marker) => this.editor.session.removeMarker(marker))
     },
     confirmLocalUnlock: function () {
-      this.$dialog
-        .confirm(
-          'Are you sure you want to unlock this script for editing? If another user is editing this script, your changes might conflict with each other.',
-          {
-            okText: 'Force Unlock',
-            cancelText: 'Cancel',
-          }
-        )
-        .then(() => {
-          this.lockedBy = null
-          return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
-        })
+      // this.$dialog
+      //   .confirm(
+      //     'Are you sure you want to unlock this script for editing? If another user is editing this script, your changes might conflict with each other.',
+      //     {
+      //       okText: 'Force Unlock',
+      //       cancelText: 'Cancel',
+      //     }
+      //   )
+      //   .then(() => {
+      this.lockedBy = null
+      return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
+      // })
     },
     lockFile: function () {
       return Api.post(`/script-api/scripts/${this.filename}/lock`)
@@ -1613,12 +1642,12 @@ hr {
 <style>
 .runningMarker {
   position: absolute;
-  background: rgba(100, 255, 100, 0.5);
+  background: rgba(0, 255, 0, 0.5);
   z-index: 20;
 }
 .waitingMarker {
   position: absolute;
-  background: rgba(0, 255, 0, 0.5);
+  background: rgba(0, 155, 0, 1.0);
   z-index: 20;
 }
 .pausedMarker {

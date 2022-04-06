@@ -450,6 +450,18 @@ module Cosmos
       end
     end
 
+    def set_line_delay(delay)
+      if defined? RunningScript
+        RunningScript.line_delay = delay if delay >= 0.0
+      end
+    end
+
+    def get_line_delay
+      if defined? RunningScript
+        RunningScript.line_delay
+      end
+    end
+
     ###########################################################################
     # Scripts Outside of ScriptRunner Support
     # ScriptRunner overrides these methods to work in the COSMOS cluster

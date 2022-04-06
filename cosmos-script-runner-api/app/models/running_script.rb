@@ -1158,7 +1158,9 @@ class RunningScript
         @@run_thread = saved_run_thread
         @active_script = @script
         @script_binding = nil
-        @current_filename = nil
+        # Set the current_filename to the original file and the current_line_number to 0
+        # so the mark_stopped method will signal the frontend to reset to the original
+        @current_filename = @filename
         @current_line_number = 0
         if @@limits_monitor_thread and not @@instance
           @@cancel_limits = true
@@ -1172,8 +1174,8 @@ class RunningScript
           Cosmos.kill_thread(self, @@output_thread)
           @@output_thread = nil
         end
-
         mark_stopped()
+        @current_filename = nil
       end
     end
   end
