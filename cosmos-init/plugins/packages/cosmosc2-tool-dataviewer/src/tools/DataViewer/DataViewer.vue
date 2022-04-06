@@ -141,11 +141,11 @@
               </v-alert>
             </v-card-text>
             <v-card-text v-if="!receivedPackets[topicKey(packet)]">
-              No data
+              No data! Make sure to hit the START button!
             </v-card-text>
           </v-card>
           <v-card v-if="!tab.packets.length">
-            <v-card-title>This tab is empty</v-card-title>
+            <v-card-title> This tab is empty </v-card-title>
             <v-card-text>
               Click the button below to add packets. Right click on the tab name
               above to rename or delete this tab.
@@ -180,9 +180,13 @@
       @success="saveConfiguration($event)"
     />
     <!-- Dialog for renaming a new tab -->
-    <v-dialog v-model="tabNameDialog" width="500">
+    <v-dialog v-model="tabNameDialog" width="600">
       <v-card>
-        <v-card-title> Rename tab </v-card-title>
+        <v-system-bar>
+          <v-spacer />
+          <span> DataViewer: Rename Tab</span>
+          <v-spacer />
+        </v-system-bar>
         <v-card-text>
           <v-text-field
             v-model="newTabName"
@@ -190,18 +194,24 @@
             data-test="rename-tab-input"
           />
         </v-card-text>
-        <v-divider />
         <v-card-actions>
-          <v-btn color="primary" text @click="renameTab" data-test="rename">
-            Rename
+          <v-spacer />
+          <v-btn
+            outlined
+            class="mx-2"
+            data-test="cancel-rename"
+            @click="cancelTabRename"
+          >
+            Cancel
           </v-btn>
           <v-btn
             color="primary"
-            text
-            @click="cancelTabRename"
-            data-test="cancel-rename"
+            class="mx-2"
+            data-test="rename"
+            :disabled="!newTabName"
+            @click="renameTab"
           >
-            Cancel
+            Rename
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -228,76 +238,11 @@
       </v-list>
     </v-menu>
     <!-- Dialog for adding a new component to a tab -->
-    <v-dialog v-model="addComponentDialog" width="900">
-      <v-card>
-        <v-card-title> Add a packet </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col>
-              <v-radio-group
-                v-model="newPacketCmdOrTlm"
-                row
-                hide-details
-                class="mt-0"
-              >
-                <v-radio label="Command" value="cmd" />
-                <v-radio label="Telemetry" value="tlm" />
-              </v-radio-group>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <target-packet-item-chooser
-                @on-set="packetSelected($event)"
-                :mode="newPacketCmdOrTlm"
-              />
-            </v-col>
-            <v-col>
-              <v-row>
-                <v-col>
-                  <v-radio-group v-model="newPacketMode" row>
-                    <v-radio
-                      label="Raw"
-                      value="RAW"
-                      data-test="new-packet-raw-radio"
-                    />
-                    <v-radio
-                      label="Decom"
-                      value="DECOM"
-                      data-test="new-packet-decom-radio"
-                    />
-                  </v-radio-group>
-                </v-col>
-                <v-col>
-                  <v-select
-                    v-if="newPacketMode === 'DECOM'"
-                    hide-details
-                    :items="valueTypes"
-                    label="Value Type"
-                    v-model="newPacketValueType"
-                    data-test="add-packet-value-type"
-                  />
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-divider />
-        <v-card-actions>
-          <v-btn
-            color="primary"
-            text
-            @click="addComponent"
-            data-test="add-packet-button"
-          >
-            Add
-          </v-btn>
-          <v-btn color="primary" text @click="cancelAddComponent">
-            Cancel
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <add-component-dialog
+      v-model="showAddComponentDialog"
+      @add="addComponent"
+      @cancel="cancelAddComponent"
+    />
   </div>
 </template>
 
@@ -308,14 +253,16 @@ import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDia
 import SaveConfigDialog from '@cosmosc2/tool-common/src/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@cosmosc2/tool-common/src/components/TargetPacketItemChooser'
 import Cable from '@cosmosc2/tool-common/src/services/cable.js'
-import DumpComponent from './DumpComponent'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+
+import DumpComponent from '@/tools/DataViewer/DumpComponent'
+import AddComponentDialog from '@/tools/DataViewer/AddComponentDialog'
 
 export default {
   components: {
+    AddComponentDialog,
     OpenConfigDialog,
     SaveConfigDialog,
-    TargetPacketItemChooser,
     DumpComponent,
     TopBar,
   },
@@ -374,12 +321,7 @@ export default {
       tabMenuX: 0,
       tabMenuY: 0,
       activeTab: 0,
-      addComponentDialog: false,
-      newPacket: null,
-      newPacketCmdOrTlm: 'tlm',
-      newPacketMode: 'RAW',
-      valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
-      newPacketValueType: 'WITH_UNITS',
+      showAddComponentDialog: false,
     }
   },
   computed: {
@@ -601,7 +543,7 @@ export default {
     },
     openComponentDialog: function (index) {
       this.activeTab = index
-      this.addComponentDialog = true
+      this.showAddComponentDialog = true
     },
     packetSelected: function (event) {
       this.newPacket = {
@@ -610,24 +552,15 @@ export default {
         cmdOrTlm: this.newPacketCmdOrTlm,
       }
     },
-    addComponent: function () {
-      let packet = {
-        ...this.newPacket,
-        mode: this.newPacketMode,
-        component: 'DumpComponent',
-        config: {},
-      }
-      if (this.newPacketMode !== 'RAW') {
-        packet.valueType = this.newPacketValueType
-      }
-      this.config.tabs[this.activeTab].packets.push(packet)
+    addComponent: function (event) {
+      this.config.tabs[this.activeTab].packets.push(event)
       if (this.running) {
-        this.addPacketsToSubscription([packet])
+        this.addPacketsToSubscription([event])
       }
       this.cancelAddComponent()
     },
-    cancelAddComponent: function () {
-      this.addComponentDialog = false
+    cancelAddComponent: function (event) {
+      this.showAddComponentDialog = false
     },
     deleteComponent: function (tabIndex, packetIndex) {
       const packet = this.config.tabs[tabIndex].packets[packetIndex]
