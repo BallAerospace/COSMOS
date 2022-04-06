@@ -140,11 +140,9 @@
                 </span>
               </v-alert>
             </v-card-text>
-            <div v-if="!receivedPackets[topicKey(packet)]">
-              <v-card-text>
-                No data. Make sure to press the START button
-              </v-card-text>
-            </div>
+            <v-card-text v-if="!receivedPackets[topicKey(packet)]">
+              No data! Make sure to hit the START button!
+            </v-card-text>
           </v-card>
           <v-card v-if="!tab.packets.length">
             <v-card-title> This tab is empty </v-card-title>
