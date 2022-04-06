@@ -347,7 +347,7 @@ module Cosmos
 
     # Called by the ERB template to render a partial
     def render(template_name, options = {})
-      raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
+      raise "Partial name '#{template_name}' must begin with an underscore." if File.basename(template_name)[0] != '_'
 
       b = binding
       b.local_variable_set(:target_name, @name)

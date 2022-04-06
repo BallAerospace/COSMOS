@@ -35,7 +35,6 @@ module Cosmos
                        'enable_limits_group',
                        'disable_limits_group',
                        'get_limits_sets',
-                       'get_current_limits_set',
                        'set_limits_set',
                        'get_limits_set',
                        'get_limits_events',
@@ -291,11 +290,6 @@ module Cosmos
       LimitsEventTopic.sets(scope: scope).keys
     end
 
-    def get_current_limits_set(scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      LimitsEventTopic.current_set(scope: scope)
-    end
-
     # Changes the active limits set that applies to all telemetry
     #
     # @param limits_set [String] The name of the limits set
@@ -310,11 +304,7 @@ module Cosmos
     # @return [String] The current limits set
     def get_limits_set(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      sets = LimitsEventTopic.sets(scope: scope)
-      sets.each do |set, active|
-        return set if active == 'true'
-      end
-      raise 'No current limits set'
+      LimitsEventTopic.current_set(scope: scope)
     end
 
     # Returns limits events starting at the provided offset. Passing nil for an
