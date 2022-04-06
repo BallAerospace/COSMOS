@@ -546,7 +546,6 @@ export default {
       }
     },
     getItemLabel: function (item) {
-      console.log({ item })
       let label = [`${item.targetName} - ${item.packetName} - ${item.itemName}`]
       if (item.valueType !== 'CONVERTED') {
         label.push(`+ ( ${item.valueType} )`)
