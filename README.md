@@ -2,8 +2,8 @@
 
 > "The User Interface for Embedded Systems"
 
-**Note**: The `master/main` branch may be in an _unstable or even broken state_ during development.
-Please use [releases] instead of the `master/main` branch in order to get stable builds.
+**Note**: Please use the `master/main` branch to stay up to date until we update our release cadence.
+Eventually the [releases] page will contain the most recent stable release.
 
 [![Cosmos Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/build.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/build.yml)
 [![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)

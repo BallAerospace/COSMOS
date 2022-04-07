@@ -108,5 +108,76 @@ module Cosmos
         expect(info[1][3]).to eql 2 # tlm count
       end
     end
+
+    describe "read_target_file" do
+      before(:each) do
+        @s3 = Aws::S3::Client.new(stub_responses: true)
+        allow(Aws::S3::Client).to receive(:new).and_return(@s3)
+      end
+
+      it "checks targets_modified first then targets for the file" do
+        checks = []
+        allow(@s3).to receive(:get_object) do |args|
+          checks << args[:key]
+        end
+        file = @api.read_target_file("INST/read1.rb", scope: "TEST") # verify scope
+        expect(checks[0]).to eql "TEST/targets_modified/INST/read1.rb"
+        expect(checks[1]).to eql "TEST/targets/INST/read1.rb"
+        expect(file).to be_nil # We never gave it a valid file
+      end
+
+      it "returns a text file contents" do
+        allow(@s3).to receive(:get_object) do |args|
+          File.write(args[:response_target], 'file contents', 0, mode: 'w')
+        end
+        file = @api.read_target_file("INST/read2.rb")
+        expect(file).to eql "file contents"
+      end
+
+      it "returns a binary file contents" do
+        allow(@s3).to receive(:get_object) do |args|
+          File.write(args[:response_target], '\x00\x01\x02\x03', 0, mode: 'wb')
+        end
+        file = @api.read_target_file("INST/read3.rb")
+        expect(file).to eql '\x00\x01\x02\x03'
+      end
+    end
+
+    describe "write_target_file" do
+      before(:each) do
+        @s3 = Aws::S3::Client.new(stub_responses: true)
+        allow(Aws::S3::Client).to receive(:new).and_return(@s3)
+      end
+
+      it "writes a text file contents" do
+        allow(@s3).to receive(:put_object) do |args|
+          expect(args[:key]).to include('targets_modified')
+          expect(args[:content_type]).to eql "text/plain"
+        end
+        @api.write_target_file("INST/write1.rb", "file contents")
+      end
+
+      it "writes a binary file contents" do
+        allow(@s3).to receive(:put_object) do |args|
+          expect(args[:key]).to include('targets_modified')
+          expect(args[:content_type]).to eql "application/octet-stream"
+        end
+        @api.write_target_file("INST/write.bin", "\x00\x01\x02\x03", 'wb')
+      end
+    end
+
+    describe "delete_target_file" do
+      before(:each) do
+        @s3 = Aws::S3::Client.new(stub_responses: true)
+        allow(Aws::S3::Client).to receive(:new).and_return(@s3)
+      end
+
+      it "deletes a file" do
+        allow(@s3).to receive(:delete_object) do |args|
+          expect(args[:key]).to include('targets_modified')
+        end
+        @api.delete_target_file("INST/delete1.rb")
+      end
+    end
   end
 end
