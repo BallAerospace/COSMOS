@@ -359,4 +359,31 @@ class String
       return self
     end
   end
+
+  # Converts a string to UTF-8 and returns a new string
+  # Assumes the string is Windows-1252 encoded if marked ASCII-8BIT and not UTF-8 compatible
+  #
+  # @return [String] UTF-8 encoded string
+  def to_utf8
+    self.dup.to_utf8!
+  end
+
+  # Converts a string to UTF-8 in place
+  # Assumes the string is Windows-1252 encoded if marked ASCII-8BIT and not UTF-8 compatible
+  #
+  # @return [String] UTF-8 encoded string
+  def to_utf8!
+    if self.encoding == Encoding::ASCII_8BIT
+      if self.force_encoding('UTF-8').valid_encoding?
+        return self
+      else
+        # Note: this will replace any characters without a valid conversion with space (shouldn't be possible from Windows-1252)
+        return self.force_encoding('Windows-1252').encode!('UTF-8', invalid: :replace, undef: :replace, replace: ' ')
+      end
+    else
+      # Note: this will replace any characters without a valid conversion with space
+      self.encode!('UTF-8', invalid: :replace, undef: :replace, replace: ' ')
+    end
+  end
+
 end # class String
