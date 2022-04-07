@@ -1256,8 +1256,8 @@ class RunningScript
       Cosmos::Logger.error(error.message)
     else
       Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
-      relevent_lines = error.backtrace.select { |line| !line.include?("/app/models") && !line.include?("/cosmos/lib") }
-      Cosmos::Logger.error(relevent_lines.join("\n")) unless relevent_lines.empty?
+      relevent_lines = error.backtrace.select { |line| !line.include?("/src/app") && !line.include?("/cosmos/lib") && !line.include?("/usr/lib/ruby") }
+      Cosmos::Logger.error(relevent_lines.join("\n\n")) unless relevent_lines.empty?
     end
     handle_output_io(filename, line_number)
 
