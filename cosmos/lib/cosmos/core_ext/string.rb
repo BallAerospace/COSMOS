@@ -365,7 +365,7 @@ class String
   #
   # @return [String] UTF-8 encoded string
   def to_utf8
-    self.clone.to_utf8!
+    self.dup.to_utf8!
   end
 
   # Converts a string to UTF-8 in place
@@ -377,9 +377,11 @@ class String
       if self.force_encoding('UTF-8').valid_encoding?
         return self
       else
+        # Note: this will replace any characters without a valid conversion with space (shouldn't be possible from Windows-1252)
         return self.force_encoding('Windows-1252').encode!('UTF-8', invalid: :replace, undef: :replace, replace: ' ')
       end
     else
+      # Note: this will replace any characters without a valid conversion with space
       self.encode!('UTF-8', invalid: :replace, undef: :replace, replace: ' ')
     end
   end
