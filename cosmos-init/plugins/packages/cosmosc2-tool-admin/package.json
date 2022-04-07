@@ -43,6 +43,7 @@
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-vue": "8.5.0",
+    "html-webpack-plugin": "5.5.0",
     "prettier": "2.6.1",
     "sass": "1.49.10",
     "sass-loader": "12.6.0",
