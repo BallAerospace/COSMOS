@@ -226,12 +226,12 @@ export class CosmosApi {
     return this.exec('get_target_list', [])
   }
 
-  read_target_file(path, mode) {
-    return this.exec('read_target_file', [path, mode])
+  get_target_file(path) {
+    return this.exec('get_target_file', [path])
   }
 
-  write_target_file(path, contents, mode) {
-    return this.exec('write_target_file', [path, contents, mode])
+  put_target_file(path) {
+    return this.exec('put_target_file', [path])
   }
 
   delete_target_file(path) {

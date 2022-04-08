@@ -18,7 +18,7 @@
 # copyright holder
 
 
-autoload(:Aws, 'cosmos/utilities/s3_autoload.rb')
+require 'cosmos/utilities/s3_autoload.rb'
 require 'cosmos/models/target_model'
 
 module Cosmos
@@ -28,7 +28,7 @@ module Cosmos
                        'get_target_list',
                        'get_target',
                        'get_all_target_info',
-                       'read_target_file',
+                       'get_target_file',
                        'write_target_file',
                        'delete_target_file',
                      ])
@@ -80,12 +80,11 @@ module Cosmos
       info
     end
 
-    # Read a file from a target
+    # Get a handle to access a target file
     #
     # @param [String] Path to a file in a target directory
-    # @param [String] File mode, default is 'r' but you can also pass 'rb' for binary data
-    # @return [String|nil]
-    def read_target_file(path, mode = 'r', scope: $cosmos_scope, token: $cosmos_token)
+    # @return [Hash|nil]
+    def get_target_file(path, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', scope: scope, token: token)
       file = nil
       local_path = File.join(Dir.tmpdir, 'cosmos', 'target_files', path)
@@ -93,28 +92,28 @@ module Cosmos
       client = Aws::S3::Client.new
       begin
         Cosmos::Logger.info "Reading #{scope}/targets_modified/#{path}, mode #{mode}"
-        client.get_object(bucket: "config", key: "#{scope}/targets_modified/#{path}", response_target: local_path)
-        return File.read(local_path, mode: mode)
+        client.head_object(bucket: "config", key: "#{scope}/targets_modified/#{path}")
+        return get_presigned_request(:get_object, "#{scope}/targets_modified/#{path}")
       rescue => error
         # If the item doesn't exist we just continue to check the unmodified targets dir
       end
       begin
         Cosmos::Logger.info "Reading #{scope}/targets/#{path}, mode #{mode}"
-        client.get_object(bucket: "config", key: "#{scope}/targets/#{path}", response_target: local_path)
-        return File.read(local_path, mode: mode)
+        client.head_object(bucket: "config", key: "#{scope}/targets/#{path}")
+        return get_presigned_request(:get_object, "#{scope}/targets/#{path}")
       rescue => error
         Cosmos::Logger.error "Failed to retrieve #{path} due to #{error.message}"
         return nil
       end
     end
 
-    # Write a file to a target
+    # Get a handle to write a target file
     #
     # @param [String] Path to a file in a target directory
     # @param [String] File contents
     # @param [String] File mode, default is 'w' but you can also pass 'wb' for binary data
-    def write_target_file(path, contents, mode = 'w', scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', scope: scope, token: token)
+    def put_target_file(path, scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', scope: scope, token: token)
       type = case mode
       when 'w'
         'text/plain'
@@ -126,7 +125,7 @@ module Cosmos
       end
       begin
         Cosmos::Logger.info "Writing #{scope}/targets_modified/#{path}, mode #{mode}"
-        Aws::S3::Client.new.put_object(bucket: "config", key: "#{scope}/targets_modified/#{path}", body: contents, content_type: type)
+        return get_presigned_request(:put_object, "#{scope}/targets_modified/#{path}")
       rescue => error
         Cosmos::Logger.error "Failed writing #{path} due to #{error.message}"
       end
@@ -137,7 +136,7 @@ module Cosmos
     #
     # @param [String] Path to a file in a target directory
     def delete_target_file(path, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', scope: scope, token: token)
+      authorize(permission: 'system_set', scope: scope, token: token)
       begin
         # Only delete from the targets_modified
         Cosmos::Logger.info "Deleting #{scope}/targets_modified/#{path}"
@@ -146,6 +145,18 @@ module Cosmos
         Cosmos::Logger.error "Failed deleting #{path} due to #{error.message}"
       end
       nil
+    end
+
+    # private
+
+    def get_presigned_request(method, key)
+      url, headers = Aws::S3::Presigner.new.presigned_request(
+        method, bucket: 'config', key: key
+      )
+      {
+        :url => url
+        :headers => headers,
+      }
     end
   end
 end
