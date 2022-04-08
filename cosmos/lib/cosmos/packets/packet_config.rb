@@ -404,6 +404,11 @@ module Cosmos
         else
           meta_values = []
         end
+        meta_values.each_with_index do |value, index|
+          if String === value
+            meta_values[index] = value.to_utf8
+          end
+        end
         if @current_item
           # Item META
           @current_item.meta[params[0].to_s.upcase] = meta_values

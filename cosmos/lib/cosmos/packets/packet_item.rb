@@ -169,7 +169,7 @@ module Cosmos
       if description
         raise ArgumentError, "#{@name}: description must be a String but is a #{description.class}" unless String === description
 
-        @description = description.clone.freeze
+        @description = description.to_utf8.freeze
       else
         @description = nil
       end
