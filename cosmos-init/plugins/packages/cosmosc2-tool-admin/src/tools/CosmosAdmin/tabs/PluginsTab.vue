@@ -77,8 +77,14 @@
               v-text="' Updated At: ' + formatDate(process.updated_at)"
             ></v-list-item-subtitle>
           </v-list-item-content>
-          <v-list-item-icon v-if="process.state !== 'Running'">
-            <v-tooltip bottom>
+          <v-list-item-icon>
+            <div v-if="process.state === 'Running'">
+              <v-progress-circular
+                indeterminate
+                color="primary"
+              />
+            </div>
+            <v-tooltip v-else bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-icon @click="showOutput(process)" v-bind="attrs" v-on="on">
                   mdi-eye
