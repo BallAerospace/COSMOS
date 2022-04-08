@@ -71,7 +71,7 @@
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title
-              v-text="'Installing: ' + process.detail + ' - ' + process.state"
+              v-text="`Installing: ${process.detail} - ${process.state}`"
             />
             <v-list-item-subtitle
               v-text="' Updated At: ' + formatDate(process.updated_at)"
