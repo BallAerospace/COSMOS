@@ -115,7 +115,7 @@
           >
             <v-divider />
             <v-card-title class="pa-3">
-              {{ packet.target }} {{ packet.packet }} [ {{ packet.mode }} ]
+              <span v-text="packetTitle(packet)" />
               <v-spacer />
               <v-btn
                 @click="() => deleteComponent(index, packetIndex)"
@@ -362,6 +362,9 @@ export default {
     this.cable.disconnect()
   },
   methods: {
+    packetTitle: function (packet) {
+      return `${packet.target} ${packet.packet} [ ${packet.mode} ]`
+    }, 
     resizeTabs: function () {
       if (this.$refs.tabs) this.$refs.tabs.onResize()
     },

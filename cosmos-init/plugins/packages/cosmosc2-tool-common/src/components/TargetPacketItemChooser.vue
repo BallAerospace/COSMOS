@@ -250,7 +250,7 @@ export default {
           this.packetNameChanged(this.selectedPacketName)
         }
         const item = this.packetNames.find((packet) => {
-          return packet.label === this.selectedPacketName
+          return packet.value === this.selectedPacketName
         })
         this.description = item.description
         if (this.chooseItem) {

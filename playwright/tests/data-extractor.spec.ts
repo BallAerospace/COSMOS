@@ -173,7 +173,7 @@ test("add, edits, deletes items", async ({ page }) => {
   await page.locator('[data-test="itemList"] button').first().click();
   await page.locator("text=Value Type").click();
   await page.locator("text=RAW").click();
-  await page.locator('button:has-text("Ok")').click();
+  await page.locator('button:has-text("CLOSE")').click();
   await page.locator(
     '[data-test="itemList"] >> text=INST - ADCS - CCSDSSHF + (RAW)'
   );
