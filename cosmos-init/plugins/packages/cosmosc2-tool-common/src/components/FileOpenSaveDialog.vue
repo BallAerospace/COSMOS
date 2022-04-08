@@ -69,7 +69,7 @@
                 v-model="selectedFile"
                 hide-details
                 label="Filename"
-                data-test="filename"
+                data-test="file-open-save-filename"
                 :disabled="type === 'open'"
               />
             </v-row>

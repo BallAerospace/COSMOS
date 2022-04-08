@@ -60,7 +60,7 @@
       :disable-buttons="disableSuiteButtons"
       @button="suiteRunnerButton"
     />
-    <v-container id="sc-controls">
+    <v-container id="sr-controls">
       <v-row no-gutters justify="space-between">
         <v-col cols="8">
           <v-row no-gutters>
@@ -1613,7 +1613,7 @@ export default {
 </script>
 
 <style scoped>
-#sc-controls {
+#sr-controls {
   padding-top: 0px;
   padding-bottom: 5px;
   padding-left: 0px;
