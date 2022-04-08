@@ -52,18 +52,15 @@
           <v-row>
             <v-col>
               <target-packet-item-chooser
-                @on-set="packetSelected"
                 :mode="newPacketCmdOrTlm"
+                unknown
+                @on-set="packetSelected"
               />
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <v-radio-group
-                v-model="newPacketMode"
-                row
-                hide-details
-              >
+              <v-radio-group v-model="newPacketMode" row hide-details>
                 <v-radio
                   label="Raw"
                   value="RAW"
@@ -72,6 +69,7 @@
                 <v-radio
                   label="Decom"
                   value="DECOM"
+                  :disabled="disableRadioOptions"
                   data-test="new-packet-decom-radio"
                 />
               </v-radio-group>
@@ -133,6 +131,12 @@ export default {
     }
   },
   computed: {
+    disableRadioOptions: function () {
+      if (this.newPacket) {
+        return this.newPacket.packet === 'UNKNOWN'
+      }
+      return false
+    },
     show: {
       get() {
         return this.value
@@ -156,6 +160,9 @@ export default {
         target: event.targetName,
         packet: event.packetName,
         cmdOrTlm: this.newPacketCmdOrTlm,
+      }
+      if (event.packetName == 'UNKNOWN') {
+        this.newPacketMode = 'RAW'
       }
     },
     addComponent: function (event) {

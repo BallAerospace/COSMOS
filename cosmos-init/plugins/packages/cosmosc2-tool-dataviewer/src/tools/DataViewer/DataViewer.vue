@@ -63,19 +63,19 @@
         <v-btn
           v-if="running"
           color="red"
-          width="86"
-          @click="stop"
+          width="100"
           data-test="stop-button"
+          @click="stop"
         >
           Stop
         </v-btn>
         <v-btn
           v-else
-          color="green"
-          width="86"
           :disabled="!canStart"
-          @click="start"
+          color="green"
+          width="100"
           data-test="start-button"
+          @click="start"
         >
           Start
         </v-btn>
@@ -115,7 +115,7 @@
           >
             <v-divider />
             <v-card-title class="pa-3">
-              {{ packet.target }} {{ packet.packet }}
+              <span v-text="packetTitle(packet)" />
               <v-spacer />
               <v-btn
                 @click="() => deleteComponent(index, packetIndex)"
@@ -362,6 +362,9 @@ export default {
     this.cable.disconnect()
   },
   methods: {
+    packetTitle: function (packet) {
+      return `${packet.target} ${packet.packet} [ ${packet.mode} ]`
+    }, 
     resizeTabs: function () {
       if (this.$refs.tabs) this.$refs.tabs.onResize()
     },

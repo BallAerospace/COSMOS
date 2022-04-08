@@ -20,7 +20,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Targets
+      {{ data.length }} Targets
       <v-spacer />
       <v-text-field
         v-model="search"

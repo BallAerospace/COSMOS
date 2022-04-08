@@ -64,10 +64,11 @@
       </v-col>
       <v-col v-if="buttonText" :cols="colSize">
         <v-btn
-          color="primary"
           :disabled="buttonDisabled"
-          @click="buttonPressed"
+          block
+          color="primary"
           data-test="select-send"
+          @click="buttonPressed"
         >
           {{ actualButtonText }}
         </v-btn>
@@ -116,48 +117,28 @@ export default {
       default: 'tlm',
       // TODO: add validators throughout
       validator: (propValue) => {
-        const propExists = propValue === 'cmd' || propValue === 'tlm'
-        return propExists
+        return ['cmd', 'tlm'].includes(propValue)
       },
+    },
+    reduced: {
+      type: String,
+      default: 'DECOM',
+      validator: (propValue) => {
+        return [
+          'REDUCED_DAY',
+          'REDUCED_HOUR',
+          'REDUCED_MINUTE',
+          'DECOM',
+        ].includes(propValue)
+      },
+    },
+    unknown: {
+      type: Boolean,
+      default: false,
     },
     vertical: {
       type: Boolean,
       default: false,
-    },
-    reduced: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    actualButtonText() {
-      if (this.selectedPacketName === 'ALL') {
-        return 'Add Target'
-      }
-      if (this.selectedItemName === 'ALL') {
-        return 'Add Packet'
-      }
-      return this.buttonText
-    },
-    buttonDisabled() {
-      return this.disabled || this.internalDisabled
-    },
-    targetChooserStyle() {
-      if (this.chooseItem || this.buttonText) {
-        return { width: '25%', float: 'left', 'margin-right': '5px' }
-      } else {
-        return { width: '49%', float: 'left' }
-      }
-    },
-    packetChooserStyle() {
-      if (this.chooseItem || this.buttonText) {
-        return { width: '25%', float: 'left', 'margin-right': '5px' }
-      } else {
-        return { width: '50%', float: 'right' }
-      }
-    },
-    colSize() {
-      return this.vertical ? 12 : false
     },
   },
   data() {
@@ -169,31 +150,69 @@ export default {
       selectedPacketName: this.initialPacketName?.toUpperCase(),
       selectedItemName: this.initialItemName?.toUpperCase(),
       description: '',
-      packet_list_items: [],
-      tlm_item_list_items: [],
       internalDisabled: false,
       packetsDisabled: false,
       itemsDisabled: false,
       api: null,
-      ALL: { label: '[ ALL ]', value: 'ALL' }, // Constant to indicate all packets or items
+      ALL: {
+        label: '[ ALL ]',
+        value: 'ALL',
+        description: 'ALL',
+      }, // Constant to indicate all packets or items
+      UNKNOWN: {
+        label: '[ UNKNOWN ]',
+        value: 'UNKNOWN',
+        description: 'UNKNOWN',
+      },
     }
   },
   created() {
     this.internalDisabled = true
     this.api = new CosmosApi()
-    this.api.get_target_list().then((data) => {
-      var targetNames = []
-      var arrayLength = data.length
-      for (var i = 0; i < arrayLength; i++) {
-        targetNames.push({ label: data[i], value: data[i] })
-      }
-      this.targetNames = targetNames
+    this.api.get_target_list().then((result) => {
+      this.targetNames = result.map((target) => {
+        return { label: target, value: target }
+      })
       if (!this.selectedTargetName) {
-        this.selectedTargetName = targetNames[0].value
+        this.selectedTargetName = this.targetNames[0].value
         this.targetNameChanged(this.selectedTargetName)
       }
       this.updatePackets()
+      if (this.unknown) {
+        this.targetNames.push(this.UNKNOWN)
+      }
     })
+  },
+  computed: {
+    actualButtonText: function () {
+      if (this.selectedPacketName === 'ALL') {
+        return 'Add Target'
+      }
+      if (this.selectedItemName === 'ALL') {
+        return 'Add Packet'
+      }
+      return this.buttonText
+    },
+    buttonDisabled: function () {
+      return this.disabled || this.internalDisabled
+    },
+    targetChooserStyle: function () {
+      if (this.chooseItem || this.buttonText) {
+        return { width: '25%', float: 'left', 'margin-right': '5px' }
+      } else {
+        return { width: '49%', float: 'left' }
+      }
+    },
+    packetChooserStyle: function () {
+      if (this.chooseItem || this.buttonText) {
+        return { width: '25%', float: 'left', 'margin-right': '5px' }
+      } else {
+        return { width: '50%', float: 'right' }
+      }
+    },
+    colSize: function () {
+      return this.vertical ? 12 : false
+    },
   },
   watch: {
     mode: function (newVal, oldVal) {
@@ -205,38 +224,35 @@ export default {
     },
   },
   methods: {
-    updatePackets() {
-      this.internalDisabled = true
-      let cmd = 'get_all_telemetry'
-      if (this.mode == 'cmd') {
-        cmd = 'get_all_commands'
+    updatePackets: function () {
+      if (this.selectedTargetName === 'UNKNOWN') {
+        this.packetNames = [this.UNKNOWN]
+        this.selectedPacketName = this.packetNames[0].value
+        this.packetNameChanged(this.UNKNOWN.value)
+        this.description = 'UNKNOWN'
+        return
       }
+      this.internalDisabled = true
+      const cmd = this.mode === 'tlm' ? 'get_all_telemetry' : 'get_all_commands'
       this.api[cmd](this.selectedTargetName).then((packets) => {
-        this.packet_list_items = []
-        this.packetNames = []
-        if (this.allowAll) {
-          this.packetNames.push(this.ALL)
-        }
-        packets.forEach((packet) => {
-          this.packet_list_items.push([
-            packet['packet_name'],
-            packet['description'],
-          ])
-          this.packetNames.push({
-            label: packet['packet_name'],
-            value: packet['packet_name'],
-          })
+        this.packetNames = packets.map((packet) => {
+          return {
+            label: packet.packet_name,
+            value: packet.packet_name,
+            description: packet.description,
+          }
         })
+        if (this.allowAll) {
+          this.packetNames.unshift(this.ALL)
+        }
         if (!this.selectedPacketName) {
           this.selectedPacketName = this.packetNames[0].value
           this.packetNameChanged(this.selectedPacketName)
         }
-        for (const item of this.packet_list_items) {
-          if (this.selectedPacketName === item[0]) {
-            this.description = item[1]
-            break
-          }
-        }
+        const item = this.packetNames.find((packet) => {
+          return packet.value === this.selectedPacketName
+        })
+        this.description = item.description
         if (this.chooseItem) {
           this.updateItems()
         }
@@ -244,153 +260,154 @@ export default {
       })
     },
 
-    updateItems() {
+    updateItems: function () {
       if (this.selectedPacketName === 'ALL') {
         return
       }
       this.internalDisabled = true
-      let cmd = 'get_telemetry'
-      if (this.mode == 'cmd') {
-        cmd = 'get_command'
-      }
+      const cmd = this.mode === 'tlm' ? 'get_telemetry' : 'get_command'
       this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
         (packet) => {
-          this.tlm_item_list_items = packet.items
-          this.itemNames = []
-          if (this.allowAll) {
-            this.itemNames.push(this.ALL)
-          }
-          var arrayLength = packet.items.length
-          for (var i = 0; i < arrayLength; i++) {
-            if (this.reduced) {
-              // We're currently only reducing numeric data which means
-              // no arrays, no states, and only UINT, INT, FLOAT
-              if (
-                !packet.items[i]['array_size'] &&
-                !packet.items[i]['states'] &&
-                (packet.items[i]['data_type'] === 'UINT' ||
-                  packet.items[i]['data_type'] === 'INT' ||
-                  packet.items[i]['data_type'] === 'FLOAT')
-              ) {
-                ;['_MIN', '_MAX', '_AVG', '_STDDEV'].forEach((ext) => {
-                  this.itemNames.push({
-                    label: `${packet.items[i]['name']}${ext}`,
-                    value: `${packet.items[i]['name']}${ext}`,
-                  })
-                })
-              }
+          this.itemNames = packet.items.map((item) => {
+            if (this.reduced === 'DECOM') {
+              return [{
+                label: item.name,
+                value: item.name,
+                description: item.description,
+              }]
             } else {
-              this.itemNames.push({
-                label: packet.items[i]['name'],
-                value: packet.items[i]['name'],
-              })
+              return this.makeReducedItems(item)
             }
+          }).reduce((result, item) => { return result.concat(item) }, [])
+          if (this.allowAll) {
+            this.itemNames.unshift(this.ALL)
           }
           if (!this.selectedItemName) {
             this.selectedItemName = this.itemNames[0].value
           }
-          this.description = this.tlm_item_list_items[0]['description']
+          this.description = this.itemNames[0].description
           this.internalDisabled = false
           this.$emit('on-set', {
             targetName: this.selectedTargetName,
             packetName: this.selectedPacketName,
             itemName: this.selectedItemName,
+            reduced: this.reduced,
           })
         }
       )
     },
 
-    targetNameChanged(value) {
+    makeReducedItems: function (item) {
+      const reducedOptions = !item.array_size && !item.states
+      if (
+        reducedOptions && ['UINT', 'INT', 'FLOAT'].includes(item.data_type)
+      ) {
+        return ['MIN', 'MAX', 'AVG', 'STDDEV'].map((ext) => {
+          return {
+            label: `${item.name}_${ext}`,
+            value: `${item.name}_${ext}`,
+            description: `${ext} ${item.description}`,
+          }
+        })
+      }
+      return []
+    },
+
+    targetNameChanged: function (value) {
       this.selectedTargetName = value
       this.selectedPacketName = ''
       this.selectedItemName = ''
       this.updatePackets()
     },
 
-    packetNameChanged(value) {
+    packetNameChanged: function (value) {
       if (value === 'ALL') {
         this.itemsDisabled = true
         this.internalDisabled = false
       } else {
         this.itemsDisabled = false
-        var arrayLength = this.packet_list_items.length
-        for (var i = 0; i < arrayLength; i++) {
-          if (value === this.packet_list_items[i][0]) {
-            this.selectedPacketName = this.packet_list_items[i][0]
-            this.description = this.packet_list_items[i][1]
-            break
-          }
-        }
-        if (!this.chooseItem) {
-          this.$emit('on-set', {
-            targetName: this.selectedTargetName,
-            packetName: this.selectedPacketName,
-          })
-        }
-        if (this.chooseItem) {
-          this.selectedItemName = ''
-          this.updateItems()
-        }
+        const packet = this.packetNames.find((packet) => {
+          return value === packet.value
+        })
+        this.selectedPacketName = packet.value
+        this.description = packet.description
+      }
+      if (this.chooseItem) {
+        this.selectedItemName = ''
+        this.updateItems()
+      } else {
+        this.$emit('on-set', {
+          targetName: this.selectedTargetName,
+          packetName: this.selectedPacketName,
+          reduced: this.reduced,
+        })
       }
     },
 
-    itemNameChanged(value) {
-      var arrayLength = this.tlm_item_list_items.length
-      for (var i = 0; i < arrayLength; i++) {
-        if (value === this.tlm_item_list_items[i]['name']) {
-          this.selectedItemName = this.tlm_item_list_items[i]['name']
-          this.description = this.tlm_item_list_items[i]['description']
-          break
-        }
-      }
+    itemNameChanged: function (value) {
+      const item = this.itemNames.find((item) => {
+        return value === item.value
+      })
+      this.selectedItemName = item.value
+      this.description = item.description
       this.$emit('on-set', {
         targetName: this.selectedTargetName,
         packetName: this.selectedPacketName,
         itemName: this.selectedItemName,
+        reduced: this.reduced,
       })
     },
 
-    buttonPressed() {
+    buttonPressed: function () {
       if (this.selectedPacketName === 'ALL') {
-        this.packetNames.forEach((packetName) => {
-          if (packetName === this.ALL) return
-          let cmd = 'get_telemetry'
-          if (this.mode == 'cmd') {
-            cmd = 'get_command'
-          }
-          this.api[cmd](this.selectedTargetName, packetName.value).then(
-            (packet) => {
-              packet.items.forEach((item) => {
-                this.$emit('click', {
-                  targetName: this.selectedTargetName,
-                  packetName: packetName.value,
-                  itemName: item['name'],
-                })
-              })
-            }
-          )
-        })
+        this.allTargetPacketItems()
       } else if (this.selectedItemName === 'ALL') {
-        this.itemNames.forEach((item) => {
-          if (item === this.ALL) return
-          this.$emit('click', {
-            targetName: this.selectedTargetName,
-            packetName: this.selectedPacketName,
-            itemName: item.value,
-          })
-        })
+        this.allPacketItems()
       } else if (this.chooseItem) {
         this.$emit('click', {
           targetName: this.selectedTargetName,
           packetName: this.selectedPacketName,
           itemName: this.selectedItemName,
+          reduced: this.reduced,
         })
       } else {
         this.$emit('click', {
           targetName: this.selectedTargetName,
           packetName: this.selectedPacketName,
+          reduced: this.reduced,
         })
       }
+    },
+
+    allTargetPacketItems: function () {
+      this.packetNames.forEach((packetName) => {
+        if (packetName === this.ALL) return
+        const cmd = this.mode === 'tlm' ? 'get_telemetry' : 'get_command'
+        this.api[cmd](this.selectedTargetName, packetName.value).then(
+          (packet) => {
+            packet.items.forEach((item) => {
+              this.$emit('click', {
+                targetName: this.selectedTargetName,
+                packetName: packetName.value,
+                itemName: item['name'],
+                reduced: this.reduced,
+              })
+            })
+          }
+        )
+      })
+    },
+
+    allPacketItems: function () {
+      this.itemNames.forEach((item) => {
+        if (item === this.ALL) return
+        this.$emit('click', {
+          targetName: this.selectedTargetName,
+          packetName: this.selectedPacketName,
+          itemName: item.value,
+          reduced: this.reduced,
+        })
+      })
     },
   },
 }

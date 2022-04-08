@@ -20,7 +20,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Command Packets
+      {{ data.length }} Command Packets
       <v-spacer />
       <v-text-field
         v-model="search"
