@@ -135,7 +135,7 @@ test('deletes a component and tab', async ({ page }) => {
   await page.locator('[data-test=new-packet]').click()
   await utils.selectTargetPacketItem('INST', 'ADCS')
   await page.locator('[data-test=add-packet-button]').click()
-  await expect(page.locator('.v-window-item > .v-card > .v-card__title')).toHaveText('INST ADCS [RAW]')
+  await expect(page.locator('.v-window-item > .v-card > .v-card__title')).toHaveText('INST ADCS [ RAW ]')
   await page.locator('[data-test=delete-packet]').click()
   await expect(page.locator('.v-window-item > .v-card > .v-card__title')).toHaveText('This tab is empty')
   await page.locator('[data-test=tab]').click({ button: 'right' })
