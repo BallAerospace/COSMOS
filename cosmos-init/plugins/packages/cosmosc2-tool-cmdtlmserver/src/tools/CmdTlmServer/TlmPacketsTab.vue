@@ -20,7 +20,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Telemetry Packets
+      {{ data.length }} Telemetry Packets
       <v-spacer />
       <v-text-field
         v-model="search"
