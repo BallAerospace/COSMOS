@@ -213,7 +213,7 @@ module Cosmos
         begin
           Cosmos::Logger.info "Reading #{scope}/targets_modified/#{path}"
           client.head_object(bucket: "config", key: "#{scope}/targets_modified/#{path}")
-          url, headers = get_presigned_request(:get_object, "#{scope}/targets_modified/#{path}")
+          url, _ = Aws::S3::Presigner.new.presigned_request(:get_object, bucket: 'config', key: "#{scope}/targets_modified/#{path}")
           uri = URI.parse(url)
           request = Net::HTTP::Get.new(uri)
           result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -232,7 +232,7 @@ module Cosmos
         begin
           Cosmos::Logger.info "Reading #{scope}/targets/#{path}"
           client.head_object(bucket: "config", key: "#{scope}/targets/#{path}")
-          url, headers = get_presigned_request(:get_object, "#{scope}/targets/#{path}")
+          url, _ = Aws::S3::Presigner.new.presigned_request(:get_object, bucket: 'config', key: "#{scope}/targets/#{path}")
           uri = URI.parse(url)
           request = Net::HTTP::Get.new(uri)
           result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
@@ -254,12 +254,12 @@ module Cosmos
       #
       # @param path [String] Path to a file in a target directory
       # @param contents [String] File contents
-      # @param binary [Boolean] Whether this is binary data
-      def put_target_file(path, contents, binary: false, scope: $cosmos_scope, token: $cosmos_token)
+      def put_target_file(path, contents, scope: $cosmos_scope, token: $cosmos_token)
+        # TODO: How do we authorize?
         # authorize(permission: 'system_set', scope: scope, token: token)
         begin
-          Cosmos::Logger.info "Writing #{scope}/targets_modified/#{path}, binary #{binary}"
-          url, headers = get_presigned_request(:put_object, "#{scope}/targets_modified/#{path}")
+          Cosmos::Logger.info "Writing #{scope}/targets_modified/#{path}"
+          url, _ = Aws::S3::Presigner.new.presigned_request(:put_object, bucket: 'config', key: "#{scope}/targets_modified/#{path}")
           uri = URI.parse(url)
           request = Net::HTTP::Put.new(uri)
           request.body = contents
@@ -276,6 +276,7 @@ module Cosmos
       #
       # @param [String] Path to a file in a target directory
       def delete_target_file(path, scope: $cosmos_scope, token: $cosmos_token)
+        # TODO: How do we authorize?
         # authorize(permission: 'system_set', scope: scope, token: token)
         begin
           # Only delete from the targets_modified
@@ -285,12 +286,6 @@ module Cosmos
           Cosmos::Logger.error "Failed deleting #{path} due to #{error.message}"
         end
         nil
-      end
-
-      # private
-
-      def get_presigned_request(method, key)
-        Aws::S3::Presigner.new.presigned_request(method, bucket: 'config', key: key)
       end
     end
   end
