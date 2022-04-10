@@ -173,7 +173,7 @@ test("add, edits, deletes items", async ({ page }) => {
   await page.locator('[data-test="itemList"] button').first().click();
   await page.locator("text=Value Type").click();
   await page.locator("text=RAW").click();
-  await page.locator('button:has-text("Ok")').click();
+  await page.locator('button:has-text("CLOSE")').click();
   await page.locator(
     '[data-test="itemList"] >> text=INST - ADCS - CCSDSSHF + (RAW)'
   );
@@ -226,6 +226,7 @@ test("processes commands", async ({ page }) => {
   await page.goto("/tools/cmdsender/INST/ABORT");
   await page.locator("[data-test=select-send]").click();
   await page.locator('text=cmd("INST ABORT") sent');
+  await utils.sleep(1500); // Allow the command to be sent
 
   const start = sub(new Date(), { minutes: 5 });
   await page.goto("/tools/dataextractor");

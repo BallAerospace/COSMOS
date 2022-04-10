@@ -20,7 +20,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Interfaces
+      {{ data.length }} Interfaces
       <v-spacer />
       <v-text-field
         v-model="search"

@@ -3,12 +3,13 @@
 set -e
 
 usage() {
-  echo "Usage: $1 [encode, hash, svae, load]" >&2
+  echo "Usage: $1 [encode, hash, save, load, clean, hostsetup]" >&2
   echo "*  encode: encode a string to base64" >&2
   echo "*  hash: hash a string using SHA-256" >&2
   echo "*  save: save images to a tar file" >&2
   echo "*  load: load images from a tar file" >&2
   echo "*  clean: remove node_modules, coverage, etc" >&2
+  echo "*  hostsetup: configure host for redis" >&2
   exit 1
 }
 
@@ -69,6 +70,11 @@ case $1 in
     ;;
   clean )
     cleanFiles
+    ;;
+  hostsetup )
+    docker run --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+    docker run --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
+    docker run --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
     ;;
   * )
     usage $0

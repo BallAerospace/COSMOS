@@ -21,6 +21,9 @@ if "%1" == "zip" (
 if "%1" == "clean" (
   GOTO clean
 )
+if "%1" == "hostsetup" (
+  GOTO hostsetup
+)
 
 GOTO usage
 
@@ -80,13 +83,20 @@ GOTO :EOF
   forfiles /S /M Gemfile.lock /C "cmd /c del /P @path"
 GOTO :EOF
 
+:hostsetup
+  docker run --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled" || exit /b
+  docker run --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag" || exit /b
+  docker run --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144" || exit /b
+GOTO :EOF
+
 :usage
-  @echo Usage: %1 [encode, hash, save, load] 1>&2
+  @echo Usage: %1 [encode, hash, save, load, clean, redishost] 1>&2
   @echo *  encode: encode a string to base64 1>&2
   @echo *  hash: hash a string using SHA-256 1>&2
   @echo *  save: save cosmos to tar files 1>&2
   @echo *  load: load cosmos tar files 1>&2
   @echo *  zip: create cosmos zipfile 1>&2
   @echo *  clean: remove node_modules, coverage, etc 1>&2
+  @echo *  hostsetup: configure host for redis 1>&2
 
 @echo on
