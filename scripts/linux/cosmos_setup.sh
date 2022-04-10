@@ -42,8 +42,3 @@ if [ "$?" -ne 0 ]; then
   echo "${0} FAILED" 1>&2
   exit 1
 fi
-
-# These lines configure the host OS properly for Redis
-docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
-docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
-docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"

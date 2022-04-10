@@ -146,5 +146,6 @@ GOTO :EOF
   @echo *    save: save docker images to tar files 1>&2
   @echo *    zip: create cosmos zipfile 1>&2
   @echo *    clean: remove node_modules, coverage, etc 1>&2
+  @echo *    hostsetup: configure host for redis 1>&2
 
 @echo on
