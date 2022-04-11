@@ -144,6 +144,7 @@ Rails.application.routes.draw do
 
     get '/storage/download/:object_id', to: 'storage#get_download_presigned_request', object_id: /[^\/]+/
     get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /[^\/]+/
+    delete '/storage/delete/:object_id', to: 'storage#delete', object_id: /[^\/]+/
 
     get  "/tables" => "tables#index"
     get  "/tables/*name" => "tables#body", format: false, defaults: { format: 'html' }

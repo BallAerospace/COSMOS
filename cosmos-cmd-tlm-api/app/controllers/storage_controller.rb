@@ -46,6 +46,22 @@ class StorageController < ApplicationController
     render :json => result, :status => 201
   end
 
+  def delete
+    begin
+      authorize(permission: 'system_set', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+
+    rubys3_client = Aws::S3::Client.new
+    result = rubys3_client.delete_object(bucket: params[:bucket], key: params[:object_id])
+
+    Cosmos::Logger.info("Deleted: #{params[:bucket] || BUCKET_NAME}/#{params[:object_id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+    render :json => result, :status => 200
+  end
+
   # private
   def get_presigned_request(method)
     bucket = params[:bucket]
