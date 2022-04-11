@@ -226,18 +226,6 @@ export class CosmosApi {
     return this.exec('get_target_list', [])
   }
 
-  read_target_file(path, mode) {
-    return this.exec('read_target_file', [path, mode])
-  }
-
-  write_target_file(path, contents, mode) {
-    return this.exec('write_target_file', [path, contents, mode])
-  }
-
-  delete_target_file(path) {
-    return this.exec('delete_target_file', [path])
-  }
-
   get_telemetry(target_name, packet_name) {
     return this.exec('get_telemetry', [target_name, packet_name])
   }

@@ -28,6 +28,8 @@ require 'cosmos/io/stderr'
 require 'childprocess'
 require 'cosmos/script/suite_runner'
 require 'cosmos/utilities/store'
+require 'cosmos/utilities/s3_autoload.rb'
+require 'net/http'
 
 RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 
@@ -194,6 +196,96 @@ module Cosmos
           end
         end
         return false
+      end
+
+      # Get a handle to access a target file
+      #
+      # @param path [String] Path to a file in a target directory
+      # @param binary [Boolean] Whether the file is binary or not
+      # @return [Hash|nil]
+      def get_target_file(path, binary: false, scope: $cosmos_scope, token: $cosmos_token)
+        # TODO: How do we authorize?
+        # authorize(permission: 'system', scope: scope, token: token)
+        file = nil
+        local_path = File.join(Dir.tmpdir, 'cosmos', 'target_files', path)
+        FileUtils.mkdir_p(File.dirname(local_path))
+        client = Aws::S3::Client.new
+        begin
+          Cosmos::Logger.info "Reading #{scope}/targets_modified/#{path}"
+          client.head_object(bucket: "config", key: "#{scope}/targets_modified/#{path}")
+          url, _ = Aws::S3::Presigner.new.presigned_request(:get_object, bucket: 'config', key: "#{scope}/targets_modified/#{path}")
+          uri = URI.parse(url)
+          request = Net::HTTP::Get.new(uri)
+          result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            http.request(request)
+          end
+          mode = 'w'
+          mode += 'b' if binary == true
+          File.write(local_path, result.body, 0, mode: mode)
+          mode = 'r'
+          mode += 'b' if binary == true
+          return File.open(local_path, mode)
+        rescue => error
+          Cosmos::Logger.info(error.message)
+          # If the item doesn't exist we just continue to check the unmodified targets dir
+        end
+        begin
+          Cosmos::Logger.info "Reading #{scope}/targets/#{path}"
+          client.head_object(bucket: "config", key: "#{scope}/targets/#{path}")
+          url, _ = Aws::S3::Presigner.new.presigned_request(:get_object, bucket: 'config', key: "#{scope}/targets/#{path}")
+          uri = URI.parse(url)
+          request = Net::HTTP::Get.new(uri)
+          result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            http.request(request)
+          end
+          mode = 'w'
+          mode += 'b' if binary == true
+          File.write(local_path, result.body, 0, mode: mode)
+          mode = 'r'
+          mode += 'b' if binary == true
+          return File.open(local_path, mode)
+        rescue => error
+          Cosmos::Logger.error "Failed to retrieve #{path} due to #{error.message}"
+          return nil
+        end
+      end
+
+      # Get a handle to write a target file
+      #
+      # @param path [String] Path to a file in a target directory
+      # @param contents [String] File contents
+      def put_target_file(path, contents, scope: $cosmos_scope, token: $cosmos_token)
+        # TODO: How do we authorize?
+        # authorize(permission: 'system_set', scope: scope, token: token)
+        begin
+          Cosmos::Logger.info "Writing #{scope}/targets_modified/#{path}"
+          url, _ = Aws::S3::Presigner.new.presigned_request(:put_object, bucket: 'config', key: "#{scope}/targets_modified/#{path}")
+          uri = URI.parse(url)
+          request = Net::HTTP::Put.new(uri)
+          request.body = contents
+          result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            http.request(request)
+          end
+        rescue => error
+          Cosmos::Logger.error "Failed writing #{path} due to #{error.message}"
+        end
+        nil
+      end
+
+      # Delete a file on a target
+      #
+      # @param [String] Path to a file in a target directory
+      def delete_target_file(path, scope: $cosmos_scope, token: $cosmos_token)
+        # TODO: How do we authorize?
+        # authorize(permission: 'system_set', scope: scope, token: token)
+        begin
+          # Only delete from the targets_modified
+          Cosmos::Logger.info "Deleting #{scope}/targets_modified/#{path}"
+          Aws::S3::Client.new.delete_object(bucket: "config", key: "#{scope}/targets_modified/#{path}")
+        rescue => error
+          Cosmos::Logger.error "Failed deleting #{path} due to #{error.message}"
+        end
+        nil
       end
     end
   end

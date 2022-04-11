@@ -168,7 +168,7 @@ module Cosmos
             raise(ArgumentError, "description must be a String but is a #{description.class}")
           end
 
-          @description = description.clone.freeze
+          @description = description.to_utf8.freeze
         else
           @description = nil
         end
@@ -317,7 +317,7 @@ module Cosmos
       if hazardous_description
         raise ArgumentError, "hazardous_description must be a String but is a #{hazardous_description.class}" unless String === hazardous_description
 
-        @hazardous_description = hazardous_description.clone.freeze
+        @hazardous_description = hazardous_description.to_utf8.freeze
       else
         @hazardous_description = nil
       end
