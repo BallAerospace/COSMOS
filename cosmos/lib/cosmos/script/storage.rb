@@ -42,7 +42,7 @@ module Cosmos
       loop do
         endpoint = "/cosmos-api/storage/download/#{scope}/#{part}/#{path}"
         Cosmos::Logger.info "Reading #{scope}/#{part}/#{path}"
-        if defined? RunningScript
+        if $cosmos_in_cluster
           response = $api_server.request('get', endpoint, query: {bucket: 'config', internal: true})
         else
           response = $api_server.request('get', endpoint, query: {bucket: 'config'})
@@ -60,7 +60,7 @@ module Cosmos
 
         # Try to get the file
         begin
-          if defined? RunningScript
+          if $cosmos_in_cluster
             uri = URI.parse("http://cosmos-minio:9000" + result['url'])
           else
             uri = URI.parse($api_server.generate_url + result['url'])
@@ -100,7 +100,7 @@ module Cosmos
       begin
         endpoint = "/cosmos-api/storage/upload/#{scope}/#{part}/#{path}"
         Cosmos::Logger.info "Writing #{scope}/#{part}/#{path}"
-        if defined? RunningScript
+        if $cosmos_in_cluster
           response = $api_server.request('get', endpoint, query: {bucket: 'config', internal: true})
         else
           response = $api_server.request('get', endpoint, query: {bucket: 'config'})
@@ -114,7 +114,7 @@ module Cosmos
         # Try to put the file
         success = false
         begin
-          if defined? RunningScript
+          if $cosmos_in_cluster
             uri = URI.parse("http://cosmos-minio:9000" + result['url'])
           else
             uri = URI.parse($api_server.generate_url + result['url'])
@@ -155,6 +155,5 @@ module Cosmos
       end
       nil
     end
-
   end
 end

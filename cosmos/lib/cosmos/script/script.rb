@@ -31,6 +31,7 @@ require 'cosmos/utilities/authentication'
 $api_server = nil
 $disconnect = false
 $cosmos_scope = ENV['COSMOS_SCOPE'] || 'DEFAULT'
+$cosmos_in_cluster = false
 
 module Cosmos
   module Script
@@ -65,6 +66,11 @@ module Cosmos
       shutdown_script()
       $disconnect = false
       $api_server = ServerProxy.new
+      if $api_server.generate_url =~ /cosmos-cmd-tlm-api/
+        $cosmos_in_cluster = true
+      else
+        $cosmos_in_cluster = false
+      end
     end
 
     def shutdown_script
