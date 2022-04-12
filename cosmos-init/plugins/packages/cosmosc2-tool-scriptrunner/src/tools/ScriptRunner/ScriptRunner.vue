@@ -1031,6 +1031,7 @@ export default {
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
       this.fatal = false
+      this.scriptId = null
       this.editor.setReadOnly(false)
     },
     environmentHandler: function (event) {
@@ -1073,13 +1074,14 @@ export default {
     },
     stop() {
       // We previously encountered a fatal error so remove the marker
-      // and cleanup by calling scriptComplete()
-      // if (this.fatal) {
+      // and cleanup by calling scriptComplete() because the script
+      // is already stopped in the backend
+      if (this.fatal) {
         this.removeAllMarkers()
         this.scriptComplete()
-      // } else {
+      } else {
         Api.post(`/script-api/running-script/${this.scriptId}/stop`)
-      // }
+      }
     },
     step() {
       Api.post(`/script-api/running-script/${this.scriptId}/step`)
@@ -1148,23 +1150,26 @@ export default {
             // Deliberate fall through (no break)
             case 'error':
               this.pauseOrRetryButton = RETRY
-              this.startOrGoDisabled = this.state === 'fatal' ? true : false
-              this.pauseOrRetryDisabled = this.state === 'fatal' ? true : false
             // Deliberate fall through (no break)
             case 'waiting':
             case 'paused':
+              this.stopDisabled = false
               let existing = Object.keys(markers).filter(
                 (key) => markers[key].clazz === `${this.state}Marker`
               )
               if (existing.length === 0) {
                 this.removeAllMarkers()
+                let line = data.line_no > 0 ? data.line_no : 1
                 this.editor.session.addMarker(
-                  new this.Range(data.line_no - 1, 0, data.line_no - 1, 1),
+                  new this.Range(line - 1, 0, line - 1, 1),
                   `${this.state}Marker`,
                   'fullLine'
                 )
-                this.editor.gotoLine(data.line_no)
-                this.files[data.filename].lineNo = data.line_no
+                this.editor.gotoLine(line)
+                // Fatal errors don't always have a filename set
+                if (data.filename) {
+                  this.files[data.filename].lineNo = line
+                }
               }
               break
             default:

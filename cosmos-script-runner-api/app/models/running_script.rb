@@ -173,6 +173,7 @@ module Cosmos
 
       # sleep in a script - returns true if canceled mid sleep
       def cosmos_script_sleep(sleep_time = nil)
+        return false if $disconnect
         Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting }))
 
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
@@ -369,8 +370,7 @@ class RunningScript
     initialize_variables()
     redirect_io() # Redirect $stdout and $stderr
     mark_breakpoints(@filename)
-    # disconnect is input as a string due to ChildProcess.build
-    disconnect_script() if disconnect == 'true'
+    disconnect_script() if disconnect
 
     # Get details from redis
 
@@ -1028,31 +1028,31 @@ class RunningScript
 
   def mark_running
     @state = :running
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
   end
 
   def mark_paused
     @state = :paused
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused }))
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
   end
 
   def mark_waiting
     @state = :waiting
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
   end
 
   def mark_error
     @state = :error
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
   end
 
   def mark_fatal
     @state = :fatal
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
   end
 
   def mark_stopped
-    @state = :stopped # unless @state == :fatal
+    @state = :stopped
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
@@ -1139,8 +1139,8 @@ class RunningScript
           scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
         else
           uncaught_exception = true
-          @current_filename, @current_line_number = error.source
-          handle_exception(error, true, @current_filename, @current_line_number)
+          filename, line_number = error.source
+          handle_exception(error, true, filename, line_number)
           handle_output_io()
           scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           mark_fatal()
@@ -1246,7 +1246,6 @@ class RunningScript
   end
 
   def handle_exception(error, fatal, filename = nil, line_number = 0)
-    scriptrunner_puts("Exception: #{error.message}", 'RED')
     @exceptions ||= []
     @exceptions << error
     @@error = error
@@ -1254,12 +1253,11 @@ class RunningScript
     if error.class == DRb::DRbConnError
       Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
     elsif error.class == Cosmos::CheckError
-      Cosmos::Logger.error(error.message)#
-    # Don't bother logging the error and backtrace if it's this file
-    # because that's confusing to the end user who doesn't see this
-    elsif File.basename(filename) != File.basename(__FILE__)
+      Cosmos::Logger.error(error.message)
+    else
       Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
-      Cosmos::Logger.error(error.backtrace.join("\n"))
+      relevent_lines = error.backtrace.select { |line| !line.include?("/src/app") && !line.include?("/cosmos/lib") && !line.include?("/usr/lib/ruby") }
+      Cosmos::Logger.error(relevent_lines.join("\n\n")) unless relevent_lines.empty?
     end
     handle_output_io(filename, line_number)
 

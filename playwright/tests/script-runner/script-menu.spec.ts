@@ -45,7 +45,7 @@ puts "now we're done"`;
     .locator("#cosmos-menu >> text=Script Runner")
     .click({ force: true });
   // Start the script
-  await page.locator('[data-test=start-button]').click();
+  await page.locator("[data-test=start-button]").click();
   await expect(page.locator('[data-test="state"]')).toHaveValue("waiting");
 
   await page.locator('[data-test="Script Runner-Script"]').click();
@@ -63,7 +63,7 @@ puts "now we're done"`;
   await page
     .locator("#cosmos-menu >> text=Script Runner")
     .click({ force: true });
-  await page.locator('[data-test=go-button]').click();
+  await page.locator("[data-test=go-button]").click();
   await expect(page.locator('[data-test="state"]')).toHaveValue("stopped");
 
   await page.locator('[data-test="Script Runner-Script"]').click();
@@ -96,7 +96,7 @@ test("sets environment variables", async ({ page }) => {
   await page.locator('div[role="option"]:has-text("KEY=VALUE")').click();
   await page.locator('[data-test="environment-dialog-save"]').click();
 
-  await page.locator('[data-test=start-button]').click();
+  await page.locator("[data-test=start-button]").click();
   await expect(page.locator('[data-test="state"]')).toHaveValue("stopped");
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
     "ENV:VALUE"
@@ -104,7 +104,7 @@ test("sets environment variables", async ({ page }) => {
   await page.locator('[data-test="clear-log"]').click();
   await page.locator('button:has-text("Clear")').click();
   // Re-run and ensure the env vars are still set
-  await page.locator('[data-test=start-button]').click();
+  await page.locator("[data-test=start-button]").click();
   await expect(page.locator('[data-test="state"]')).toHaveValue("stopped");
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
     "ENV:VALUE"
@@ -141,8 +141,8 @@ test("ruby syntax check", async ({ page }) => {
   await page.locator("textarea").fill('puts "TEST"');
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Ruby Syntax Check").click();
-  await expect(page.locator('.v-dialog')).toContainText("Syntax OK")
-  await page.locator('.v-dialog >> button').click()
+  await expect(page.locator(".v-dialog")).toContainText("Syntax OK");
+  await page.locator(".v-dialog >> button").click();
 
   await page.locator("textarea").fill(`puts "MORE"
 if true
@@ -150,16 +150,18 @@ puts "TRUE"
 `);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Ruby Syntax Check").click();
-  await expect(page.locator('.v-dialog')).toContainText("syntax error")
-  await page.locator('.v-dialog >> button').click()
-})
+  await expect(page.locator(".v-dialog")).toContainText("syntax error");
+  await page.locator(".v-dialog >> button").click();
+});
 
 test("mnemonic check", async ({ page }) => {
   await page.locator("textarea").fill(`cmd("INST ABORT")
-`)
+`);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Mnemonic Check").click();
-  await expect(page.locator('.v-dialog')).toContainText('Everything looks good!')
+  await expect(page.locator(".v-dialog")).toContainText(
+    "Everything looks good!"
+  );
   await page.locator('button:has-text("Ok")').click();
 
   await page.locator("textarea").fill(`
@@ -168,17 +170,21 @@ cmd("INST ABORT with ANGER")
 `);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Mnemonic Check").click();
-  await expect(page.locator('.v-dialog')).toContainText('Target "BLAH" does not exist')
-  await expect(page.locator('.v-dialog')).toContainText('Command "INST ABORT" param "ANGER" does not exist')
+  await expect(page.locator(".v-dialog")).toContainText(
+    'Target "BLAH" does not exist'
+  );
+  await expect(page.locator(".v-dialog")).toContainText(
+    'Command "INST ABORT" param "ANGER" does not exist'
+  );
   await page.locator('button:has-text("Ok")').click();
-})
+});
 
 test("view instrumented script", async ({ page }) => {
   await page.locator("textarea").fill('puts "HI"');
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=View Instrumented Script").click();
-  await expect(page.locator('.v-dialog')).toContainText('binding')
+  await expect(page.locator(".v-dialog")).toContainText("binding");
   await page.locator('button:has-text("Ok")').click();
-})
+});
 
 // Remaining menu items tested in other script-runner tests

@@ -69,7 +69,9 @@ test("handles File Save overwrite", async ({ page }) => {
   await page.locator("textarea").fill('puts "File Save overwrite"');
   await page.locator('[data-test="Script Runner-File"]').click();
   await page.locator("text=Save File").click();
-  await page.locator("[data-test=file-open-save-filename]").fill("INST/procedures/save_overwrite.rb");
+  await page
+    .locator("[data-test=file-open-save-filename]")
+    .fill("INST/procedures/save_overwrite.rb");
   await page.locator("[data-test=file-open-save-submit-btn]").click();
   expect(await page.locator("#sr-controls")).toContainText(
     "INST/procedures/save_overwrite.rb"
@@ -113,9 +115,7 @@ test("handles Download", async ({ page }) => {
   await page.locator("text=Save File").click();
   await page.fill("[data-test=file-open-save-filename]", "INST/download.txt");
   await page.locator("[data-test=file-open-save-submit-btn]").click();
-  expect(await page.locator("#sr-controls")).toContainText(
-    "INST/download.txt"
-  );
+  expect(await page.locator("#sr-controls")).toContainText("INST/download.txt");
   // Download the file
   await page.locator('[data-test="Script Runner-File"]').click();
   const [download] = await Promise.all([
