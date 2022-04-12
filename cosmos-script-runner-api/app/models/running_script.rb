@@ -1052,7 +1052,7 @@ class RunningScript
   end
 
   def mark_stopped
-    @state = :stopped unless @state == :fatal
+    @state = :stopped # unless @state == :fatal
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
@@ -1139,8 +1139,8 @@ class RunningScript
           scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
         else
           uncaught_exception = true
-          filename, line_number = error.source
-          handle_exception(error, true, filename, line_number)
+          @current_filename, @current_line_number = error.source
+          handle_exception(error, true, @current_filename, @current_line_number)
           handle_output_io()
           scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           mark_fatal()
