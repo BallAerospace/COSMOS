@@ -862,9 +862,9 @@ class RunningScript
     handle_output_io()
   rescue Exception => error
     if error.class == DRb::DRbConnError
-      Logger.error("Error Connecting to Command and Telemetry Server")
+      Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
     else
-      Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
+      Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
     end
     handle_output_io()
   ensure
@@ -1246,7 +1246,6 @@ class RunningScript
   end
 
   def handle_exception(error, fatal, filename = nil, line_number = 0)
-    scriptrunner_puts("Exception: #{error.message}", 'RED')
     @exceptions ||= []
     @exceptions << error
     @@error = error
@@ -1254,12 +1253,11 @@ class RunningScript
     if error.class == DRb::DRbConnError
       Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
     elsif error.class == Cosmos::CheckError
-      Cosmos::Logger.error(error.message)#
-    # Don't bother logging the error and backtrace if it's this file
-    # because that's confusing to the end user who doesn't see this
-    elsif File.basename(filename) != File.basename(__FILE__)
+      Cosmos::Logger.error(error.message)
+    else
       Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
-      Cosmos::Logger.error(error.backtrace.join("\n"))
+      relevent_lines = error.backtrace.select { |line| !line.include?("/src/app") && !line.include?("/cosmos/lib") && !line.include?("/usr/lib/ruby") }
+      Cosmos::Logger.error(relevent_lines.join("\n\n")) unless relevent_lines.empty?
     end
     handle_output_io(filename, line_number)
 
