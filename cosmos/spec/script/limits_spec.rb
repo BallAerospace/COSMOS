@@ -29,6 +29,7 @@ module Cosmos
       # Mock the server proxy to determine if it's received methods
       allow(ServerProxy).to receive(:new).and_return(@proxy)
       allow(@proxy).to receive(:shutdown)
+      allow(@proxy).to receive(:generate_url).and_return("http://localhost:2900")
       initialize_script()
     end
 
