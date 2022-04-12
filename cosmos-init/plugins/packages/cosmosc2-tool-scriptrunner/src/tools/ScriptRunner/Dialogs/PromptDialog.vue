@@ -39,7 +39,7 @@
         </v-card-text>
       </div>
       <div v-if="layout === 'combo'">
-        <v-row class="mt-1">
+        <v-row class="ma-2">
           <v-select
             @change="selectOkDisabled = false"
             v-model="selectedItem"
@@ -56,13 +56,13 @@
             @click="cancelHandler"
             outlined
             data-test="prompt-cancel"
-            class="mx-1"
+            class="ma-1"
           >
             Cancel
           </v-btn>
           <v-btn
             @click="submitHandler"
-            class="mx-1"
+            class="ma-1"
             color="primary"
             data-test="prompt-ok"
             :disabled="selectOkDisabled"
@@ -72,20 +72,20 @@
         </v-card-actions>
       </div>
       <div v-else>
-        <v-card-actions>
+        <v-card-actions :class="layoutClass">
           <v-spacer />
           <v-btn
             @click="cancelHandler"
             outlined
             data-test="prompt-cancel"
-            class="mx-1"
+            class="ma-1"
           >
             Cancel
           </v-btn>
           <div v-for="(button, index) in computedButtons" :key="index">
             <v-btn
               @click="submitWrapper(button.value)"
-              class="mx-1"
+              class="ma-1"
               :data-test="`prompt-${button.text}`"
               :color="button.value ? 'primary' : ''"
             >
