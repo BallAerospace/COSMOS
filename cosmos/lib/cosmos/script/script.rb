@@ -183,7 +183,6 @@ module Cosmos
       print "Details: #{details}\n" if details
       gets.chomp
     end
-  
   end
 
   # Provides a proxy to the JsonDRbObject which communicates with the API server

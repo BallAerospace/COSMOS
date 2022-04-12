@@ -28,8 +28,6 @@ require 'cosmos/io/stderr'
 require 'childprocess'
 require 'cosmos/script/suite_runner'
 require 'cosmos/utilities/store'
-require 'cosmos/utilities/s3_autoload.rb'
-require 'net/http'
 
 RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 
