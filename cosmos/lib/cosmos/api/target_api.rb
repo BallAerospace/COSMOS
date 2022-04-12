@@ -17,7 +17,6 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-
 require 'cosmos/models/target_model'
 
 module Cosmos

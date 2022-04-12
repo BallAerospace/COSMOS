@@ -25,6 +25,7 @@ require 'cosmos/script/calendar'
 require 'cosmos/script/commands'
 require 'cosmos/script/limits'
 require 'cosmos/script/exceptions'
+require 'cosmos/script/storage'
 require 'cosmos/utilities/authentication'
 
 $api_server = nil
@@ -182,6 +183,7 @@ module Cosmos
       print "Details: #{details}\n" if details
       gets.chomp
     end
+  
   end
 
   # Provides a proxy to the JsonDRbObject which communicates with the API server

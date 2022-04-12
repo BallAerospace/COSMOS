@@ -17,12 +17,11 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-ENV['COSMOS_API_SCHEMA'] = 'http'
-ENV['COSMOS_API_HOSTNAME'] = 'host.docker.internal'
-ENV['COSMOS_API_PORT'] = '2900'
-ENV['COSMOS_API_PASSWORD'] = 'cosmos'
-
-ENV['COSMOS_NO_STORE'] = '1'
+ENV['COSMOS_API_SCHEMA'] ||= 'http'
+ENV['COSMOS_API_HOSTNAME'] ||= 'localhost'
+ENV['COSMOS_API_PORT'] ||= '2900'
+ENV['COSMOS_API_PASSWORD'] ||= 'cosmos'
+ENV['COSMOS_NO_STORE'] ||= '1'
 
 require 'cosmos'
 require 'cosmos/script'

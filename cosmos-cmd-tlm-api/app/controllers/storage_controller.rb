@@ -29,6 +29,8 @@ class StorageController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
 
+    @rubys3_client = Aws::S3::Client.new
+    @rubys3_client.head_object(bucket: params[:bucket], key: params[:object_id])
     render :json => get_presigned_request(:get_object), :status => 201
   end
 
@@ -55,30 +57,36 @@ class StorageController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
 
-    rubys3_client = Aws::S3::Client.new
-    result = rubys3_client.delete_object(bucket: params[:bucket], key: params[:object_id])
+    @rubys3_client = Aws::S3::Client.new
+    result = @rubys3_client.delete_object(bucket: params[:bucket], key: params[:object_id])
 
     Cosmos::Logger.info("Deleted: #{params[:bucket] || BUCKET_NAME}/#{params[:object_id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
-    render :json => result, :status => 200
+    head :ok
   end
 
   # private
   def get_presigned_request(method)
     bucket = params[:bucket]
     bucket ||= BUCKET_NAME
-    rubys3_client = Aws::S3::Client.new
+    @rubys3_client ||= Aws::S3::Client.new
     begin
-      rubys3_client.head_bucket(bucket: bucket)
+      @rubys3_client.head_bucket(bucket: bucket)
     rescue Aws::S3::Errors::NotFound
-      rubys3_client.create_bucket(bucket: bucket)
+      @rubys3_client.create_bucket(bucket: bucket)
     end
     s3_presigner = Aws::S3::Presigner.new
+
+    if params[:internal]
+      prefix = '/'
+    else
+      prefix = '/files/'
+    end
 
     url, headers = s3_presigner.presigned_request(
       method, bucket: bucket, key: params[:object_id]
     )
     {
-      :url => '/files/' + url.split('/')[3..-1].join('/'),
+      :url => prefix + url.split('/')[3..-1].join('/'),
       :headers => headers,
       :method => method.to_s.split('_')[0],
     }

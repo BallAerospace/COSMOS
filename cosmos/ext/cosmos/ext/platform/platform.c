@@ -35,6 +35,7 @@ VALUE cSegFault = Qnil;
 #include <string.h>
 #include <sys/stat.h>
 
+__attribute__((noreturn))
 static void catch_sigsegv(int sig_num)
 {
   const int FILENAME_LEN = 256;
