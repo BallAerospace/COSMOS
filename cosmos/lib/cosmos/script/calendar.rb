@@ -28,7 +28,7 @@ module Cosmos
     # Sets the metadata value for a target
     #
     # @param target [String] Target to set metadata on
-    # @return The result of the method call. 
+    # @return The result of the method call.
     def get_metadata(target)
       endpoint = "/cosmos-api/metadata/get/#{target}"
       response = $api_server.request('get', endpoint)
@@ -42,7 +42,7 @@ module Cosmos
     # @param metadata [Hash<Symbol, Variable>] A hash of metadata
     # @param color [String] Events color to show on Calendar tool
     # @param start (optional) [String] Metadata time value if nil will default to current time
-    # @return The result of the method call. 
+    # @return The result of the method call.
     def set_metadata(target, metadata, color: nil, start: nil)
       color = color.nil? ? '#003784' : color
       data = {:color => color, :metadata => metadata, :target => target}
