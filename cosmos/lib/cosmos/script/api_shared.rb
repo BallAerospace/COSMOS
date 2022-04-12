@@ -701,7 +701,7 @@ module Cosmos
         if eval(exp_to_eval)
           return true, value
         end
-        break if Time.now.sys >= end_time || $disconnect
+        break if Time.now.sys >= end_time
 
         delta = Time.now.sys - work_start
         sleep_time = polling_rate - delta
@@ -748,7 +748,6 @@ module Cosmos
     # Wait on an expression to be true.
     def cosmos_script_wait_implementation_expression(exp_to_eval, timeout, polling_rate, context, scope: $cosmos_scope, token: $cosmos_token)
       end_time = Time.now.sys + timeout
-      # context = ScriptRunnerFrame.instance.script_binding if !context and defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
 
       while true
         work_start = Time.now.sys

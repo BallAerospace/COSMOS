@@ -173,7 +173,7 @@ module Cosmos
 
       # sleep in a script - returns true if canceled mid sleep
       def cosmos_script_sleep(sleep_time = nil)
-        return false if $disconnect
+        return true if $disconnect
         Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting }))
 
         sleep_time = 30000000 unless sleep_time # Handle infinite wait

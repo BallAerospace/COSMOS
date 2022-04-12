@@ -130,7 +130,7 @@ test('displays the call stack', async ({ page }) => {
   await expect(page.locator('text=Show Call Stack')).toBeDisabled();
 })
 
-test.only('displays disconnect icon', async ({ page }) => {
+test('displays disconnect icon', async ({ page }) => {
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator('text=Toggle Disconnect').click();
 
