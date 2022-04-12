@@ -437,6 +437,11 @@ module Cosmos
       _wait_packet(true, target_name, packet_name, num_packets, timeout, polling_rate, scope: scope, token: token)
     end
 
+    # Requests input to inject packet can only be used in script-runner
+    def input_packet(*args, **kwargs)
+      rasie StandardError "can only be used in script-runner"
+    end
+
     def disable_instrumentation
       if defined? RunningScript and RunningScript.instance
         RunningScript.instance.use_instrumentation = false

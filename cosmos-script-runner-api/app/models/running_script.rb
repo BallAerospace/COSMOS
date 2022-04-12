@@ -43,7 +43,7 @@ module Cosmos
     # open_files_dialog(directory, message = "Open File(s)", filter = "*")
     # open_directory_dialog(directory, message = "Open Directory")
 
-    SCRIPT_METHODS = %i[ask ask_string prompt_for_hazardous prompt combo_box message_box vertical_message_box input_metadata]
+    SCRIPT_METHODS = %i[ask ask_string prompt_for_hazardous prompt combo_box message_box vertical_message_box input_metadata input_packet]
     SCRIPT_METHODS.each do |method|
       define_method(method) do |*args, **kwargs|
         while true

@@ -277,6 +277,11 @@ export class CosmosApi {
     return data
   }
 
+  // Called by ScriptRunner InputPacketDialog
+  inject_tlm(target_name, packet_name, item_hash) {
+    return this.exec('inject_tlm', [target_name, packet_name, item_hash])
+  }
+
   // Called by LimitsbarWidget
   get_limits(target_name, packet_name, item_name) {
     return this.exec('get_limits', [target_name, packet_name, item_name])

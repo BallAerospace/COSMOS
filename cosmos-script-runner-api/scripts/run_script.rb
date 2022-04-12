@@ -108,7 +108,7 @@ begin
       else
         if parsed_cmd["method"]
           case parsed_cmd["method"]
-          when "ask", "ask_string", "message_box", "vertical_message_box", "combo_box", "prompt", "prompt_for_hazardous", "prompt_for_script_abort", "input_metadata"
+          when "ask", "ask_string", "message_box", "vertical_message_box", "combo_box", "prompt", "prompt_for_hazardous", "prompt_for_script_abort", "input_metadata", "input_packet"
             unless running_script.prompt_id.nil?
               if running_script.prompt_id == parsed_cmd["prompt_id"]
                 if parsed_cmd["password"]

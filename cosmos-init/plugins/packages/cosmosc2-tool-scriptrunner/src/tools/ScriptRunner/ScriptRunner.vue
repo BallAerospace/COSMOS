@@ -43,11 +43,7 @@
         <v-btn
           text
           v-bind="attrs"
-          @click="
-            () => {
-              showReadOnlyToast = false
-            }
-          "
+          @click="() => {showReadOnlyToast = false}"
         >
           dismiss
         </v-btn>
@@ -289,6 +285,13 @@
       :target="inputMetadata.target"
       @response="inputMetadata.callback"
     />
+    <input-packet-dialog
+      v-if="inputPacket.show"
+      v-model="inputPacket.show"
+      :target="inputPacket.target"
+      :packet="inputPacket.packet"
+      @response="inputPacket.callback"
+    />
     <prompt-dialog
       v-if="prompt.show"
       v-model="prompt.show"
@@ -324,11 +327,7 @@
       <v-sheet class="pb-11 pt-5 px-5">
         <running-scripts
           :connect-in-new-tab="!!fileModified"
-          @close="
-            () => {
-              showStartedScripts = false
-            }
-          "
+          @close="() => {showStartedScripts = false}"
         />
       </v-sheet>
     </v-bottom-sheet>
@@ -353,6 +352,7 @@ import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import AskDialog from '@/tools/ScriptRunner/Dialogs/AskDialog'
 import InformationDialog from '@/tools/ScriptRunner/Dialogs/InformationDialog'
 import InputMetadataDialog from '@/tools/ScriptRunner/Dialogs/InputMetadataDialog'
+import InputPacketDialog from '@/tools/ScriptRunner/Dialogs/InputPacketDialog'
 import PromptDialog from '@/tools/ScriptRunner/Dialogs/PromptDialog'
 import ResultsDialog from '@/tools/ScriptRunner/Dialogs/ResultsDialog'
 import ScriptEnvironmentDialog from '@/tools/ScriptRunner/Dialogs/ScriptEnvironmentDialog'
@@ -383,6 +383,7 @@ export default {
     AskDialog,
     InformationDialog,
     InputMetadataDialog,
+    InputPacketDialog,
     PromptDialog,
     ResultsDialog,
     ScriptEnvironmentDialog,
@@ -473,6 +474,12 @@ export default {
       inputMetadata: {
         show: false,
         target: null,
+        callback: () => {},
+      },
+      inputPacket: {
+        show: false,
+        target: null,
+        packet: null,
         callback: () => {},
       },
       results: {
@@ -1329,6 +1336,20 @@ export default {
           this.inputMetadata.show = true
           this.inputMetadata.callback = (value) => {
             this.inputMetadata.show = false
+            Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
+              data: {
+                method: data.method,
+                answer: value,
+              },
+            })
+          }
+          break
+        case 'input_packet':
+          this.inputPacket.target = data.args[0]
+          this.inputPacket.packet = data.args[1]
+          this.inputPacket.show = true
+          this.inputPacket.callback = (value) => {
+            this.inputPacket.show = false
             Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
               data: {
                 method: data.method,
