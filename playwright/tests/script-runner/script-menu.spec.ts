@@ -31,10 +31,11 @@ test.beforeEach(async ({ page }) => {
 
 test("view started scripts", async ({ page }) => {
   // Have to fill on an editable area like the textarea
-  var string = `puts "now we wait"
-wait
-puts "now we're done"`;
-  await page.locator("textarea").fill(string);
+  await page.locator("textarea").fill(`
+  puts "now we wait"
+  wait
+  puts "now we're done"
+  `);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator('text="View Started Scripts"').click();
   await expect(page.locator('[data-test="running-scripts"]')).toContainText(
@@ -144,10 +145,11 @@ test("ruby syntax check", async ({ page }) => {
   await expect(page.locator(".v-dialog")).toContainText("Syntax OK");
   await page.locator(".v-dialog >> button").click();
 
-  await page.locator("textarea").fill(`puts "MORE"
-if true
-puts "TRUE"
-`);
+  await page.locator("textarea").fill(`
+  puts "MORE"
+  if true
+  puts "TRUE"
+  `);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Ruby Syntax Check").click();
   await expect(page.locator(".v-dialog")).toContainText("syntax error");
@@ -155,8 +157,9 @@ puts "TRUE"
 });
 
 test("mnemonic check", async ({ page }) => {
-  await page.locator("textarea").fill(`cmd("INST ABORT")
-`);
+  await page.locator("textarea").fill(`
+  cmd("INST ABORT")
+  `);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Mnemonic Check").click();
   await expect(page.locator(".v-dialog")).toContainText(
@@ -165,9 +168,9 @@ test("mnemonic check", async ({ page }) => {
   await page.locator('button:has-text("Ok")').click();
 
   await page.locator("textarea").fill(`
-cmd("BLAH ABORT")
-cmd("INST ABORT with ANGER")
-`);
+  cmd("BLAH ABORT")
+  cmd("INST ABORT with ANGER")
+  `);
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Mnemonic Check").click();
   await expect(page.locator(".v-dialog")).toContainText(

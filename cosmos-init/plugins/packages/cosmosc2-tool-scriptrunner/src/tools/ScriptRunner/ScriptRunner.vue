@@ -263,7 +263,7 @@
       type="save"
       api-url="/script-api/scripts"
       require-target-parent-dir
-      :input-filename="filename"
+      :input-filename="filenameOrBlank"
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
@@ -514,6 +514,11 @@ export default {
       if (this.currentFilename) return this.currentFilename
       return this.filename //`${this.filename} ${this.fileModified}`.trim()
     },
+    // It's annoying for people (and tests) to clear the <Untitled>
+    // when saving a new file so replace with blank
+    filenameOrBlank: function () {
+      return this.filename === NEW_FILENAME ? '' : this.filename
+    },
     menus: function () {
       return [
         {
@@ -701,7 +706,9 @@ export default {
   watch: {
     readOnly: function (val) {
       this.showReadOnlyToast = val
-      this.startOrGoDisabled = val
+      if (!this.suiteRunner) {
+        this.startOrGoDisabled = val
+      }
       this.editor.setReadOnly(val)
     },
   },

@@ -96,7 +96,7 @@ test("handles File Save overwrite", async ({ page }) => {
   // File->Save As
   await page.locator('[data-test="Script Runner-File"]').click();
   await page.locator("text=Save As...").click();
-  await page.locator("text=INST/procedures/temp.rb");
+  await page.locator("text=INST/procedures/save_overwrite.rb");
   await page.locator("[data-test=file-open-save-submit-btn]").click();
   // Confirmation dialog
   await page.locator("text=Are you sure you want to overwrite").click();
