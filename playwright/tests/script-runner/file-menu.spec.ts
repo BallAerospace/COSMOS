@@ -19,6 +19,7 @@
 
 // @ts-check
 import { test, expect } from "playwright-test-coverage";
+import { Utilities } from "../../utilities";
 import * as fs from "fs";
 
 test.beforeEach(async ({ page }) => {
@@ -118,18 +119,13 @@ test("handles Download", async ({ page }) => {
   expect(await page.locator("#sr-controls")).toContainText("INST/download.txt");
   // Download the file
   await page.locator('[data-test="Script Runner-File"]').click();
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator('[data-test="Script Runner-File-Download"]').click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
-  });
-  expect(contents).toContain("download this");
+  await new Utilities(page).download(
+    page,
+    '[data-test="Script Runner-File-Download"]',
+    function (contents) {
+      expect(contents).toContain("download this");
+    }
+  );
 
   // Delete the file
   await page.locator('[data-test="Script Runner-File"]').click();

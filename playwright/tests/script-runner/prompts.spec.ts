@@ -35,7 +35,9 @@ test("prompts for hazardous commands", async ({ page }) => {
   await page.locator("[data-test=go-button]").click();
   await expect(page.locator(".v-dialog")).toContainText("Hazardous Command");
   await page.locator('.v-dialog >> button:has-text("Yes")').click();
-  await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
+  await expect(page.locator("[data-test=state]")).toHaveValue("stopped", {
+    timeout: 10000,
+  });
 });
 
 test("does not hazardous prompt for cmd_no_hazardous_check, cmd_no_checks", async ({
@@ -46,7 +48,9 @@ test("does not hazardous prompt for cmd_no_hazardous_check, cmd_no_checks", asyn
   cmd_no_checks("INST CLEAR")
   `);
   await page.locator("[data-test=start-button]").click();
-  await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
+  await expect(page.locator("[data-test=state]")).toHaveValue("stopped", {
+    timeout: 10000,
+  });
 });
 
 test("errors for out of range command parameters", async ({ page }) => {
@@ -56,7 +60,9 @@ test("errors for out of range command parameters", async ({ page }) => {
   await page.locator("[data-test=start-button]").click();
   await expect(page.locator("[data-test=state]")).toHaveValue("error");
   await page.locator("[data-test=go-button]").click();
-  await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
+  await expect(page.locator("[data-test=state]")).toHaveValue("stopped", {
+    timeout: 10000,
+  });
   await expect(page.locator("[data-test=output-messages]")).toContainText(
     "11 not in valid range"
   );
@@ -70,7 +76,9 @@ test("does not out of range error for cmd_no_range_check, cmd_no_checks", async 
   cmd_no_checks("INST COLLECT with DURATION 11, TYPE 'NORMAL'")
   `);
   await page.locator("[data-test=start-button]").click();
-  await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
+  await expect(page.locator("[data-test=state]")).toHaveValue("stopped", {
+    timeout: 10000,
+  });
 });
 
 test("opens a dialog for ask and returns the value", async ({ page }) => {
@@ -132,7 +140,7 @@ test("opens a dialog for ask and returns the value", async ({ page }) => {
   );
 });
 
-test.only("opens a dialog with buttons for message_box, vertical_message_box", async ({
+test("opens a dialog with buttons for message_box, vertical_message_box", async ({
   page,
 }) => {
   await page.locator("textarea").fill(`
@@ -152,7 +160,9 @@ test.only("opens a dialog with buttons for message_box, vertical_message_box", a
   await page.locator("[data-test=go-button]").click();
   await page.locator('.v-dialog >> button:has-text("TWO")').click();
   await page.locator('.v-dialog >> button:has-text("FOUR")').click();
-  await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
+  await expect(page.locator("[data-test=state]")).toHaveValue("stopped", {
+    timeout: 10000,
+  });
   await expect(page.locator("[data-test=output-messages]")).toContainText(
     "TWO"
   );
@@ -179,7 +189,9 @@ test("opens a dialog with dropdowns for combo_box", async ({ page }) => {
   await expect(page.locator("[data-test=state]")).toHaveValue("waiting");
   await page.locator('div[role="listbox"] >> text=def456').click();
   await page.locator('.v-dialog >> button:has-text("Ok")').click();
-  await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
+  await expect(page.locator("[data-test=state]")).toHaveValue("stopped", {
+    timeout: 10000,
+  });
   await expect(page.locator("[data-test=output-messages]")).toContainText(
     "User input: def456"
   );

@@ -65,7 +65,7 @@ test("view started scripts", async ({ page }) => {
     .locator("#cosmos-menu >> text=Script Runner")
     .click({ force: true });
   await page.locator("[data-test=go-button]").click();
-  await expect(page.locator('[data-test="state"]')).toHaveValue("stopped");
+  await expect(page.locator('[data-test="state"]')).toHaveValue("stopped",{timeout: 10000});
 
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator('text="View Started Scripts"').click();
@@ -98,7 +98,7 @@ test("sets environment variables", async ({ page }) => {
   await page.locator('[data-test="environment-dialog-save"]').click();
 
   await page.locator("[data-test=start-button]").click();
-  await expect(page.locator('[data-test="state"]')).toHaveValue("stopped");
+  await expect(page.locator('[data-test="state"]')).toHaveValue("stopped",{timeout: 10000});
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
     "ENV:VALUE"
   );
@@ -106,7 +106,7 @@ test("sets environment variables", async ({ page }) => {
   await page.locator('button:has-text("Clear")').click();
   // Re-run and ensure the env vars are still set
   await page.locator("[data-test=start-button]").click();
-  await expect(page.locator('[data-test="state"]')).toHaveValue("stopped");
+  await expect(page.locator('[data-test="state"]')).toHaveValue("stopped",{timeout: 10000});
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
     "ENV:VALUE"
   );
