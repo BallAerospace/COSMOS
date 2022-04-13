@@ -30,7 +30,7 @@ module Cosmos
     # @param target [String] Target to set metadata on
     # @return The result of the method call.
     def get_metadata(target)
-      endpoint = "/cosmos-api/metadata/get/#{target}"
+      endpoint = "/cosmos-api/metadata/_get/#{target}"
       response = $api_server.request('get', endpoint)
       return nil if response.nil? || response.code != 200
       return JSON.parse(response.body)
