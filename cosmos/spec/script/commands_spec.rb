@@ -38,6 +38,10 @@ module Cosmos
       def disconnect
       end
 
+      def generate_url
+        return "http://localhost:2900"
+      end
+
       def method_missing(name, *params, **kw_params)
         self.send(name, *params, **kw_params)
       end

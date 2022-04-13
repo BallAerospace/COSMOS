@@ -862,9 +862,9 @@ class RunningScript
     handle_output_io()
   rescue Exception => error
     if error.class == DRb::DRbConnError
-      Logger.error("Error Connecting to Command and Telemetry Server")
+      Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
     else
-      Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
+      Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
     end
     handle_output_io()
   ensure

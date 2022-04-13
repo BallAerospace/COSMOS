@@ -392,7 +392,7 @@ static void check_bit_offset_and_size(VALUE self, VALUE type_param, VALUE bit_of
 
   if (bit_offset < 0)
   {
-    bit_offset = ((RSTRING_LEN(buffer_param) * 8) + bit_offset);
+    bit_offset = ((int)(RSTRING_LEN(buffer_param) * 8) + bit_offset);
     if (bit_offset < 0)
     {
       rb_funcall(self, id_method_raise_buffer_error, 5, type_param, buffer_param, data_type_param, bit_offset_param, bit_size_param);
@@ -505,7 +505,7 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
     }
   }
 
-  if (!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound))
+  if (!check_bounds_and_buffer_size(bit_offset, bit_size, (int)buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound))
   {
     rb_funcall(self, id_method_raise_buffer_error, 5, symbol_read, param_buffer, param_data_type, param_bit_offset, param_bit_size);
   }
@@ -993,10 +993,10 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
     {
       value = rb_funcall(value, id_method_to_s, 0);
     }
-    bit_size = RSTRING_LEN(value) * 8;
+    bit_size = (int)RSTRING_LEN(value) * 8;
   }
 
-  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0))
+  if ((!check_bounds_and_buffer_size(bit_offset, bit_size, (int)buffer_length, param_endianness, param_data_type, &lower_bound, &upper_bound)) && (given_bit_size > 0))
   {
     rb_funcall(self, id_method_raise_buffer_error, 5, symbol_write, param_buffer, param_data_type, param_bit_offset, param_bit_size);
   }
@@ -1028,7 +1028,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       if (given_bit_size <= 0)
       {
         end_bytes = -(given_bit_size / 8);
-        old_upper_bound = buffer_length - 1 - end_bytes;
+        old_upper_bound = (int)buffer_length - 1 - end_bytes;
         /* Lower bound + end_bytes can never be more than 1 byte outside of the given buffer */
         if ((lower_bound + end_bytes) > buffer_length)
         {
