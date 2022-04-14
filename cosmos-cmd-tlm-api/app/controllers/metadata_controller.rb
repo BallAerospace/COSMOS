@@ -218,7 +218,7 @@ class MetadataController < ApplicationController
       )
       render :json => model.as_json, :status => 201
     rescue ArgumentError, TypeError => e
-      message = "Invalid input: #{JSON.parse(hash)}"
+      message = "Invalid input: #{JSON.generate(hash)}"
       render :json => { :status => 'error', :message => message, :type => e.class }, :status => 400
     rescue Cosmos::MetadataInputError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
@@ -276,8 +276,8 @@ class MetadataController < ApplicationController
         user: user_info(request.headers['HTTP_AUTHORIZATION'])
       )
       render :json => model.as_json, :status => 200
-    rescue ArgumentError, TypeError
-      message = "Invalid input: #{hash}"
+    rescue ArgumentError, TypeError => e
+      message = "Invalid input: #{JSON.generate(hash)}"
       render :json => { :status => 'error', :message => message, :type => e.class }, :status => 400
     rescue Cosmos::MetadataInputError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400

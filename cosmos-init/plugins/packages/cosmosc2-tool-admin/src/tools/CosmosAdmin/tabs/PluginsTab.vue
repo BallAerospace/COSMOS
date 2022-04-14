@@ -34,16 +34,6 @@
     </v-row>
     <v-row no-gutters class="px-2 pb-2">
       <v-btn
-        @click="showDownloadDialog = true"
-        class="mx-2"
-        data-test="pluginDownload"
-        :disabled="files.length > 0"
-      >
-        <v-icon left>mdi-cloud-download</v-icon>
-        <span> Download </span>
-      </v-btn>
-      <v-spacer />
-      <v-btn
         @click="upload()"
         class="mx-2"
         color="primary"
@@ -56,6 +46,16 @@
         <template v-slot:loader>
           <span>Loading...</span>
         </template>
+      </v-btn>
+      <v-spacer />
+      <v-btn
+        @click="showDownloadDialog = true"
+        class="mx-2"
+        data-test="pluginDownload"
+        :disabled="files.length > 0"
+      >
+        <v-icon left>mdi-cloud-download</v-icon>
+        <span> Download </span>
       </v-btn>
     </v-row>
     <!-- TODO This alert shows both success and failure. Make consistent with rest of COSMOS. -->
