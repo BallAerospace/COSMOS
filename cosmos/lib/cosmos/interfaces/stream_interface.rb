@@ -65,7 +65,7 @@ module Cosmos
       end
       if data.nil? or data.length <= 0
         Logger.instance.info "#{@name}: #{@stream.class} read returned nil" if data.nil? and not timeout
-        Logger.instance.info "#{@name}: #{@stream.class} read returned 0 bytes (stream closed)" if data.length <= 0
+        Logger.instance.info "#{@name}: #{@stream.class} read returned 0 bytes (stream closed)" if not data.nil? and data.length <= 0
         return nil
       end
 
