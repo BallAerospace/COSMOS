@@ -148,7 +148,7 @@ test("cancels a process", async ({ page }) => {
   await expect(page.locator("text=Process")).toBeVisible();
 });
 
-test.only("adds an entire target", async ({ page }) => {
+test("adds an entire target", async ({ page }) => {
   await utils.addTargetPacketItem("INST");
   // Since we're checking count() which is instant we need to poll
   await expect

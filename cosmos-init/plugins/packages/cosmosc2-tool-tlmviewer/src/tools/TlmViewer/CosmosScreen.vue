@@ -25,7 +25,7 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="errorGraphIcon" @click="errorDialog = true">
+                <v-icon data-test="error-graph-icon" @click="errorDialog = true">
                   mdi-alert
                 </v-icon>
               </div>

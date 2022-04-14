@@ -28,7 +28,7 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="errorGraphIcon" @click="errorDialog = true">
+                <v-icon data-test="error-graph-icon" @click="errorDialog = true">
                   mdi-alert
                 </v-icon>
               </div>
@@ -40,7 +40,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-icon data-test="editGraphIcon" @click="editGraph = true">
+              <v-icon data-test="edit-graph-icon" @click="editGraph = true">
                 mdi-pencil
               </v-icon>
             </div>
@@ -57,14 +57,14 @@
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
                 <v-icon
-                  data-test="collapseAll"
+                  data-test="collapse-all"
                   v-show="calcFullSize"
                   @click="collapseAll"
                 >
                   mdi-arrow-collapse
                 </v-icon>
                 <v-icon
-                  data-test="expandAll"
+                  data-test="expand-all"
                   v-show="!calcFullSize"
                   @click="expandAll"
                 >
@@ -82,14 +82,14 @@
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
                 <v-icon
-                  data-test="collapseWidth"
+                  data-test="collapse-width"
                   v-show="fullWidth"
                   @click="collapseWidth"
                 >
                   mdi-arrow-collapse-horizontal
                 </v-icon>
                 <v-icon
-                  data-test="expandWidth"
+                  data-test="expand-width"
                   v-show="!fullWidth"
                   @click="expandWidth"
                 >
@@ -107,14 +107,14 @@
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
                 <v-icon
-                  data-test="collapseVertical"
+                  data-test="collapse-height"
                   v-show="fullHeight"
                   @click="collapseHeight"
                 >
                   mdi-arrow-collapse-vertical
                 </v-icon>
                 <v-icon
-                  data-test="expandVertical"
+                  data-test="expand-height"
                   v-show="!fullHeight"
                   @click="expandHeight"
                 >
@@ -131,14 +131,14 @@
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
               <v-icon
-                data-test="minimizeScreenIcon"
+                data-test="minimize-screen-icon"
                 @click="minMaxTransition"
                 v-show="expand"
               >
                 mdi-window-minimize
               </v-icon>
               <v-icon
-                data-test="maximizeScreenIcon"
+                data-test="maximize-screen-icon"
                 @click="minMaxTransition"
                 v-show="!expand"
               >
@@ -153,7 +153,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-icon data-test="closeGraphIcon" @click="$emit('close-graph')">
+              <v-icon data-test="close-graph-icon" @click="$emit('close-graph')">
                 mdi-close-box
               </v-icon>
             </div>
@@ -193,7 +193,7 @@
             label="Title"
             v-model="title"
             hide-details
-            data-test="editGraphTitle"
+            data-test="edit-graph-title"
           />
         </v-row>
         <v-card-text class="pa-0">
@@ -222,6 +222,7 @@
               label="Min Y"
               v-model="graphMinY"
               type="number"
+              data-test"graph-min-y"
             />
           </v-col>
           <v-col class="px-2">
@@ -230,6 +231,7 @@
               label="Max Y"
               v-model="graphMaxY"
               type="number"
+              data-test"graph-max-y"
             />
           </v-col>
         </v-row>
@@ -249,7 +251,7 @@
                 <div v-on="on" v-bind="attrs">
                   <v-btn
                     icon
-                    :data-test="`deleteItemIcon${item.itemId}`"
+                    :data-test="`delete-item-icon${item.itemId}`"
                     @click="() => removeItems([item])"
                   >
                     <v-icon> mdi-delete </v-icon>
