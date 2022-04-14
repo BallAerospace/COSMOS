@@ -21,7 +21,6 @@
 import { test, expect } from "playwright-test-coverage";
 import { Utilities } from "../utilities";
 import { format, add, sub } from "date-fns";
-import * as fs from "fs";
 
 let utils;
 test.beforeEach(async ({ page }) => {
@@ -29,6 +28,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("body")).toContainText("Data Extractor");
   await page.locator(".v-app-bar__nav-icon").click();
   utils = new Utilities(page);
+  await utils.sleep(100);
 });
 
 test("loads and saves the configuration", async ({ page }) => {
@@ -116,7 +116,7 @@ test("warns with no data", async ({ page }) => {
   const start = sub(new Date(), { seconds: 10 });
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
-  let utils = new Utilities(page);
+  await utils.sleep(500); // Allow the command to switch
   await utils.addTargetPacketItem("INST", "ARYCMD", "RECEIVED_TIMEFORMATTED");
   await page.locator("text=Process").click();
   await expect(page.locator("text=No data found")).toBeVisible();
@@ -148,23 +148,24 @@ test("cancels a process", async ({ page }) => {
   await expect(page.locator("text=Process")).toBeVisible();
 });
 
-test("adds an entire target", async ({ page }) => {
+test.only("adds an entire target", async ({ page }) => {
   await utils.addTargetPacketItem("INST");
-  await utils.sleep(500); // Allow list to populate
-  expect(
-    await page.locator("[data-test=itemList] > div").count()
-  ).toBeGreaterThan(50);
+  // Since we're checking count() which is instant we need to poll
+  await expect
+    .poll(() => page.locator("[data-test=itemList] > div").count())
+    .toBeGreaterThan(50);
 });
 
 test("adds an entire packet", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS");
-  await utils.sleep(500); // Allow list to populate
-  expect(await page.locator("[data-test=itemList] > div").count()).toBeLessThan(
-    50
-  );
-  expect(
-    await page.locator("[data-test=itemList] > div").count()
-  ).toBeGreaterThan(10);
+  // Since we're checking count() which is instant we need to poll
+  await expect
+    .poll(() => page.locator("[data-test=itemList] > div").count())
+    .toBeGreaterThan(10);
+  // Ensure we didn't add the entire packet like above
+  await expect
+    .poll(() => page.locator("[data-test=itemList] > div").count())
+    .toBeLessThan(50);
 });
 
 test("add, edits, deletes items", async ({ page }) => {
@@ -237,7 +238,7 @@ test("processes commands", async ({ page }) => {
   await page.locator(".v-app-bar__nav-icon").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
-
+  await utils.sleep(500); // Allow the command to switch
   await utils.addTargetPacketItem("INST", "ABORT", "RECEIVED_TIMEFORMATTED");
   await utils.download(page, "text=Process", function (contents) {
     const lines = contents.split("\n");

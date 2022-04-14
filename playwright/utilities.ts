@@ -32,7 +32,13 @@ export class Utilities {
         await expect(this.page.locator("data-test=select-item")).toContainText(
           item
         );
+      } else {
+        // If we're only selecting a packet wait for items to populate
+        await this.sleep(500);
       }
+    } else {
+      // If we're only selecting a target wait for packets to populate
+      await this.sleep(500);
     }
   }
   async addTargetPacketItem(target: string, packet: string, item: string) {

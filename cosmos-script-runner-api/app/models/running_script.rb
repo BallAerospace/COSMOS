@@ -1071,7 +1071,8 @@ class RunningScript
   end
 
   def mark_breakpoint
-    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint }))
+    @state = :breakpoint
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: @state }))
   end
 
   def run_text(text,

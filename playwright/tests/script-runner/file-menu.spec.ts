@@ -22,10 +22,12 @@ import { test, expect } from "playwright-test-coverage";
 import { Utilities } from "../../utilities";
 import * as fs from "fs";
 
+let utils;
 test.beforeEach(async ({ page }) => {
   await page.goto("/tools/scriptrunner");
   await expect(page.locator("body")).toContainText("Script Runner");
   await page.locator(".v-app-bar__nav-icon").click();
+  utils = new Utilities(page);
 });
 
 test("clears the editor on File->New", async ({ page }) => {
@@ -36,6 +38,20 @@ test("clears the editor on File->New", async ({ page }) => {
   await page.locator('[data-test="Script Runner-File"]').click();
   await page.locator("text=New File").click();
   await expect(page.locator("#editor")).not.toContainText("this is a test");
+});
+
+test("open a file", async ({ page }) => {
+  await page.locator('[data-test="Script Runner-File"]').click();
+  await page.locator("text=Open File").click();
+  await utils.sleep(1000);
+  await page.locator("[data-test=file-open-save-search]").type("dis");
+  await utils.sleep(500);
+  await page.locator("[data-test=file-open-save-search]").type("connect");
+  await page.locator("text=disconnect >> nth=0").click(); // nth=0 because INST, INST2
+  await page.locator("[data-test=file-open-save-submit-btn]").click();
+  expect(await page.locator("#sr-controls")).toContainText(
+    `INST/procedures/disconnect.rb`
+  );
 });
 
 test("handles File->Save new file", async ({ page }) => {
@@ -119,7 +135,7 @@ test("handles Download", async ({ page }) => {
   expect(await page.locator("#sr-controls")).toContainText("INST/download.txt");
   // Download the file
   await page.locator('[data-test="Script Runner-File"]').click();
-  await new Utilities(page).download(
+  await utils.download(
     page,
     '[data-test="Script Runner-File-Download"]',
     function (contents) {

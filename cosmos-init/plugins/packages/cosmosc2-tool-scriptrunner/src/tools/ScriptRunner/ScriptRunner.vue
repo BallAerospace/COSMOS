@@ -1158,6 +1158,7 @@ export default {
             case 'error':
               this.pauseOrRetryButton = RETRY
             // Deliberate fall through (no break)
+            case 'breakpoint':
             case 'waiting':
             case 'paused':
               this.stopDisabled = false
@@ -1660,6 +1661,13 @@ hr {
 .waitingMarker {
   position: absolute;
   background: rgba(0, 155, 0, 1);
+  z-index: 20;
+}
+.breakpointMarker {
+  position: absolute;
+  border-style: solid;
+  border-color: red;
+  background: rgba(0, 255, 0, 0.5);
   z-index: 20;
 }
 .pausedMarker {

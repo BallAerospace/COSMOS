@@ -10,7 +10,7 @@
     "clean": "rm -rf .nyc_output || rmdir /s /q .nyc_output; rm -rf coverage || rmdir /s /q coverage; rm -rf test-results || rmdir /s /q test-results"
   },
   "dependencies": {
-    "@playwright/test": "^1.20.1",
+    "@playwright/test": "^1.21.0",
     "date-fns": "2.28.0",
     "nyc": "^15.1.0",
     "playwright-test-coverage": "^1.0.2",
