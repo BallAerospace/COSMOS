@@ -33,7 +33,7 @@ RSpec.describe MetadataController, :type => :controller do
       expect(ret['start']).not_to be_nil
     end
 
-    it "returns a hash and status code 201" do
+    it "successfully creates metadata object with a start time with status code 201" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', target: 'TEST', start: start, metadata: {'key'=> 'value'} }
       expect(response).to have_http_status(:created)
@@ -140,12 +140,12 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "PUT update" do
-    it "update bad object status code 404" do
+    it "update bad metadata object status code 404" do
       put :update, params: { scope: 'DEFAULT', id: '42' }
       expect(response).to have_http_status(:not_found)
     end
 
-    it "update a good object and status code 200" do
+    it "update a good metadata object and status code 200" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
@@ -159,7 +159,22 @@ RSpec.describe MetadataController, :type => :controller do
       expect(new_json['metadata']['version']).to eql('2')
     end
 
-    it "update a bad object and status code 400" do
+    it "update a good metadata object with a different start time and status code 200" do
+      start = "2022-01-1T01:02:00.001+00:00"
+      post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json['metadata']['version']).to eql('1')
+      start_id = DateTime.parse(start).strftime('%s%3N')
+      start = "2022-02-02T02:02:00.001+00:00"
+      put :update, params: { scope: 'DEFAULT', id: start_id, start: start, target: 'TEST', metadata: {'version'=> '2'} }
+      expect(response).to have_http_status(:ok)
+      new_json = JSON.parse(response.body)
+      expect(json['start']).not_to eql(new_json['start'])
+      expect(new_json['metadata']['version']).to eql('2')
+    end
+
+    it "update a bad metadata object and status code 400" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
