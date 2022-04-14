@@ -140,8 +140,8 @@ module Cosmos
           end
         rescue Exception => err
           shutdown_interfaces(@write_interface_infos)
-          Logger.instance.error("#{@name}: Tcpip server write thread unexpectedly died")
-          Logger.instance.error(err.formatted)
+          Logger.error("#{@name}: Tcpip server write thread unexpectedly died")
+          Logger.error(err.formatted)
         end
         @write_raw_thread = Thread.new do
           loop do
@@ -150,8 +150,8 @@ module Cosmos
           end
         rescue Exception => err
           shutdown_interfaces(@write_interface_infos)
-          Logger.instance.error("#{@name}: Tcpip server write raw thread unexpectedly died")
-          Logger.instance.error(err.formatted)
+          Logger.error("#{@name}: Tcpip server write raw thread unexpectedly died")
+          Logger.error(err.formatted)
         end
       else
         @write_thread = nil
@@ -353,8 +353,8 @@ module Cosmos
           break if @cancel_threads
         end
       rescue => err
-        Logger.instance.error("#{@name}: Tcpip server listen thread unexpectedly died")
-        Logger.instance.error(err.formatted)
+        Logger.error("#{@name}: Tcpip server listen thread unexpectedly died")
+        Logger.error(err.formatted)
       end
     end
 
@@ -378,7 +378,7 @@ module Cosmos
       #   if not System.instance.acl.allow_addr?(addr)
       #     # Reject connection
       #     Cosmos.close_socket(socket)
-      #     Logger.instance.info "#{@name}: Tcpip server rejected connection from #{hostname}(#{host_ip}):#{port}"
+      #     Logger.info "#{@name}: Tcpip server rejected connection from #{hostname}(#{host_ip}):#{port}"
       #     return
       #   end
       # end
@@ -423,7 +423,7 @@ module Cosmos
         end
         start_read_thread(@read_interface_infos[-1])
       end
-      Logger.instance.info "#{@name}: Tcpip server accepted connection from #{hostname}(#{host_ip}):#{port}"
+      Logger.info "#{@name}: Tcpip server accepted connection from #{hostname}(#{host_ip}):#{port}"
     end
 
     def start_read_thread(interface_info)
@@ -433,10 +433,10 @@ module Cosmos
           begin
             read_thread_body(interface_info.interface)
           rescue Exception => err
-            Logger.instance.error "#{@name}: Tcpip server read thread unexpectedly died"
-            Logger.instance.error err.formatted
+            Logger.error "#{@name}: Tcpip server read thread unexpectedly died"
+            Logger.error err.formatted
           end
-          Logger.instance.info "#{@name}: Tcpip server lost read connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
+          Logger.info "#{@name}: Tcpip server lost read connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
           @read_threads.delete(Thread.current)
 
           index_to_delete = nil
@@ -457,8 +457,8 @@ module Cosmos
             end
           end
         rescue Exception => err
-          Logger.instance.error "#{@name}: Tcpip server read thread unexpectedly died"
-          Logger.instance.error err.formatted
+          Logger.error "#{@name}: Tcpip server read thread unexpectedly died"
+          Logger.error err.formatted
         end
       end
     end
@@ -506,7 +506,7 @@ module Cosmos
     end
 
     def interface_disconnect(interface_info)
-      Logger.instance.info "#{@name}: Tcpip server lost write connection to "\
+      Logger.info "#{@name}: Tcpip server lost write connection to "\
                            "#{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
       interface_info.interface.disconnect
       interface_info.interface.raw_logger_pair.stop if interface_info.interface.raw_logger_pair
@@ -558,13 +558,13 @@ module Cosmos
             next
           end
           # Client has disconnected (or is invalidly sending data on the socket)
-          Logger.instance.info "#{@name}: Tcpip server lost write connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
+          Logger.info "#{@name}: Tcpip server lost write connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
           interface_info.interface.disconnect
           interface_info.interface.raw_logger_pair.stop if interface_info.interface.raw_logger_pair
           indexes_to_delete.unshift(index) # Put later indexes at front of array
         rescue Errno::ECONNRESET, Errno::ECONNABORTED, IOError
           # Client has disconnected
-          Logger.instance.info "#{@name}: Tcpip server lost write connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
+          Logger.info "#{@name}: Tcpip server lost write connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
           interface_info.interface.disconnect
           interface_info.interface.raw_logger_pair.stop if interface_info.interface.raw_logger_pair
           indexes_to_delete.unshift(index) # Put later indexes at front of array
@@ -605,13 +605,13 @@ module Cosmos
             need_disconnect = true
           rescue Exception => err
             if err.message != "Stream not connected for write_raw"
-              Logger.instance.error "#{@name}: Error sending to client: #{err.class} #{err.message}"
+              Logger.error "#{@name}: Error sending to client: #{err.class} #{err.message}"
             end
             need_disconnect = true
           end
 
           if need_disconnect
-            Logger.instance.info "#{@name}: Tcpip server lost write connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
+            Logger.info "#{@name}: Tcpip server lost write connection to #{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
             interface_info.interface.disconnect
             interface_info.interface.raw_logger_pair.stop if interface_info.interface.raw_logger_pair
             indexes_to_delete.unshift(index) # Put later indexes at front of array

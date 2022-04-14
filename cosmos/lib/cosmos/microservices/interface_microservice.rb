@@ -330,9 +330,8 @@ module Cosmos
                   handle_packet(packet)
                   @count += 1
                 else
-                  Logger.info "#{@interface.name}: Clean disconnect (returned nil)"
-                  # Don't reconnect on a clean disconnect because it's intentional
-                  handle_connection_lost(reconnect: false)
+                  Logger.info "#{@interface.name}: Internal disconnect requested (returned nil)"
+                  handle_connection_lost()
                   break if @cancel_thread
                 end
               rescue Exception => err
@@ -516,6 +515,7 @@ module Cosmos
 
     # Disconnect from the interface and stop the thread
     def stop
+      Logger.info "#{@interface.name}: stop requested"
       @mutex.synchronize do
         # Need to make sure that @cancel_thread is set and the interface disconnected within
         # mutex to ensure that connect() is not called when we want to stop()
