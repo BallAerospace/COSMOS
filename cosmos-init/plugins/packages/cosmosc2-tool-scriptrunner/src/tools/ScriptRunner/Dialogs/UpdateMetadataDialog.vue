@@ -29,7 +29,12 @@
         <v-card-text>
           <v-row>
             <v-col>
-              <v-select v-model="target" :items="targets" label="Target" />
+              <v-select
+                v-model="target"
+                :items="targets"
+                label="Target"
+                data-test="meta-select-tgt"
+              />
             </v-col>
           </v-row>
           <v-simple-table dense>
@@ -160,9 +165,7 @@ export default {
   },
   computed: {
     inputError: function () {
-      if (this.metadata.length < 1) {
-        return 'Please enter a value in the metadata table.'
-      }
+      // Don't check for this.metadata.length < 1 because we have to allow for deletes
       const emptyKeyValue = this.metadata.find(
         (meta) => meta.key === '' || meta.value === ''
       )

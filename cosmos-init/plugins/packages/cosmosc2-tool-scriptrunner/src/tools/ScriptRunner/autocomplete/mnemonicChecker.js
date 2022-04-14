@@ -57,6 +57,10 @@ export default class MnemonicChecker {
   checkText = async function (text) {
     const { linesToCheck, linesToSkip } = text.split('\n').reduce(
       (result, line, index) => {
+        line = line.trim()
+        if (line.match(/^#/)) {
+          return result
+        }
         const cmdMatch = this.cmdKeywordExpressions.reduce((found, regex) => {
           return found || line.match(regex)
         }, null)

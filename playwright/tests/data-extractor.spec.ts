@@ -1,8 +1,26 @@
+/*
+# Copyright 2022 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU Affero General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
+*/
+
 // @ts-check
 import { test, expect } from "playwright-test-coverage";
 import { Utilities } from "../utilities";
 import { format, add, sub } from "date-fns";
-import * as fs from "fs";
 
 let utils;
 test.beforeEach(async ({ page }) => {
@@ -10,6 +28,7 @@ test.beforeEach(async ({ page }) => {
   await expect(page.locator("body")).toContainText("Data Extractor");
   await page.locator(".v-app-bar__nav-icon").click();
   utils = new Utilities(page);
+  await utils.sleep(100);
 });
 
 test("loads and saves the configuration", async ({ page }) => {
@@ -97,12 +116,8 @@ test("warns with no data", async ({ page }) => {
   const start = sub(new Date(), { seconds: 10 });
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
-  let utils = new Utilities(page);
-  await utils.addTargetPacketItem(
-    "INST",
-    "ARYCMD",
-    "RECEIVED_TIMEFORMATTED"
-  );
+  await utils.sleep(500); // Allow the command to switch
+  await utils.addTargetPacketItem("INST", "ARYCMD", "RECEIVED_TIMEFORMATTED");
   await page.locator("text=Process").click();
   await expect(page.locator("text=No data found")).toBeVisible();
 });
@@ -133,23 +148,24 @@ test("cancels a process", async ({ page }) => {
   await expect(page.locator("text=Process")).toBeVisible();
 });
 
-test("adds an entire target", async ({ page }) => {
+test.only("adds an entire target", async ({ page }) => {
   await utils.addTargetPacketItem("INST");
-  await utils.sleep(500); // Allow list to populate
-  expect(
-    await page.locator("[data-test=itemList] > div").count()
-  ).toBeGreaterThan(50);
+  // Since we're checking count() which is instant we need to poll
+  await expect
+    .poll(() => page.locator("[data-test=itemList] > div").count())
+    .toBeGreaterThan(50);
 });
 
 test("adds an entire packet", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS");
-  await utils.sleep(500); // Allow list to populate
-  expect(await page.locator("[data-test=itemList] > div").count()).toBeLessThan(
-    50
-  );
-  expect(
-    await page.locator("[data-test=itemList] > div").count()
-  ).toBeGreaterThan(10);
+  // Since we're checking count() which is instant we need to poll
+  await expect
+    .poll(() => page.locator("[data-test=itemList] > div").count())
+    .toBeGreaterThan(10);
+  // Ensure we didn't add the entire packet like above
+  await expect
+    .poll(() => page.locator("[data-test=itemList] > div").count())
+    .toBeLessThan(50);
 });
 
 test("add, edits, deletes items", async ({ page }) => {
@@ -178,21 +194,12 @@ test("add, edits, deletes items", async ({ page }) => {
     '[data-test="itemList"] >> text=INST - ADCS - CCSDSSHF + (RAW)'
   );
 
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    const lines = contents.split("\n");
+    expect(lines[0]).toContain("CCSDSSHF (RAW)");
+    expect(lines[1]).not.toContain("FALSE");
+    expect(lines[1]).toContain("0");
   });
-  const lines = contents.split("\n");
-  expect(lines[0]).toContain("CCSDSSHF (RAW)");
-  expect(lines[1]).not.toContain("FALSE");
-  expect(lines[1]).toContain("0");
 });
 
 test("edit all items", async ({ page }) => {
@@ -216,9 +223,7 @@ test("edit all items", async ({ page }) => {
   await page.locator(
     '[data-test="itemList"] >> text=INST - ADCS - VELX + (RAW)'
   );
-  await page.locator(
-    '[data-test="itemList"] >> text=INST - ADCS - Q1 + (RAW)'
-  );
+  await page.locator('[data-test="itemList"] >> text=INST - ADCS - Q1 + (RAW)');
 });
 
 test("processes commands", async ({ page }) => {
@@ -233,22 +238,13 @@ test("processes commands", async ({ page }) => {
   await page.locator(".v-app-bar__nav-icon").click();
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await page.locator('label:has-text("Command")').click();
-
+  await utils.sleep(500); // Allow the command to switch
   await utils.addTargetPacketItem("INST", "ABORT", "RECEIVED_TIMEFORMATTED");
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    const lines = contents.split("\n");
+    expect(lines[1]).toContain("INST");
+    expect(lines[1]).toContain("ABORT");
   });
-  const lines = contents.split("\n");
-  expect(lines[1]).toContain("INST");
-  expect(lines[1]).toContain("ABORT");
 });
 
 test("creates CSV output", async ({ page }) => {
@@ -259,26 +255,16 @@ test("creates CSV output", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    expect(contents).toContain("NaN");
+    expect(contents).toContain("Infinity");
+    expect(contents).toContain("-Infinity");
+    var lines = contents.split("\n");
+    expect(lines[0]).toContain("TEMP1");
+    expect(lines[0]).toContain("TEMP2");
+    expect(lines[0]).toContain(","); // csv
+    expect(lines.length).toBeGreaterThan(290); // 5 min at 60Hz is 300 samples
   });
-  // Check that we handle raw value types set by the demo
-  expect(contents).toContain("NaN");
-  expect(contents).toContain("Infinity");
-  expect(contents).toContain("-Infinity");
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("TEMP1");
-  expect(lines[0]).toContain("TEMP2");
-  expect(lines[0]).toContain(","); // csv
-  expect(lines.length).toBeGreaterThan(290); // 5 min at 60Hz is 300 samples
 });
 
 test("creates tab delimited output", async ({ page }) => {
@@ -289,23 +275,13 @@ test("creates tab delimited output", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    var lines = contents.split("\n");
+    expect(lines[0]).toContain("TEMP1");
+    expect(lines[0]).toContain("TEMP2");
+    expect(lines[0]).toContain("\t"); // tab delimited
+    expect(lines.length).toBeGreaterThan(290); // 5 min at 60Hz is 300 samples
   });
-  // Check that we handle raw value types set by the demo
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("TEMP1");
-  expect(lines[0]).toContain("TEMP2");
-  expect(lines[0]).toContain("\t");
-  expect(lines.length).toBeGreaterThan(290); // 5 min at 60Hz is 300 samples
 });
 
 test("outputs full column names", async ({ page }) => {
@@ -316,21 +292,11 @@ test("outputs full column names", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "TEMP2");
 
-  const [download1] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  let path = await download1.path();
-  let contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    var lines = contents.split("\n");
+    expect(lines[0]).toContain("INST HEALTH_STATUS TEMP1");
+    expect(lines[0]).toContain("INST HEALTH_STATUS TEMP2");
   });
-  // Check that we handle raw value types set by the demo
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("INST HEALTH_STATUS TEMP1");
-  expect(lines[0]).toContain("INST HEALTH_STATUS TEMP2");
   await utils.sleep(1000);
 
   // Switch back and verify
@@ -339,21 +305,9 @@ test("outputs full column names", async ({ page }) => {
   // Create a new end time so we get a new filename
   start = sub(new Date(), { minutes: 2 });
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
-
-  const [download2] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  path = await download2.path();
-  contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    expect(contents).toContain("TARGET,PACKET,TEMP1,TEMP2");
   });
-  // Check that we handle raw value types set by the demo
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("TARGET,PACKET,TEMP1,TEMP2");
 });
 
 test("fills values", async ({ page }) => {
@@ -365,38 +319,28 @@ test("fills values", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "ADCS", "CCSDSSEQCNT");
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSSEQCNT");
 
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
-  });
-  // Check that we handle raw value types set by the demo
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("CCSDSSEQCNT");
-  var firstHS = -1;
-  for (let i = 1; i < lines.length; i++) {
-    if (firstHS !== -1) {
-      var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(",");
-      var [tgt2, pkt2, hs2, adcs2] = lines[i].split(",");
-      expect(tgt1).toEqual(tgt2); // Both INST
-      expect(pkt1).toEqual("HEALTH_STATUS");
-      expect(pkt2).toEqual("ADCS");
-      expect(parseInt(adcs1) + 1).toEqual(parseInt(adcs2)); // ADCS goes up by one each time
-      expect(parseInt(hs1)).toBeGreaterThan(1); // Double check for a value
-      expect(hs1).toEqual(hs2); // HEALTH_STATUS should be the same
-      break;
-    } else if (lines[i].includes("HEALTH_STATUS")) {
-      // Look for the first line containing HEALTH_STATUS
-      // console.log("Found first HEALTH_STATUS on line " + i);
-      firstHS = i;
+  await utils.download(page, "text=Process", function (contents) {
+    var lines = contents.split("\n");
+    expect(lines[0]).toContain("CCSDSSEQCNT");
+    var firstHS = -1;
+    for (let i = 1; i < lines.length; i++) {
+      if (firstHS !== -1) {
+        var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(",");
+        var [tgt2, pkt2, hs2, adcs2] = lines[i].split(",");
+        expect(tgt1).toEqual(tgt2); // Both INST
+        expect(pkt1).toEqual("HEALTH_STATUS");
+        expect(pkt2).toEqual("ADCS");
+        expect(parseInt(adcs1) + 1).toEqual(parseInt(adcs2)); // ADCS goes up by one each time
+        expect(parseInt(hs1)).toBeGreaterThan(1); // Double check for a value
+        expect(hs1).toEqual(hs2); // HEALTH_STATUS should be the same
+        break;
+      } else if (lines[i].includes("HEALTH_STATUS")) {
+        // Look for the first line containing HEALTH_STATUS
+        // console.log("Found first HEALTH_STATUS on line " + i);
+        firstHS = i;
+      }
     }
-  }
+  });
 });
 
 test("adds Matlab headers", async ({ page }) => {
@@ -407,20 +351,9 @@ test("adds Matlab headers", async ({ page }) => {
   await utils.addTargetPacketItem("INST", "ADCS", "Q1");
   await utils.addTargetPacketItem("INST", "ADCS", "Q2");
 
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    expect(contents).toContain("% TARGET,PACKET,Q1,Q2"); // % is matlab
   });
-  // Check that we handle raw value types set by the demo
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("% TARGET,PACKET,Q1,Q2");
 });
 
 test("outputs unique values only", async ({ page }) => {
@@ -430,19 +363,9 @@ test("outputs unique values only", async ({ page }) => {
   await page.locator("[data-test=startTime]").fill(format(start, "HH:mm:ss"));
   await utils.addTargetPacketItem("INST", "HEALTH_STATUS", "CCSDSVER");
 
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent("download"),
-    // Initiate the download
-    page.locator("text=Process").click(),
-  ]);
-  // Wait for the download process to complete
-  const path = await download.path();
-  const contents = await fs.readFileSync(path, {
-    encoding: "utf-8",
+  await utils.download(page, "text=Process", function (contents) {
+    var lines = contents.split("\n");
+    expect(lines[0]).toContain("CCSDSVER");
+    expect(lines.length).toEqual(2); // header and a single value
   });
-  // Check that we handle raw value types set by the demo
-  var lines = contents.split("\n");
-  expect(lines[0]).toContain("CCSDSVER");
-  expect(lines.length).toEqual(2); // header and a single value
 });

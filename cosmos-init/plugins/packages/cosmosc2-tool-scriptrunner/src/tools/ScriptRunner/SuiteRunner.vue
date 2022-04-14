@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <v-container id="tr-container">
+    <div id="tr-container">
       <v-row no-gutters align="center">
         <v-col cols="4">
           <v-row no-gutters>
@@ -224,7 +224,7 @@
           </v-row>
         </v-col>
       </v-row>
-    </v-container>
+    </div>
   </div>
 </template>
 

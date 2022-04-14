@@ -45,6 +45,7 @@
             <v-data-table
               item-key="name"
               hide-default-header
+              data-test="env-table"
               :search="search"
               :headers="headers"
               :items="environment"
@@ -64,10 +65,10 @@
             </v-data-table>
             <v-row dense>
               <v-col>
-                <v-text-field v-model="key" label="Key" />
+                <v-text-field v-model="key" label="Key" data-test="env-key" />
               </v-col>
               <v-col>
-                <v-text-field v-model="keyValue" label="Value" />
+                <v-text-field v-model="keyValue" label="Value" data-test="env-value" />
               </v-col>
             </v-row>
             <v-row dense>
@@ -76,7 +77,7 @@
                 block
                 type="submit"
                 color="primary"
-                data-test="addEnvironment"
+                data-test="add-env"
                 :disabled="!key || !keyValue"
               >
                 Add

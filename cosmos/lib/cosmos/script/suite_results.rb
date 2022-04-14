@@ -156,11 +156,11 @@ module Cosmos
       end
       run_time = Time.format_seconds(@stop_time - @start_time)
       run_time << " (#{@stop_time - @start_time} seconds)" if @stop_time - @start_time > 60
-      @report << "Run Time : #{run_time}"
-      @report << "Total Tests : #{@results.length}"
-      @report << "Pass : #{pass_count}"
-      @report << "Skip : #{skip_count}"
-      @report << "Fail : #{fail_count}"
+      @report << "Run Time: #{run_time}"
+      @report << "Total Tests: #{@results.length}"
+      @report << "Pass: #{pass_count}"
+      @report << "Skip: #{skip_count}"
+      @report << "Fail: #{fail_count}"
       @report << ''
       if stopped
         @report << '*** Test was stopped prematurely ***'
