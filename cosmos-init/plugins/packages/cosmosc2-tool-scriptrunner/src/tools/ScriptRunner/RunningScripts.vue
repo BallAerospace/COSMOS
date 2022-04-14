@@ -98,9 +98,17 @@
         data-test="completed-scripts"
       >
         <template v-slot:item.download="{ item }">
-          <v-btn color="primary" @click="downloadScriptLog(item)">
+          <v-btn
+            color="primary"
+            :disabled="downloadScript"
+            :loading="downloadScript && downloadScript.name === item.name"
+            @click="downloadScriptLog(item)"
+          >
             <span>Download Log</span>
             <v-icon right> mdi-file-download-outline </v-icon>
+            <template v-slot:loader>
+              <span>Loading...</span>
+            </template>
           </v-btn>
         </template>
       </v-data-table>
@@ -119,7 +127,7 @@ export default {
   },
   data() {
     return {
-      title: 'Script Runner - Started Scripts',
+      downloadScript: null,
       runningSearch: '',
       runningScripts: [],
       runningHeaders: [
@@ -241,6 +249,7 @@ export default {
         })
     },
     downloadScriptLog: function (script) {
+      this.downloadScript = script
       Api.get(
         `/cosmos-api/storage/download/${encodeURIComponent(
           script.log
@@ -254,6 +263,7 @@ export default {
           link.href = response.data.url
           link.setAttribute('download', basename)
           link.click()
+          this.downloadScript = null
         })
         .catch(() => {
           this.$notify.caution({

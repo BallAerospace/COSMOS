@@ -62,7 +62,7 @@ module Cosmos
 
     # @return [Array<Hash>] Array up to the limit of the models (as Hash objects) stored under the primary key
     def self.all(scope:, limit: 100)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       array = Store.zrange(pk, 0, -1, :limit => [0, limit])
       ret_array = Array.new
       array.each do |value|
@@ -78,7 +78,7 @@ module Cosmos
 
     # @return [String|nil] String of the saved json or nil if score not found under primary_key
     def self.score(score:, scope:)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       array = Store.zrangebyscore(pk, score, score, :limit => [0, 1])
       array.each do |value|
         return JSON.parse(value)
@@ -89,14 +89,14 @@ module Cosmos
     # Remove member from a sorted set based on the score.
     # @return [Integer] count of the members removed
     def self.destroy(scope:, score:)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       Store.zremrangebyscore(pk, score, score)
     end
 
     # Remove members from min to max of the sorted set.
     # @return [Integer] count of the members removed
     def self.range_destroy(scope:, min:, max:)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       Store.zremrangebyscore(pk, min, max)
     end
 
@@ -119,7 +119,7 @@ module Cosmos
     def initialize(
       target:,
       start:,
-      color:,
+      color: nil,
       metadata:,
       scope:,
       type: CHRONICLE_TYPE,
@@ -139,7 +139,7 @@ module Cosmos
       end
       valid_color = color =~ /(#*)([0-9,a-f,A-f]{6})/
       if valid_color.nil?
-        raise MetadataInputError.new "invalid color but in hex format. #FF0000"
+        raise MetadataInputError.new "invalid color, must be in hex format, e.g. #FF0000"
       end
 
       color = "##{color}" unless color.start_with?('#')
@@ -230,7 +230,7 @@ module Cosmos
       notify(kind: 'updated', extra: old_start)
       return @start
     end
-    
+
     # Update the Redis hash at primary_key and check if this metadata instance
     # is newer than the current instance stored in the hash. If the hash does
     # NOT contain an instance or this metadata instance is newer it will update
