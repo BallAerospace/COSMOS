@@ -69,7 +69,7 @@ module Cosmos
           @read_protocols.each do |protocol|
             packet = protocol.read_packet(packet)
             if packet == :DISCONNECT
-              Logger.instance.info("Interface protocol #{protocol.class} read_packet requested disconnect: #{@name}")
+              Logger.info("#{@name}: Protocol #{protocol.class} read_packet requested disconnect")
               return nil
             end
             break if packet == :STOP
@@ -100,7 +100,7 @@ module Cosmos
             @read_protocols.each do |protocol|
               packet = protocol.read_packet(packet)
               if packet == :DISCONNECT
-                Logger.instance.info("Interface protocol #{protocol.class} read_packet requested disconnect: #{@name}")
+                Logger.info("#{@name}: Protocol #{protocol.class} read_packet requested disconnect")
                 return nil
               end
               break if packet == :STOP

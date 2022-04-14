@@ -59,13 +59,13 @@ module Cosmos
       begin
         data = @stream.read
       rescue Timeout::Error
-        Logger.instance.error "#{@name}: Timeout waiting for data to be read"
+        Logger.error "#{@name}: Timeout waiting for data to be read"
         timeout = true
         data = nil
       end
       if data.nil? or data.length <= 0
-        Logger.instance.info "#{@name}: #{@stream.class} read returned nil" if data.nil? and not timeout
-        Logger.instance.info "#{@name}: #{@stream.class} read returned 0 bytes (stream closed)" if not data.nil? and data.length <= 0
+        Logger.info "#{@name}: #{@stream.class} read returned nil" if data.nil? and not timeout
+        Logger.info "#{@name}: #{@stream.class} read returned 0 bytes (stream closed)" if not data.nil? and data.length <= 0
         return nil
       end
 
