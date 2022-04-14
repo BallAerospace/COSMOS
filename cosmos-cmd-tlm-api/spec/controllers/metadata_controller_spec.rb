@@ -25,7 +25,7 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "POST create" do
-    it "returns a hash and status code 201" do
+    it "successfully creates metadata object with status code 201" do
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'key'=> 'value'} }
       expect(response).to have_http_status(:created)
       ret = JSON.parse(response.body)
@@ -52,7 +52,7 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "GET get" do
-    it "returns a metadata object and status code 200" do
+    it "successfully returns a metadata object and status code 200" do
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'key'=> 'value'} }
       expect(response).to have_http_status(:created)
       get :get, params: { scope: 'DEFAULT', name: 'TEST' }
@@ -61,7 +61,7 @@ RSpec.describe MetadataController, :type => :controller do
       expect(ret['updated_at']).not_to be_nil
     end
 
-    it "returns an error object and status code 204" do
+    it "returns an error object with status code 204" do
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'key'=> 'value'} }
       expect(response).to have_http_status(:created)
       get :get, params: { scope: 'OTHER', name: 'TEST' }
@@ -70,14 +70,14 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "GET index" do
-    it "returns an empty array and status code 200" do
+    it "successfully returns an empty array and status code 200" do
       get :index, params: { scope: 'DEFAULT' }
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       expect(json).to eql([])
     end
 
-    it "returns all the targets" do
+    it "successfully returns all the targets" do
       post :create, params: { scope: 'DEFAULT', target: 'TEST1', metadata: {'key'=> 'value'} }
       expect(response).to have_http_status(:created)
       post :create, params: { scope: 'DEFAULT', target: 'TEST2', metadata: {'key'=> 'value'} }
@@ -99,7 +99,7 @@ RSpec.describe MetadataController, :type => :controller do
 
 
   describe "GET search" do
-    it "returns a single value in an array and status code 200" do
+    it "successfully returns a single value in an array and status code 200" do
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'version'=> '2'} }
@@ -110,7 +110,7 @@ RSpec.describe MetadataController, :type => :controller do
       expect(json.length).to eql(1)
     end
 
-    it "returns an array and status code 200" do
+    it "successfully returns an array and status code 200" do
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
       post :create, params: { scope: 'DEFAULT', target: 'TEST', metadata: {'version'=> '2'} }
@@ -123,9 +123,12 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "GET show" do
-    it "get bad instance status code 404" do
+    it "returns an error object with status code 404" do
       get :show, params: { scope: 'DEFAULT', id: '42' }
       expect(response).to have_http_status(:not_found)
+      ret = JSON.parse(response.body)
+      expect(ret['status']).not_to be_nil
+      expect(ret['message']).not_to be_nil
     end
 
     it "returns an instance and status code 200" do
@@ -140,12 +143,15 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "PUT update" do
-    it "update bad metadata object status code 404" do
+    it "attempts to update a bad metadata object returns an error with status code 404" do
       put :update, params: { scope: 'DEFAULT', id: '42' }
       expect(response).to have_http_status(:not_found)
+      ret = JSON.parse(response.body)
+      expect(ret['status']).not_to be_nil
+      expect(ret['message']).not_to be_nil
     end
 
-    it "update a good metadata object and status code 200" do
+    it "successfully updates a metadata object and status code 200" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
@@ -159,7 +165,7 @@ RSpec.describe MetadataController, :type => :controller do
       expect(new_json['metadata']['version']).to eql('2')
     end
 
-    it "update a good metadata object with a different start time and status code 200" do
+    it "successfully updates a metadata object with a different start time and status code 200" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
@@ -174,7 +180,7 @@ RSpec.describe MetadataController, :type => :controller do
       expect(new_json['metadata']['version']).to eql('2')
     end
 
-    it "update a bad metadata object and status code 400" do
+    it "attempts to update a bad metadata object and status code 400" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)
@@ -190,7 +196,7 @@ RSpec.describe MetadataController, :type => :controller do
   end
 
   describe "DELETE delete" do
-    it "delete bad object status code 404" do
+    it "attempts to delete a bad metadata object with status code 404" do
       delete :delete, params: { scope: 'DEFAULT', id: '42' }
       expect(response).to have_http_status(:not_found)
       ret = JSON.parse(response.body)
@@ -198,12 +204,15 @@ RSpec.describe MetadataController, :type => :controller do
       expect(ret['message']).not_to be_nil
     end
 
-    it "delete a bad id and status code 400" do
+    it "attempts to delete a bad id with status code 400" do
       delete :delete, params: { scope: 'DEFAULT', id: 'foo' }
       expect(response).to have_http_status(:bad_request)
+      ret = JSON.parse(response.body)
+      expect(ret['status']).not_to be_nil
+      expect(ret['message']).not_to be_nil
     end
 
-    it "delete a good object and status code 204" do
+    it "successfully updates a metadata object with status code 204" do
       start = "2022-01-1T01:02:00.001+00:00"
       post :create, params: { scope: 'DEFAULT', start: start, target: 'TEST', metadata: {'version'=> '1'} }
       expect(response).to have_http_status(:created)

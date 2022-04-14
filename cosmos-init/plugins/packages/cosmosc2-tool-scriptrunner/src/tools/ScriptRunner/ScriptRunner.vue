@@ -60,7 +60,7 @@
       :disable-buttons="disableSuiteButtons"
       @button="suiteRunnerButton"
     />
-    <v-container id="sc-controls">
+    <div id="sr-controls">
       <v-row no-gutters justify="space-between">
         <v-col cols="8">
           <v-row no-gutters>
@@ -179,7 +179,7 @@
           </v-row>
         </v-col>
       </v-row>
-    </v-container>
+    </div>
     <!-- Create Multipane container to support resizing.
          NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues,
          The event must be paneResize and not pane-resize -->
@@ -221,7 +221,7 @@
       </div>
       <multipane-resizer><hr /></multipane-resizer>
       <div id="messages" class="mt-2 pane" ref="messagesDiv">
-        <v-container id="debug" class="pa-0" v-if="showDebug">
+        <div id="debug" class="pa-0" v-if="showDebug">
           <v-row no-gutters>
             <v-btn
               color="primary"
@@ -244,7 +244,7 @@
               data-test="debug-text"
             />
           </v-row>
-        </v-container>
+        </div>
         <script-log-messages v-model="messages" />
       </div>
     </multipane>
@@ -263,7 +263,7 @@
       type="save"
       api-url="/script-api/scripts"
       require-target-parent-dir
-      :input-filename="filename"
+      :input-filename="filenameOrBlank"
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
@@ -514,6 +514,11 @@ export default {
       if (this.currentFilename) return this.currentFilename
       return this.filename //`${this.filename} ${this.fileModified}`.trim()
     },
+    // It's annoying for people (and tests) to clear the <Untitled>
+    // when saving a new file so replace with blank
+    filenameOrBlank: function () {
+      return this.filename === NEW_FILENAME ? '' : this.filename
+    },
     menus: function () {
       return [
         {
@@ -701,7 +706,9 @@ export default {
   watch: {
     readOnly: function (val) {
       this.showReadOnlyToast = val
-      this.startOrGoDisabled = val
+      if (!this.suiteRunner) {
+        this.startOrGoDisabled = val
+      }
       this.editor.setReadOnly(val)
     },
   },
@@ -1031,6 +1038,7 @@ export default {
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
       this.fatal = false
+      this.scriptId = null
       this.editor.setReadOnly(false)
     },
     environmentHandler: function (event) {
@@ -1059,7 +1067,6 @@ export default {
       Api.post(url, { data }).then((response) => {
         this.scriptStart(response.data)
       })
-      this.scriptEnvironment.env = []
     },
     go(event, suiteRunner = null) {
       Api.post(`/script-api/running-script/${this.scriptId}/go`)
@@ -1074,7 +1081,8 @@ export default {
     },
     stop() {
       // We previously encountered a fatal error so remove the marker
-      // and cleanup by calling scriptComplete()
+      // and cleanup by calling scriptComplete() because the script
+      // is already stopped in the backend
       if (this.fatal) {
         this.removeAllMarkers()
         this.scriptComplete()
@@ -1149,24 +1157,27 @@ export default {
             // Deliberate fall through (no break)
             case 'error':
               this.pauseOrRetryButton = RETRY
-              this.startOrGoDisabled = this.state === 'fatal' ? true : false
-              this.pauseOrRetryDisabled = this.state === 'fatal' ? true : false
-              this.stopDisabled = this.state === 'fatal' ? true : false
             // Deliberate fall through (no break)
+            case 'breakpoint':
             case 'waiting':
             case 'paused':
+              this.stopDisabled = false
               let existing = Object.keys(markers).filter(
                 (key) => markers[key].clazz === `${this.state}Marker`
               )
               if (existing.length === 0) {
                 this.removeAllMarkers()
+                let line = data.line_no > 0 ? data.line_no : 1
                 this.editor.session.addMarker(
-                  new this.Range(data.line_no - 1, 0, data.line_no - 1, 1),
+                  new this.Range(line - 1, 0, line - 1, 1),
                   `${this.state}Marker`,
                   'fullLine'
                 )
-                this.editor.gotoLine(data.line_no)
-                this.files[data.filename].lineNo = data.line_no
+                this.editor.gotoLine(line)
+                // Fatal errors don't always have a filename set
+                if (data.filename) {
+                  this.files[data.filename].lineNo = line
+                }
               }
               break
             default:
@@ -1613,7 +1624,7 @@ export default {
 </script>
 
 <style scoped>
-#sc-controls {
+#sr-controls {
   padding-top: 0px;
   padding-bottom: 5px;
   padding-left: 0px;
@@ -1650,6 +1661,13 @@ hr {
 .waitingMarker {
   position: absolute;
   background: rgba(0, 155, 0, 1);
+  z-index: 20;
+}
+.breakpointMarker {
+  position: absolute;
+  border-style: solid;
+  border-color: red;
+  background: rgba(0, 255, 0, 0.5);
   z-index: 20;
 }
 .pausedMarker {

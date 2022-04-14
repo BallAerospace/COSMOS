@@ -34,6 +34,7 @@
               label="Search"
               single-line
               hide-details
+              data-test="running-search"
             />
           </div>
         </div>
@@ -46,6 +47,7 @@
         disable-pagination
         hide-default-footer
         multi-sort
+        data-test="running-scripts"
       >
         <template v-slot:item.connect="{ item }">
           <v-btn color="primary" @click="connectScript(item)">
@@ -93,6 +95,7 @@
         calculate-widths
         hide-default-footer
         multi-sort
+        data-test="completed-scripts"
       >
         <template v-slot:item.download="{ item }">
           <v-btn

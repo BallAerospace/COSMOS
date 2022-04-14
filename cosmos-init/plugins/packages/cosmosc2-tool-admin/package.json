@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --no-module",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "serve:standalone": "vue-cli-service serve --mode standalone",
@@ -40,6 +40,7 @@
     "babel-loader": "8.2.4",
     "babel-plugin-istanbul": "6.1.1",
     "eslint": "8.12.0",
+    "html-webpack-plugin": "5.5.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-vue": "8.5.0",
