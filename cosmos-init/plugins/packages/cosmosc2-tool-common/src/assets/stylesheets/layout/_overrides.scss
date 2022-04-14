@@ -57,3 +57,8 @@ body,
 .theme--dark.p-menubar {
   background-color: var(--v-tertiary-darken2) !important;
 }
+
+input {
+  // This causes the browser to style input icons for a dark background
+  color-scheme: dark;
+}
