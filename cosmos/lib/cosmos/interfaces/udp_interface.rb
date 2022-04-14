@@ -151,6 +151,7 @@ module Cosmos
     # Reads from the socket if the read_port is defined
     def read_interface
       data = @read_socket.read(@read_timeout)
+      Logger.instance.info "#{@name}: Udp read returned 0 bytes (stream closed)" if data.length <= 0
       read_interface_base(data)
       return data
     rescue IOError # Disconnected

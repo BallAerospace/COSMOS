@@ -68,7 +68,10 @@ module Cosmos
           # Generic protocol use is not supported
           @read_protocols.each do |protocol|
             packet = protocol.read_packet(packet)
-            return nil if packet == :DISCONNECT # Disconnect handled by thread
+            if packet == :DISCONNECT
+              Logger.instance.info("Interface protocol #{protocol.class} read_packet requested disconnect: #{@name}")
+              return nil
+            end
             break if packet == :STOP
           end
           return packet unless packet == :STOP
@@ -96,7 +99,10 @@ module Cosmos
             # Generic protocol use is not supported
             @read_protocols.each do |protocol|
               packet = protocol.read_packet(packet)
-              return nil if packet == :DISCONNECT # Disconnect handled by thread
+              if packet == :DISCONNECT
+                Logger.instance.info("Interface protocol #{protocol.class} read_packet requested disconnect: #{@name}")
+                return nil
+              end
               break if packet == :STOP
             end
             next if packet == :STOP

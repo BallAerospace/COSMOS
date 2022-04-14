@@ -205,7 +205,10 @@ module Cosmos
         if !first or @read_protocols.length <= 0
           # Read data for a packet
           data = read_interface()
-          return nil unless data
+          unless data
+            Logger.instance.info("Interface read_interface requested disconnect: #{@name}")
+            return nil
+          end
         else
           data = ''
           first = false
@@ -213,7 +216,10 @@ module Cosmos
 
         @read_protocols.each do |protocol|
           data = protocol.read_data(data)
-          return nil if data == :DISCONNECT
+          if data == :DISCONNECT
+            Logger.instance.info("Interface protocol #{protocol.class} read_data requested disconnect: #{@name}")
+            return nil
+          end
           break if data == :STOP
         end
         next if data == :STOP
@@ -223,13 +229,17 @@ module Cosmos
         # Potentially modify packet
         @read_protocols.each do |protocol|
           packet = protocol.read_packet(packet)
-          return nil if packet == :DISCONNECT
+          if packet == :DISCONNECT
+            Logger.instance.info("Interface protocol #{protocol.class} read_packet requested disconnect: #{@name}")
+            return nil
+          end
           break if packet == :STOP
         end
         next if packet == :STOP
 
         # Return packet
         @read_count += 1
+        Logger.instance.warn("Interface unexpectedly requested disconnect: #{@name}") unless packet
         return packet
       end
     rescue Exception => err
@@ -251,6 +261,7 @@ module Cosmos
         @write_protocols.each do |protocol|
           packet = protocol.write_packet(packet)
           if packet == :DISCONNECT
+            Logger.instance.info("Interface protocol #{protocol.class} write_packet requested disconnect: #{@name}")
             disconnect()
             return
           end
@@ -263,6 +274,7 @@ module Cosmos
         @write_protocols.each do |protocol|
           data = protocol.write_data(data)
           if data == :DISCONNECT
+            Logger.instance.info("Interface protocol #{protocol.class} write_data requested disconnect: #{@name}")
             disconnect()
             return
           end
@@ -276,6 +288,7 @@ module Cosmos
         @write_protocols.each do |protocol|
           packet, data = protocol.post_write_interface(packet, data)
           if packet == :DISCONNECT
+            Logger.instance.info("Interface protocol #{protocol.class} post_write_packet requested disconnect: #{@name}")
             disconnect()
             return
           end
