@@ -222,7 +222,7 @@
               label="Min Y"
               v-model="graphMinY"
               type="number"
-              data-test"graph-min-y"
+              data-test="graph-min-y"
             />
           </v-col>
           <v-col class="px-2">
@@ -231,7 +231,7 @@
               label="Max Y"
               v-model="graphMaxY"
               type="number"
-              data-test"graph-max-y"
+              data-test="graph-max-y"
             />
           </v-col>
         </v-row>
