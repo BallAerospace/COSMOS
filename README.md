@@ -5,7 +5,9 @@
 **Note**: Please use the `master/main` branch to stay up to date until we update our release cadence.
 Eventually the [releases] page will contain the most recent stable release.
 
-[![Cosmos Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/build.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/build.yml)
+[![Cosmos 5 API Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/api_tests.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/api_tests.yml)
+[![Cosmos 5 Ruby Unit Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/ruby_unit_tests.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/ruby_unit_tests.yml)
+[![Cosmos 5 Playwright Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/playwright.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/playwright.yml)
 [![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)
 [![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/BallAerospace/COSMOS)
 
