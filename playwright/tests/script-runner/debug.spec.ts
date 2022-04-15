@@ -20,12 +20,15 @@
 // @ts-check
 import { test, expect } from "playwright-test-coverage";
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   await page.goto("/tools/scriptrunner");
   await expect(page.locator("body")).toContainText("Script Runner");
   await page.locator(".v-app-bar__nav-icon").click();
   // Close the dialog that says how many running scripts there are
   await page.locator('button:has-text("Close")').click();
+  // Extend timeout for all tests by 10 seconds
+  // since connecting in SR sometimes takes a little longer
+  testInfo.setTimeout(testInfo.timeout + 10000);
 });
 
 test("keeps a debug command history", async ({ page }) => {
@@ -117,7 +120,13 @@ test("retries failed checks", async ({ page }) => {
 test("displays the call stack", async ({ page }) => {
   // Show Call Stack is disabled unless a script is running
   await page.locator('[data-test="Script Runner-Script"]').click();
-  await expect(page.locator("text=Show Call Stack")).toBeDisabled();
+  // NOTE: This doesn't work in playwright 1.21.0 due to unexpected value "false"
+  // See: https://github.com/microsoft/playwright/issues/13583
+  // await expect(page.locator("text=Show Call Stack")).toBeDisabled();
+  await expect(page.locator("text=Show Call Stack")).toHaveAttribute(
+    "disabled",
+    "disabled"
+  );
 
   await page.locator("textarea").fill(`
   def one
@@ -141,23 +150,26 @@ test("displays the call stack", async ({ page }) => {
   await expect(page.locator("[data-test=state]")).toHaveValue("stopped");
 
   await page.locator('[data-test="Script Runner-Script"]').click();
-  await expect(page.locator("text=Show Call Stack")).toBeDisabled();
+  await expect(page.locator("text=Show Call Stack")).toHaveAttribute(
+    "disabled",
+    "disabled"
+  );
 });
 
 test("displays disconnect icon", async ({ page }) => {
   await page.locator('[data-test="Script Runner-Script"]').click();
   await page.locator("text=Toggle Disconnect").click();
 
-  // In Disconnect mode all commands go nowhere, all tlm returns 0,
-  // all checks pass, and all waits are immediate (no waiting)
+  // In Disconnect mode all commands go nowhere, all checks pass,
+  // and all waits are immediate (no waiting)
   await page.locator("textarea").fill(`
   count1 = tlm("INST HEALTH_STATUS COLLECTS")
   cmd("INST COLLECT with TYPE 'NORMAL', DURATION 1, TEMP 0")
   wait_check("INST HEALTH_STATUS COLLECTS > #{count1}", 5)
-  count2 = tlm("INST HEALTH_STATUS COLLECTS")
-  puts "count1:#{count1} count2:#{count2}"
   wait_check_expression("1 == 2", 5)
   wait
+  count2 = tlm("INST HEALTH_STATUS COLLECTS")
+  puts "total:#{count2 - count1}"
   `);
 
   await page.locator("[data-test=start-button]").click();
@@ -166,7 +178,7 @@ test("displays disconnect icon", async ({ page }) => {
     timeout: 10000,
   });
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
-    "count1:0 count2:0"
+    "total:0" // collect count does not change
   );
 
   await page.locator('[data-test="Script Runner-Script"]').click();

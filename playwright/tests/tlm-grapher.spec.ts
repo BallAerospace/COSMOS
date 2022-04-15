@@ -159,34 +159,26 @@ test("shrinks and expands both width and height", async ({ page }) => {
   expect(minBox2.height).toBe(minBox.height);
 });
 
-// test("edits a graph", async ({ page }) => {
-//   await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
-//   await page.locator('button:has-text("Add Item")').click();
-//   await expect(page.locator("#chart0")).toContainText("TEMP1");
-//   utils.sleep(3000); // Wait for graphing to occur
-//   await page.locator("[data-test=edit-graph-icon]").click();
-//   await expect(page.locator(".v-dialog")).toContainText("Edit Graph");
-//   await page.locator('[data-test="edit-graph-title"]').fill("Test Graph Title");
+test("edits a graph", async ({ page }) => {
+  await utils.selectTargetPacketItem("INST", "HEALTH_STATUS", "TEMP1");
+  await page.locator('button:has-text("Add Item")').click();
+  await expect(page.locator("#chart0")).toContainText("TEMP1");
+  utils.sleep(3000); // Wait for graphing to occur
+  await page.locator("[data-test=edit-graph-icon]").click();
+  await expect(page.locator(".v-dialog")).toContainText("Edit Graph");
+  await page.locator('[data-test="edit-graph-title"]').fill("Test Graph Title");
 
-//   const start = sub(new Date(), { minutes: 2 });
-//   await page
-//     .locator('text=Start DateStart Time >> [data-test="dateChooser"]')
-//     .type(format(start, "MM"));
-//   await page
-//     .locator('text=Start DateStart Time >> [data-test="dateChooser"]')
-//     .type(format(start, "dd"));
-//   await page
-//     .locator('text=Start DateStart Time >> [data-test="dateChooser"]')
-//     .type(format(start, "yyyy"));
-//   await page
-//     .locator('text=Start DateStart Time >> [data-test="timeChooser"]')
-//     .fill(format(start, "HH:mm:ss"));
-//   await page.locator('[data-test="graph-min-y"]').fill("-50");
-//   await page.locator('[data-test="graph-max-y"]').fill("50");
-//   await page.locator('button:has-text("Ok")').click();
-//   // Validate our settings
-//   await expect(page.locator("#chart0")).toContainText("Test Graph Title");
-//   await expect(page.locator("#chart0")).toContainText("-50");
-//   await expect(page.locator("#chart0")).toContainText("50");
-//   utils.sleep(5000); // Allow data to flow
-// });
+  const start = sub(new Date(), { minutes: 2 });
+  await page
+    .locator('text=Start DateStart Time >> [data-test="dateChooser"]')
+    .type(format(start, "MMddyyyy")); // Date input doesn't want slashes
+  await page
+    .locator('text=Start DateStart Time >> [data-test="timeChooser"]')
+    .fill(format(start, "HH:mm:ss")); // Time input does want colons
+  await page.locator('[data-test="graph-min-y"]').fill("-50");
+  await page.locator('[data-test="graph-max-y"]').fill("50");
+  await page.locator('button:has-text("Ok")').click();
+  // Validate our settings, have to use gridItem0 because chart0 doesn't include title
+  await expect(page.locator("#gridItem0")).toContainText("Test Graph Title");
+  utils.sleep(5000); // Allow data to flow
+});
