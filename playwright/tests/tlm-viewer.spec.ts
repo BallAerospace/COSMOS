@@ -18,107 +18,107 @@
 */
 
 // @ts-check
-import { test, expect } from "playwright-test-coverage";
-import { Utilities } from "../utilities";
+import { test, expect } from 'playwright-test-coverage'
+import { Utilities } from '../utilities'
 
-let utils;
+let utils
 test.beforeEach(async ({ page }) => {
-  await page.goto("/tools/tlmviewer");
-  await expect(page.locator("body")).toContainText("Telemetry Viewer");
-  await page.locator(".v-app-bar__nav-icon").click();
-  utils = new Utilities(page);
+  await page.goto('/tools/tlmviewer')
+  await expect(page.locator('body')).toContainText('Telemetry Viewer')
+  await page.locator('.v-app-bar__nav-icon').click()
+  utils = new Utilities(page)
   // Throw exceptions on any pageerror events
-  page.on("pageerror", (exception) => {
-    throw exception;
-  });
-});
+  page.on('pageerror', (exception) => {
+    throw exception
+  })
+})
 
 async function showScreen(page, target, screen, callback = null) {
-  await page.locator('div[role="button"]:has-text("Select Target")').click();
-  await page.locator(`.v-list-item__title:text-matches("^${target}$")`).click();
-  await page.locator('div[role="button"]:has-text("Select Screen")').click();
-  await page.locator(`.v-list-item__title:text-matches("^${screen}$")`).click();
-  await page.locator('button:has-text("Show Screen")').click();
-  await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).toBeVisible();
+  await page.locator('div[role="button"]:has-text("Select Target")').click()
+  await page.locator(`.v-list-item__title:text-matches("^${target}$")`).click()
+  await page.locator('div[role="button"]:has-text("Select Screen")').click()
+  await page.locator(`.v-list-item__title:text-matches("^${screen}$")`).click()
+  await page.locator('button:has-text("Show Screen")').click()
+  await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).toBeVisible()
   if (callback) {
     await callback()
   }
-  await page.locator('[data-test="closeScreenIcon"]').click();
-  await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).not.toBeVisible();
+  await page.locator('[data-test="closeScreenIcon"]').click()
+  await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).not.toBeVisible()
 }
 
-test("displays INST ADCS", async ({ page }) => {
-  await showScreen(page, "INST", "ADCS");
-});
+test('displays INST ADCS', async ({ page }) => {
+  await showScreen(page, 'INST', 'ADCS')
+})
 
-test("displays INST ARRAY", async ({ page }) => {
-  await showScreen(page, "INST", "ARRAY");
-});
+test('displays INST ARRAY', async ({ page }) => {
+  await showScreen(page, 'INST', 'ARRAY')
+})
 
-test("displays INST BLOCK", async ({ page }) => {
-  await showScreen(page, "INST", "BLOCK");
-});
-test("displays INST COMMANDING", async ({ page }) => {
-  await showScreen(page, "INST", "COMMANDING");
-});
+test('displays INST BLOCK', async ({ page }) => {
+  await showScreen(page, 'INST', 'BLOCK')
+})
+test('displays INST COMMANDING', async ({ page }) => {
+  await showScreen(page, 'INST', 'COMMANDING')
+})
 
-test("displays INST GRAPHS", async ({ page }) => {
-  await showScreen(page, "INST", "GRAPHS");
-});
+test('displays INST GRAPHS', async ({ page }) => {
+  await showScreen(page, 'INST', 'GRAPHS')
+})
 
-test("displays INST GROUND", async ({ page }) => {
-  await showScreen(page, "INST", "GROUND");
-});
+test('displays INST GROUND', async ({ page }) => {
+  await showScreen(page, 'INST', 'GROUND')
+})
 
-test("displays INST HS", async ({ page }) => {
-  await showScreen(page, "INST", "HS", async function () {
-    await expect(page.locator("text=Health and Status")).toBeVisible()
-    await page.locator('[data-test="minimizeScreenIcon"]').click();
-    await expect(page.locator("text=Health and Status")).not.toBeVisible()
-    await page.locator('[data-test="maximizeScreenIcon"]').click();
-    await expect(page.locator("text=Health and Status")).toBeVisible()
-  });
-});
+test('displays INST HS', async ({ page }) => {
+  await showScreen(page, 'INST', 'HS', async function () {
+    await expect(page.locator('text=Health and Status')).toBeVisible()
+    await page.locator('[data-test="minimizeScreenIcon"]').click()
+    await expect(page.locator('text=Health and Status')).not.toBeVisible()
+    await page.locator('[data-test="maximizeScreenIcon"]').click()
+    await expect(page.locator('text=Health and Status')).toBeVisible()
+  })
+})
 
-test("displays INST LATEST", async ({ page }) => {
-  await showScreen(page, "INST", "LATEST");
-});
+test('displays INST LATEST', async ({ page }) => {
+  await showScreen(page, 'INST', 'LATEST')
+})
 
-test("displays INST LIMITS", async ({ page }) => {
-  await showScreen(page, "INST", "LIMITS");
-});
+test('displays INST LIMITS', async ({ page }) => {
+  await showScreen(page, 'INST', 'LIMITS')
+})
 
 // OTHER not fully implemented
 // test("displays INST OTHER", async ({ page }) => {
 //   await showScreen(page, "INST", "OTHER");
 // });
 
-test("displays INST PARAMS", async ({ page }) => {
-  await showScreen(page, "INST", "PARAMS");
-});
+test('displays INST PARAMS', async ({ page }) => {
+  await showScreen(page, 'INST', 'PARAMS')
+})
 
-test("displays INST SIMPLE", async ({ page }) => {
-  await showScreen(page, "INST", "SIMPLE", async function () {
-    await expect(page.locator("text=MYTEST")).not.toBeVisible()
-    await page.locator('[data-test="editScreenIcon"]').click();
+test('displays INST SIMPLE', async ({ page }) => {
+  await showScreen(page, 'INST', 'SIMPLE', async function () {
+    await expect(page.locator('text=MYTEST')).not.toBeVisible()
+    await page.locator('[data-test="editScreenIcon"]').click()
     await page.locator('[data-test="screenTextInput"]').fill(`
     SCREEN AUTO AUTO 0.5
     LABEL MYTEST
     BIG INST HEALTH_STATUS TEMP2
     `)
-    await page.locator('button:has-text("Save")').click();
-    await expect(page.locator("text=MYTEST")).toBeVisible()
-    await page.locator('[data-test="editScreenIcon"]').click();
+    await page.locator('button:has-text("Save")').click()
+    await expect(page.locator('text=MYTEST')).toBeVisible()
+    await page.locator('[data-test="editScreenIcon"]').click()
     await expect(page.locator(`.v-system-bar:has-text("Edit Screen")`)).toBeVisible()
     await utils.download(page, '[data-test="downloadScreenIcon"]', function (contents) {
-      expect(contents).toContain("LABEL MYTEST")
-      expect(contents).toContain("BIG INST HEALTH_STATUS TEMP2")
-    });
-    await page.locator('button:has-text("Cancel")').click();
+      expect(contents).toContain('LABEL MYTEST')
+      expect(contents).toContain('BIG INST HEALTH_STATUS TEMP2')
+    })
+    await page.locator('button:has-text("Cancel")').click()
     await expect(page.locator(`.v-system-bar:has-text("Edit Screen")`)).not.toBeVisible()
   })
-});
+})
 
-test("displays INST TABS", async ({ page }) => {
-  await showScreen(page, "INST", "TABS");
-});
+test('displays INST TABS', async ({ page }) => {
+  await showScreen(page, 'INST', 'TABS')
+})
