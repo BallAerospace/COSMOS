@@ -97,21 +97,22 @@ test('displays INST PARAMS', async ({ page }) => {
   await showScreen(page, 'INST', 'PARAMS')
 })
 
-test('displays INST SIMPLE', async ({ page }) => {
+test.only('displays INST SIMPLE', async ({ page }) => {
+  const text = 'TEST' + Math.floor(Math.random() * 10000)
   await showScreen(page, 'INST', 'SIMPLE', async function () {
-    await expect(page.locator('text=MYTEST')).not.toBeVisible()
+    await expect(page.locator(`text=${text}`)).not.toBeVisible()
     await page.locator('[data-test="editScreenIcon"]').click()
     await page.locator('[data-test="screenTextInput"]').fill(`
     SCREEN AUTO AUTO 0.5
-    LABEL MYTEST
+    LABEL ${text}
     BIG INST HEALTH_STATUS TEMP2
     `)
     await page.locator('button:has-text("Save")').click()
-    await expect(page.locator('text=MYTEST')).toBeVisible()
+    await expect(page.locator(`text=${text}`)).toBeVisible()
     await page.locator('[data-test="editScreenIcon"]').click()
     await expect(page.locator(`.v-system-bar:has-text("Edit Screen")`)).toBeVisible()
     await utils.download(page, '[data-test="downloadScreenIcon"]', function (contents) {
-      expect(contents).toContain('LABEL MYTEST')
+      expect(contents).toContain(`LABEL ${text}`)
       expect(contents).toContain('BIG INST HEALTH_STATUS TEMP2')
     })
     await page.locator('button:has-text("Cancel")').click()
