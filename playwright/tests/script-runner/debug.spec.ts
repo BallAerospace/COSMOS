@@ -138,20 +138,25 @@ test('displays the call stack', async ({ page }) => {
   await expect(page.locator('text=Show Call Stack')).toHaveAttribute('disabled', 'disabled')
 })
 
-test('displays disconnect icon', async ({ page }) => {
+test.only('displays disconnect icon', async ({ page }) => {
   await page.locator('[data-test="Script Runner-Script"]').click()
   await page.locator('text=Toggle Disconnect').click()
 
   // In Disconnect mode all commands go nowhere, all checks pass,
   // and all waits are immediate (no waiting)
+  // Only read-only methods are allowed and tlm methods can take
+  // a disconnect kwarg to set a return value
   await page.locator('textarea').fill(`
   count1 = tlm("INST HEALTH_STATUS COLLECTS")
   cmd("INST COLLECT with TYPE 'NORMAL', DURATION 1, TEMP 0")
   wait_check("INST HEALTH_STATUS COLLECTS > #{count1}", 5)
   wait_check_expression("1 == 2", 5)
   wait
+  set_tlm("INST HEALTH_STATUS COLLECTS = 50")
   count2 = tlm("INST HEALTH_STATUS COLLECTS")
   puts "total:#{count2 - count1}"
+  val = tlm("INST HEALTH_STATUS COLLECTS", disconnect: 100)
+  puts "disconnect:#{val}"
   `)
 
   await page.locator('[data-test=start-button]').click()
@@ -161,6 +166,9 @@ test('displays disconnect icon', async ({ page }) => {
   })
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
     'total:0' // collect count does not change
+  )
+  await expect(page.locator('[data-test="output-messages"]')).toContainText(
+    'disconnect:100'
   )
 
   await page.locator('[data-test="Script Runner-Script"]').click()
