@@ -37,7 +37,6 @@
               v-model="date"
               v-on="on"
               type="date"
-              prepend-icon="mdi-calendar"
               data-test="dateChooser"
             />
           </template>
@@ -53,7 +52,6 @@
           type="time"
           step="1"
           @change="onChange"
-          prepend-icon="mdi-clock"
           data-test="timeChooser"
         />
       </v-col>

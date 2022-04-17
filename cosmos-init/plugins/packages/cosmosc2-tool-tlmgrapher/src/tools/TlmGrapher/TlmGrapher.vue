@@ -56,8 +56,8 @@
         </v-row>
       </div>
 
-      <div v-show="this.selectedGraphId !== null" class="row">
-        <div class="col-11">
+      <v-row justify="space-between" v-show="this.selectedGraphId !== null">
+        <v-col cols="11">
           <target-packet-item-chooser
             :initial-target-name="this.$route.params.target"
             :initial-packet-name="this.$route.params.packet"
@@ -66,8 +66,8 @@
             button-text="Add Item"
             choose-item
           />
-        </div>
-        <div class="col-1 text-right">
+        </v-col>
+        <v-col cols="1">
           <v-btn
             v-show="state === 'pause'"
             class="pulse"
@@ -78,11 +78,25 @@
             "
             color="primary"
             fab
+            data-test="start-graph"
           >
             <v-icon large>mdi-play</v-icon>
           </v-btn>
-        </div>
-      </div>
+          <v-btn
+            v-show="state === 'start'"
+            v-on:click="
+              () => {
+                state = 'pause'
+              }
+            "
+            color="primary"
+            fab
+            data-test="pause-graph"
+          >
+            <v-icon large>mdi-pause</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
 
       <div class="grid">
         <div
@@ -208,7 +222,7 @@ export default {
               divider: true,
             },
             {
-              label: 'Start',
+              label: 'Start / Resume',
               icon: 'mdi-play',
               command: () => {
                 this.state = 'start'
@@ -219,13 +233,6 @@ export default {
               icon: 'mdi-pause',
               command: () => {
                 this.state = 'pause'
-              },
-            },
-            {
-              label: 'Resume',
-              icon: 'mdi-play-pause',
-              command: () => {
-                this.state = 'start'
               },
             },
             {
