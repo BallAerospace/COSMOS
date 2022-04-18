@@ -97,7 +97,7 @@ test('displays INST PARAMS', async ({ page }) => {
   await showScreen(page, 'INST', 'PARAMS')
 })
 
-test.only('displays INST SIMPLE', async ({ page }) => {
+test('displays INST SIMPLE', async ({ page }) => {
   const text = 'TEST' + Math.floor(Math.random() * 10000)
   await showScreen(page, 'INST', 'SIMPLE', async function () {
     await expect(page.locator(`text=${text}`)).not.toBeVisible()
