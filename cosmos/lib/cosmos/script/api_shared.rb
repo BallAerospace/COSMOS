@@ -681,7 +681,6 @@ module Cosmos
 
     def _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, exp_to_eval, scope: $cosmos_scope, token: $cosmos_token, &block)
       end_time = Time.now.sys + timeout
-      exp_to_eval = yield
 
       while true
         work_start = Time.now.sys
