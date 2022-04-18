@@ -34,6 +34,9 @@ module Cosmos
           nil # Simulate a not yet received packet
         end
         $api_server = ServerProxy.new
+        initialize_script()
+        # initialize_script pushes shutdown on the @method array so remove that
+        @methods.pop
       end
 
       it "should proxy to JsonDRbObject if not disconnected" do
