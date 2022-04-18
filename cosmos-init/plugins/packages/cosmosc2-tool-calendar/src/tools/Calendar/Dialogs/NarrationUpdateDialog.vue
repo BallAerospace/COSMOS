@@ -54,7 +54,7 @@
                       label="Start Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="startDate"
+                      data-test="narrative-start-date"
                     />
                     <v-text-field
                       v-model="startTime"
@@ -63,7 +63,7 @@
                       label="Start Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="startTime"
+                      data-test="narrative-start-time"
                     />
                   </v-row>
                   <v-row dense>
@@ -73,7 +73,7 @@
                       label="End Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="stopDate"
+                      data-test="narrative-stop-date"
                     />
                     <v-text-field
                       v-model="stopTime"
@@ -82,7 +82,7 @@
                       label="End Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="stopTime"
+                      data-test="narrative-stop-time"
                     />
                   </v-row>
                   <v-row class="mx-2 mb-2">
@@ -107,7 +107,7 @@
                     <v-spacer />
                     <v-btn
                       @click="dialogStep = 2"
-                      data-test="create-activity-step-two-btn"
+                      data-test="update-narrative-step-two-btn"
                       color="success"
                       :disabled="!!timeError"
                     >
@@ -143,7 +143,7 @@
                       @click="show = !show"
                       outlined
                       class="mx-2"
-                      data-test="create-cancel-btn"
+                      data-test="update-narrative-cancel-btn"
                     >
                       Cancel
                     </v-btn>
@@ -152,7 +152,7 @@
                       class="mx-2"
                       color="primary"
                       type="submit"
-                      data-test="create-submit-btn"
+                      data-test="update-narrative-submit-btn"
                       :disabled="!!timeError || !!typeError"
                     >
                       Ok

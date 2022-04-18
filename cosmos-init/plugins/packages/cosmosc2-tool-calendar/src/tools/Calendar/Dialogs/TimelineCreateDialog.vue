@@ -48,7 +48,7 @@
                 @click="clear"
                 outlined
                 class="mx-2"
-                data-test="create-cancel-btn"
+                data-test="create-timeline-cancel-btn"
               >
                 Cancel
               </v-btn>
@@ -57,7 +57,7 @@
                 class="mx-2"
                 type="submit"
                 color="primary"
-                data-test="create-submit-btn"
+                data-test="create-timeline-submit-btn"
                 :disabled="!!error"
               >
                 Ok

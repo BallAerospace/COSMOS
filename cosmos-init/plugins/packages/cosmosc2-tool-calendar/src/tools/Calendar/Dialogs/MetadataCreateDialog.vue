@@ -60,7 +60,7 @@
                         label="Start Date"
                         class="mx-1"
                         :rules="[rules.required]"
-                        data-test="startDate"
+                        data-test="metadata-start-date"
                       />
                       <v-text-field
                         v-model="startTime"
@@ -69,7 +69,7 @@
                         label="Start Time"
                         class="mx-1"
                         :rules="[rules.required]"
-                        data-test="startTime"
+                        data-test="metadata-start-time"
                       />
                     </v-row>
                     <v-row class="mx-2 mb-2">
@@ -103,7 +103,7 @@
                     <v-spacer />
                     <v-btn
                       @click="dialogStep = 2"
-                      data-test="create-activity-step-two-btn"
+                      data-test="create-metadata-step-two-btn"
                       color="success"
                       :disabled="!!timeError"
                     >
@@ -129,7 +129,7 @@
                       @click="show = !show"
                       outlined
                       class="mx-2"
-                      data-test="create-cancel-btn"
+                      data-test="create-metadata-cancel-btn"
                     >
                       Cancel
                     </v-btn>
@@ -138,7 +138,7 @@
                       class="mx-2"
                       color="primary"
                       type="submit"
-                      data-test="create-submit-btn"
+                      data-test="create-metadata-submit-btn"
                       :disabled="!!timeError || !!typeError"
                     >
                       Ok
