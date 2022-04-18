@@ -20,20 +20,23 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - name: Install playwright dependencies
+        run: yarn; yarn playwright install --with-deps
+        working-directory: playwright
+      - name: Check for test.only
+        run: yarn playwright test --list --forbid-only
+        working-directory: playwright
       - name: cosmos-control.sh start
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
-        # Allow the containers to spin up (Note: reduce to 1min once we add additional tests)
-      - name: Sleep for 4min
-        run: sleep 240s
+        # Allow the containers to spin up
+      - name: Sleep for 1min
+        run: sleep 60s
         shell: bash
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      - name: Install dependencies
-        run: yarn; yarn playwright install --with-deps
-        working-directory: playwright
       - name: Run Playwright tests
         # Run separately to allow for parallelism
         run: yarn playwright test --project=chromium; yarn playwright test --project=firefox
