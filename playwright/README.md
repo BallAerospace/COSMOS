@@ -25,7 +25,7 @@ NOTE: All commands are assumed to be executed from this (playwright) directory u
 1.  Enable the playwright inspector / debugger with
 
         playwright> set PWDEBUG=1
-        playwright> yarn playwright --headed --project=chromium
+        playwright> yarn playwright test --headed --project=chromium
 
 1.  Create code coverage
 

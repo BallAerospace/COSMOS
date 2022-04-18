@@ -54,7 +54,7 @@
                       label="Start Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="start-date"
+                      data-test="narrative-start-date"
                     />
                     <v-text-field
                       v-model="startTime"
@@ -63,7 +63,7 @@
                       label="Start Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="start-time"
+                      data-test="narrative-start-time"
                     />
                   </v-row>
                   <v-row dense>
@@ -73,7 +73,7 @@
                       label="End Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="stop-date"
+                      data-test="narrative-stop-date"
                     />
                     <v-text-field
                       v-model="stopTime"
@@ -82,7 +82,7 @@
                       label="End Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="stop-time"
+                      data-test="narrative-stop-time"
                     />
                   </v-row>
                   <v-row class="mx-2 mb-2">

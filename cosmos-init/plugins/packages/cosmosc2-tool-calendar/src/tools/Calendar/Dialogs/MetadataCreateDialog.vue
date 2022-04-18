@@ -49,7 +49,7 @@
                   <v-row dense>
                     <v-checkbox
                       v-model="userProvidedTime"
-                      label="Input Metadata without providing a time"
+                      label="Input Metadata Time"
                     />
                   </v-row>
                   <div v-show="userProvidedTime">

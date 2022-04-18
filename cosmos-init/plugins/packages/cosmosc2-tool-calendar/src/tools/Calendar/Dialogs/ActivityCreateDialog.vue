@@ -48,8 +48,20 @@
                     v-model="timeline"
                     :items="timelineNames"
                     label="Timeline"
-                    data-test="select-timeline"
-                  />
+                    data-test="activity-select-timeline"
+                  >
+                    <template v-slot:item="{ item, attrs, on }">
+                      <v-list-item
+                        v-on="on"
+                        v-bind="attrs" 
+                        :data-test="`activity-select-timeline-${item}`"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title v-text="item" />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-select>
                   <v-row dense>
                     <v-text-field
                       v-model="startDate"
@@ -130,8 +142,20 @@
                     v-model="kind"
                     :items="types"
                     label="Activity Type"
-                    data-test="select-activity-type"
-                  />
+                    data-test="activity-select-type"
+                  >
+                    <template v-slot:item="{ item, attrs, on }">
+                      <v-list-item
+                        v-on="on"
+                        v-bind="attrs" 
+                        :data-test="`activity-select-type-${item}`"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title v-text="item" />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-select>
                   <div v-if="kind === 'COMMAND'">
                     <v-text-field
                       v-model="activityData"
