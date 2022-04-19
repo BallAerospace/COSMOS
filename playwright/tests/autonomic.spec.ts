@@ -23,10 +23,10 @@ import { Utilities } from '../utilities'
 
 let utils
 test.beforeEach(async ({ page }) => {
+  utils = new Utilities(page)
   await page.goto('/tools/autonomic')
   await expect(page.locator('body')).toContainText('Autonomic')
   await page.locator('.v-app-bar__nav-icon').click()
-  utils = new Utilities(page)
 })
 
 test('create new trigger group', async ({ page }) => {

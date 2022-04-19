@@ -33,8 +33,8 @@
           row
           @change="itemValueSelected"
         >
-          <v-radio label="RAW" value="RAW"></v-radio>
-          <v-radio label="CONVERTED" value="CONVERTED"></v-radio>
+          <v-radio label="RAW" value="RAW" />
+          <v-radio label="CONVERTED" value="CONVERTED" />
         </v-radio-group>
       </v-row>
       <target-packet-item-chooser vertical choose-item @on-set="itemSelected" />
