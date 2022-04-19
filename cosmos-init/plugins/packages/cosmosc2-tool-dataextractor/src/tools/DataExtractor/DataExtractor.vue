@@ -485,7 +485,7 @@ export default {
         .catch((error) => {
           if (error) {
             this.$notify.serious({
-              title: `Failed to load configuration ${name}`,
+              title: `Failed to open configuration ${name}`,
               body: error,
             })
             localStorage['lastconfig__data_exporter'] = null

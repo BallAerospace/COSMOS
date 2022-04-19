@@ -48,8 +48,20 @@
                     v-model="timeline"
                     :items="timelineNames"
                     label="Timeline"
-                    data-test="selectTimeline"
-                  />
+                    data-test="activity-select-timeline"
+                  >
+                    <template v-slot:item="{ item, attrs, on }">
+                      <v-list-item
+                        v-on="on"
+                        v-bind="attrs" 
+                        :data-test="`activity-select-timeline-${item}`"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title v-text="item" />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-select>
                   <v-row dense>
                     <v-text-field
                       v-model="startDate"
@@ -57,7 +69,7 @@
                       label="Start Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="startDate"
+                      data-test="activity-start-date"
                     />
                     <v-text-field
                       v-model="startTime"
@@ -66,7 +78,7 @@
                       label="Start Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="startTime"
+                      data-test="activity-start-time"
                     />
                   </v-row>
                   <v-row dense>
@@ -76,7 +88,7 @@
                       label="End Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="stopDate"
+                      data-test="activity-stop-date"
                     />
                     <v-text-field
                       v-model="stopTime"
@@ -85,7 +97,7 @@
                       label="End Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="stopTime"
+                      data-test="activity-stop-time"
                     />
                   </v-row>
                   <v-row class="mx-2 mb-2">
@@ -130,8 +142,20 @@
                     v-model="kind"
                     :items="types"
                     label="Activity Type"
-                    data-test="selectActivityType"
-                  />
+                    data-test="activity-select-type"
+                  >
+                    <template v-slot:item="{ item, attrs, on }">
+                      <v-list-item
+                        v-on="on"
+                        v-bind="attrs" 
+                        :data-test="`activity-select-type-${item}`"
+                      >
+                        <v-list-item-content>
+                          <v-list-item-title v-text="item" />
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                  </v-select>
                   <div v-if="kind === 'COMMAND'">
                     <v-text-field
                       v-model="activityData"
@@ -141,7 +165,7 @@
                       prefix="cmd('"
                       suffix="')"
                       hint="Timeline runs commands with cmd_no_hazardous_check"
-                      data-test="cmd"
+                      data-test="activity-cmd"
                     />
                   </div>
                   <div v-else-if="kind === 'SCRIPT'">
@@ -160,7 +184,7 @@
                       @click="show = !show"
                       outlined
                       class="mx-2"
-                      data-test="create-cancel-btn"
+                      data-test="create-activity-cancel-btn"
                     >
                       Cancel
                     </v-btn>
@@ -169,7 +193,7 @@
                       class="mx-2"
                       color="primary"
                       type="submit"
-                      data-test="create-submit-btn"
+                      data-test="create-activity-submit-btn"
                       :disabled="!!timeError || !!typeError"
                     >
                       Ok

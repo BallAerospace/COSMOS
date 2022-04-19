@@ -11,6 +11,7 @@ NOTE: All commands are assumed to be executed from this (playwright) directory u
 1.  Install testing dependencies with yarn
 
         playwright> yarn
+        playwright> npx playwright install
 
 1.  _[Optional]_ Fix istanbul/nyc coverage source lookups (use `fixlinux` if not on Windows).
     Tests will run successfully without this step and you will get coverage statistics, but line-by-line coverage won't work.
@@ -19,12 +20,12 @@ NOTE: All commands are assumed to be executed from this (playwright) directory u
 
 1.  Open playwright and run tests
 
-        playwright> yarn playwright --headed --project=chromium
+        playwright> yarn playwright test --headed --project=chromium
 
 1.  Enable the playwright inspector / debugger with
 
         playwright> set PWDEBUG=1
-        playwright> yarn playwright --headed --project=chromium
+        playwright> yarn playwright test --headed --project=chromium
 
 1.  Create code coverage
 
