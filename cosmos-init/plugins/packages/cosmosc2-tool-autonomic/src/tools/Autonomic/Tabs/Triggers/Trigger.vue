@@ -24,7 +24,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="download" @click="download">
+            <v-btn icon data-test="trigger-download" @click="download">
               <v-icon> mdi-download </v-icon>
             </v-btn>
           </div>
@@ -48,7 +48,7 @@
           <div v-on="on" v-bind="attrs">
             <v-btn
               icon
-              data-test="newTrigger"
+              data-test="new-trigger"
               @click="newTrigger()"
               :disabled="!group"
             >
@@ -71,9 +71,9 @@
     </v-card-title>
     <!-- The main part of the screen to have lists and information -->
     <v-row class="pa-4">
-      <div v-for="trigger in triggers" :key="trigger.name">
+      <div v-for="(trigger, i) in triggers" :key="trigger.name">
         <v-col>
-          <trigger-card :trigger="trigger" />
+          <trigger-card :trigger="trigger" :index="i" />
         </v-col>
       </div>
     </v-row>

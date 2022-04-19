@@ -32,7 +32,7 @@
               <v-text-field
                 v-model="groupName"
                 label="Group Name"
-                data-test="groupNameInput"
+                data-test="group-input-name"
                 autofocus
                 dense
                 outlined
@@ -64,7 +64,7 @@
                   @click="clearHandler"
                   outlined
                   class="mx-2"
-                  data-test="create-cancel-btn"
+                  data-test="group-create-cancel-btn"
                 >
                   Cancel
                 </v-btn>
@@ -73,7 +73,7 @@
                   class="mx-2"
                   type="submit"
                   color="primary"
-                  data-test="create-submit-btn"
+                  data-test="group-create-submit-btn"
                   :disabled="!!error"
                 >
                   Ok

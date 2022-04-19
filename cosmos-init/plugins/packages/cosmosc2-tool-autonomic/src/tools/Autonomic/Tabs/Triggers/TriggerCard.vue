@@ -61,7 +61,11 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-btn icon data-test="deactivate-icon" @click="deactivate">
+                <v-btn
+                  icon
+                  :data-test="`trigger-deactivate-icon-${index}`"
+                  @click="deactivateHandler"
+                >
                   <v-icon>mdi-power-plug-off</v-icon>
                 </v-btn>
               </div>
@@ -73,7 +77,11 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-btn icon data-test="activate-icon" @click="activate">
+                <v-btn
+                  icon
+                  :data-test="`trigger-activate-icon-${index}`"
+                  @click="activateHandler"
+                >
                   <v-icon>mdi-power-plug</v-icon>
                 </v-btn>
               </div>
@@ -85,7 +93,11 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="delete-icon" @click="deleteHandler">
+              <v-btn
+                icon
+                :data-test="`trigger-delete-icon-${index}`"
+                @click="deleteHandler"
+              >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </div>
@@ -106,11 +118,14 @@ export default {
       type: Object,
       required: true,
     },
+    index: {
+      type: Number,
+      required: true,
+    },
   },
   data() {
     return {}
   },
-  created() {},
   computed: {
     leftOperandText: function () {
       return this.trigger.left[this.trigger.left.type]
@@ -122,9 +137,8 @@ export default {
       return `${this.leftOperandText} ${this.trigger.operator} ${this.rightOperandText}`
     },
   },
-  watch: {},
   methods: {
-    activate: function () {
+    activateHandler: function () {
       Api.post(
         `/cosmos-api/autonomic/${this.trigger.group}/trigger/${this.trigger.name}/activate`,
         {}
@@ -135,7 +149,7 @@ export default {
         })
       })
     },
-    deactivate: function () {
+    deactivateHandler: function () {
       Api.post(
         `/cosmos-api/autonomic/${this.trigger.group}/trigger/${this.trigger.name}/deactivate`,
         {}
