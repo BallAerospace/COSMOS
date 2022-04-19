@@ -37,7 +37,7 @@ async function matchItem(page, item, regex) {
 //
 // Test the basic functionality of the application
 //
-test.only('displays INST HEALTH_STATUS & polls the api', async ({ page }) => {
+test('displays INST HEALTH_STATUS & polls the api', async ({ page }) => {
   // Verify we can hit it using the route
   await page.goto('/tools/packetviewer/INST/HEALTH_STATUS')
   await expect(page.locator('body')).toContainText('INST')
