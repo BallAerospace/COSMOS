@@ -24,7 +24,7 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/tlmviewer')
-  await expect(page.locator('body')).toContainText('Telemetry Viewer')
+  await expect(page.locator('.v-app-bar')).toContainText('Telemetry Viewer')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
   // Throw exceptions on any pageerror events

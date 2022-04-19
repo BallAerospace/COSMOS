@@ -23,7 +23,7 @@ import { format } from 'date-fns'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/scriptrunner')
-  await expect(page.locator('body')).toContainText('Script Runner')
+  await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page.locator('.v-app-bar__nav-icon').click()
   // Close the dialog that says how many running scripts there are
   await page.locator('button:has-text("Close")').click()
@@ -36,11 +36,12 @@ test('view started scripts', async ({ page }) => {
   wait
   puts "now we're done"
   `)
-  await page.locator('[data-test="Script Runner-Script"]').click()
-  await page.locator('text="View Started Scripts"').click()
-  await expect(page.locator('[data-test="running-scripts"]')).toContainText('No data available')
-  // Get out of the Running Scripts sheet
-  await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
+  // NOTE: We can't check that there are no running scripts because
+  // the tests run in parallel and there actually could be running scripts
+  // await page.locator('[data-test="Script Runner-Script"]').click()
+  // await page.locator('text="View Started Scripts"').click()
+  // await expect(page.locator('[data-test="running-scripts"]')).toContainText('No data available')
+  // await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
   // Start the script
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test="state"]')).toHaveValue('waiting')
@@ -62,7 +63,9 @@ test('view started scripts', async ({ page }) => {
   await page.locator('[data-test="Script Runner-Script"]').click()
   await page.locator('text="View Started Scripts"').click()
   await page.locator('button:has-text("Refresh")').first().click()
-  await expect(page.locator('[data-test="running-scripts"]')).toContainText('No data available')
+  // NOTE: We can't check that there are no running scripts because
+  // the tests run in parallel and there actually could be running scripts
+  // await expect(page.locator('[data-test="running-scripts"]')).toContainText('No data available')
   await page.locator('button:has-text("Refresh")').nth(1).click()
   await expect(page.locator('[data-test="completed-scripts"]')).toContainText(filename)
 })

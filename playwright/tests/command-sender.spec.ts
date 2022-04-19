@@ -24,7 +24,7 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/cmdsender')
-  await expect(page.locator('body')).toContainText('Command Sender')
+  await expect(page.locator('.v-app-bar')).toContainText('Command Sender')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
@@ -173,7 +173,7 @@ test('handles array values', async ({ page }) => {
 
 test('gets details with right click', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'COLLECT')
-  await page.locator('text=TYPE').first().click({ button: 'right' })
+  await page.locator('text=Collect type').click({ button: 'right' })
   await page.locator('text=Details').click()
   await expect(page.locator('.v-dialog')).toContainText('INST COLLECT TYPE')
   await page.locator('.v-dialog').press('Escape')
@@ -252,7 +252,7 @@ test('ignores range checks', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'COLLECT')
   await selectValue(page, 'TYPE', 'NORMAL') // Ensure TYPE is set since its required
   await setValue(page, 'TEMP', '100')
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
   // Dialog should pop up with error
   await expect(page.locator('.v-dialog')).toContainText('not in valid range')
   await page.locator('button:has-text("Ok")').click()
@@ -261,7 +261,7 @@ test('ignores range checks', async ({ page }) => {
   await expect(page.locator('main')).toContainText('not in valid range')
   await page.locator('[data-test="Command Sender-Mode"]').click()
   await page.locator('text=Ignore Range Checks').click()
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
   await expect(page.locator('main')).toContainText('TEMP 100") sent')
 })
 
@@ -290,12 +290,14 @@ test('shows ignored parameters', async ({ page }) => {
 // and re-check the raw buffer for a change.
 test('disable parameter conversions', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'SETPARAMS')
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
   await page.locator('.v-app-bar__nav-icon').click()
 
   await page.locator('text=Script Runner').click()
   await expect(page.locator('body')).toContainText('Script Runner')
-  await page.locator('textarea').fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
+  await page
+    .locator('textarea')
+    .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test="state"]')).toHaveValue('stopped', { timeout: 10000 })
   await expect(page.locator('[data-test="output-messages"]')).toContainText('00000010: 00 02')
@@ -306,11 +308,13 @@ test('disable parameter conversions', async ({ page }) => {
   await page.locator('text=Disable Parameter').click()
 
   await utils.selectTargetPacketItem('INST', 'SETPARAMS')
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
 
   await page.locator('text=Script Runner').click()
   await expect(page.locator('body')).toContainText('Script Runner')
-  await page.locator('textarea').fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
+  await page
+    .locator('textarea')
+    .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test="state"]')).toHaveValue('stopped', { timeout: 10000 })
   await expect(page.locator('[data-test="output-messages"]')).toContainText('00000010: 00 01')

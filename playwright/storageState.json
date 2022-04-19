@@ -9,12 +9,16 @@
           "value": "DEFAULT"
         },
         {
-          "name": "notoast",
+          "name": "cosmosToken",
+          "value": "password"
+        },
+        {
+          "name": "suppresswarning__clock_out_of_sync_with_server",
           "value": "true"
         },
         {
-          "name": "cosmosToken",
-          "value": "password"
+          "name": "notoast",
+          "value": "true"
         }
       ]
     }

@@ -34,8 +34,8 @@ jobs:
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
         # Allow the containers to spin up
-      - name: Sleep for 1min
-        run: sleep 60s
+      - name: Sleep for 4min
+        run: sleep 240s
         shell: bash
       - name: Run Playwright tests
         # Run separately to allow for parallelism

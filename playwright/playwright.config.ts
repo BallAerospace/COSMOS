@@ -1,5 +1,5 @@
 // playwright.config.ts
-import { PlaywrightTestConfig, devices } from "@playwright/test";
+import { PlaywrightTestConfig, devices } from '@playwright/test'
 
 /**
  * Read environment variables from file.
@@ -13,11 +13,11 @@ import { PlaywrightTestConfig, devices } from "@playwright/test";
  */
 const config: PlaywrightTestConfig = {
   // This runs global-setup.ts and generates storageState.json
-  globalSetup: require.resolve("./global-setup"),
+  globalSetup: require.resolve('./global-setup'),
 
-  testDir: "./tests",
+  testDir: './tests',
   /* Maximum time one test can run for. */
-  timeout: 120 * 1000,
+  timeout: 60 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -32,7 +32,7 @@ const config: PlaywrightTestConfig = {
   /* Allow parallelism on CI/CD */
   workers: process.env.CI ? 3 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: process.env.CI ? "github" : "list",
+  reporter: process.env.CI ? 'github' : 'list',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Tell the browser to slow everything down for debugging
@@ -42,18 +42,18 @@ const config: PlaywrightTestConfig = {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://localhost:2900",
+    baseURL: 'http://localhost:2900',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: process.env.CI ? "on-first-retry" : "on",
+    trace: process.env.CI ? 'on-first-retry' : 'on',
     // Tell all tests to load signed-in state from 'storageState.json'.
-    storageState: "storageState.json",
-    screenshot: "only-on-failure",
+    storageState: 'storageState.json',
+    screenshot: 'only-on-failure',
   },
 
   projects: [
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'firefox',
@@ -67,6 +67,6 @@ const config: PlaywrightTestConfig = {
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
   // outputDir: 'test-results/',
-};
+}
 
-export default config;
+export default config

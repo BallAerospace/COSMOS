@@ -22,7 +22,7 @@ import { test, expect } from 'playwright-test-coverage'
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.goto('/tools/scriptrunner')
-  await expect(page.locator('body')).toContainText('Script Runner')
+  await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page.locator('.v-app-bar__nav-icon').click()
   // Close the dialog that says how many running scripts there are
   await page.locator('button:has-text("Close")').click()
@@ -167,9 +167,7 @@ test('displays disconnect icon', async ({ page }) => {
   await expect(page.locator('[data-test="output-messages"]')).toContainText(
     'total:0' // collect count does not change
   )
-  await expect(page.locator('[data-test="output-messages"]')).toContainText(
-    'disconnect:100'
-  )
+  await expect(page.locator('[data-test="output-messages"]')).toContainText('disconnect:100')
 
   await page.locator('[data-test="Script Runner-Script"]').click()
   await page.locator('text=Toggle Disconnect').click()

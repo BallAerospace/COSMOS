@@ -24,7 +24,7 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/dataviewer')
-  await expect(page.locator('body')).toContainText('Data Viewer')
+  await expect(page.locator('.v-app-bar')).toContainText('Data Viewer')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
@@ -194,7 +194,7 @@ test('controls playback', async ({ page }) => {
 test('changes display settings', async ({ page }) => {
   await page.locator('[data-test=new-tab]').click()
   await page.locator('[data-test=new-packet]').click()
-  await utils.selectTargetPacketItem('INST', 'ADCS')
+  await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await page.locator('[data-test=add-packet-button]').click()
   await page.locator('[data-test=start-button]').click()
   await utils.sleep(1000) // Allow a few packets to come in
@@ -205,15 +205,15 @@ test('changes display settings', async ({ page }) => {
   await page.locator('text=Show line address').click()
   await page.locator('text=Show timestamp').click()
   // check number input validation
-  await page.locator('[data-test=dump-component-settings-num-bytes]').fill('0')
-  await page.locator('[data-test="dump-component-settings-num-bytes"]').press('Enter') // fire the validation
-  await expect(page.locator('[data-test=dump-component-settings-num-bytes]')).toHaveValue('1')
   await page.locator('[data-test=dump-component-settings-num-packets]').fill('0')
   await page.locator('[data-test="dump-component-settings-num-packets"]').press('Enter') // fire the validation
   await expect(page.locator('[data-test=dump-component-settings-num-packets]')).toHaveValue('1')
   await page.locator('[data-test=dump-component-settings-num-packets]').fill('101')
   await page.locator('[data-test="dump-component-settings-num-packets"]').press('Enter') // fire the validation
   await expect(page.locator('[data-test=dump-component-settings-num-packets]')).toHaveValue('100')
+  await page.locator('[data-test=dump-component-settings-num-bytes]').fill('0')
+  await page.locator('[data-test="dump-component-settings-num-bytes"]').press('Enter') // fire the validation
+  await expect(page.locator('[data-test=dump-component-settings-num-bytes]')).toHaveValue('1')
 })
 
 test('downloads a file', async ({ page }) => {

@@ -22,7 +22,7 @@ import { test, expect } from 'playwright-test-coverage'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/scriptrunner')
-  await expect(page.locator('body')).toContainText('Script Runner')
+  await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page.locator('.v-app-bar__nav-icon').click()
 })
 

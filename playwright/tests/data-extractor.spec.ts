@@ -25,7 +25,7 @@ import { format, add, sub } from 'date-fns'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/dataextractor')
-  await expect(page.locator('body')).toContainText('Data Extractor')
+  await expect(page.locator('.v-app-bar')).toContainText('Data Extractor')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
   await utils.sleep(100)
@@ -123,17 +123,8 @@ test('cancels a process', async ({ page }) => {
   await utils.addTargetPacketItem('INST', 'ADCS', 'CCSDSVER')
   await page.locator('text=Process').click()
   await expect(page.locator('text=End date/time is greater than current date/time')).toBeVisible()
-  await new Promise((resolve) => setTimeout(resolve, 2000)) // Allow the download to start
-
-  const [download] = await Promise.all([
-    // Start waiting for the download
-    page.waitForEvent('download'),
-    // Cancel initiates the download
-    page.locator('text=Cancel').click(),
-  ])
-  // Wait for the download process to complete
-  await download.path()
-
+  await utils.sleep(5000)
+  await utils.download(page, 'text=Cancel')
   // Ensure the Cancel button goes back to Process
   await expect(page.locator('text=Process')).toBeVisible()
 })
@@ -141,7 +132,9 @@ test('cancels a process', async ({ page }) => {
 test('adds an entire target', async ({ page }) => {
   await utils.addTargetPacketItem('INST')
   // Since we're checking count() which is instant we need to poll
-  await expect.poll(() => page.locator('[data-test=itemList] > div').count()).toBeGreaterThan(50)
+  await expect
+    .poll(() => page.locator('[data-test=itemList] > div').count(), { timeout: 10000 })
+    .toBeGreaterThan(50)
 })
 
 test('adds an entire packet', async ({ page }) => {
@@ -201,7 +194,7 @@ test('processes commands', async ({ page }) => {
   await page.goto('/tools/cmdsender/INST/ABORT')
   await page.locator('[data-test=select-send]').click()
   await page.locator('text=cmd("INST ABORT") sent')
-  await utils.sleep(1500) // Allow the command to be sent
+  expect(await page.inputValue('[data-test=sender-history]')).toMatch('cmd("INST ABORT")')
 
   const start = sub(new Date(), { minutes: 5 })
   await page.goto('/tools/dataextractor')

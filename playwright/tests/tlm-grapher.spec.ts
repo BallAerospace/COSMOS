@@ -20,12 +20,12 @@
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
 import { Utilities } from '../utilities'
-import { format, add, sub } from 'date-fns'
+import { format, sub } from 'date-fns'
 
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/tlmgrapher')
-  await expect(page.locator('body')).toContainText('Telemetry Grapher')
+  await expect(page.locator('.v-app-bar')).toContainText('Telemetry Grapher')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
