@@ -31,11 +31,11 @@ test.beforeEach(async ({ page }) => {
   utils = new Utilities(page)
 })
 
-async function formatTime(page, date) {
+async function formatTime(date) {
   return format(date, 'HH:mm:ss')
 }
 
-async function formatDate(page, date) {
+async function formatDate(date) {
   return format(date, 'yyyy-MM-dd')
 }
 
@@ -82,8 +82,8 @@ test('test top bar functionality', async ({ page }) => {
 test('test create narration functionality', async ({ page }) => {
   // 
   const stopDateTime = add(new Date(), { minutes: 30 })
-  const stopDate = await formatDate(page, stopDateTime)
-  const stopTime = await formatTime(page, stopDateTime)
+  const stopDate = await formatDate(stopDateTime)
+  const stopTime = await formatTime(stopDateTime)
   // Click create dropdown
   await page.locator('[data-test="create-event"]').click()
   await page.locator('[data-test="narrative"]').click()
@@ -110,8 +110,8 @@ test('test create narration functionality', async ({ page }) => {
 test('test create metadata functionality', async ({ page }) => {
   // 
   const startDateTime = sub(new Date(), { minutes: 30 })
-  const startDate = await formatDate(page, startDateTime)
-  const startTime = await formatTime(page, startDateTime)
+  const startDate = await formatDate(startDateTime)
+  const startTime = await formatTime(startDateTime)
   // Click create dropdown
   await page.locator('[data-test="create-event"]').click()
   await page.locator('[data-test="metadata"]').click()
@@ -155,15 +155,15 @@ test('test create timeline functionality', async ({ page }) => {
   await page.locator('[data-test="create-timeline-submit-btn"]').click();
 })
 
-test.only('test create activity functionality', async ({ page }) => {
+test('test create activity functionality', async ({ page }) => {
   // 
   const startDateTime = add(new Date(), { minutes: 90 })
-  const startDate = await formatDate(page, startDateTime)
-  const startTime = await formatTime(page, startDateTime)
+  const startDate = await formatDate(startDateTime)
+  const startTime = await formatTime(startDateTime)
   // 
   const stopDateTime = add(new Date(), { minutes: 95 })
-  const stopDate = await formatDate(page, stopDateTime)
-  const stopTime = await formatTime(page, stopDateTime)
+  const stopDate = await formatDate(stopDateTime)
+  const stopTime = await formatTime(stopDateTime)
   // click create dropdown
   await page.locator('[data-test="create-event"]').click()
   await page.locator('[data-test="activity"]').click()
@@ -177,6 +177,12 @@ test.only('test create activity functionality', async ({ page }) => {
   await page.locator('[data-test="activity-stop-time"]').fill(stopTime)
   // step two
   await page.locator('[data-test="create-activity-step-two-btn"]').click()
+  // select reserve
+  await page.locator('[data-test="activity-select-type"]').click()
+  await page.locator('[data-test="activity-select-type-RESERVE"]').click()
+  // select script
+  await page.locator('[data-test="activity-select-type"]').click()
+  await page.locator('[data-test="activity-select-type-SCRIPT"]').click()
   // input command
   await page.locator('[data-test="activity-select-type"]').click()
   await page.locator('[data-test="activity-select-type-COMMAND"]').click()
@@ -203,13 +209,39 @@ test.only('test create activity functionality', async ({ page }) => {
   await page.locator('[data-test="create-activity-submit-btn"]').click()
 })
 
+test('test timeline select and activity delete functionality', async ({ page }) => {
+  // 
+  await page.locator('text=DEFAULT metadata').click()
+  await page.locator('#cosmos-menu >> text=Calendar').click();
+  //
+  await page.locator('text=DEFAULT metadata').click()
+  await page.locator('[data-test="delete-metadata"]').click()
+  await page.locator('button:has-text("Delete")').click()
+  // 
+  await page.locator('text=Another test').click()
+  await page.locator('#cosmos-menu >> text=Calendar').click();
+  //
+  await page.locator('text=Another test').click()
+  await page.locator('[data-test="delete-narration"]').click()
+  await page.locator('button:has-text("Delete")').click()
+  // 
+  await page.locator('[data-test="select-timeline-Alpha"]').click()
+  // 
+  await page.locator('text=Alpha command').click()
+  await page.locator('#cosmos-menu >> text=Calendar').click();
+  // 
+  await page.locator('text=Alpha command').click()
+  await page.locator('[data-test="delete-activity"]').click()
+  await page.locator('button:has-text("Delete")').click()
+})
+
 test('test delete timeline functionality', async ({ page }) => {
   // 
-  await page.locator('[data-test="Alpha-options"]').click();
-  await page.locator('[data-test="Alpha-delete"]').click();
-  await page.locator('button:has-text("Cancel")').nth(1).click();
+  await page.locator('[data-test="Alpha-options"]').click()
+  await page.locator('[data-test="Alpha-delete"]').click()
+  await page.locator('button:has-text("Cancel")').nth(1).click()
   // 
-  await page.locator('[data-test="Alpha-options"]').click();
-  await page.locator('[data-test="Alpha-delete"]').click();
-  await page.locator('button:has-text("Delete")').nth(1).click();
+  await page.locator('[data-test="Alpha-options"]').click()
+  await page.locator('[data-test="Alpha-delete"]').click()
+  await page.locator('button:has-text("Delete")').nth(1).click()
 })
