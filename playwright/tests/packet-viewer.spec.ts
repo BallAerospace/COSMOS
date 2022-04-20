@@ -107,13 +107,13 @@ test('changes the polling rate', async ({ page }) => {
 //
 // Test the View menu
 //
-test.only('displays formatted items with units by default', async ({ page }) => {
+test('displays formatted items with units by default', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   // Check for exactly 3 decimal points followed by units
   await matchItem(page, 'TEMP1', /^-?\d+\.\d{3}\s\S$/)
 })
 
-test.only('displays formatted items with units', async ({ page }) => {
+test('displays formatted items with units', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Formatted Items with Units').click()
@@ -121,7 +121,7 @@ test.only('displays formatted items with units', async ({ page }) => {
   await matchItem(page, 'TEMP1', /^-?\d+\.\d{3}\s\S$/)
 })
 
-test.only('displays raw items', async ({ page }) => {
+test('displays raw items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Raw').click()
@@ -129,7 +129,7 @@ test.only('displays raw items', async ({ page }) => {
   await matchItem(page, 'TEMP1', /^\d{1,5}$/)
 })
 
-test.only('displays converted items', async ({ page }) => {
+test('displays converted items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Converted').click()
@@ -137,7 +137,7 @@ test.only('displays converted items', async ({ page }) => {
   await matchItem(page, 'TEMP1', /^-?\d+\.\d{4,}$/)
 })
 
-test.only('displays formatted items', async ({ page }) => {
+test('displays formatted items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await page.locator('[data-test=packet-viewer-view]').click()
   // Use text-is because we have to match exactly since there is
