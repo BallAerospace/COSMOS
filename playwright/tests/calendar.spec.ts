@@ -209,7 +209,7 @@ test('test create activity functionality', async ({ page }) => {
   await page.locator('[data-test=create-activity-submit-btn]').click()
 })
 
-test('test timeline select and activity delete functionality', async ({ page }) => {
+test.fixme('test timeline select and activity delete functionality', async ({ page }) => {
   //
   await page.locator('text=DEFAULT metadata').click()
   await page.locator('#cosmos-menu >> text=Calendar').click()
@@ -235,7 +235,7 @@ test('test timeline select and activity delete functionality', async ({ page }) 
   await page.locator('button:has-text("Delete")').click()
 })
 
-test('test delete timeline functionality', async ({ page }) => {
+test.fixme('test delete timeline functionality', async ({ page }) => {
   //
   await page.locator('[data-test=Alpha-options]').click()
   await page.locator('[data-test=Alpha-delete]').click()

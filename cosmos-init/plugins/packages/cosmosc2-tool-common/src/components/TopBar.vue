@@ -111,7 +111,7 @@ export default {
   methods: {
     // Convert the string to a standard data-test format
     formatDT: function(string) {
-      return string.replace(' ', '-').toLowerCase()
+      return string.replaceAll(' ', '-').toLowerCase()
     },
   }
 }
