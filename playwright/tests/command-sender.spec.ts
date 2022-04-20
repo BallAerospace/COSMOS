@@ -24,29 +24,29 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/cmdsender')
-  await expect(page.locator('body')).toContainText('Command Sender')
+  await expect(page.locator('.v-app-bar')).toContainText('Command Sender')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
 
 // Helper function to select a parameter dropdown
 async function selectValue(page, param, value) {
-  await page.locator(`tr:has-text("${param}") [data-test="cmd-param-select"]`).click()
+  await page.locator(`tr:has-text("${param}") [data-test=cmd-param-select]`).click()
   await page.locator(`text=${value}`).click()
   await expect(page.locator('tr:has-text("TYPE")')).toContainText(value)
 }
 
 // Helper function to set parameter value
 async function setValue(page, param, value) {
-  await page.locator(`tr:has-text("${param}") [data-test="cmd-param-value"]`).fill(value)
+  await page.locator(`tr:has-text("${param}") [data-test=cmd-param-value]`).fill(value)
   // Trigger the update handler that sets the drop down by pressing Enter
-  await page.locator(`tr:has-text("${param}") [data-test="cmd-param-value"]`).press('Enter')
+  await page.locator(`tr:has-text("${param}") [data-test=cmd-param-value]`).press('Enter')
   await checkValue(page, param, value)
 }
 
 // Helper function to check parameter value
 async function checkValue(page, param, value) {
-  expect(await page.inputValue(`tr:has-text("${param}") [data-test="cmd-param-value"]`)).toMatch(
+  expect(await page.inputValue(`tr:has-text("${param}") [data-test=cmd-param-value]`)).toMatch(
     value
   )
 }
@@ -173,7 +173,7 @@ test('handles array values', async ({ page }) => {
 
 test('gets details with right click', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'COLLECT')
-  await page.locator('text=TYPE').first().click({ button: 'right' })
+  await page.locator('text=Collect type').click({ button: 'right' })
   await page.locator('text=Details').click()
   await expect(page.locator('.v-dialog')).toContainText('INST COLLECT TYPE')
   await page.locator('.v-dialog').press('Escape')
@@ -252,16 +252,16 @@ test('ignores range checks', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'COLLECT')
   await selectValue(page, 'TYPE', 'NORMAL') // Ensure TYPE is set since its required
   await setValue(page, 'TEMP', '100')
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
   // Dialog should pop up with error
   await expect(page.locator('.v-dialog')).toContainText('not in valid range')
   await page.locator('button:has-text("Ok")').click()
 
   // Status should also show error
   await expect(page.locator('main')).toContainText('not in valid range')
-  await page.locator('[data-test="Command Sender-Mode"]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Ignore Range Checks').click()
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
   await expect(page.locator('main')).toContainText('TEMP 100") sent')
 })
 
@@ -269,7 +269,7 @@ test('displays state values in hex', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'COLLECT')
   await selectValue(page, 'TYPE', 'NORMAL') // Ensure TYPE is set since its required
   await checkValue(page, 'TYPE', '0')
-  await page.locator('[data-test="Command Sender-Mode"]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Display State').click()
   await checkValue(page, 'TYPE', '0x0')
 })
@@ -278,7 +278,7 @@ test('shows ignored parameters', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'ABORT')
   // All the ABORT parameters are ignored so the table shouldn't appear
   await expect(page.locator('main')).not.toContainText('Parameters')
-  await page.locator('[data-test="Command Sender-Mode"]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Show Ignored').click()
   await expect(page.locator('main')).toContainText('Parameters') // Now the parameters table is shown
   await expect(page.locator('main')).toContainText('CCSDSVER') // CCSDSVER is one of the parameters
@@ -290,28 +290,32 @@ test('shows ignored parameters', async ({ page }) => {
 // and re-check the raw buffer for a change.
 test('disable parameter conversions', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'SETPARAMS')
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
   await page.locator('.v-app-bar__nav-icon').click()
 
   await page.locator('text=Script Runner').click()
   await expect(page.locator('body')).toContainText('Script Runner')
-  await page.locator('textarea').fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
+  await page
+    .locator('textarea')
+    .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test="state"]')).toHaveValue('stopped', { timeout: 10000 })
-  await expect(page.locator('[data-test="output-messages"]')).toContainText('00000010: 00 02')
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 02')
 
   await page.locator('text=Command Sender').click()
   await expect(page.locator('body')).toContainText('Command Sender')
-  await page.locator('[data-test="Command Sender-Mode"]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Disable Parameter').click()
 
   await utils.selectTargetPacketItem('INST', 'SETPARAMS')
-  await page.locator('button:has-text("Send")').click();
+  await page.locator('button:has-text("Send")').click()
 
   await page.locator('text=Script Runner').click()
   await expect(page.locator('body')).toContainText('Script Runner')
-  await page.locator('textarea').fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
+  await page
+    .locator('textarea')
+    .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test="state"]')).toHaveValue('stopped', { timeout: 10000 })
-  await expect(page.locator('[data-test="output-messages"]')).toContainText('00000010: 00 01')
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 01')
 })

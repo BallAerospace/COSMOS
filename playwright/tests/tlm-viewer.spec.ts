@@ -24,7 +24,7 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/tlmviewer')
-  await expect(page.locator('body')).toContainText('Telemetry Viewer')
+  await expect(page.locator('.v-app-bar')).toContainText('Telemetry Viewer')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
   // Throw exceptions on any pageerror events
@@ -35,15 +35,15 @@ test.beforeEach(async ({ page }) => {
 
 async function showScreen(page, target, screen, callback = null) {
   await page.locator('div[role="button"]:has-text("Select Target")').click()
-  await page.locator(`.v-list-item__title:text-matches("^${target}$")`).click()
+  await page.locator(`.v-list-item__title:text-is("${target}")`).click()
   await page.locator('div[role="button"]:has-text("Select Screen")').click()
-  await page.locator(`.v-list-item__title:text-matches("^${screen}$")`).click()
+  await page.locator(`.v-list-item__title:text-is("${screen}")`).click()
   await page.locator('button:has-text("Show Screen")').click()
   await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).toBeVisible()
   if (callback) {
     await callback()
   }
-  await page.locator('[data-test="closeScreenIcon"]').click()
+  await page.locator('[data-test=close-screen-icon]').click()
   await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).not.toBeVisible()
 }
 
@@ -73,9 +73,9 @@ test('displays INST GROUND', async ({ page }) => {
 test('displays INST HS', async ({ page }) => {
   await showScreen(page, 'INST', 'HS', async function () {
     await expect(page.locator('text=Health and Status')).toBeVisible()
-    await page.locator('[data-test="minimizeScreenIcon"]').click()
+    await page.locator('[data-test=minimize-screen-icon]').click()
     await expect(page.locator('text=Health and Status')).not.toBeVisible()
-    await page.locator('[data-test="maximizeScreenIcon"]').click()
+    await page.locator('[data-test=maximize-screen-icon]').click()
     await expect(page.locator('text=Health and Status')).toBeVisible()
   })
 })
@@ -97,21 +97,21 @@ test('displays INST PARAMS', async ({ page }) => {
   await showScreen(page, 'INST', 'PARAMS')
 })
 
-test.only('displays INST SIMPLE', async ({ page }) => {
+test('displays INST SIMPLE', async ({ page }) => {
   const text = 'TEST' + Math.floor(Math.random() * 10000)
   await showScreen(page, 'INST', 'SIMPLE', async function () {
     await expect(page.locator(`text=${text}`)).not.toBeVisible()
-    await page.locator('[data-test="editScreenIcon"]').click()
-    await page.locator('[data-test="screenTextInput"]').fill(`
+    await page.locator('[data-test=edit-screen-icon]').click()
+    await page.locator('[data-test=screen-text-input]').fill(`
     SCREEN AUTO AUTO 0.5
     LABEL ${text}
     BIG INST HEALTH_STATUS TEMP2
     `)
     await page.locator('button:has-text("Save")').click()
     await expect(page.locator(`text=${text}`)).toBeVisible()
-    await page.locator('[data-test="editScreenIcon"]').click()
+    await page.locator('[data-test=edit-screen-icon]').click()
     await expect(page.locator(`.v-system-bar:has-text("Edit Screen")`)).toBeVisible()
-    await utils.download(page, '[data-test="downloadScreenIcon"]', function (contents) {
+    await utils.download(page, '[data-test=download-screen-icon]', function (contents) {
       expect(contents).toContain(`LABEL ${text}`)
       expect(contents).toContain('BIG INST HEALTH_STATUS TEMP2')
     })

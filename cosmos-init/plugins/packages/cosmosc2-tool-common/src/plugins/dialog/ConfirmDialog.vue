@@ -11,9 +11,9 @@
         <span v-else>{{ params.text }}</span>
       </v-card-text>
       <v-card-actions>
-        <v-btn class="mx-2" color="primary" @click="ok"> {{ params.okText }} </v-btn>
+        <v-btn class="mx-2" color="primary" @click="ok" :data-test="`confirm-dialog-${params.okText.toLowerCase()}`"> {{ params.okText }} </v-btn>
         <v-spacer />
-        <v-btn v-if="params.cancelText" class="mx-2" color="primary" @click="cancel"> {{ params.cancelText }} </v-btn>
+        <v-btn v-if="params.cancelText" class="mx-2" color="primary" @click="cancel" :data-test="`confirm-dialog-${params.cancelText.toLowerCase()}`"> {{ params.cancelText }} </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

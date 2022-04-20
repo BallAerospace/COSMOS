@@ -193,7 +193,6 @@ module Cosmos
 
   # Provides a proxy to the JsonDRbObject which communicates with the API server
   class ServerProxy
-
     # pull cosmos-cmd-tlm-api url from environment variables
     def generate_url
       schema = ENV['COSMOS_API_SCHEMA'] || 'http'
@@ -238,7 +237,21 @@ module Cosmos
       when :request
         @json_drb.request(*method_params, **kw_params, scope: $cosmos_scope)
       else
-        @json_drb.method_missing(method_name, *method_params, **kw_params, scope: $cosmos_scope)
+        if $disconnect
+          result = nil
+          # If :disconnect is there delete it and return the value
+          # If it is not there, delete returns nil
+          disconnect = kw_params.delete(:disconnect)
+          # The only commands allowed through in disconnect mode are read-only
+          # Thus we allow the get, list, tlm and limits_enabled and subscribe methods
+          if method_name =~ /get_\w*|list_\w*|^tlm|limits_enabled|subscribe/
+            result = @json_drb.method_missing(method_name, *method_params, **kw_params, scope: $cosmos_scope)
+          end
+          # If they overrode the return value using the disconnect keyword then return that
+          return disconnect ? disconnect : result
+        else
+          @json_drb.method_missing(method_name, *method_params, **kw_params, scope: $cosmos_scope)
+        end
       end
     end
   end

@@ -27,7 +27,7 @@
             v-bind="attrs"
             v-on="on"
             class="mx-1"
-            :data-test="`${title}-${menu.label}`"
+            :data-test="formatDT(`${title} ${menu.label}`)"
           >
             <span v-text="menu.label" />
             <v-icon right> mdi-menu-down </v-icon>
@@ -48,7 +48,7 @@
                 @click="option.command"
                 :key="j"
                 :disabled="option.disabled"
-                :data-test="`${title}-${menu.label}-${option.label}`"
+                :data-test="formatDT(`${title} ${menu.label} ${option.label}`)"
               >
                 <v-list-item-action
                   v-if="option.radio"
@@ -108,6 +108,12 @@ export default {
       default: '',
     },
   },
+  methods: {
+    // Convert the string to a standard data-test format
+    formatDT: function(string) {
+      return string.replaceAll(' ', '-').toLowerCase()
+    },
+  }
 }
 </script>
 

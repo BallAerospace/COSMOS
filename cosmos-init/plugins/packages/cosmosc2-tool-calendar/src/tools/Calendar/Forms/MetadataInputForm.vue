@@ -59,7 +59,10 @@
               <v-tooltip top>
                 <template v-slot:activator="{ on, attrs }">
                   <div v-on="on" v-bind="attrs">
-                    <v-icon data-test="delete-metadata-icon" @click="rm(i)">
+                    <v-icon
+                      :data-test="`delete-metadata-icon-${i}`"
+                      @click="rm(i)"
+                    >
                       mdi-delete
                     </v-icon>
                   </div>

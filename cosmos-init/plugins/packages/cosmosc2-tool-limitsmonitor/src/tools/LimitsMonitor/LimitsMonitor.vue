@@ -37,12 +37,16 @@
         </v-tab-item>
       </v-tabs-items>
     </v-card>
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <open-config-dialog
+      v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration"
     />
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <save-config-dialog
+      v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
       @success="saveConfiguration"
