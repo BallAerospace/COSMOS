@@ -43,7 +43,7 @@ async function showScreen(page, target, screen, callback = null) {
   if (callback) {
     await callback()
   }
-  await page.locator('[data-test="closeScreenIcon"]').click()
+  await page.locator('[data-test=close-screen-icon]').click()
   await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).not.toBeVisible()
 }
 
@@ -73,9 +73,9 @@ test('displays INST GROUND', async ({ page }) => {
 test('displays INST HS', async ({ page }) => {
   await showScreen(page, 'INST', 'HS', async function () {
     await expect(page.locator('text=Health and Status')).toBeVisible()
-    await page.locator('[data-test="minimizeScreenIcon"]').click()
+    await page.locator('[data-test=minimize-screen-icon]').click()
     await expect(page.locator('text=Health and Status')).not.toBeVisible()
-    await page.locator('[data-test="maximizeScreenIcon"]').click()
+    await page.locator('[data-test=maximize-screen-icon]').click()
     await expect(page.locator('text=Health and Status')).toBeVisible()
   })
 })
@@ -101,17 +101,17 @@ test('displays INST SIMPLE', async ({ page }) => {
   const text = 'TEST' + Math.floor(Math.random() * 10000)
   await showScreen(page, 'INST', 'SIMPLE', async function () {
     await expect(page.locator(`text=${text}`)).not.toBeVisible()
-    await page.locator('[data-test="editScreenIcon"]').click()
-    await page.locator('[data-test="screenTextInput"]').fill(`
+    await page.locator('[data-test=edit-screen-icon]').click()
+    await page.locator('[data-test=screen-text-input]').fill(`
     SCREEN AUTO AUTO 0.5
     LABEL ${text}
     BIG INST HEALTH_STATUS TEMP2
     `)
     await page.locator('button:has-text("Save")').click()
     await expect(page.locator(`text=${text}`)).toBeVisible()
-    await page.locator('[data-test="editScreenIcon"]').click()
+    await page.locator('[data-test=edit-screen-icon]').click()
     await expect(page.locator(`.v-system-bar:has-text("Edit Screen")`)).toBeVisible()
-    await utils.download(page, '[data-test="downloadScreenIcon"]', function (contents) {
+    await utils.download(page, '[data-test=download-screen-icon]', function (contents) {
       expect(contents).toContain(`LABEL ${text}`)
       expect(contents).toContain('BIG INST HEALTH_STATUS TEMP2')
     })

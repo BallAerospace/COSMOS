@@ -42,12 +42,12 @@ test('keeps a debug command history', async ({ page }) => {
   `)
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Toggle Debug').click()
   await expect(page.locator('[data-test=debug-text]')).toBeVisible()
   await page.locator('[data-test=debug-text]').type('x')
   await page.keyboard.press('Enter')
-  await expect(page.locator('[data-test="output-messages"]')).toContainText('12345')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('12345')
   await page.locator('[data-test=debug-text]').type('puts "abc123!"')
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-test=output-messages]')).toContainText('abc123!')
@@ -82,9 +82,9 @@ test('keeps a debug command history', async ({ page }) => {
   await page.locator('[data-test=go-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   // Verify we were able to change the 'x' variable
-  await expect(page.locator('[data-test="output-messages"]')).toContainText('x:67890')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('x:67890')
 
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Toggle Debug').click()
   await expect(page.locator('[data-test=debug-text]')).not.toBeVisible()
 })
@@ -94,7 +94,7 @@ test('retries failed checks', async ({ page }) => {
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('error')
   // Check for the initial check message
-  await expect(page.locator('[data-test="output-messages"]')).toContainText('1 == 2 is FALSE')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('1 == 2 is FALSE')
   await page.locator('[data-test=pause-retry-button]').click() // Retry
   // Now we should have two error messages
   await expect(
@@ -107,7 +107,7 @@ test('retries failed checks', async ({ page }) => {
 
 test('displays the call stack', async ({ page }) => {
   // Show Call Stack is disabled unless a script is running
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   // NOTE: This doesn't work in playwright 1.21.0 due to unexpected value "false"
   // See: https://github.com/microsoft/playwright/issues/13583
   // await expect(page.locator("text=Show Call Stack")).toBeDisabled();
@@ -127,19 +127,19 @@ test('displays the call stack', async ({ page }) => {
   await page.locator('[data-test=pause-retry-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
 
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Show Call Stack').click()
   await expect(page.locator('.v-dialog')).toContainText('Call Stack')
   await page.locator('button:has-text("Ok")').click()
   await page.locator('[data-test=stop-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
 
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   await expect(page.locator('text=Show Call Stack')).toHaveAttribute('disabled', 'disabled')
 })
 
 test('displays disconnect icon', async ({ page }) => {
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Toggle Disconnect').click()
 
   // In Disconnect mode all commands go nowhere, all checks pass,
@@ -164,11 +164,11 @@ test('displays disconnect icon', async ({ page }) => {
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
     timeout: 10000,
   })
-  await expect(page.locator('[data-test="output-messages"]')).toContainText(
+  await expect(page.locator('[data-test=output-messages]')).toContainText(
     'total:0' // collect count does not change
   )
-  await expect(page.locator('[data-test="output-messages"]')).toContainText('disconnect:100')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('disconnect:100')
 
-  await page.locator('[data-test="Script Runner-Script"]').click()
+  await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Toggle Disconnect').click()
 })

@@ -34,13 +34,13 @@ test('clears the editor on File->New', async ({ page }) => {
   await page.locator('textarea').fill('this is a test')
   // But can't check on the textarea because it has an input
   await expect(page.locator('#editor')).toContainText('this is a test')
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=New File').click()
   await expect(page.locator('#editor')).not.toContainText('this is a test')
 })
 
 test('open a file', async ({ page }) => {
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Open File').click()
   await utils.sleep(1000)
   await page.locator('[data-test=file-open-save-search]').type('dis')
@@ -53,7 +53,7 @@ test('open a file', async ({ page }) => {
 
 test('handles File->Save new file', async ({ page }) => {
   await page.locator('textarea').fill('puts "File Save new File"')
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Save File').click()
   // New files automatically open File Save As
   await page.locator('text=File Save As')
@@ -68,7 +68,7 @@ test('handles File->Save new file', async ({ page }) => {
   expect(await page.locator('#sr-controls')).toContainText('INST/procedures/save_new.rb')
 
   // Delete the file
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Delete File').click()
   await page.locator('text=Permanently delete file')
   await page.locator('button:has-text("Delete")').click()
@@ -76,7 +76,7 @@ test('handles File->Save new file', async ({ page }) => {
 
 test('handles File Save overwrite', async ({ page }) => {
   await page.locator('textarea').fill('puts "File Save overwrite"')
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Save File').click()
   await page
     .locator('[data-test=file-open-save-filename]')
@@ -87,7 +87,7 @@ test('handles File Save overwrite', async ({ page }) => {
   await page.locator('textarea').fill('# comment1')
   // TODO: Check for * by filename ... not currently implemented
   // expect(await page.locator('[data-test=filename]')).toContainText('INST/procedures/temp.rb *')
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Save File').click()
   // TODO: Check that * by filename goes away ... not currently implemented
   // expect(await page.locator('[data-test=filename]')).toContainText('INST/procedures/temp.rb')
@@ -101,7 +101,7 @@ test('handles File Save overwrite', async ({ page }) => {
   // expect(await page.locator('[data-test=filename]')).not.toContainText('*')
 
   // File->Save As
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Save As...').click()
   await page.locator('text=INST/procedures/save_overwrite.rb')
   await page.locator('[data-test=file-open-save-submit-btn]').click()
@@ -110,7 +110,7 @@ test('handles File Save overwrite', async ({ page }) => {
   await page.locator('button:has-text("Overwrite")').click()
 
   // Delete the file
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Delete File').click()
   await page.locator('text=Permanently delete file')
   await page.locator('button:has-text("Delete")').click()
@@ -118,19 +118,19 @@ test('handles File Save overwrite', async ({ page }) => {
 
 test('handles Download', async ({ page }) => {
   await page.locator('textarea').fill('download this')
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Save File').click()
   await page.fill('[data-test=file-open-save-filename]', 'INST/download.txt')
   await page.locator('[data-test=file-open-save-submit-btn]').click()
   expect(await page.locator('#sr-controls')).toContainText('INST/download.txt')
   // Download the file
-  await page.locator('[data-test="Script Runner-File"]').click()
-  await utils.download(page, '[data-test="Script Runner-File-Download"]', function (contents) {
+  await page.locator('[data-test=script-runner-file]').click()
+  await utils.download(page, '[data-test=script-runner-file-download]', function (contents) {
     expect(contents).toContain('download this')
   })
 
   // Delete the file
-  await page.locator('[data-test="Script Runner-File"]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Delete File').click()
   await page.locator('text=Permanently delete file')
   await page.locator('button:has-text("Delete")').click()

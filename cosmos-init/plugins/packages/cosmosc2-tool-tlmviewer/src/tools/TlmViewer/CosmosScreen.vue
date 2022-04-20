@@ -25,7 +25,10 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="error-graph-icon" @click="errorDialog = true">
+                <v-icon
+                  data-test="error-graph-icon"
+                  @click="errorDialog = true"
+                >
                   mdi-alert
                 </v-icon>
               </div>
@@ -39,7 +42,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-icon data-test="editScreenIcon" @click="openEdit">
+              <v-icon data-test="edit-screen-icon" @click="openEdit">
                 mdi-pencil
               </v-icon>
             </div>
@@ -50,14 +53,14 @@
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
               <v-icon
-                data-test="minimizeScreenIcon"
+                data-test="minimize-screen-icon"
                 @click="minMaxTransition"
                 v-show="expand"
               >
                 mdi-window-minimize
               </v-icon>
               <v-icon
-                data-test="maximizeScreenIcon"
+                data-test="maximize-screen-icon"
                 @click="minMaxTransition"
                 v-show="!expand"
               >
@@ -72,7 +75,7 @@
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
               <v-icon
-                data-test="closeScreenIcon"
+                data-test="close-screen-icon"
                 @click="$emit('close-screen')"
               >
                 mdi-close-box
@@ -104,7 +107,7 @@
               <template v-slot:activator="{ on, attrs }">
                 <div v-on="on" v-bind="attrs">
                   <v-icon
-                    data-test="downloadScreenIcon"
+                    data-test="download-screen-icon"
                     @click="downloadScreen"
                   >
                     mdi-download
@@ -148,7 +151,7 @@
               v-model="currentDefinition"
               rows="12"
               :rules="[rules.required]"
-              data-test="screenTextInput"
+              data-test="screen-text-input"
             />
           </v-row>
           <v-row class="my-3">

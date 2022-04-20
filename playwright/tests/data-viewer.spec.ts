@@ -57,7 +57,7 @@ test('loads and saves the configuration', async ({ page }) => {
   await page.locator('[data-test="add-packet-button"]').click()
 
   let config = 'spec' + Math.floor(Math.random() * 10000)
-  await page.locator('[data-test="Data\\ Viewer-File"]').click()
+  await page.locator('[data-test="data-viewer-file"]').click()
   await page.locator('text=Save Configuration').click()
   await page.locator('[data-test="name-input-save-config-dialog"]').fill(config)
   await page.locator('button:has-text("Ok")').click()
@@ -80,7 +80,7 @@ test('loads and saves the configuration', async ({ page }) => {
   })
   await page.locator('[data-test="context-menu-delete"]').click()
 
-  await page.locator('[data-test="Data\\ Viewer-File"]').click()
+  await page.locator('[data-test="data-viewer-file"]').click()
   await page.locator('text=Open Configuration').click()
   await page.locator(`td:has-text("${config}")`).click()
   await page.locator('button:has-text("Ok")').click()
@@ -92,12 +92,11 @@ test('loads and saves the configuration', async ({ page }) => {
   await expect(page.locator('text=INST HEALTH_STATUS')).toBeVisible()
 
   // Delete this test configuation
-  await page.locator('[data-test="Data\\ Viewer-File"]').click()
+  await page.locator('[data-test="data-viewer-file"]').click()
   await page.locator('text=Open Configuration').click()
-  // Note: Only works if you don't have any other configs saved
-  await page.locator('[data-test="item-delete"]').click()
-  await page.locator('button:has-text("Delete")').click() // Confirm the delete
-  await page.locator('[data-test="open-config-cancel-btn"]').click()
+  await page.locator(`tr:has-text("${config}") [data-test=item-delete]`).click()
+  await page.locator('button:has-text("Delete")').click()
+  await page.locator('[data-test=open-config-cancel-btn]').click()
 })
 
 test('adds a raw packet to a new tab', async ({ page }) => {
@@ -226,57 +225,53 @@ test('downloads a file', async ({ page }) => {
   await page.locator('[data-test=dump-component-play-pause]').click()
 
   const textarea = await page.inputValue('[data-test=dump-component-text-area]')
-  await utils.download(page, '[data-test="dump-component-download"]', function (contents) {
+  await utils.download(page, '[data-test=dump-component-download]', function (contents) {
     expect(contents).toEqual(textarea)
   })
 })
 
-// test('validates start and end time inputs', async ({ page }) => {
-//   // validate start date
-//   await page.locator('[data-test=startDate]').clear()
-//   await page.locator('.container').should('contain', 'Required')
-//   await page.locator('[data-test=startDate]').clear().type('2020-01-01')
-//   await page.locator('.container').should('not.contain', 'Invalid')
-//   // validate start time
-//   await page.locator('[data-test=startTime]').clear()
-//   await page.locator('.container').should('contain', 'Required')
-//   await page.locator('[data-test=startTime]').clear().type('12:15:15')
-//   await page.locator('.container').should('not.contain', 'Invalid')
+test('validates start and end time inputs', async ({ page }) => {
+  // validate start date
+  await page.locator('[data-test=start-date]').fill('')
+  await expect(page.locator('.container')).toContainText('Required')
+  await page.locator('[data-test=start-date]').fill('2020-01-01')
+  await expect(page.locator('.container')).not.toContainText('Invalid')
+  // validate start time
+  await page.locator('[data-test=start-time]').fill('')
+  await expect(page.locator('.container')).toContainText('Required')
+  await page.locator('[data-test=start-time]').fill('12:15:15')
+  await expect(page.locator('.container')).not.toContainText('Invalid')
 
-//   // validate end date
-//   await page.locator('[data-test=endDate]').clear().type('2020-01-01')
-//   await page.locator('.container').should('not.contain', 'Invalid')
-//   // validate end time
-//   await page.locator('[data-test=endTime]').clear().type('12:15:15')
-//   await page.locator('.container').should('not.contain', 'Invalid')
-// })
+  // validate end date
+  await page.locator('[data-test=end-date]').fill('2020-01-01')
+  await expect(page.locator('.container')).not.toContainText('Invalid')
+  // validate end time
+  await page.locator('[data-test=end-time]').fill('12:15:15')
+  await expect(page.locator('.container')).not.toContainText('Invalid')
+})
 
-// test('validates start and end time values', async ({ page }) => {
-//   // validate future start date
-//   await page.locator('[data-test=startDate]').clear().type('4000-01-01') // If this version of COSMOS is still used 2000 years from now, this test will need to be updated
-//   await page.locator('[data-test=startTime]').clear().type('12:15:15')
-//   await page.locator('[data-test=start-button]').click()
-//   await page.locator('.warning').should('contain', 'Start date/time is in the future!')
+test('validates start and end time values', async ({ page }) => {
+  // validate future start date
+  await page.locator('[data-test=start-date]').fill('4000-01-01') // If this version of COSMOS is still used 2000 years from now, this test will need to be updated
+  await page.locator('[data-test=start-time]').fill('12:15:15')
+  await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.warning')).toContainText('Start date/time is in the future!')
 
-//   // validate start/end time equal to each other
-//   await page.locator('[data-test=startDate]').clear().type('2020-01-01')
-//   await page.locator('[data-test=startTime]').clear().type('12:15:15')
-//   await page.locator('[data-test=endDate]').clear().type('2020-01-01')
-//   await page.locator('[data-test=endTime]').clear().type('12:15:15')
-//   await page.locator('[data-test=start-button]').click()
-//   await page.locator('.warning').should(
-//     'contain',
-//     'Start date/time is equal to end date/time!'
-//   )
+  // validate start/end time equal to each other
+  await page.locator('[data-test=start-date]').fill('2020-01-01')
+  await page.locator('[data-test=start-time]').fill('12:15:15')
+  await page.locator('[data-test=end-date]').fill('2020-01-01')
+  await page.locator('[data-test=end-time]').fill('12:15:15')
+  await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.warning')).toContainText('Start date/time is equal to end date/time!')
 
-//   // validate future end date
-//   await page.locator('[data-test=startDate]').clear().type('2020-01-01')
-//   await page.locator('[data-test=startTime]').clear().type('12:15:15')
-//   await page.locator('[data-test=endDate]').clear().type('4000-01-01')
-//   await page.locator('[data-test=endTime]').clear().type('12:15:15')
-//   await page.locator('[data-test=start-button]').click()
-//   await page.locator('.warning').should(
-//     'contain',
-//     'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until 4000-01-01 12:15:15 is reached.'
-//   )
-// })
+  // validate future end date
+  await page.locator('[data-test=start-date]').fill('2020-01-01')
+  await page.locator('[data-test=start-time]').fill('12:15:15')
+  await page.locator('[data-test=end-date]').fill('4000-01-01')
+  await page.locator('[data-test=end-time]').fill('12:15:15')
+  await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.warning')).toContainText(
+    'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until 4000-01-01 12:15:15 is reached.'
+  )
+})
