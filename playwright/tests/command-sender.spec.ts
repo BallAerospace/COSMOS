@@ -259,7 +259,7 @@ test('ignores range checks', async ({ page }) => {
 
   // Status should also show error
   await expect(page.locator('main')).toContainText('not in valid range')
-  await page.locator('[data-test=Command Sender-Mode]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Ignore Range Checks').click()
   await page.locator('button:has-text("Send")').click()
   await expect(page.locator('main')).toContainText('TEMP 100") sent')
@@ -269,7 +269,7 @@ test('displays state values in hex', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'COLLECT')
   await selectValue(page, 'TYPE', 'NORMAL') // Ensure TYPE is set since its required
   await checkValue(page, 'TYPE', '0')
-  await page.locator('[data-test=Command Sender-Mode]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Display State').click()
   await checkValue(page, 'TYPE', '0x0')
 })
@@ -278,7 +278,7 @@ test('shows ignored parameters', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'ABORT')
   // All the ABORT parameters are ignored so the table shouldn't appear
   await expect(page.locator('main')).not.toContainText('Parameters')
-  await page.locator('[data-test=Command Sender-Mode]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Show Ignored').click()
   await expect(page.locator('main')).toContainText('Parameters') // Now the parameters table is shown
   await expect(page.locator('main')).toContainText('CCSDSVER') // CCSDSVER is one of the parameters
@@ -304,7 +304,7 @@ test('disable parameter conversions', async ({ page }) => {
 
   await page.locator('text=Command Sender').click()
   await expect(page.locator('body')).toContainText('Command Sender')
-  await page.locator('[data-test=Command Sender-Mode]').click()
+  await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Disable Parameter').click()
 
   await utils.selectTargetPacketItem('INST', 'SETPARAMS')

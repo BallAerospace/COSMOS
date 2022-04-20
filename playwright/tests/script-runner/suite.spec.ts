@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 async function saveAs(page, filename: string) {
-  await page.locator('[data-test=Script Runner-File]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Save As...').click()
   await page.locator('[data-test=file-open-save-filename]').fill(`INST/procedures/${filename}`)
   await page.locator('[data-test=file-open-save-submit-btn]').click()
@@ -46,7 +46,7 @@ async function saveAs(page, filename: string) {
 }
 
 async function deleteFile(page) {
-  await page.locator('[data-test=Script Runner-File]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Delete File').click()
   await page.locator('button:has-text("Delete")').click()
 }
@@ -83,7 +83,7 @@ async function runAndCheckResults(page, startLocator, validator, download = fals
 
 test('loads Suite controls when opening a suite', async ({ page }) => {
   // Open the file
-  await page.locator('[data-test=Script Runner-File]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Open File').click()
   await utils.sleep(1000)
   await page.locator('[data-test=file-open-save-search]').type('my_script_')
@@ -111,7 +111,7 @@ test('loads Suite controls when opening a suite', async ({ page }) => {
   await expect(page.locator('[data-test=start-button]')).toBeDisabled()
 
   // Verify Suite controls go away when loading a normal script
-  await page.locator('[data-test=Script Runner-File]').click()
+  await page.locator('[data-test=script-runner-file]').click()
   await page.locator('text=Open File').click()
   await utils.sleep(1000)
   await page.locator('[data-test=file-open-save-search]').type('dis')

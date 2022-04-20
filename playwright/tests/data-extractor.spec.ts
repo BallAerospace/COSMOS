@@ -36,7 +36,7 @@ test('loads and saves the configuration', async ({ page }) => {
   await utils.addTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
 
   let config = 'spec' + Math.floor(Math.random() * 10000)
-  await page.locator('[data-test=Data Extractor-File]').click()
+  await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Save Configuration').click()
   await page.locator('[data-test=name-input-save-config-dialog]').fill(config)
   await page.locator('button:has-text("Ok")').click()
@@ -49,7 +49,7 @@ test('loads and saves the configuration', async ({ page }) => {
   await page.locator('[data-test=delete-all]').click()
   await expect(page.locator('[data-test=item-list] > div')).toHaveCount(0)
 
-  await page.locator('[data-test=Data Extractor-File]').click()
+  await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Open Configuration').click()
   await page.locator(`td:has-text("${config}")`).click()
   await page.locator('button:has-text("Ok")').click()
@@ -58,7 +58,7 @@ test('loads and saves the configuration', async ({ page }) => {
   await expect(page.locator('[data-test=item-list] > div')).toHaveCount(2)
 
   // Delete this test configuation
-  await page.locator('[data-test=Data Extractor-File]').click()
+  await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Open Configuration').click()
   // Note: Only works if you don't have any other configs saved
   await page.locator('[data-test=item-delete]').click()
@@ -212,7 +212,7 @@ test('processes commands', async ({ page }) => {
 
 test('creates CSV output', async ({ page }) => {
   const start = sub(new Date(), { minutes: 5 })
-  await page.locator('[data-test=Data Extractor-File]').click()
+  await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Comma Delimited').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await utils.addTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
@@ -232,7 +232,7 @@ test('creates CSV output', async ({ page }) => {
 
 test('creates tab delimited output', async ({ page }) => {
   const start = sub(new Date(), { minutes: 5 })
-  await page.locator('[data-test=Data Extractor-File]').click()
+  await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Tab Delimited').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await utils.addTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
@@ -249,7 +249,7 @@ test('creates tab delimited output', async ({ page }) => {
 
 test('outputs full column names', async ({ page }) => {
   let start = sub(new Date(), { minutes: 1 })
-  await page.locator('[data-test=Data Extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-mode]').click()
   await page.locator('text=Full Column Names').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await utils.addTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
@@ -263,7 +263,7 @@ test('outputs full column names', async ({ page }) => {
   await utils.sleep(1000)
 
   // Switch back and verify
-  await page.locator('[data-test=Data Extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-Mode]').click()
   await page.locator('text=Normal Columns').click()
   // Create a new end time so we get a new filename
   start = sub(new Date(), { minutes: 2 })
@@ -275,7 +275,7 @@ test('outputs full column names', async ({ page }) => {
 
 test('fills values', async ({ page }) => {
   const start = sub(new Date(), { minutes: 1 })
-  await page.locator('[data-test=Data Extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-Mode]').click()
   await page.locator('text=Fill Down').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   // Deliberately test with two different packets
@@ -308,7 +308,7 @@ test('fills values', async ({ page }) => {
 
 test('adds Matlab headers', async ({ page }) => {
   const start = sub(new Date(), { minutes: 1 })
-  await page.locator('[data-test=Data Extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-Mode]').click()
   await page.locator('text=Matlab Header').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await utils.addTargetPacketItem('INST', 'ADCS', 'Q1')
@@ -321,7 +321,7 @@ test('adds Matlab headers', async ({ page }) => {
 
 test('outputs unique values only', async ({ page }) => {
   const start = sub(new Date(), { minutes: 1 })
-  await page.locator('[data-test=Data Extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-mode]').click()
   await page.locator('text=Unique Only').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await utils.addTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSVER')
