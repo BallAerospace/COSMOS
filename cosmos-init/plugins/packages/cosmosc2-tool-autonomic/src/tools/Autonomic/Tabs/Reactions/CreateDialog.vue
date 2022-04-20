@@ -50,12 +50,25 @@
             <v-row class="ma-0">
               <v-select
                 v-model="deadSelect"
-                @change="addTrigger"
                 persistent-hint
                 label="Select Triggers"
                 hint="Triggers to cause Reaction"
+                data-test="reaction-select-triggers"
                 :items="triggerItems"
-              />
+                @change="addTrigger"
+              >
+                <template v-slot:item="{ item, attrs, on }">
+                  <v-list-item
+                    v-on="on"
+                    v-bind="attrs" 
+                    :data-test="`reaction-select-trigger-${item}`"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item" />
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-select>
             </v-row>
             <div data-test="triggerList">
               <div v-for="(trigger, i) in reactionTriggers" :key="trigger.name">

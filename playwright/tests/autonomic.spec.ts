@@ -29,6 +29,15 @@ test.beforeEach(async ({ page }) => {
   await page.locator('.v-app-bar__nav-icon').click()
 })
 
-test('create new trigger group', async ({ page }) => {
-
+test('test overview page', async ({ page }) => {
+  // groups
+  await utils.download(page, '[data-test=group-download]', function (contents) {
+    expect(contents).toContain('[]') // % is empty array
+  })
+  await page.locator('[data-test=new-group]').click()
+  // events
+  await page.locator('[data-test=events-clear]').click()
+  await utils.download(page, '[data-test=events-download]', function (contents) {
+    expect(contents).toContain('[]') // % is empty array
+  })
 })

@@ -73,6 +73,7 @@
           <v-stepper-content step="1">
             <trigger-operand
               v-model="kind"
+              order="left"
               :triggers="triggers"
               @set="(event) => operandChanged(event, 'left')"
             />
@@ -95,6 +96,7 @@
           <v-stepper-content step="2">
             <trigger-operand
               v-model="kind"
+              order="right"
               :triggers="triggers"
               @set="(event) => operandChanged(event, 'right')"
             />
