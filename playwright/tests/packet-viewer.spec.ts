@@ -31,9 +31,14 @@ test.beforeEach(async ({ page }) => {
 
 // Checks the ITEM value against a regular expression.
 async function matchItem(page, item, regex) {
-  const value = await page.inputValue(`tr:has(td:text-is("${item}")) input`)
-  expect(value).toMatch(regex)
+  // Poll since inputValue is immediate
+  await expect
+    .poll(async () => {
+      return await page.inputValue(`tr:has(td:text-is("${item}")) input`)
+    })
+    .toMatch(regex)
 }
+
 //
 // Test the basic functionality of the application
 //
@@ -88,7 +93,7 @@ test('stops posting to the api after closing', async ({ page }) => {
 //
 test('changes the polling rate', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
-  await page.locator('[data-test="Packet Viewer-File"]').click()
+  await page.locator('[data-test=packet-viewer-file]').click()
   await page.locator('text=Options').click()
   await page.locator('.v-dialog input').fill('5000')
   await page.locator('.v-dialog').press('Escape')
@@ -102,53 +107,53 @@ test('changes the polling rate', async ({ page }) => {
 //
 // Test the View menu
 //
-test('displays formatted items with units by default', async ({ page }) => {
+test.only('displays formatted items with units by default', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   // Check for exactly 3 decimal points followed by units
   await matchItem(page, 'TEMP1', /^-?\d+\.\d{3}\s\S$/)
 })
 
-test('displays formatted items with units', async ({ page }) => {
+test.only('displays formatted items with units', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Formatted Items with Units').click()
   // Check for exactly 3 decimal points followed by units
-  matchItem(page, 'TEMP1', /^-?\d+\.\d{3}\s\S$/)
+  await matchItem(page, 'TEMP1', /^-?\d+\.\d{3}\s\S$/)
 })
 
-test('displays raw items', async ({ page }) => {
+test.only('displays raw items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Raw').click()
   // // Check for a raw number 1 to 99999
-  matchItem(page, 'TEMP1', /^\d{1,5}$/)
+  await matchItem(page, 'TEMP1', /^\d{1,5}$/)
 })
 
-test('displays converted items', async ({ page }) => {
+test.only('displays converted items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Converted').click()
   // Check for unformatted decimal points (4+)
-  matchItem(page, 'TEMP1', /^-?\d+\.\d{4,}$/)
+  await matchItem(page, 'TEMP1', /^-?\d+\.\d{4,}$/)
 })
 
-test('displays formatted items', async ({ page }) => {
+test.only('displays formatted items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   // Use text-is because we have to match exactly since there is
   // also a 'Formatted Items with Units' option
   await page.locator(':text-is("Formatted Items")').click()
   // Check for exactly 3 decimal points
-  matchItem(page, 'TEMP1', /^-?\d+\.\d{3}$/)
+  await matchItem(page, 'TEMP1', /^-?\d+\.\d{3}$/)
 })
 
 test('hides ignored items', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await expect(page.locator('text=CCSDSVER')).toBeVisible()
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Hide Ignored').click()
   await expect(page.locator('text=CCSDSVER')).not.toBeVisible()
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Hide Ignored').click()
   await expect(page.locator('text=CCSDSVER')).toBeVisible()
 })
@@ -157,7 +162,7 @@ test('displays derived last', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   // First row is the header: Index, Name, Value so grab second (1)
   await expect(page.locator('tr').nth(1)).toContainText('PACKET_TIMESECONDS')
-  await page.locator('[data-test="Packet Viewer-View"]').click()
+  await page.locator('[data-test=packet-viewer-view]').click()
   await page.locator('text=Display Derived').click()
   await expect(page.locator('tr').nth(1)).toContainText('CCSDSVER')
 })
