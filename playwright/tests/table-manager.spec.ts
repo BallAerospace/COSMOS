@@ -40,15 +40,15 @@ test('creates a binary file', async ({ page }) => {
   await page.locator('[data-test=file-open-save-submit-btn]').click()
   await expect(page.locator('id=cosmos-tool')).toContainText('MC_CONFIGURATION')
   expect(await page.locator('.v-tab').count()).toBe(1)
-  await expect(page.locator(['[data-test=definitionFilename]']).inputValue()).toMatch(
+  expect(await page.inputValue('[data-test=definition-filename]')).toMatch(
     'INST/tables/config/MCConfigurationTable_def.txt'
   )
-  await expect(page.locator(['[data-test=filename]']).inputValue()).toMatch(
+  expect(await page.inputValue('[data-test=filename]')).toMatch(
     'INST/tables/bin/MCConfigurationTable.bin'
   )
 })
 
-test('opens a binary file', async ({ page }) => {
+test.only('opens a binary file', async ({ page }) => {
   await page.locator('[data-test=table-manager-file]').click()
   await page.locator('text=Open').click()
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
@@ -58,26 +58,23 @@ test('opens a binary file', async ({ page }) => {
   await expect(page.locator('id=cosmos-tool')).toContainText('TLM_MONITORING')
   await expect(page.locator('id=cosmos-tool')).toContainText('PPS_SELECTION')
   expect(await page.locator('.v-tab').count()).toBe(3)
-  await expect(page.locator(['[data-test=definitionFilename]']).inputValue()).toMatch(
+  expect(await page.locator('[data-test=definition-filename]').inputValue()).toMatch(
     'INST/tables/config/ConfigTables_def.txt'
   )
-  await expect(page.locator(['[data-test=filename]']).inputValue()).toMatch(
+  expect(await page.locator('[data-test=filename]').inputValue()).toMatch(
     'INST/tables/bin/ConfigTables.bin'
   )
 
   // Test searching
   expect(await page.locator('tr').count()).toBe(12)
-  await page.locator('div label:text("Search") input').fill('UNEDIT')
+  await page.locator('text=Items >> input').fill('UNEDIT')
   await expect.poll(() => page.locator('tr').count()).toBe(4)
-
-  // cy.get('div label').contains('Search').siblings('input').as('search')
-  // cy.get('@search').type('UNEDIT')
-  // cy.get('tr').should('have.length', 4)
-  // // TODO would be fun to test that these are disabled
-  // // cy.get('tr').each(($el, index, $list) => {
-  // //   // Need to get the 'tr td div'
-  // //   expect($el).to.have.class('v-input--is-disabled')
-  // // })
-  // cy.get('@search').clear()
-  // cy.get('tr').should('have.length', 12)
+  // Vuetify sets the disabled attribute to disabled so just check for that
+  // Checking for toBeDisabled() does work since the aria-disabled is not set
+  // See https://github.com/microsoft/playwright/issues/13583
+  await expect(page.locator('tr >> input[disabled=disabled] >> nth=0')).toBeVisible()
+  await expect(page.locator('tr >> input[disabled=disabled] >> nth=1')).toBeVisible()
+  await expect(page.locator('tr >> input[disabled=disabled] >> nth=2')).toBeVisible()
+  await page.locator('text=Items >> input').fill('')
+  await expect.poll(() => page.locator('tr').count()).toBe(12)
 })
