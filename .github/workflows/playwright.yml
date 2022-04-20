@@ -46,9 +46,12 @@ jobs:
         run: yarn playwright test --project=chromium; yarn playwright test --project=firefox
         working-directory: playwright
       - name: Generate code coverage
+        if: always() # Generate on pass or fail
         run: yarn fixlinux; yarn coverage
         working-directory: playwright
-      - uses: actions/upload-artifact@v3
+      - name: Upload test artifacts
+        if: always() # Upload on pass or fail
+        uses: actions/upload-artifact@v3
         with:
           name: playwright
           path: |
