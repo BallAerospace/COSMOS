@@ -60,9 +60,8 @@ test('loads and saves the configuration', async ({ page }) => {
   // Delete this test configuation
   await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Open Configuration').click()
-  // Note: Only works if you don't have any other configs saved
-  await page.locator('[data-test=item-delete]').click()
-  await page.locator('button:has-text("Delete")').click() // Confirm the delete
+  await page.locator(`tr:has-text("${config}") [data-test=item-delete]`).click()
+  await page.locator('button:has-text("Delete")').click()
   await page.locator('[data-test=open-config-cancel-btn]').click()
 })
 
@@ -263,7 +262,7 @@ test('outputs full column names', async ({ page }) => {
   await utils.sleep(1000)
 
   // Switch back and verify
-  await page.locator('[data-test=data-extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-mode]').click()
   await page.locator('text=Normal Columns').click()
   // Create a new end time so we get a new filename
   start = sub(new Date(), { minutes: 2 })
@@ -275,7 +274,7 @@ test('outputs full column names', async ({ page }) => {
 
 test('fills values', async ({ page }) => {
   const start = sub(new Date(), { minutes: 1 })
-  await page.locator('[data-test=data-extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-mode]').click()
   await page.locator('text=Fill Down').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   // Deliberately test with two different packets
@@ -308,7 +307,7 @@ test('fills values', async ({ page }) => {
 
 test('adds Matlab headers', async ({ page }) => {
   const start = sub(new Date(), { minutes: 1 })
-  await page.locator('[data-test=data-extractor-Mode]').click()
+  await page.locator('[data-test=data-extractor-mode]').click()
   await page.locator('text=Matlab Header').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await utils.addTargetPacketItem('INST', 'ADCS', 'Q1')

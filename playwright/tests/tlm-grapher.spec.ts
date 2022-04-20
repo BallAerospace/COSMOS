@@ -166,7 +166,7 @@ test('edits a graph', async ({ page }) => {
   utils.sleep(3000) // Wait for graphing to occur
   await page.locator('[data-test=edit-graph-icon]').click()
   await expect(page.locator('.v-dialog')).toContainText('Edit Graph')
-  await page.locator('[data-test=edit-graph-title').fill('Test Graph Title]')
+  await page.locator('[data-test=edit-graph-title]').fill('Test Graph Title')
 
   const start = sub(new Date(), { minutes: 2 })
   await page
@@ -175,8 +175,8 @@ test('edits a graph', async ({ page }) => {
   await page
     .locator('text=Start DateStart Time >> data-test=time-chooser')
     .fill(format(start, 'HH:mm:ss')) // Time input does want colons
-  await page.locator('[data-test=graph-min-y').fill('-50]')
-  await page.locator('[data-test=graph-max-y').fill('50]')
+  await page.locator('[data-test=graph-min-y]').fill('-50')
+  await page.locator('[data-test=graph-max-y]').fill('50')
   await page.locator('button:has-text("Ok")').click()
   // Validate our settings, have to use gridItem0 because chart0 doesn't include title
   await expect(page.locator('#gridItem0')).toContainText('Test Graph Title')

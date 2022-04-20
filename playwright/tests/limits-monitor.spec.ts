@@ -76,9 +76,7 @@ test('saves and opens the configuration', async ({ page }) => {
   await page.locator('[data-test=limits-monitor-file]').click()
   await page.locator('text=Open Configuration').click()
   await page.locator(`tr:has-text("${config}") [data-test=item-delete]`).click()
-  // confirm delete, we must use data-test=confirm-dialog-ok since the
-  // Open Configuration dialog is up and they both have an 'Ok' button
-  await page.locator('[data-test=confirm-dialog-ok]').click()
+  await page.locator('button:has-text("Delete")').click()
   await page.locator('[data-test=open-config-cancel-btn]').click()
 })
 
@@ -127,7 +125,7 @@ test('ignores items', async ({ page }) => {
   await page.locator('[data-test=limits-row]:has-text("TEMP2") button >> nth=1').click()
   await page.locator('[data-test=limits-row]:has-text("TEMP2") button >> nth=1').click()
   await expect(page.locator('[data-test=limits-row]:has-text("TEMP2")')).not.toBeVisible()
-  expect(await page.inputValue('[data-test=overall-state')).toMatch('Some items ignored')
+  expect(await page.inputValue('[data-test=overall-state]')).toMatch('Some items ignored')
 
   // Check the menu
   await page.locator('[data-test=limits-monitor-file]').click()

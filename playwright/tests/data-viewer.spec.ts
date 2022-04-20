@@ -57,7 +57,7 @@ test('loads and saves the configuration', async ({ page }) => {
   await page.locator('[data-test="add-packet-button"]').click()
 
   let config = 'spec' + Math.floor(Math.random() * 10000)
-  await page.locator('[data-test="Data\\ Viewer-File"]').click()
+  await page.locator('[data-test="data-viewer-file"]').click()
   await page.locator('text=Save Configuration').click()
   await page.locator('[data-test="name-input-save-config-dialog"]').fill(config)
   await page.locator('button:has-text("Ok")').click()
@@ -80,7 +80,7 @@ test('loads and saves the configuration', async ({ page }) => {
   })
   await page.locator('[data-test="context-menu-delete"]').click()
 
-  await page.locator('[data-test="Data\\ Viewer-File"]').click()
+  await page.locator('[data-test="data-viewer-file"]').click()
   await page.locator('text=Open Configuration').click()
   await page.locator(`td:has-text("${config}")`).click()
   await page.locator('button:has-text("Ok")').click()
@@ -92,12 +92,11 @@ test('loads and saves the configuration', async ({ page }) => {
   await expect(page.locator('text=INST HEALTH_STATUS')).toBeVisible()
 
   // Delete this test configuation
-  await page.locator('[data-test="Data\\ Viewer-File"]').click()
+  await page.locator('[data-test="data-viewer-file"]').click()
   await page.locator('text=Open Configuration').click()
-  // Note: Only works if you don't have any other configs saved
-  await page.locator('[data-test="item-delete"]').click()
-  await page.locator('button:has-text("Delete")').click() // Confirm the delete
-  await page.locator('[data-test="open-config-cancel-btn"]').click()
+  await page.locator(`tr:has-text("${config}") [data-test=item-delete]`).click()
+  await page.locator('button:has-text("Delete")').click()
+  await page.locator('[data-test=open-config-cancel-btn]').click()
 })
 
 test('adds a raw packet to a new tab', async ({ page }) => {
