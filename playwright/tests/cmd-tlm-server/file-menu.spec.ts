@@ -20,7 +20,6 @@
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
 import { Utilities } from '../../utilities'
-import { sub } from 'date-fns'
 
 let utils
 test.beforeEach(async ({ page }) => {

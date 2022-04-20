@@ -34,6 +34,10 @@ jobs:
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
         # Allow the containers to spin up
+      - name: Sleep for 2min
+        run: sleep 120s
+        shell: bash
+        # Ensure we're connected and running
       - name: Run Playwright tests
         run: yarn playwright test --project=chromium tests/wait-for-build.spec.ts
         working-directory: playwright
