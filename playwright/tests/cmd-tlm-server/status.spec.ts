@@ -19,26 +19,13 @@
 
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
-import { Utilities } from '../../utilities'
-
-let utils
-test.beforeEach(async ({ page }) => {
-  await page.goto('/tools/cmdtlmserver')
-  await expect(page.locator('.v-app-bar')).toContainText('CmdTlmServer')
-  await page.locator('.v-app-bar__nav-icon').click()
-  utils = new Utilities(page)
-})
 
 test('changes the limits set', async ({ page }) => {
-  cy.visit('/tools/cmdtlmserver')
-  cy.hideNav()
-  cy.wait(1000)
-  cy.get('.v-tab').contains('Status').click({ force: true })
-  cy.wait(1000)
-  cy.chooseVSelect('Limits Set', 'TVAC')
-  // TODO: This message doesn't appear to be showing up
-  // cy.get('[data-test=log-messages]').contains('Setting Limits Set: TVAC')
-  cy.chooseVSelect('Limits Set', 'DEFAULT')
-  // TODO: This message doesn't appear to be showing up
-  // cy.get('[data-test=log-messages]').contains('Setting Limits Set: DEFAULT')
+  await page.goto('/tools/cmdtlmserver/status')
+  await expect(page.locator('.v-app-bar')).toContainText('CmdTlmServer')
+  await page.locator('.v-app-bar__nav-icon').click()
+  await page.locator('[data-test=limits-set]').click()
+  await page.locator(`.v-list-item__title:text-is("TVAC")`).click()
+  await page.locator('[data-test=limits-set]').click()
+  await page.locator(`.v-list-item__title:text-is("DEFAULT")`).click()
 })

@@ -41,7 +41,7 @@ test('displays the command count', async ({ page }) => {
   await expect(page.locator('text=INSTCOLLECT')).toBeVisible()
   expect(
     parseInt(await page.locator('text=INSTCOLLECT >> td >> nth=2').textContent())
-  ).toBeGreaterThan(1)
+  ).toBeGreaterThan(0)
 })
 
 test('displays a raw command', async ({ page }) => {
