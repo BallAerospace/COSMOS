@@ -34,10 +34,19 @@ jobs:
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh start
         # Allow the containers to spin up
-      - name: Sleep for 4min
-        run: sleep 240s
-        shell: bash
+      - name: Run Playwright tests
+        run: yarn playwright test --project=chromium tests/wait-for-build.spec.ts
+        working-directory: playwright
       - name: Run Playwright tests
         # Run separately to allow for parallelism
         run: yarn playwright test --project=chromium; yarn playwright test --project=firefox
         working-directory: playwright
+      - name: Generate code coverage
+        run: yarn fixlinux; yarn coverage
+        working-directory: playwright
+      - uses: actions/upload-artifact@v3
+        with:
+          name: playwright
+          path: |
+            playwright/test-results
+            playwright/coverage

@@ -17,22 +17,18 @@
 # copyright holder
 */
 
-describe('WaitForBuild', () => {
-  it('waits for the services to deploy and connect', function () {
-    cy.visit('/tools/cmdtlmserver')
-    cy.hideNav()
+// @ts-check
+import { test, expect } from 'playwright-test-coverage'
 
-    cy.get('[data-test=interfaces-table]')
-      .contains('INST_INT', { timeout: 300000 })
-      .parent()
-      .children()
-      .eq(2)
-      .contains("CONNECTED")
-    cy.get('[data-test=interfaces-table]')
-      .contains('INST2_INT', { timeout: 60000 })
-      .parent()
-      .children()
-      .eq(2)
-      .contains("CONNECTED")
+test('waits for the services to deploy and connect', async ({ page }) => {
+  await page.goto('/tools/cmdtlmserver')
+  await expect(page.locator('.v-app-bar')).toContainText('CmdTlmServer')
+  await page.locator('.v-app-bar__nav-icon').click()
+  // Check the 3rd column (nth starts at 0) on the row containing INST_INT says CONNECTED
+  await expect(page.locator('tr:has-text("INST_INT") td >> nth=2')).toContainText('CONNECTED', {
+    timeout: 300000,
+  })
+  await expect(page.locator('tr:has-text("INST2_INT") td >> nth=2')).toContainText('CONNECTED', {
+    timeout: 60000,
   })
 })
