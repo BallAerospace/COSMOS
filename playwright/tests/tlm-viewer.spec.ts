@@ -35,9 +35,9 @@ test.beforeEach(async ({ page }) => {
 
 async function showScreen(page, target, screen, callback = null) {
   await page.locator('div[role="button"]:has-text("Select Target")').click()
-  await page.locator(`.v-list-item__title:text-matches("^${target}$")`).click()
+  await page.locator(`.v-list-item__title:text-is("${target}")`).click()
   await page.locator('div[role="button"]:has-text("Select Screen")').click()
-  await page.locator(`.v-list-item__title:text-matches("^${screen}$")`).click()
+  await page.locator(`.v-list-item__title:text-is("${screen}")`).click()
   await page.locator('button:has-text("Show Screen")').click()
   await expect(page.locator(`.v-system-bar:has-text("${target} ${screen}")`)).toBeVisible()
   if (callback) {
