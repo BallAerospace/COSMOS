@@ -37,7 +37,7 @@
               v-model="date"
               v-on="on"
               type="date"
-              data-test="dateChooser"
+              data-test="date-chooser"
             />
           </template>
         </v-menu>
@@ -52,7 +52,7 @@
           type="time"
           step="1"
           @change="onChange"
-          data-test="timeChooser"
+          data-test="time-chooser"
         />
       </v-col>
     </v-row>

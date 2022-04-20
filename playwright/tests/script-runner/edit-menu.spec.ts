@@ -32,14 +32,14 @@ test('finds text on page', async ({ page }) => {
 cosmos can send commands and execute scripts
 cosmos is everything I thought it could be`
   await page.locator('textarea').fill(string)
-  await page.locator('[data-test="Script Runner-Edit"]').click()
-  await page.locator('[data-test="Script Runner-Edit-Find"] >> text=Find').click()
+  await page.locator('[data-test=Script Runner-Edit]').click()
+  await page.locator('[data-test=Script Runner-Edit-Find] >> text=Find').click()
   await page.locator('[placeholder="Search for"]').fill('cosmos')
   await page.locator('text=3 of 3')
   await page.locator('textarea').press('Escape')
 
-  await page.locator('[data-test="Script Runner-Edit"]').click()
-  await page.locator('[data-test="Script Runner-Edit-Replace"] >> text=Replace').click()
+  await page.locator('[data-test=Script Runner-Edit]').click()
+  await page.locator('[data-test=Script Runner-Edit-Replace] >> text=Replace').click()
   await page.locator('[placeholder="Search for"]').fill('cosmos')
   await page.locator('[placeholder="Replace with"]').fill('COSMOS')
   await page.locator('text=All').nth(1).click() // Replace All

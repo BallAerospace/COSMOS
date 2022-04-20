@@ -27,7 +27,7 @@
           label="Start Date"
           type="date"
           :rules="[rules.required]"
-          data-test="startDate"
+          data-test="start-date"
         />
       </v-col>
       <v-col>
@@ -37,7 +37,7 @@
           type="time"
           step="1"
           :rules="[rules.required]"
-          data-test="startTime"
+          data-test="start-time"
         />
       </v-col>
       <v-col>
@@ -46,7 +46,7 @@
           label="End Date"
           type="date"
           :rules="endTime ? [rules.required] : []"
-          data-test="endDate"
+          data-test="end-date"
         />
       </v-col>
       <v-col>
@@ -56,7 +56,7 @@
           type="time"
           step="1"
           :rules="endDate ? [rules.required] : []"
-          data-test="endTime"
+          data-test="end-time"
         />
       </v-col>
       <v-col cols="auto" class="pt-4">
@@ -364,7 +364,7 @@ export default {
   methods: {
     packetTitle: function (packet) {
       return `${packet.target} ${packet.packet} [ ${packet.mode} ]`
-    }, 
+    },
     resizeTabs: function () {
       if (this.$refs.tabs) this.$refs.tabs.onResize()
     },

@@ -26,8 +26,8 @@ module Cosmos
     # Get a handle to access a target file
     #
     # @param path [String] Path to a file in a target directory
-    # @param binary [Boolean] Whether the file is binary or not
-    # @return [Hash|nil]
+    # @param original [Boolean] Whether to get the original or modified file
+    # @return [File|nil]
     def get_target_file(path, original: false, scope: $cosmos_scope)
       # Create Tempfile to store data
       file = Tempfile.new('target', binmode: true)
