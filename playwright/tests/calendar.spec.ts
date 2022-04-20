@@ -63,7 +63,7 @@ test('test top bar functionality', async ({ page }) => {
   // test the mini calendar
   await page.locator('[data-test=mini-prev]').click()
   await page.locator('[data-test=mini-next]').click()
-  
+
   // test settings functionality
 
   // refresh
@@ -80,168 +80,165 @@ test('test top bar functionality', async ({ page }) => {
 })
 
 test('test create narration functionality', async ({ page }) => {
-  // 
+  //
   const stopDateTime = add(new Date(), { minutes: 30 })
   const stopDate = await formatDate(stopDateTime)
   const stopTime = await formatTime(stopDateTime)
   // Click create dropdown
-  await page.locator('[data-test="create-event"]').click()
-  await page.locator('[data-test="narrative"]').click()
-  // Fill 
-  await page.locator('[data-test="narrative-stop-date"]').fill(stopDate)
-  await page.locator('[data-test="narrative-stop-time"]').fill(stopTime)
+  await page.locator('[data-test=create-event]').click()
+  await page.locator('[data-test=narrative]').click()
+  // Fill
+  await page.locator('[data-test=narrative-stop-date]').fill(stopDate)
+  await page.locator('[data-test=narrative-stop-time]').fill(stopTime)
   // step two
-  await page.locator('[data-test="create-narrative-step-two-btn"]').click()
-  await page.locator('[data-test="create-narrative-description"]').fill('Cancel this test')
-  await page.locator('[data-test="create-narrative-cancel-btn"]').click()
+  await page.locator('[data-test=create-narrative-step-two-btn]').click()
+  await page.locator('[data-test=create-narrative-description]').fill('Cancel this test')
+  await page.locator('[data-test=create-narrative-cancel-btn]').click()
   // Click create dropdown
-  await page.locator('[data-test="create-event"]').click()
-  await page.locator('[data-test="narrative"]').click()
-  // Fill 
-  await page.locator('[data-test="narrative-stop-date"]').fill(stopDate)
-  await page.locator('[data-test="narrative-stop-time"]').fill(stopTime)
+  await page.locator('[data-test=create-event]').click()
+  await page.locator('[data-test=narrative]').click()
+  // Fill
+  await page.locator('[data-test=narrative-stop-date]').fill(stopDate)
+  await page.locator('[data-test=narrative-stop-time]').fill(stopTime)
   // step two
-  await page.locator('[data-test="create-narrative-step-two-btn"]').click()
-  await page.locator('[data-test="create-narrative-description"]').click()
-  await page.locator('[data-test="create-narrative-description"]').fill('Another test')
-  await page.locator('[data-test="create-narrative-submit-btn"]').click()
+  await page.locator('[data-test=create-narrative-step-two-btn]').click()
+  await page.locator('[data-test=create-narrative-description]').click()
+  await page.locator('[data-test=create-narrative-description]').fill('Another test')
+  await page.locator('[data-test=create-narrative-submit-btn]').click()
 })
 
 test('test create metadata functionality', async ({ page }) => {
-  // 
+  //
   const startDateTime = sub(new Date(), { minutes: 30 })
   const startDate = await formatDate(startDateTime)
   const startTime = await formatTime(startDateTime)
   // Click create dropdown
-  await page.locator('[data-test="create-event"]').click()
-  await page.locator('[data-test="metadata"]').click()
-  // Fill 
-  await page.locator('text=Input Metadata Time').click();
-  await page.locator('[data-test="metadata-start-date"]').fill(startDate)
-  await page.locator('[data-test="metadata-start-time"]').fill(startTime)
+  await page.locator('[data-test=create-event]').click()
+  await page.locator('[data-test=metadata]').click()
+  // Fill
+  await page.locator('text=Input Metadata Time').click()
+  await page.locator('[data-test=metadata-start-date]').fill(startDate)
+  await page.locator('[data-test=metadata-start-time]').fill(startTime)
   // step two
-  await page.locator('[data-test="create-metadata-step-two-btn"]').click()
-  await page.locator('[data-test="new-metadata-icon"]').click()
-  await page.locator('[data-test="key-0"]').fill('version')
-  await page.locator('[data-test="value-0"]').fill('0')
-  await page.locator('[data-test="new-metadata-icon"]').click()
-  await page.locator('[data-test="key-1"]').fill('remove')
-  await page.locator('[data-test="value-1"]').fill('this')
-  await page.locator('[data-test="delete-metadata-icon-1"]').click()
-  await page.locator('[data-test="create-metadata-cancel-btn"]').click()
+  await page.locator('[data-test=create-metadata-step-two-btn]').click()
+  await page.locator('[data-test=new-metadata-icon]').click()
+  await page.locator('[data-test=key-0]').fill('version')
+  await page.locator('[data-test=value-0]').fill('0')
+  await page.locator('[data-test=new-metadata-icon]').click()
+  await page.locator('[data-test=key-1]').fill('remove')
+  await page.locator('[data-test=value-1]').fill('this')
+  await page.locator('[data-test=delete-metadata-icon-1]').click()
+  await page.locator('[data-test=create-metadata-cancel-btn]').click()
   // Click create dropdown
-  await page.locator('[data-test="create-event"]').click()
-  await page.locator('[data-test="metadata"]').click()
-  // Fill 
-  await page.locator('text=Input Metadata Time').click();
-  await page.locator('[data-test="metadata-start-date"]').fill(startDate)
-  await page.locator('[data-test="metadata-start-time"]').fill(startTime)
+  await page.locator('[data-test=create-event]').click()
+  await page.locator('[data-test=metadata]').click()
+  // Fill
+  await page.locator('text=Input Metadata Time').click()
+  await page.locator('[data-test=metadata-start-date]').fill(startDate)
+  await page.locator('[data-test=metadata-start-time]').fill(startTime)
   // step two
-  await page.locator('[data-test="create-metadata-step-two-btn"]').click()
-  await page.locator('[data-test="new-metadata-icon"]').click()
-  await page.locator('[data-test="key-0"]').fill('version')
-  await page.locator('[data-test="value-0"]').fill('1')
-  await page.locator('[data-test="create-metadata-submit-btn"]').click()
+  await page.locator('[data-test=create-metadata-step-two-btn]').click()
+  await page.locator('[data-test=new-metadata-icon]').click()
+  await page.locator('[data-test=key-0]').fill('version')
+  await page.locator('[data-test=value-0]').fill('1')
+  await page.locator('[data-test=create-metadata-submit-btn]').click()
 })
 
 test('test create timeline functionality', async ({ page }) => {
-  // 
-  await page.locator('[data-test="create-timeline"]').click();
-  await page.locator('[data-test="input-timeline-name"]').fill('Alpha');
-  await page.locator('[data-test="create-timeline-cancel-btn"]').click();
-  // 
-  await page.locator('[data-test="create-timeline"]').click();
-  await page.locator('[data-test="input-timeline-name"]').fill('Alpha');
-  await page.locator('[data-test="create-timeline-submit-btn"]').click();
+  //
+  await page.locator('[data-test=create-timeline]').click()
+  await page.locator('[data-test=input-timeline-name]').fill('Alpha')
+  await page.locator('[data-test=create-timeline-cancel-btn]').click()
+  //
+  await page.locator('[data-test=create-timeline]').click()
+  await page.locator('[data-test=input-timeline-name]').fill('Alpha')
+  await page.locator('[data-test=create-timeline-submit-btn]').click()
 })
 
 test('test create activity functionality', async ({ page }) => {
-  // 
+  //
   const startDateTime = add(new Date(), { minutes: 90 })
   const startDate = await formatDate(startDateTime)
   const startTime = await formatTime(startDateTime)
-  // 
+  //
   const stopDateTime = add(new Date(), { minutes: 95 })
   const stopDate = await formatDate(stopDateTime)
   const stopTime = await formatTime(stopDateTime)
   // click create dropdown
-  await page.locator('[data-test="create-event"]').click()
-  await page.locator('[data-test="activity"]').click()
+  await page.locator('[data-test=create-event]').click()
+  await page.locator('[data-test=activity]').click()
   // v-select timeline
-  await page.locator('[data-test="activity-select-timeline"]').click()
-  await page.locator('[data-test="activity-select-timeline-Alpha"]').click()
-  // Fill 
-  await page.locator('[data-test="activity-start-date"]').fill(startDate)
-  await page.locator('[data-test="activity-start-time"]').fill(startTime)
-  await page.locator('[data-test="activity-stop-date"]').fill(stopDate)
-  await page.locator('[data-test="activity-stop-time"]').fill(stopTime)
+  await page.locator('[data-test=activity-select-timeline]').click()
+  await page.locator('[data-test=activity-select-timeline-Alpha]').click()
+  // Fill
+  await page.locator('[data-test=activity-start-date]').fill(startDate)
+  await page.locator('[data-test=activity-start-time]').fill(startTime)
+  await page.locator('[data-test=activity-stop-date]').fill(stopDate)
+  await page.locator('[data-test=activity-stop-time]').fill(stopTime)
   // step two
-  await page.locator('[data-test="create-activity-step-two-btn"]').click()
+  await page.locator('[data-test=create-activity-step-two-btn]').click()
   // select reserve
-  await page.locator('[data-test="activity-select-type"]').click()
-  await page.locator('[data-test="activity-select-type-RESERVE"]').click()
+  await page.locator('[data-test=activity-select-type]').click()
+  await page.locator('[data-test=activity-select-type-RESERVE]').click()
   // select script
-  await page.locator('[data-test="activity-select-type"]').click()
-  await page.locator('[data-test="activity-select-type-SCRIPT"]').click()
+  await page.locator('[data-test=activity-select-type]').click()
+  await page.locator('[data-test=activity-select-type-SCRIPT]').click()
   // input command
-  await page.locator('[data-test="activity-select-type"]').click()
-  await page.locator('[data-test="activity-select-type-COMMAND"]').click()
-  await page.locator('[data-test="activity-cmd"]').fill('FOO CLEAR')
-  await page.locator('[data-test="create-activity-cancel-btn"]').click()
+  await page.locator('[data-test=activity-select-type]').click()
+  await page.locator('[data-test=activity-select-type-COMMAND]').click()
+  await page.locator('[data-test=activity-cmd]').fill('FOO CLEAR')
+  await page.locator('[data-test=create-activity-cancel-btn]').click()
 
   // click create dropdown
-  await page.locator('[data-test="create-event"]').click()
-  await page.locator('[data-test="activity"]').click()
+  await page.locator('[data-test=create-event]').click()
+  await page.locator('[data-test=activity]').click()
   // v-select timeline
-  await page.locator('[data-test="activity-select-timeline"]').click()
-  await page.locator('[data-test="activity-select-timeline-Alpha"]').click()
+  await page.locator('[data-test=activity-select-timeline]').click()
+  await page.locator('[data-test=activity-select-timeline-Alpha]').click()
   // Fill
-  await page.locator('[data-test="activity-start-date"]').fill(startDate)
-  await page.locator('[data-test="activity-start-time"]').fill(startTime)
-  await page.locator('[data-test="activity-stop-date"]').fill(stopDate)
-  await page.locator('[data-test="activity-stop-time"]').fill(stopTime)
+  await page.locator('[data-test=activity-start-date]').fill(startDate)
+  await page.locator('[data-test=activity-start-time]').fill(startTime)
+  await page.locator('[data-test=activity-stop-date]').fill(stopDate)
+  await page.locator('[data-test=activity-stop-time]').fill(stopTime)
   // step two
-  await page.locator('[data-test="create-activity-step-two-btn"]').click()
+  await page.locator('[data-test=create-activity-step-two-btn]').click()
   // input command
-  await page.locator('[data-test="activity-select-type"]').click()
-  await page.locator('[data-test="activity-select-type-COMMAND"]').click()
-  await page.locator('[data-test="activity-cmd"]').fill('INST CLEAR')
-  await page.locator('[data-test="create-activity-submit-btn"]').click()
+  await page.locator('[data-test=activity-select-type]').click()
+  await page.locator('[data-test=activity-select-type-COMMAND]').click()
+  await page.locator('[data-test=activity-cmd]').fill('INST CLEAR')
+  await page.locator('[data-test=create-activity-submit-btn]').click()
 })
 
-test('test timeline select and activity delete functionality', async ({ page }) => {
-  // 
+test.fixme('test timeline select and activity delete functionality', async ({ page }) => {
   await page.locator('text=DEFAULT metadata').click()
-  await page.locator('#cosmos-menu >> text=Calendar').click();
-  //
+  await page.locator('#cosmos-menu >> text=Calendar').click()
+
   await page.locator('text=DEFAULT metadata').click()
-  await page.locator('[data-test="delete-metadata"]').click()
+  await page.locator('[data-test=delete-metadata]').click()
   await page.locator('button:has-text("Delete")').click()
-  // 
+
   await page.locator('text=Another test').click()
-  await page.locator('#cosmos-menu >> text=Calendar').click();
-  //
+  await page.locator('#cosmos-menu >> text=Calendar').click()
+
   await page.locator('text=Another test').click()
-  await page.locator('[data-test="delete-narration"]').click()
+  await page.locator('[data-test=delete-narration]').click()
   await page.locator('button:has-text("Delete")').click()
-  // 
-  await page.locator('[data-test="select-timeline-Alpha"]').click()
-  // 
+
+  await page.locator('[data-test=select-timeline-Alpha]').click()
   await page.locator('text=Alpha command').click()
-  await page.locator('#cosmos-menu >> text=Calendar').click();
-  // 
+  await page.locator('#cosmos-menu >> text=Calendar').click()
+
   await page.locator('text=Alpha command').click()
-  await page.locator('[data-test="delete-activity"]').click()
+  await page.locator('[data-test=delete-activity]').click()
   await page.locator('button:has-text("Delete")').click()
 })
 
-test('test delete timeline functionality', async ({ page }) => {
-  // 
-  await page.locator('[data-test="Alpha-options"]').click()
-  await page.locator('[data-test="Alpha-delete"]').click()
+test.fixme('test delete timeline functionality', async ({ page }) => {
+  await page.locator('[data-test=Alpha-options]').click()
+  await page.locator('[data-test=Alpha-delete]').click()
   await page.locator('button:has-text("Cancel")').nth(1).click()
-  // 
-  await page.locator('[data-test="Alpha-options"]').click()
-  await page.locator('[data-test="Alpha-delete"]').click()
+
+  await page.locator('[data-test=Alpha-options]').click()
+  await page.locator('[data-test=Alpha-delete]').click()
   await page.locator('button:has-text("Delete")').nth(1).click()
 })
