@@ -30,7 +30,7 @@
             <v-text-field
               label="Text"
               v-model="text"
-              data-test="classificationBannerText"
+              data-test="classification-banner-text"
             />
           </v-col>
         </v-row>
@@ -40,6 +40,7 @@
               label="Background color"
               :items="colors"
               v-model="selectedBackgroundColor"
+              data-test="classification-banner-background-color"
             >
               <template v-slot:prepend-inner v-if="selectedBackgroundColor">
                 <v-icon :color="selectedBackgroundColor"> mdi-square </v-icon>
@@ -63,7 +64,7 @@
               :disabled="selectedBackgroundColor !== false"
               v-model="customBackgroundColor"
               :rules="[rules.customColor]"
-              data-test="classificationBannerCustomBackgroundColor"
+              data-test="classification-banner-custom-background-color"
             >
               <template v-slot:prepend-inner>
                 <v-icon
@@ -80,6 +81,7 @@
               label="Font color"
               :items="colors"
               v-model="selectedFontColor"
+              data-test="classification-banner-font-color"
             >
               <template v-slot:prepend-inner v-if="selectedFontColor">
                 <v-icon v-show="selectedFontColor" :color="selectedFontColor">
@@ -105,7 +107,7 @@
               :disabled="selectedFontColor !== false"
               v-model="customFontColor"
               :rules="[rules.customColor]"
-              data-test="classificationBannerCustomFontColor"
+              data-test="classification-banner-custom-font-color"
             >
               <template v-slot:prepend-inner>
                 <v-icon v-show="!selectedFontColor" :color="customFontColor">
@@ -120,7 +122,7 @@
             <v-switch
               label="Display top banner"
               v-model="displayTopBanner"
-              data-test="displayTopBanner"
+              data-test="display-top-banner"
             />
           </v-col>
           <v-col>
@@ -130,14 +132,14 @@
               type="number"
               suffix="px"
               v-model="topHeight"
-              data-test="classificationBannerTopHeight"
+              data-test="classification-banner-top-height"
             />
           </v-col>
           <v-col>
             <v-switch
               label="Display bottom banner"
               v-model="displayBottomBanner"
-              data-test="displayBottomBanner"
+              data-test="display-bottom-banner"
             />
           </v-col>
           <v-col>
@@ -147,7 +149,7 @@
               type="number"
               suffix="px"
               v-model="bottomHeight"
-              data-test="classificationBannerBottomHeight"
+              data-test="classification-banner-bottom-height"
             />
           </v-col>
         </v-row>
@@ -162,7 +164,7 @@
               @click="save"
               color="success"
               text
-              data-test="saveClassificationBanner"
+              data-test="save-classification-banner"
             >
               Save
             </v-btn>
