@@ -72,7 +72,7 @@ test('view started scripts', async ({ page }) => {
   await expect(page.locator('[data-test=completed-scripts]')).toContainText(filename)
 })
 
-test.only('sets environment variables', async ({ page }) => {
+test('sets environment variables', async ({ page }) => {
   await page.locator('textarea').fill(`puts "ENV:#{ENV['KEY']}"`)
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Show Environment').click()

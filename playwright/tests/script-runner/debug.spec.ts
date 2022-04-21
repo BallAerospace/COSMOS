@@ -106,7 +106,7 @@ test('retries failed checks', async ({ page }) => {
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
 })
 
-test.only('displays the call stack', async ({ page }) => {
+test('displays the call stack', async ({ page }) => {
   // Show Call Stack is disabled unless a script is running
   await page.locator('[data-test=script-runner-script]').click()
   // NOTE: This doesn't work in playwright 1.21.0 due to unexpected value "false"
