@@ -61,10 +61,10 @@
                   <v-list-item
                     v-on="on"
                     v-bind="attrs" 
-                    :data-test="`reaction-select-trigger-${item}`"
+                    :data-test="`reaction-select-trigger-${item.count}`"
                   >
                     <v-list-item-content>
-                      <v-list-item-title v-text="item" />
+                      <v-list-item-title v-text="item.text" />
                     </v-list-item-content>
                   </v-list-item>
                 </template>
@@ -183,7 +183,7 @@
             </div>
             <v-row class="ma-0 pa-2">
               <v-btn
-                data-test="reaction-action-action-btn"
+                data-test="reaction-action-add-action-btn"
                 :disabled="disableAddAction"
                 @click="addAction"
               >
@@ -193,7 +193,7 @@
               <v-btn
                 @click="dialogStep = 3"
                 color="success"
-                data-test="reaction-action-step-three-btn"
+                data-test="reaction-create-step-three-btn"
                 :disabled="!reactionActions"
               >
                 Continue
@@ -331,6 +331,7 @@ export default {
     },
     triggerItems: function () {
       const reactionTriggers = this.reactionTriggers
+      let count = 0
       return Object.entries(this.triggers).flatMap(([group, triggerArray]) =>
         triggerArray
           .filter((t) => {
@@ -342,6 +343,7 @@ export default {
             return {
               text: `[${group}] ${t.name} (${t.description})`,
               value: { name: t.name, group },
+              count: count++,
             }
           })
       )

@@ -210,21 +210,21 @@ export default {
       })
     },
     createdGroupFromEvent: function (event) {
-      this.groups.push(event.data)
+      this.triggerGroups.push(event.data)
     },
     updatedGroupFromEvent: function (event) {
-      const groupIndex = this.groups.findIndex(
+      const groupIndex = this.triggerGroups.findIndex(
         (group) => group.name === event.data.name
       )
       if (groupIndex >= 0) {
-        this.groups[groupIndex] = event.data
+        this.triggerGroups[groupIndex] = event.data
       }
     },
     deletedGroupFromEvent: function (event) {
-      const groupIndex = this.groups.findIndex(
+      const groupIndex = this.triggerGroups.findIndex(
         (group) => group.name === event.data.name
       )
-      this.groups.splice(groupIndex, groupIndex >= 0 ? 1 : 0)
+      this.triggerGroups.splice(groupIndex, groupIndex >= 0 ? 1 : 0)
       if (this.group === event.data.name) {
         this.group = this.groups ? this.groups[0] : null
       }

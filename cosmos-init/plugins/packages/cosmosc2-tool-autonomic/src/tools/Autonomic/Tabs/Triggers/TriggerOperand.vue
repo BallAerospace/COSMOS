@@ -101,8 +101,8 @@
       </v-select>
       <v-select
         v-model="limitType"
-        label="Limit Type"
         class="mt-1"
+        label="Limit Type"
         :data-test="`trigger-operand-${order}-limit`"
         :items="limitTypes"
         @change="limitSelected"
@@ -111,10 +111,10 @@
           <v-list-item
             v-on="on"
             v-bind="attrs" 
-            :data-test="`trigger-operand-${order}-limit-${item}`"
+            :data-test="`trigger-operand-${order}-limit-${item.text}`"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="item" />
+              <v-list-item-title v-text="item.text" />
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -122,8 +122,8 @@
     </div>
     <div v-if="operandType === 'TRIGGER'">
       <v-select
-        label="Dependent Trigger"
         class="mt-3"
+        label="Dependent Trigger"
         :data-test="`trigger-operand-${order}-trigger`"
         :items="triggerItems"
         @change="triggerSelected"

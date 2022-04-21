@@ -227,11 +227,11 @@ test('test timeline select and activity delete functionality', async ({ page }) 
 })
 
 test('test delete timeline functionality', async ({ page }) => {
-  await page.locator('[data-test="Alpha-options"]').click()
-  await page.locator('[data-test="Alpha-delete"]').click()
-  await page.locator('[data-test="confirm-dialog-cancel"]').click()
+  await page.locator('[data-test=Alpha-options]').click()
+  await page.locator('[data-test=Alpha-delete]').click()
+  await page.locator('[data-test=confirm-dialog-cancel]').click()
 
   await page.locator('[data-test=Alpha-options]').click()
   await page.locator('[data-test=Alpha-delete]').click()
-  await page.locator('[data-test="confirm-dialog-delete"]').click()
+  await page.locator('[data-test=confirm-dialog-delete]').click()
 })
