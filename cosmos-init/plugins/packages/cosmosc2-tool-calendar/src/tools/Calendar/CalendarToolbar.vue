@@ -23,7 +23,7 @@
       <v-menu bottom right>
         <template v-slot:activator="{ on, attrs }">
           <div v-bind="attrs" v-on="on">
-            <v-btn data-test="createEvent" outlined>
+            <v-btn data-test="create-event" outlined>
               <v-icon left> mdi-plus-box </v-icon>
               <span> Create </span>
               <v-icon right> mdi-menu-down </v-icon>
@@ -89,7 +89,7 @@
             <v-icon left> mdi-clock </v-icon>
             <v-list-item-title> Toggle UTC Display </v-list-item-title>
           </v-list-item>
-          <v-list-item data-test="view-event-list" @click="downloadEvents">
+          <v-list-item data-test="download-event-list" @click="downloadEvents">
             <v-icon left> mdi-download </v-icon>
             <v-list-item-title> Download Event List </v-list-item-title>
           </v-list-item>
@@ -98,20 +98,20 @@
       <v-menu bottom right>
         <template v-slot:activator="{ on, attrs }">
           <div v-bind="attrs" v-on="on">
-            <v-btn outlined data-test="changeType" width="125">
+            <v-btn outlined data-test="change-type" width="125">
               <span>{{ typeToLabel[type] }}</span>
               <v-icon right> mdi-menu-down </v-icon>
             </v-btn>
           </div>
         </template>
         <v-list>
-          <v-list-item data-test="typeDay" @click="updateType('day')">
+          <v-list-item data-test="type-day" @click="updateType('day')">
             <v-list-item-title> Day </v-list-item-title>
           </v-list-item>
-          <v-list-item data-test="typeFourDay" @click="updateType('4day')">
+          <v-list-item data-test="type-four-day" @click="updateType('4day')">
             <v-list-item-title>4 Days</v-list-item-title>
           </v-list-item>
-          <v-list-item data-test="typeWeek" @click="updateType('week')">
+          <v-list-item data-test="type-week" @click="updateType('week')">
             <v-list-item-title> Week </v-list-item-title>
           </v-list-item>
         </v-list>

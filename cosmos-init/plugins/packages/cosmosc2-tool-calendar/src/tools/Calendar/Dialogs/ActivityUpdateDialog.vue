@@ -52,7 +52,7 @@
                     label="Start Date"
                     class="mx-1"
                     :rules="[rules.required]"
-                    data-test="startDate"
+                    data-test="activity-start-date"
                   />
                   <v-text-field
                     v-model="startTime"
@@ -61,7 +61,7 @@
                     label="Start Time"
                     class="mx-1"
                     :rules="[rules.required]"
-                    data-test="startTime"
+                    data-test="activity-start-time"
                   />
                 </v-row>
                 <v-row dense>
@@ -71,7 +71,7 @@
                     label="End Date"
                     class="mx-1"
                     :rules="[rules.required]"
-                    data-test="stopDate"
+                    data-test="activity-stop-date"
                   />
                   <v-text-field
                     v-model="stopTime"
@@ -80,7 +80,7 @@
                     label="End Time"
                     class="mx-1"
                     :rules="[rules.required]"
-                    data-test="stopTime"
+                    data-test="activity-stop-time"
                   />
                 </v-row>
                 <v-row class="mx-2 mb-2">
@@ -132,7 +132,7 @@
                     prefix="cmd('"
                     suffix="')"
                     hint="Timeline run commands with cmd_no_hazardous_check"
-                    data-test="cmd"
+                    data-test="activity-cmd"
                   />
                 </div>
                 <div v-else-if="kind === 'SCRIPT'">
@@ -159,7 +159,7 @@
                     @click="cancelActivity"
                     outlined
                     class="mx-2"
-                    data-test="update-cancel-btn"
+                    data-test="update-activity-cancel-btn"
                   >
                     Cancel
                   </v-btn>
@@ -168,7 +168,7 @@
                     class="mx-2"
                     color="primary"
                     type="submit"
-                    data-test="update-submit-btn"
+                    data-test="update-activity-submit-btn"
                     :disabled="!!timeError || !!typeError"
                   >
                     Update

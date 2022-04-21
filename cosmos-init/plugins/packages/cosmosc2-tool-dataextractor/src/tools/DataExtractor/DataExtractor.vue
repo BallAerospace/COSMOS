@@ -36,7 +36,7 @@
             :min="oldestLogDateStr"
             :max="todaysDate"
             :rules="[rules.required]"
-            data-test="startDate"
+            data-test="start-date"
           />
           <v-text-field
             v-model="endDate"
@@ -45,7 +45,7 @@
             :min="oldestLogDateStr"
             :max="todaysDate"
             :rules="[rules.required]"
-            data-test="endDate"
+            data-test="end-date"
           />
         </v-col>
         <v-col>
@@ -55,7 +55,7 @@
             type="time"
             step="1"
             :rules="[rules.required]"
-            data-test="startTime"
+            data-test="start-time"
           >
           </v-text-field>
           <v-text-field
@@ -64,7 +64,7 @@
             type="time"
             step="1"
             :rules="[rules.required]"
-            data-test="endTime"
+            data-test="end-time"
           >
           </v-text-field>
         </v-col>
@@ -149,7 +149,7 @@
                 v-bind="attrs"
                 v-on="on"
                 :disabled="items.length < 1"
-                data-test="deleteAll"
+                data-test="delete-all"
               >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
@@ -159,7 +159,7 @@
         </v-toolbar>
       </v-row>
       <v-row no-gutters>
-        <v-list data-test="itemList" width="100%">
+        <v-list data-test="item-list" width="100%">
           <div v-for="(item, i) in items" :key="i">
             <v-list-item>
               <v-list-item-icon>
@@ -485,7 +485,7 @@ export default {
         .catch((error) => {
           if (error) {
             this.$notify.serious({
-              title: `Failed to load configuration ${name}`,
+              title: `Failed to open configuration ${name}`,
               body: error,
             })
             localStorage['lastconfig__data_exporter'] = null

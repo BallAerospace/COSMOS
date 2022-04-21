@@ -20,12 +20,12 @@
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
 import { Utilities } from '../utilities'
-import { format, add, sub } from 'date-fns'
+import { format, sub } from 'date-fns'
 
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/tlmgrapher')
-  await expect(page.locator('body')).toContainText('Telemetry Grapher')
+  await expect(page.locator('.v-app-bar')).toContainText('Telemetry Grapher')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
@@ -45,13 +45,13 @@ test('add item start, pause, resume and stop', async ({ page }) => {
   await page.locator('[data-test=start-graph]').click()
   utils.sleep(1000) // Wait for graphing to resume
   // Use the graph menu now
-  await page.locator('[data-test="Telemetry Grapher-Graph"]').click()
+  await page.locator('[data-test=telemetry-grapher-graph]').click()
   await page.locator('text=Pause').click()
   utils.sleep(1000) // Wait for graphing to pause
-  await page.locator('[data-test="Telemetry Grapher-Graph"]').click()
+  await page.locator('[data-test=telemetry-grapher-graph]').click()
   await page.locator('text=Start').click()
   utils.sleep(1000) // Wait for graphing to resume
-  await page.locator('[data-test="Telemetry Grapher-Graph"]').click()
+  await page.locator('[data-test=telemetry-grapher-graph]').click()
   await page.locator('text=Stop').click()
   utils.sleep(1000) // Wait for graphing to stop
 })
@@ -61,7 +61,7 @@ test('adds multiple graphs', async ({ page }) => {
   await page.locator('button:has-text("Add Item")').click()
   await expect(page.locator('#chart0')).toContainText('TEMP1')
   utils.sleep(1000) // Wait for graphing to occur
-  await page.locator('[data-test="Telemetry Grapher-Graph"]').click()
+  await page.locator('[data-test=telemetry-grapher-graph]').click()
   await page.locator('text=Add Graph').click()
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
   await page.locator('button:has-text("Add Item")').click()
@@ -166,17 +166,17 @@ test('edits a graph', async ({ page }) => {
   utils.sleep(3000) // Wait for graphing to occur
   await page.locator('[data-test=edit-graph-icon]').click()
   await expect(page.locator('.v-dialog')).toContainText('Edit Graph')
-  await page.locator('[data-test="edit-graph-title"]').fill('Test Graph Title')
+  await page.locator('[data-test=edit-graph-title]').fill('Test Graph Title')
 
   const start = sub(new Date(), { minutes: 2 })
   await page
-    .locator('text=Start DateStart Time >> [data-test="dateChooser"]')
+    .locator('text=Start DateStart Time >> data-test=date-chooser')
     .type(format(start, 'MMddyyyy')) // Date input doesn't want slashes
   await page
-    .locator('text=Start DateStart Time >> [data-test="timeChooser"]')
+    .locator('text=Start DateStart Time >> data-test=time-chooser')
     .fill(format(start, 'HH:mm:ss')) // Time input does want colons
-  await page.locator('[data-test="graph-min-y"]').fill('-50')
-  await page.locator('[data-test="graph-max-y"]').fill('50')
+  await page.locator('[data-test=graph-min-y]').fill('-50')
+  await page.locator('[data-test=graph-max-y]').fill('50')
   await page.locator('button:has-text("Ok")').click()
   // Validate our settings, have to use gridItem0 because chart0 doesn't include title
   await expect(page.locator('#gridItem0')).toContainText('Test Graph Title')

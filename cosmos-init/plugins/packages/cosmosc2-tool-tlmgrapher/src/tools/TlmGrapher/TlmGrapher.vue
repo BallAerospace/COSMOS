@@ -419,7 +419,7 @@ export default {
         .catch((error) => {
           if (error) {
             this.alertHandler({
-              text: `Failed to load configuration: ${name}. ${error}`,
+              text: `Failed to open configuration: ${name}. ${error}`,
               type: 'error',
             })
             this.setLocalStorageConfig(null)
