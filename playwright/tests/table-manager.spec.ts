@@ -48,7 +48,7 @@ test('creates a binary file', async ({ page }) => {
   )
 })
 
-test.only('opens a binary file', async ({ page }) => {
+test('opens a binary file', async ({ page }) => {
   await page.locator('[data-test=table-manager-file]').click()
   await page.locator('text=Open').click()
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
