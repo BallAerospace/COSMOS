@@ -34,7 +34,7 @@ test.beforeEach(async ({ page }) => {
 //
 test('changes the polling rate', async ({ page }) => {
   await page.locator('[data-test=cmdtlmserver-file]').click()
-  await page.locator('text=Options').click()
+  await page.locator('[data-test=cmdtlmserver-file-options]').click()
   await page.locator('.v-dialog input').fill('5000')
   await page.locator('.v-dialog').press('Escape')
   await utils.sleep(1000)

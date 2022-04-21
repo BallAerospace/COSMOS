@@ -30,9 +30,6 @@ test.beforeEach(async ({ page }, testInfo) => {
   if (await page.$('text=Enter the password')) {
     await page.locator('button:has-text("Close")').click()
   }
-  // Extend timeout for all tests by 10 seconds
-  // since connecting in SR sometimes takes a little longer
-  testInfo.setTimeout(testInfo.timeout + 10000)
   utils = new Utilities(page)
 })
 
