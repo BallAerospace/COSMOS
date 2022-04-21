@@ -25,7 +25,10 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="reset-icon" @click="resetHandler">
+                <v-icon
+                  data-test="trigger-create-reset-icon"
+                  @click="resetHandler"
+                >
                   mdi-redo
                 </v-icon>
               </div>
@@ -38,7 +41,10 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="close-icon" @click="clearHandler">
+                <v-icon
+                  data-test="trigger-create-close-icon"
+                  @click="clearHandler"
+                >
                   mdi-close-box
                 </v-icon>
               </div>
@@ -51,7 +57,7 @@
             <v-text-field
               v-model="groupName"
               label="Group Name"
-              data-test="groupNameInput"
+              data-test="group-name-input"
               dense
               outlined
               readonly
@@ -67,6 +73,7 @@
           <v-stepper-content step="1">
             <trigger-operand
               v-model="kind"
+              order="left"
               :triggers="triggers"
               @set="(event) => operandChanged(event, 'left')"
             />
@@ -75,7 +82,7 @@
               <v-btn
                 @click="dialogStep = 2"
                 color="success"
-                data-test="add-step-two-btn"
+                data-test="trigger-create-step-two-btn"
                 :disabled="!leftOperand"
               >
                 Continue
@@ -89,6 +96,7 @@
           <v-stepper-content step="2">
             <trigger-operand
               v-model="kind"
+              order="right"
               :triggers="triggers"
               @set="(event) => operandChanged(event, 'right')"
             />
@@ -97,7 +105,7 @@
               <v-btn
                 @click="dialogStep = 3"
                 color="success"
-                data-test="add-step-three-btn"
+                data-test="trigger-create-step-three-btn"
                 :disabled="!rightOperand"
               >
                 Continue
@@ -113,7 +121,7 @@
               <v-text-field
                 v-model="evalDescription"
                 label="Trigger Eval"
-                data-test="triggerEval"
+                data-test="trigger-create-eval"
                 class="my-2"
                 dense
                 outlined
@@ -128,9 +136,22 @@
                 :disabled="operators.length <= 1"
                 label="Operator"
                 class="my-3"
+                data-test="trigger-create-select-operator"
                 dense
                 hide-details
-              />
+              >
+                <template v-slot:item="{ item, attrs, on }">
+                  <v-list-item
+                    v-on="on"
+                    v-bind="attrs" 
+                    :data-test="`trigger-create-select-operator-${item}`"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item" />
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-select>
             </v-row>
             <v-row class="ma-0">
               <v-text-field label="Trigger Description" v-model="description" />
@@ -144,7 +165,7 @@
                 @click="clearHandler"
                 outlined
                 class="mr-4"
-                data-test="create-cancel-btn"
+                data-test="trigger-create-cancel-btn"
               >
                 Cancel
               </v-btn>
@@ -152,7 +173,7 @@
                 @click.prevent="submitHandler"
                 type="submit"
                 color="primary"
-                data-test="create-submit-btn"
+                data-test="trigger-create-submit-btn"
                 :disabled="!!error"
               >
                 Ok

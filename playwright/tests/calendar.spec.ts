@@ -210,24 +210,17 @@ test('test create activity functionality', async ({ page }) => {
 })
 
 test('test timeline select and activity delete functionality', async ({ page }) => {
-  await page.locator('text=DEFAULT metadata').click()
-  await page.locator('#cosmos-menu >> text=Calendar').click()
-
+  //
   await page.locator('text=DEFAULT metadata').click()
   await page.locator('[data-test=delete-metadata]').click()
   await page.locator('button:has-text("Delete")').click()
-
-  await page.locator('text=Another test').click()
-  await page.locator('#cosmos-menu >> text=Calendar').click()
-
+  // 
   await page.locator('text=Another test').click()
   await page.locator('[data-test=delete-narration]').click()
   await page.locator('button:has-text("Delete")').click()
-
+  //
+  
   await page.locator('[data-test=select-timeline-Alpha]').click()
-  await page.locator('text=Alpha command').click()
-  await page.locator('#cosmos-menu >> text=Calendar').click()
-
   await page.locator('text=Alpha command').click()
   await page.locator('[data-test=delete-activity]').click()
   await page.locator('button:has-text("Delete")').click()
@@ -236,9 +229,9 @@ test('test timeline select and activity delete functionality', async ({ page }) 
 test('test delete timeline functionality', async ({ page }) => {
   await page.locator('[data-test=Alpha-options]').click()
   await page.locator('[data-test=Alpha-delete]').click()
-  await page.locator('button:has-text("Cancel")').nth(1).click()
+  await page.locator('[data-test=confirm-dialog-cancel]').click()
 
   await page.locator('[data-test=Alpha-options]').click()
   await page.locator('[data-test=Alpha-delete]').click()
-  await page.locator('button:has-text("Delete")').nth(1).click()
+  await page.locator('[data-test=confirm-dialog-delete]').click()
 })

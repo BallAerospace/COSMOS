@@ -55,12 +55,12 @@
                 <th class="text-left">Snoozed Until</th>
                 <td v-text="snoozedZuluTime" />
               </tr>
-              <tr v-for="(trigger, index) in reaction.triggers" :key="index">
-                <th class="text-left" v-text="`Trigger-${index}`" />
+              <tr v-for="(trigger, i) in reaction.triggers" :key="i">
+                <th class="text-left" v-text="`Trigger-${i}`" />
                 <td v-text="`${trigger.group}, ${trigger.name}`" />
               </tr>
-              <tr v-for="(action, index) in reaction.actions" :key="index">
-                <th class="text-left" v-text="`Action-${index}`" />
+              <tr v-for="(action, i) in reaction.actions" :key="i">
+                <th class="text-left" v-text="`Action-${i}`" />
                 <td v-text="action.value" />
               </tr>
             </tbody>
@@ -73,8 +73,12 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-btn icon data-test="deactivate-icon" @click="deactivate">
-                  <v-icon>mdi-power-plug-off</v-icon>
+                <v-btn
+                  icon
+                  :data-test="`reaction-deactivate-icon-${index}`"
+                  @click="deactivateHandler"
+                >
+                  <v-icon> mdi-power-plug-off </v-icon>
                 </v-btn>
               </div>
             </template>
@@ -85,7 +89,11 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-btn icon data-test="activate-icon" @click="activate">
+                <v-btn
+                  icon
+                  :data-test="`reaction-activate-icon-${index}`"
+                  @click="activateHandler"
+                >
                   <v-icon>mdi-power-plug</v-icon>
                 </v-btn>
               </div>
@@ -97,7 +105,11 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="delete-icon" @click="deleteHandler">
+              <v-btn
+                icon
+                :data-test="`reaction-delete-icon-${index}`"
+                @click="deleteHandler"
+              >
                 <v-icon>mdi-delete</v-icon>
               </v-btn>
             </div>
@@ -118,11 +130,14 @@ export default {
       type: Object,
       required: true,
     },
+    index: {
+      type: Number,
+      required: true,
+    },
   },
   data() {
     return {}
   },
-  created() {},
   computed: {
     snoozedZuluTime: function () {
       if (!this.reaction.snoozed_until) {
@@ -131,9 +146,8 @@ export default {
       return new Date(this.reaction.snoozed_until * 1000).toISOString()
     },
   },
-  watch: {},
   methods: {
-    activate: function () {
+    activateHandler: function () {
       Api.post(
         `/cosmos-api/autonomic/reaction/${this.reaction.name}/activate`,
         {}
@@ -144,7 +158,7 @@ export default {
         })
       })
     },
-    deactivate: function () {
+    deactivateHandler: function () {
       Api.post(
         `/cosmos-api/autonomic/reaction/${this.reaction.name}/deactivate`,
         {}
