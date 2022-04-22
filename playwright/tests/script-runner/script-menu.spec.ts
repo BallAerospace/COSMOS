@@ -20,6 +20,7 @@
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
 import { format } from 'date-fns'
+import { Utilities } from '../../utilities'
 
 test.beforeEach(async ({ page }, testInfo) => {
   await page.goto('/tools/scriptrunner')
@@ -61,13 +62,11 @@ test('view started scripts', async ({ page }) => {
   await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
   await page.locator('[data-test=go-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
-
+  await new Utilities(page).sleep(1000)
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text="View Started Scripts"').click()
   await page.locator('button:has-text("Refresh")').first().click()
-  // NOTE: We can't check that there are no running scripts because
-  // the tests run in parallel and there actually could be running scripts
-  // await expect(page.locator('[data-test=running-scripts]')).toContainText('No data available')
+  await expect(page.locator('[data-test=running-scripts]')).not.toContainText(filename)
   await page.locator('button:has-text("Refresh")').nth(1).click()
   await expect(page.locator('[data-test=completed-scripts]')).toContainText(filename)
 })
