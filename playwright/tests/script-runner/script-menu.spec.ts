@@ -21,7 +21,7 @@
 import { test, expect } from 'playwright-test-coverage'
 import { format } from 'date-fns'
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   await page.goto('/tools/scriptrunner')
   await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page.locator('.v-app-bar__nav-icon').click()
@@ -44,7 +44,9 @@ test('view started scripts', async ({ page }) => {
   // await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
   // Start the script
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
+  await expect(page.locator('[data-test=state]')).toHaveValue('waiting', {
+    timeout: 20000,
+  })
 
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text="View Started Scripts"').click()
@@ -58,7 +60,7 @@ test('view started scripts', async ({ page }) => {
   // Get out of the Running Scripts sheet
   await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
   await page.locator('[data-test=go-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
 
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text="View Started Scripts"').click()
@@ -85,13 +87,18 @@ test('sets environment variables', async ({ page }) => {
   await page.locator('[data-test=environment-dialog-save]').click()
 
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
+    timeout: 20000,
+  })
   await expect(page.locator('[data-test=output-messages]')).toContainText('ENV:VALUE')
   await page.locator('[data-test=clear-log]').click()
   await page.locator('button:has-text("Clear")').click()
+  await expect(page.locator('[data-test=output-messages]')).not.toContainText('ENV:VALUE')
   // Re-run and ensure the env vars are still set
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
+    timeout: 20000,
+  })
   await expect(page.locator('[data-test=output-messages]')).toContainText('ENV:VALUE')
 })
 

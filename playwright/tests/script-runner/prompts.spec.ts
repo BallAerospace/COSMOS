@@ -20,7 +20,7 @@
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   await page.goto('/tools/scriptrunner')
   await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page.locator('.v-app-bar__nav-icon').click()
@@ -29,7 +29,9 @@ test.beforeEach(async ({ page }) => {
 test('prompts for hazardous commands', async ({ page }) => {
   await page.locator('textarea').fill('cmd("INST CLEAR")')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('.v-dialog')).toContainText('Hazardous Command')
+  await expect(page.locator('.v-dialog')).toContainText('Hazardous Command', {
+    timeout: 20000,
+  })
   await page.locator('.v-dialog >> button:has-text("No")').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
   await page.locator('[data-test=go-button]').click()
@@ -47,18 +49,18 @@ test('does not hazardous prompt for cmd_no_hazardous_check, cmd_no_checks', asyn
   `)
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
+    timeout: 20000,
   })
 })
 
 test('errors for out of range command parameters', async ({ page }) => {
   await page.locator('textarea').fill(`cmd("INST COLLECT with DURATION 11, TYPE 'NORMAL'")`)
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('error')
-  await page.locator('[data-test=go-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
+  await expect(page.locator('[data-test=state]')).toHaveValue('error', {
+    timeout: 20000,
   })
+  await page.locator('[data-test=go-button]').click()
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   await expect(page.locator('[data-test=output-messages]')).toContainText('11 not in valid range')
 })
 
@@ -69,7 +71,7 @@ test('does not out of range error for cmd_no_range_check, cmd_no_checks', async 
   `)
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
+    timeout: 20000,
   })
 })
 
@@ -86,6 +88,9 @@ test('opens a dialog for ask and returns the value', async ({ page }) => {
   puts value
   `)
   await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.v-dialog')).toBeVisible({
+    timeout: 20000,
+  })
   await page.locator('.v-dialog >> button:has-text("Cancel")').click()
   await expect(page.locator('[data-test=output-messages]')).toContainText('User input: Cancel')
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
@@ -124,6 +129,9 @@ test('opens a dialog with buttons for message_box, vertical_message_box', async 
   puts value
   `)
   await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.v-dialog')).toBeVisible({
+    timeout: 20000,
+  })
   await page.locator('.v-dialog >> button:has-text("Cancel")').click()
   await expect(page.locator('[data-test=output-messages]')).toContainText('User input: Cancel')
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
@@ -145,6 +153,9 @@ test('opens a dialog with dropdowns for combo_box', async ({ page }) => {
   puts value
   `)
   await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.v-dialog')).toBeVisible({
+    timeout: 20000,
+  })
   await page.locator('.v-dialog >> button:has-text("Cancel")').click()
   await expect(page.locator('[data-test=output-messages]')).toContainText('User input: Cancel')
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
@@ -168,6 +179,9 @@ test('opens a dialog for prompt', async ({ page }) => {
   puts value
   `)
   await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.v-dialog')).toBeVisible({
+    timeout: 20000,
+  })
   await expect(page.locator('.v-dialog')).toContainText('Continue?')
   await page.locator('.v-dialog >> button:has-text("Cancel")').click()
   await expect(page.locator('[data-test=output-messages]')).toContainText('User input: Cancel')

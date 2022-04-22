@@ -17,22 +17,15 @@
 # copyright holder
 */
 
-describe('WaitForBuild', () => {
-  it('waits for the services to deploy and connect', function () {
-    cy.visit('/tools/cmdtlmserver')
-    cy.hideNav()
+// @ts-check
+import { test, expect } from 'playwright-test-coverage'
 
-    cy.get('[data-test=interfaces-table]')
-      .contains('INST_INT', { timeout: 300000 })
-      .parent()
-      .children()
-      .eq(2)
-      .contains("CONNECTED")
-    cy.get('[data-test=interfaces-table]')
-      .contains('INST2_INT', { timeout: 60000 })
-      .parent()
-      .children()
-      .eq(2)
-      .contains("CONNECTED")
-  })
+test('changes the limits set', async ({ page }) => {
+  await page.goto('/tools/cmdtlmserver/status')
+  await expect(page.locator('.v-app-bar')).toContainText('CmdTlmServer')
+  await page.locator('.v-app-bar__nav-icon').click()
+  await page.locator('[data-test=limits-set]').click()
+  await page.locator(`.v-list-item__title:text-is("TVAC")`).click()
+  await page.locator('[data-test=limits-set]').click()
+  await page.locator(`.v-list-item__title:text-is("DEFAULT")`).click()
 })
