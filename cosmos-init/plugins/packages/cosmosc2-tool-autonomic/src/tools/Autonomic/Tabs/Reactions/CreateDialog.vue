@@ -28,7 +28,7 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="close-icon" @click="clearHandler">
+                <v-icon data-test="reaction-create-close-icon" @click="clearHandler">
                   mdi-close-box
                 </v-icon>
               </div>
@@ -50,15 +50,28 @@
             <v-row class="ma-0">
               <v-select
                 v-model="deadSelect"
-                @change="addTrigger"
                 persistent-hint
                 label="Select Triggers"
                 hint="Triggers to cause Reaction"
+                data-test="reaction-select-triggers"
                 :items="triggerItems"
-              />
+                @change="addTrigger"
+              >
+                <template v-slot:item="{ item, attrs, on }">
+                  <v-list-item
+                    v-on="on"
+                    v-bind="attrs" 
+                    :data-test="`reaction-select-trigger-${item.count}`"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.text" />
+                    </v-list-item-content>
+                  </v-list-item>
+                </template>
+              </v-select>
             </v-row>
             <div data-test="triggerList">
-              <div v-for="trigger in reactionTriggers" :key="trigger.name">
+              <div v-for="(trigger, i) in reactionTriggers" :key="trigger.name">
                 <v-card outlined class="mt-1 px-0">
                   <v-card-title>
                     <span v-text="trigger.name" />
@@ -66,9 +79,10 @@
                     <v-tooltip top>
                       <template v-slot:activator="{ on, attrs }">
                         <v-icon
-                          @click="removeTrigger(trigger)"
                           v-bind="attrs"
                           v-on="on"
+                          :data-test="`reaction-create-remove-trigger-${i}`"
+                          @click="removeTrigger(trigger)"
                         >
                           mdi-delete
                         </v-icon>
@@ -84,7 +98,7 @@
               <v-btn
                 @click="dialogStep = 2"
                 color="success"
-                data-test="add-step-two-btn"
+                data-test="reaction-create-step-two-btn"
                 :disabled="!reactionTriggers"
               >
                 Continue
@@ -96,9 +110,21 @@
           <v-stepper-content step="2">
             <v-row class="ma-0">
               <v-radio-group v-model="reactionActionKind" row class="px-2">
-                <v-radio label="View" value="VIEW"></v-radio>
-                <v-radio label="Command" value="COMMAND"></v-radio>
-                <v-radio label="Script" value="SCRIPT"></v-radio>
+                <v-radio
+                  label="View"
+                  value="VIEW"
+                  data-test="reaction-action-option-view"
+                />
+                <v-radio
+                  label="Command"
+                  value="COMMAND"
+                  data-test="reaction-action-option-command"
+                />
+                <v-radio
+                  label="Script"
+                  value="SCRIPT"
+                  data-test="reaction-action-option-script"
+                />
               </v-radio-group>
             </v-row>
             <div v-if="reactionActionKind === 'COMMAND'">
@@ -110,7 +136,7 @@
                 prefix="cmd('"
                 suffix="')"
                 hint="Autonomic runs commands with cmd_no_hazardous_check"
-                data-test="command"
+                data-test="reaction-action-command"
               />
             </div>
             <div v-else-if="reactionActionKind === 'SCRIPT'">
@@ -141,9 +167,10 @@
                     <v-tooltip top>
                       <template v-slot:activator="{ on, attrs }">
                         <v-icon
-                          @click="removeAction(index)"
                           v-bind="attrs"
                           v-on="on"
+                          :data-test="`reaction-action-remove-${index}`"
+                          @click="removeAction(index)"
                         >
                           mdi-delete
                         </v-icon>
@@ -156,9 +183,9 @@
             </div>
             <v-row class="ma-0 pa-2">
               <v-btn
-                @click="addAction"
-                data-test="add-action-btn"
+                data-test="reaction-action-add-action-btn"
                 :disabled="disableAddAction"
+                @click="addAction"
               >
                 Add Action
               </v-btn>
@@ -166,7 +193,7 @@
               <v-btn
                 @click="dialogStep = 3"
                 color="success"
-                data-test="add-step-three-btn"
+                data-test="reaction-create-step-three-btn"
                 :disabled="!reactionActions"
               >
                 Continue
@@ -181,6 +208,7 @@
             <v-row class="ma-0">
               <v-text-field
                 v-model="reactionSnooze"
+                data-test="reaction-snooze-input"
                 label="Reaction Snooze"
                 hint="Snooze in Seconds"
                 type="number"
@@ -190,6 +218,7 @@
             <v-row class="ma-0">
               <v-text-field
                 v-model="reactionDescription"
+                data-test="reaction-description-input"
                 label="Trigger Description"
               />
             </v-row>
@@ -202,7 +231,7 @@
                 @click="clearHandler"
                 outlined
                 class="mr-4"
-                data-test="create-cancel-btn"
+                data-test="reaction-create-cancel-btn"
               >
                 Cancel
               </v-btn>
@@ -210,7 +239,7 @@
                 @click.prevent="submitHandler"
                 type="submit"
                 color="primary"
-                data-test="create-submit-btn"
+                data-test="reaction-create-submit-btn"
                 :disabled="!!error"
               >
                 Ok
@@ -302,6 +331,7 @@ export default {
     },
     triggerItems: function () {
       const reactionTriggers = this.reactionTriggers
+      let count = 0
       return Object.entries(this.triggers).flatMap(([group, triggerArray]) =>
         triggerArray
           .filter((t) => {
@@ -313,6 +343,7 @@ export default {
             return {
               text: `[${group}] ${t.name} (${t.description})`,
               value: { name: t.name, group },
+              count: count++,
             }
           })
       )

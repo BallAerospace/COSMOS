@@ -11,9 +11,22 @@
         <span v-else>{{ params.text }}</span>
       </v-card-text>
       <v-card-actions>
-        <v-btn class="mx-2" color="primary" @click="ok" :data-test="`confirm-dialog-${params.okText.toLowerCase()}`"> {{ params.okText }} </v-btn>
         <v-spacer />
-        <v-btn v-if="params.cancelText" class="mx-2" color="primary" @click="cancel" :data-test="`confirm-dialog-${params.cancelText.toLowerCase()}`"> {{ params.cancelText }} </v-btn>
+        <v-btn
+          v-text="params.okText"
+          class="mx-2"
+          color="primary"
+          :data-test="dataTestOk"
+          @click="ok"
+        />
+        <v-btn
+          v-if="params.cancelText"
+          v-text="params.cancelText"
+          class="mx-2"
+          outlined
+          :data-test="dataTestCancel"
+          @click="cancel"
+        />
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -37,6 +50,14 @@ export default {
       resolve: null,
       reject: null,
     }
+  },
+  computed: {
+    dataTestOk: function () {
+      return `confirm-dialog-${this.params.okText.toLowerCase()}`
+    },
+    dataTestCancel: function () {
+      return `confirm-dialog-${this.params.cancelText.toLowerCase()}`
+    },
   },
   methods: {
     dialog: function (params, resolve, reject) {
