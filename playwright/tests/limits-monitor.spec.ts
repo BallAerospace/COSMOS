@@ -25,7 +25,7 @@ import { format } from 'date-fns'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/limitsmonitor')
-  await expect(page.locator('body')).toContainText('Limits Monitor')
+  await expect(page.locator('.v-app-bar')).toContainText('Limits Monitor')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })

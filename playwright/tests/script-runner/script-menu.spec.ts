@@ -31,6 +31,7 @@ test.beforeEach(async ({ page }, testInfo) => {
 })
 
 test('view started scripts', async ({ page }) => {
+  const utils = new Utilities(page)
   // Have to fill on an editable area like the textarea
   await page.locator('textarea').fill(`
   puts "now we wait"
@@ -51,20 +52,27 @@ test('view started scripts', async ({ page }) => {
 
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text="View Started Scripts"').click()
+  await utils.sleep(1000)
   // Each section has a Refresh button so click the first one
   await page.locator('button:has-text("Refresh")').first().click()
   await expect(page.locator('[data-test=running-scripts]')).toContainText(
     format(new Date(), 'yyyy_MM_dd')
   )
-  const filename = await page.locator('[data-test=running-scripts] >> td >> nth=2').textContent()
+  const filename = await page
+    .locator('[data-test=running-scripts]')
+    .locator('tr')
+    .nth(1) // First row (after the header)
+    .locator('td')
+    .nth(2) // Third column is the file name
+    .textContent()
 
   // Get out of the Running Scripts sheet
   await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
   await page.locator('[data-test=go-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
-  await new Utilities(page).sleep(1000)
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text="View Started Scripts"').click()
+  await utils.sleep(1000)
   await page.locator('button:has-text("Refresh")').first().click()
   await expect(page.locator('[data-test=running-scripts]')).not.toContainText(filename)
   await page.locator('button:has-text("Refresh")').nth(1).click()

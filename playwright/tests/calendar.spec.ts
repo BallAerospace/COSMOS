@@ -26,7 +26,7 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/calendar')
-  await expect(page.locator('body')).toContainText('Calendar')
+  await expect(page.locator('.v-app-bar')).toContainText('Calendar')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })

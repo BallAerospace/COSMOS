@@ -42,9 +42,9 @@ async function matchItem(page, item, regex) {
 test('displays INST HEALTH_STATUS & polls the api', async ({ page }) => {
   // Verify we can hit it using the route
   await page.goto('/tools/packetviewer/INST/HEALTH_STATUS')
-  await expect(page.locator('body')).toContainText('INST')
-  await expect(page.locator('body')).toContainText('HEALTH_STATUS')
-  await expect(page.locator('body')).toContainText('Health and status') // Description
+  await expect(page.locator('id=cosmos-tool')).toContainText('INST')
+  await expect(page.locator('id=cosmos-tool')).toContainText('HEALTH_STATUS')
+  await expect(page.locator('id=cosmos-tool')).toContainText('Health and status') // Description
 
   page.on('request', (request) => {
     expect(request.url()).toMatch('/cosmos-api/api')
@@ -57,10 +57,10 @@ test('displays INST HEALTH_STATUS & polls the api', async ({ page }) => {
 
 test('selects a target and packet to display', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'IMAGE')
-  await expect(page.locator('body')).toContainText('INST')
-  await expect(page.locator('body')).toContainText('IMAGE')
-  await expect(page.locator('body')).toContainText('Packet with image data')
-  await expect(page.locator('body')).toContainText('BYTES')
+  await expect(page.locator('id=cosmos-tool')).toContainText('INST')
+  await expect(page.locator('id=cosmos-tool')).toContainText('IMAGE')
+  await expect(page.locator('id=cosmos-tool')).toContainText('Packet with image data')
+  await expect(page.locator('id=cosmos-tool')).toContainText('BYTES')
 })
 
 test('gets details with right click', async ({ page }) => {

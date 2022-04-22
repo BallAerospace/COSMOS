@@ -79,10 +79,7 @@
           </v-list-item-content>
           <v-list-item-icon>
             <div v-if="process.state === 'Running'">
-              <v-progress-circular
-                indeterminate
-                color="primary"
-              />
+              <v-progress-circular indeterminate color="primary" />
             </div>
             <v-tooltip v-else bottom>
               <template v-slot:activator="{ on, attrs }">
