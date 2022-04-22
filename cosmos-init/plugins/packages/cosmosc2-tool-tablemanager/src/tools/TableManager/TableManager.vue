@@ -51,7 +51,7 @@
       v-model="fileInput"
       ref="fileInput"
       accept=".bin"
-      data-test="fileInput"
+      data-test="file-input"
       style="position: fixed; top: -100%"
     />
     <v-text-field
@@ -62,7 +62,7 @@
       label="Definition"
       v-model="definitionFilename"
       id="definition-filename"
-      data-test="definitionFilename"
+      data-test="definition-filename"
     />
     <v-text-field
       outlined
