@@ -65,8 +65,8 @@ test('sets a classification banner', async ({ page }) => {
   const bannerHeight = '32'
   const bannerTextColor = 'Orange'
   const bannerBackgroundColor = '123'
+  await page.check('text=Display top banner')
   await page.locator('[data-test=classification-banner-text]').fill(bannerText)
-  await page.locator('text=Display top banner').click()
   await page.locator('[data-test=classification-banner-top-height]').fill(bannerHeight)
   await page.locator('data-test=classification-banner-background-color').click()
   await page.locator('.v-list-item:has-text("Custom")').click()
@@ -79,16 +79,16 @@ test('sets a classification banner', async ({ page }) => {
   await page.reload()
   await expect(page.locator('#app')).toHaveAttribute(
     'style',
-    `--classification-text:"${bannerText}"; --classification-font-color:${bannerTextColor.toLowerCase()}; --classification-background-color:#${bannerBackgroundColor}; --classification-height-top:${bannerHeight}px; --classification-height-bottom:0px;`
+    // Chrome doesn't have spaces after the colon and Firefox does
+    new RegExp(
+      `--classification-text:\\s?"${bannerText}"; --classification-font-color:\\s?${bannerTextColor.toLowerCase()}; --classification-background-color:\\s?#${bannerBackgroundColor}; --classification-height-top:\\s?${bannerHeight}px; --classification-height-bottom:\\s?0px;`
+    )
   )
   // Disable the classification banner
-  await page.locator('text=Display top banner').click()
+  await page.uncheck('text=Display top banner')
   await page.locator('[data-test=save-classification-banner]').click()
   await page.reload()
-  await expect(page.locator('#app')).not.toHaveAttribute(
-    'style',
-    `--classification-text:"${bannerText}"`
-  )
+  await expect(page.locator('#app')).not.toHaveAttribute('style', `--classification-text`)
 })
 
 test('changes the source url', async ({ page }) => {
