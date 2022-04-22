@@ -52,7 +52,6 @@
               >
                 <v-list-item-action
                   v-if="option.radio"
-                  :disabled="option.disabled"
                 >
                   <v-radio
                     color="secondary"
@@ -62,7 +61,6 @@
                 </v-list-item-action>
                 <v-list-item-action
                   v-if="option.checkbox"
-                  :disabled="option.disabled"
                 >
                   <v-checkbox
                     v-model="checked"
@@ -79,7 +77,6 @@
                   :style="
                     'cursor: pointer;' + (option.disabled ? 'opacity: 0.2' : '')
                   "
-                  :disabled="option.disabled"
                   v-text="option.label"
                 />
               </v-list-item>
