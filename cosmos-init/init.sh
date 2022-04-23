@@ -1,6 +1,8 @@
 #!/bin/sh
 # set -x
 
+RVERSION="5.0.1"
+
 if [ -z "${COSMOS_S3_URL}" ]; then
   COSMOS_S3_URL='http://cosmos-minio:9000'
 fi
@@ -47,23 +49,23 @@ else
     done
 fi
 
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-base-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-cmdtlmserver-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-limitsmonitor-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-cmdsender-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-scriptrunner-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-packetviewer-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmviewer-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmgrapher-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataextractor-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataviewer-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tablemanager-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-admin-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-calendar-5.0.1.*.gem || exit 1
-ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-autonomic-5.0.1.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-base-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-cmdtlmserver-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-limitsmonitor-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-cmdsender-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-scriptrunner-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-packetviewer-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmviewer-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmgrapher-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataextractor-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataviewer-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tablemanager-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-admin-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-calendar-${RVERSION}.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-autonomic-${RVERSION}.*.gem || exit 1
 
 if [ ! -z $COSMOS_DEMO ]; then
-    ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-demo-5.0.1.*.gem || exit 1
+    ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-demo-${RVERSION}.*.gem || exit 1
 fi
 
 RC=1
