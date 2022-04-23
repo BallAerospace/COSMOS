@@ -37,9 +37,7 @@ test('prompts for hazardous commands', async ({ page }) => {
   await page.locator('[data-test=go-button]').click()
   await expect(page.locator('.v-dialog')).toContainText('Hazardous Command')
   await page.locator('.v-dialog >> button:has-text("Yes")').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
-  })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
 })
 
 test('does not hazardous prompt for cmd_no_hazardous_check, cmd_no_checks', async ({ page }) => {
@@ -140,9 +138,7 @@ test('opens a dialog with buttons for message_box, vertical_message_box', async 
   await page.locator('[data-test=go-button]').click()
   await page.locator('.v-dialog >> button:has-text("TWO")').click()
   await page.locator('.v-dialog >> button:has-text("FOUR")').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
-  })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   await expect(page.locator('[data-test=output-messages]')).toContainText('TWO')
   await expect(page.locator('[data-test=output-messages]')).toContainText('FOUR')
 })
@@ -166,9 +162,7 @@ test('opens a dialog with dropdowns for combo_box', async ({ page }) => {
   await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
   await page.locator('div[role="listbox"] >> text=def456').click()
   await page.locator('.v-dialog >> button:has-text("Ok")').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
-  })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   await expect(page.locator('[data-test=output-messages]')).toContainText('User input: def456')
 })
 

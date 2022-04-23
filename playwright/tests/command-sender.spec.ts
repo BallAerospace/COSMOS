@@ -299,7 +299,7 @@ test('disable parameter conversions', async ({ page }) => {
     .locator('textarea')
     .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 02')
 
   await page.locator('text=Command Sender').click()
@@ -316,6 +316,6 @@ test('disable parameter conversions', async ({ page }) => {
     .locator('textarea')
     .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', { timeout: 10000 })
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 01')
 })
