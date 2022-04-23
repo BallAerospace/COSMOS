@@ -24,7 +24,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="download" @click="downloadGroups">
+            <v-btn icon data-test="group-download" @click="downloadGroups">
               <v-icon> mdi-download </v-icon>
             </v-btn>
           </div>
@@ -36,7 +36,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="newGroup" @click="newGroup">
+            <v-btn icon data-test="new-group" @click="newGroup">
               <v-icon>mdi-database-plus</v-icon>
             </v-btn>
           </div>
@@ -48,7 +48,7 @@
       <v-text-field
         v-model="searchGroups"
         label="Search"
-        data-test="search"
+        data-test="group-search"
         dense
         outlined
         hide-details
@@ -64,9 +64,15 @@
           <v-list-item-icon>
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
-                <v-icon @click="deleteGroup(group)" v-bind="attrs" v-on="on">
-                  mdi-delete
-                </v-icon>
+                <div v-on="on" v-bind="attrs">
+                  <v-btn
+                    icon
+                    :data-test="`delete-group-${index}`"
+                    @click="deleteGroup(group)"
+                  >
+                    <v-icon> mdi-delete </v-icon>
+                  </v-btn>
+                </div>
               </template>
               <span>Delete Group</span>
             </v-tooltip>
@@ -80,7 +86,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="download-log" @click="downloadEvents">
+            <v-btn icon data-test="events-download" @click="downloadEvents">
               <v-icon> mdi-download </v-icon>
             </v-btn>
           </div>
@@ -92,7 +98,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="clear-log" @click="clearEvents">
+            <v-btn icon data-test="events-clear" @click="clearEvents">
               <v-icon> mdi-delete </v-icon>
             </v-btn>
           </div>
@@ -104,7 +110,7 @@
       <v-text-field
         v-model="searchEvents"
         label="Search"
-        data-test="search"
+        data-test="events-search"
         dense
         outlined
         hide-details
@@ -121,20 +127,7 @@
       dense
       height="55vh"
       data-test="output-messages"
-    >
-      <template v-slot:item.actions="{ item }">
-        <v-tooltip top>
-          <template v-slot:activator="{ on, attrs }">
-            <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="viewEvent" @click="viewEvent(item)">
-                <v-icon> mdi-eye </v-icon>
-              </v-btn>
-            </div>
-          </template>
-          <span> View Event </span>
-        </v-tooltip>
-      </template>
-    </v-data-table>
+    />
     <create-dialog v-model="showNewGroupDialog" :groups="triggerGroupNames" />
   </div>
 </template>

@@ -26,9 +26,6 @@ test.beforeEach(async ({ page }, testInfo) => {
   await page.locator('.v-app-bar__nav-icon').click()
   // Close the dialog that says how many running scripts there are
   await page.locator('button:has-text("Close")').click()
-  // Extend timeout for all tests by 10 seconds
-  // since connecting in SR sometimes takes a little longer
-  testInfo.setTimeout(testInfo.timeout + 10000)
 })
 
 test('keeps a debug command history', async ({ page }) => {
@@ -41,7 +38,9 @@ test('keeps a debug command history', async ({ page }) => {
   puts "two"
   `)
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
+  await expect(page.locator('[data-test=state]')).toHaveValue('waiting', {
+    timeout: 20000,
+  })
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Toggle Debug').click()
   await expect(page.locator('[data-test=debug-text]')).toBeVisible()
@@ -92,7 +91,9 @@ test('keeps a debug command history', async ({ page }) => {
 test('retries failed checks', async ({ page }) => {
   await page.locator('textarea').fill('check_expression("1 == 2")')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('error')
+  await expect(page.locator('[data-test=state]')).toHaveValue('error', {
+    timeout: 20000,
+  })
   // Check for the initial check message
   await expect(page.locator('[data-test=output-messages]')).toContainText('1 == 2 is FALSE')
   await page.locator('[data-test=pause-retry-button]').click() // Retry
@@ -109,9 +110,15 @@ test('displays the call stack', async ({ page }) => {
   // Show Call Stack is disabled unless a script is running
   await page.locator('[data-test=script-runner-script]').click()
   // NOTE: This doesn't work in playwright 1.21.0 due to unexpected value "false"
+  // await expect(page.locator('text=Show Call Stack')).toBeDisabled()
   // See: https://github.com/microsoft/playwright/issues/13583
-  // await expect(page.locator("text=Show Call Stack")).toBeDisabled();
-  await expect(page.locator('text=Show Call Stack')).toHaveAttribute('disabled', 'disabled')
+  // See: https://github.com/vuetifyjs/vuetify/issues/14968
+  // await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toBeDisabled()
+  await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  )
+  // await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toBeDisabled()
 
   await page.locator('textarea').fill(`
   def one
@@ -123,7 +130,9 @@ test('displays the call stack', async ({ page }) => {
   one()
   `)
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
+  await expect(page.locator('[data-test=state]')).toHaveValue('waiting', {
+    timeout: 20000,
+  })
   await page.locator('[data-test=pause-retry-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
 
@@ -135,7 +144,10 @@ test('displays the call stack', async ({ page }) => {
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
 
   await page.locator('[data-test=script-runner-script]').click()
-  await expect(page.locator('text=Show Call Stack')).toHaveAttribute('disabled', 'disabled')
+  await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  )
 })
 
 test('displays disconnect icon', async ({ page }) => {
@@ -162,7 +174,7 @@ test('displays disconnect icon', async ({ page }) => {
   await page.locator('[data-test=start-button]').click()
   // Runs without stopping
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
-    timeout: 10000,
+    timeout: 20000,
   })
   await expect(page.locator('[data-test=output-messages]')).toContainText(
     'total:0' // collect count does not change

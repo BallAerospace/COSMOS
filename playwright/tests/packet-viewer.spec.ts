@@ -39,15 +39,12 @@ async function matchItem(page, item, regex) {
     .toMatch(regex)
 }
 
-//
-// Test the basic functionality of the application
-//
 test('displays INST HEALTH_STATUS & polls the api', async ({ page }) => {
   // Verify we can hit it using the route
   await page.goto('/tools/packetviewer/INST/HEALTH_STATUS')
-  await expect(page.locator('body')).toContainText('INST')
-  await expect(page.locator('body')).toContainText('HEALTH_STATUS')
-  await expect(page.locator('body')).toContainText('Health and status') // Description
+  await expect(page.locator('id=cosmos-tool')).toContainText('INST')
+  await expect(page.locator('id=cosmos-tool')).toContainText('HEALTH_STATUS')
+  await expect(page.locator('id=cosmos-tool')).toContainText('Health and status') // Description
 
   page.on('request', (request) => {
     expect(request.url()).toMatch('/cosmos-api/api')
@@ -60,10 +57,10 @@ test('displays INST HEALTH_STATUS & polls the api', async ({ page }) => {
 
 test('selects a target and packet to display', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'IMAGE')
-  await expect(page.locator('body')).toContainText('INST')
-  await expect(page.locator('body')).toContainText('IMAGE')
-  await expect(page.locator('body')).toContainText('Packet with image data')
-  await expect(page.locator('body')).toContainText('BYTES')
+  await expect(page.locator('id=cosmos-tool')).toContainText('INST')
+  await expect(page.locator('id=cosmos-tool')).toContainText('IMAGE')
+  await expect(page.locator('id=cosmos-tool')).toContainText('Packet with image data')
+  await expect(page.locator('id=cosmos-tool')).toContainText('BYTES')
 })
 
 test('gets details with right click', async ({ page }) => {
@@ -88,20 +85,26 @@ test('stops posting to the api after closing', async ({ page }) => {
   expect(requestCount).toBe(count) // no change
 })
 
-//
-// Test the File menu
-//
+// Changing the polling rate is fraught with danger because it's all
+// about waiting for changes and detecting changes
 test('changes the polling rate', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'HEALTH_STATUS')
   await page.locator('[data-test=packet-viewer-file]').click()
-  await page.locator('text=Options').click()
+  await page.locator('[data-test=packet-viewer-file-options]').click()
   await page.locator('.v-dialog input').fill('5000')
+  await page.locator('.v-dialog input').press('Enter')
   await page.locator('.v-dialog').press('Escape')
   const received = await page.inputValue('tr:has-text("RECEIVED_COUNT") input')
   await utils.sleep(7000)
   const received2 = await page.inputValue('tr:has-text("RECEIVED_COUNT") input')
   expect(received2 - received).toBeLessThanOrEqual(6) // Allow slop
   expect(received2 - received).toBeGreaterThanOrEqual(4) // Allow slop
+  // Set it back
+  await page.locator('[data-test=packet-viewer-file]').click()
+  await page.locator('[data-test=packet-viewer-file-options]').click()
+  await page.locator('.v-dialog input').fill('1000')
+  await page.locator('.v-dialog input').press('Enter')
+  await page.locator('.v-dialog').press('Escape')
 })
 
 //

@@ -136,11 +136,14 @@ export default {
     },
   },
   methods: {
+    buildRawData: function () {
+      return `${this.header}\nReceived Time: ${this.receivedTime}\nCount: ${this.receivedCount}\n${this.rawData}`
+    },
     copyRawData: function () {
-      navigator.clipboard.writeText(this.rawData)
+      navigator.clipboard.writeText(this.buildRawData())
     },
     downloadRawData: function () {
-      const blob = new Blob([this.rawData], {
+      const blob = new Blob([this.buildRawData()], {
         type: 'plain/text',
       })
       // Make a link and then 'click' on it to start the download

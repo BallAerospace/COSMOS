@@ -24,7 +24,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="download" @click="download">
+            <v-btn icon data-test="reaction-download" @click="download">
               <v-icon> mdi-download </v-icon>
             </v-btn>
           </div>
@@ -36,7 +36,7 @@
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <div v-on="on" v-bind="attrs">
-            <v-btn icon data-test="newReaction" @click="newReaction">
+            <v-btn icon data-test="new-reaction" @click="newReaction">
               <v-icon>mdi-database-plus</v-icon>
             </v-btn>
           </div>
@@ -48,7 +48,7 @@
       <v-text-field
         v-model="search"
         label="Search"
-        data-test="search"
+        data-test="reaction-search"
         dense
         outlined
         hide-details
@@ -56,9 +56,9 @@
     </v-card-title>
     <!-- The main part of the screen to have lists and information -->
     <v-row class="pa-4">
-      <div v-for="reaction in reactions" :key="reaction.name">
+      <div v-for="(reaction, i) in reactions" :key="reaction.name">
         <v-col>
-          <reaction-card :reaction="reaction" />
+          <reaction-card :reaction="reaction" :index="i" />
         </v-col>
       </div>
     </v-row>

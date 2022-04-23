@@ -21,11 +21,24 @@
   <div>
     <v-select
       v-model="operandType"
-      :items="operandTypes"
       label="OperandType"
       class="mt-1"
-    />
-    <div v-if="operandType == 'ITEM'">
+      :data-test="`trigger-operand-${order}-type`"
+      :items="operandTypes"
+    >
+      <template v-slot:item="{ item, on, attrs }">
+        <v-list-item
+          v-on="on"
+          v-bind="attrs" 
+          :data-test="`trigger-operand-${order}-type-${item}`"
+        >
+          <v-list-item-content>
+            <v-list-item-title v-text="item" />
+          </v-list-item-content>
+        </v-list-item>
+      </template>
+    </v-select>
+    <div v-if="operandType === 'ITEM'">
       <v-row class="ma-0">
         <v-radio-group
           v-model="itemValue"
@@ -33,51 +46,107 @@
           row
           @change="itemValueSelected"
         >
-          <v-radio label="RAW" value="RAW"></v-radio>
-          <v-radio label="CONVERTED" value="CONVERTED"></v-radio>
+          <v-radio
+            label="RAW"
+            value="RAW"
+            :data-test="`trigger-operand-${order}-raw`"
+          />
+          <v-radio
+            label="CONVERTED"
+            value="CONVERTED"
+            :data-test="`trigger-operand-${order}-converted`"
+          />
         </v-radio-group>
       </v-row>
       <target-packet-item-chooser vertical choose-item @on-set="itemSelected" />
     </div>
     <div v-if="operandType === 'FLOAT'">
       <v-text-field
-        :rules="[rules.required]"
         label="Input Float Value"
         type="number"
+        :data-test="`trigger-operand-${order}-float`"
+        :rules="[rules.required]"
         @change="floatSelected"
       />
     </div>
     <div v-if="operandType === 'STRING'">
       <v-text-field
-        :rules="[rules.required]"
         label="Input String Value"
         type="string"
+        :data-test="`trigger-operand-${order}-string`"
+        :rules="[rules.required]"
         @change="stringSelected"
       />
     </div>
     <div v-if="operandType === 'LIMIT'">
       <v-select
         v-model="limitColor"
-        :items="limitColors"
         label="Limit Color"
         class="mt-1"
+        :data-test="`trigger-operand-${order}-color`"
+        :items="limitColors"
         @change="limitSelected"
-      />
+      >
+        <template v-slot:item="{ item, on, attrs }">
+          <v-list-item
+            v-on="on"
+            v-bind="attrs" 
+            :data-test="`trigger-operand-${order}-color-${item}`"
+          >
+            <v-list-item-content>
+              <v-list-item-title v-text="item" />
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-select>
       <v-select
         v-model="limitType"
-        :items="limitTypes"
-        label="Limit Type"
         class="mt-1"
+        label="Limit Type"
+        :data-test="`trigger-operand-${order}-limit`"
+        :items="limitTypes"
         @change="limitSelected"
-      />
+      >
+        <template v-slot:item="{ item, on, attrs }">
+          <v-list-item
+            v-on="on"
+            v-bind="attrs" 
+            :data-test="`trigger-operand-${order}-limit-${item.text}`"
+          >
+            <v-list-item-content>
+              <v-list-item-title v-text="item.text" />
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-select>
     </div>
     <div v-if="operandType === 'TRIGGER'">
       <v-select
-        :items="triggerItems"
-        label="Dependent Trigger"
         class="mt-3"
+        label="Dependent Trigger"
+        :data-test="`trigger-operand-${order}-trigger`"
+        :items="triggerItems"
         @change="triggerSelected"
-      />
+      >
+        <template v-slot:item="{ item, on, attrs }">
+          <v-list-item
+            v-on="on"
+            v-bind="attrs" 
+            :data-test="`trigger-operand-${order}-trigger-${item}`"
+          >
+            <v-list-item-content>
+              <v-list-item-title v-text="item" />
+            </v-list-item-content>
+          </v-list-item>
+        </template>
+      </v-select>
+    </div>
+    <div v-if="operandType === ''">
+      <v-row class="ma-0">
+        <span class="ma-2 red--text">
+          To continue select an operand type.
+        </span>
+      </v-row>
     </div>
   </div>
 </template>
@@ -98,6 +167,10 @@ export default {
     },
     triggers: {
       type: Array,
+      required: true,
+    },
+    order: {
+      type: String,
       required: true,
     },
   },
@@ -156,30 +229,39 @@ export default {
   },
   watch: {
     // This is mainly used when a user resets the CreateDialog
-    kind: function (newVal, oldVal) {
-      if (newVal === '') {
-        this.operandType = ''
-      }
+    kind: {
+      immediate: true,
+      handler: function (newVal, oldVal) {
+        if (newVal === '') {
+          this.operandType = ''
+        }
+      },
     },
     // This updates kind and will reset the operand if the operandType changes
-    operandType: function (newVal, oldVal) {
-      if (newVal === 'FLOAT' && !this.kind) {
-        this.kind = 'FLOAT'
-      } else if (newVal === 'LIMIT' && !this.kind) {
-        this.kind = 'LIMIT'
-      } else if (newVal === 'STRING' && !this.kind) {
-        this.kind = 'STRING'
-      } else if (newVal === 'TRIGGER' && !this.kind) {
-        this.kind = 'TRIGGER'
-      }
-      if (newVal !== oldVal) {
-        this.operand = {}
-      }
+    operandType: {
+      immediate: true,
+      handler: function (newVal, oldVal) {
+        if (newVal === 'FLOAT' && !this.kind) {
+          this.kind = 'FLOAT'
+        } else if (newVal === 'LIMIT' && !this.kind) {
+          this.kind = 'LIMIT'
+        } else if (newVal === 'STRING' && !this.kind) {
+          this.kind = 'STRING'
+        } else if (newVal === 'TRIGGER' && !this.kind) {
+          this.kind = 'TRIGGER'
+        }
+        if (newVal !== oldVal) {
+          this.operand = {}
+        }
+      },
     },
     // When the operand changes emit the new Value
-    operand: function (newVal, oldVal) {
-      this.$emit('set', newVal)
-    },
+    operand: {
+      immediate: true,
+      handler: function (newVal, oldVal) {
+        this.$emit('set', newVal)
+      },
+    }
   },
   methods: {
     itemValueSelected: function (event) {

@@ -210,7 +210,7 @@ test('processes commands', async ({ page }) => {
 })
 
 test('creates CSV output', async ({ page }) => {
-  const start = sub(new Date(), { minutes: 5 })
+  const start = sub(new Date(), { minutes: 3 })
   await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Comma Delimited').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
@@ -225,12 +225,12 @@ test('creates CSV output', async ({ page }) => {
     expect(lines[0]).toContain('TEMP1')
     expect(lines[0]).toContain('TEMP2')
     expect(lines[0]).toContain(',') // csv
-    expect(lines.length).toBeGreaterThan(290) // 5 min at 60Hz is 300 samples
+    expect(lines.length).toBeGreaterThan(170) // 3 min at 60Hz is 180 samples
   })
 })
 
 test('creates tab delimited output', async ({ page }) => {
-  const start = sub(new Date(), { minutes: 5 })
+  const start = sub(new Date(), { minutes: 3 })
   await page.locator('[data-test=data-extractor-file]').click()
   await page.locator('text=Tab Delimited').click()
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
@@ -242,7 +242,7 @@ test('creates tab delimited output', async ({ page }) => {
     expect(lines[0]).toContain('TEMP1')
     expect(lines[0]).toContain('TEMP2')
     expect(lines[0]).toContain('\t') // tab delimited
-    expect(lines.length).toBeGreaterThan(290) // 5 min at 60Hz is 300 samples
+    expect(lines.length).toBeGreaterThan(170) // 3 min at 60Hz is 180 samples
   })
 })
 
