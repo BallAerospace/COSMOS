@@ -153,16 +153,21 @@ module Cosmos
         expect(@api.get_limits("INST", "HEALTH_STATUS", "TEMP1")['CUSTOM']).to eql([0.0, 10.0, 20.0, 30.0])
       end
 
+      it "complains about invalid limits" do
+        expect { @api.set_limits("INST", "HEALTH_STATUS", "TEMP1", 2.0, 1.0, 4.0, 5.0)  }.to raise_error(RuntimeError, /Invalid limits specified/)
+        expect { @api.set_limits("INST", "HEALTH_STATUS", "TEMP1", 0.0, 1.0, 2.0, 3.0, 4.0, 5.0)  }.to raise_error(RuntimeError, /Invalid limits specified/)
+      end
+
       it "overrides existing limits" do
         item = @api.get_item("INST", "HEALTH_STATUS", "TEMP1")
         expect(item['limits']['persistence_setting']).to_not eql(10)
         expect(item['limits']['enabled']).to be true
-        @api.set_limits("INST", "HEALTH_STATUS", "TEMP1", 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 'DEFAULT', 10, false)
+        @api.set_limits("INST", "HEALTH_STATUS", "TEMP1", 0.0, 1.0, 4.0, 5.0, 2.0, 3.0, 'DEFAULT', 10, false)
         item = @api.get_item("INST", "HEALTH_STATUS", "TEMP1")
         expect(item['limits']['persistence_setting']).to eql(10)
         expect(item['limits']['enabled']).to be_nil
-        expect(item['limits']['DEFAULT']).to eql({ 'red_low' => 0.0, 'yellow_low' => 1.0, 'yellow_high' => 2.0,
-                                                   'red_high' => 3.0, 'green_low' => 4.0, 'green_high' => 5.0 })
+        expect(item['limits']['DEFAULT']).to eql({ 'red_low' => 0.0, 'yellow_low' => 1.0, 'yellow_high' => 4.0,
+                                                   'red_high' => 5.0, 'green_low' => 2.0, 'green_high' => 3.0 })
       end
     end
 
