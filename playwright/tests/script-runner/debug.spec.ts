@@ -110,10 +110,15 @@ test('displays the call stack', async ({ page }) => {
   // Show Call Stack is disabled unless a script is running
   await page.locator('[data-test=script-runner-script]').click()
   // NOTE: This doesn't work in playwright 1.21.0 due to unexpected value "false"
+  // await expect(page.locator('text=Show Call Stack')).toBeDisabled()
   // See: https://github.com/microsoft/playwright/issues/13583
   // See: https://github.com/vuetifyjs/vuetify/issues/14968
-  // await expect(page.locator('text=Show Call Stack')).toBeDisabled()
-  await expect(page.locator('text=Show Call Stack')).toHaveAttribute('disabled', 'disabled')
+  // await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toBeDisabled()
+  await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  )
+  // await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toBeDisabled()
 
   await page.locator('textarea').fill(`
   def one
@@ -139,7 +144,10 @@ test('displays the call stack', async ({ page }) => {
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
 
   await page.locator('[data-test=script-runner-script]').click()
-  await expect(page.locator('text=Show Call Stack')).toHaveAttribute('disabled', 'disabled')
+  await expect(page.locator('[data-test=script-runner-script-show-call-stack]')).toHaveAttribute(
+    'aria-disabled',
+    'true'
+  )
 })
 
 test('displays disconnect icon', async ({ page }) => {

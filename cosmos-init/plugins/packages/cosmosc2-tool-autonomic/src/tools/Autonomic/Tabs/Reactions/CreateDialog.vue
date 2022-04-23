@@ -28,7 +28,10 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="reaction-create-close-icon" @click="clearHandler">
+                <v-icon
+                  data-test="reaction-create-close-icon"
+                  @click="clearHandler"
+                >
                   mdi-close-box
                 </v-icon>
               </div>
@@ -60,7 +63,7 @@
                 <template v-slot:item="{ item, attrs, on }">
                   <v-list-item
                     v-on="on"
-                    v-bind="attrs" 
+                    v-bind="attrs"
                     :data-test="`reaction-select-trigger-${item.count}`"
                   >
                     <v-list-item-content>

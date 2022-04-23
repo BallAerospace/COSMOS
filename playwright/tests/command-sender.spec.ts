@@ -294,7 +294,7 @@ test('disable parameter conversions', async ({ page }) => {
   await page.locator('.v-app-bar__nav-icon').click()
 
   await page.locator('text=Script Runner').click()
-  await expect(page.locator('body')).toContainText('Script Runner')
+  await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page
     .locator('textarea')
     .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
@@ -303,7 +303,7 @@ test('disable parameter conversions', async ({ page }) => {
   await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 02')
 
   await page.locator('text=Command Sender').click()
-  await expect(page.locator('body')).toContainText('Command Sender')
+  await expect(page.locator('.v-app-bar')).toContainText('Command Sender')
   await page.locator('[data-test=command-sender-mode]').click()
   await page.locator('text=Disable Parameter').click()
 
@@ -311,7 +311,7 @@ test('disable parameter conversions', async ({ page }) => {
   await page.locator('button:has-text("Send")').click()
 
   await page.locator('text=Script Runner').click()
-  await expect(page.locator('body')).toContainText('Script Runner')
+  await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page
     .locator('textarea')
     .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')

@@ -30,7 +30,7 @@
             v-model="selectAllSuppressedWarnings"
             label="Select all"
             class="mt-0"
-            data-test="selectAllSuppressedWarnings"
+            data-test="select-all-suppressed-warnings"
           />
           <v-checkbox
             v-for="warning in suppressedWarnings"
@@ -51,7 +51,7 @@
           color="warning"
           text
           class="ml-2"
-          data-test="resetSuppressedWarnings"
+          data-test="reset-suppressed-warnings"
         >
           Reset
         </v-btn>
@@ -69,7 +69,7 @@
             v-model="selectAllLastConfigs"
             label="Select all"
             class="mt-0"
-            data-test="selectAllLastConfigs"
+            data-test="select-all-last-configs"
           />
           <v-checkbox
             v-for="config in lastConfigs"
@@ -90,7 +90,7 @@
           color="warning"
           text
           class="ml-2"
-          data-test="clearLastConfigs"
+          data-test="clear-last-configs"
         >
           Clear
         </v-btn>
@@ -109,7 +109,7 @@
         <v-text-field
           label="Source URL"
           v-model="sourceUrl"
-          data-test="sourceUrl"
+          data-test="source-url"
         />
       </v-card-text>
       <v-card-actions>
@@ -120,7 +120,7 @@
                 @click="saveSourceUrl"
                 color="success"
                 text
-                data-test="saveSourceUrl"
+                data-test="save-source-url"
               >
                 Save
               </v-btn>
@@ -146,7 +146,7 @@
         <v-text-field
           label="Rubygems URL"
           v-model="rubygemsUrl"
-          data-test="rubygemsUrl"
+          data-test="rubygems-url"
         />
       </v-card-text>
       <v-card-actions>
@@ -157,7 +157,7 @@
                 @click="saveRubygemsUrl"
                 color="success"
                 text
-                data-test="saveRubygemsUrl"
+                data-test="save-rubygems-url"
               >
                 Save
               </v-btn>

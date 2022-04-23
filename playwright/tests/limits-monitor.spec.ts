@@ -25,7 +25,7 @@ import { format } from 'date-fns'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/limitsmonitor')
-  await expect(page.locator('body')).toContainText('Limits Monitor')
+  await expect(page.locator('.v-app-bar')).toContainText('Limits Monitor')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
@@ -171,7 +171,9 @@ test('ignores entire packets', async ({ page }) => {
 //
 test('displays the limits log', async ({ page }) => {
   await page.locator('div[role="tab"]:has-text("Log")').click()
-  await expect(page.locator('table')).toContainText(format(new Date(), 'yyyy-MM-dd'))
+  await expect(page.locator('table')).toContainText(format(new Date(), 'yyyy-MM-dd'), {
+    timeout: 10000,
+  })
   // Just verify we see dates and the various red, yellow, green states
   await expect(page.locator('#app')).toContainText('Limits Events')
   await expect(page.locator('table')).toContainText('RED')

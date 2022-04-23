@@ -26,7 +26,7 @@ import { Utilities } from '../utilities'
 let utils
 test.beforeEach(async ({ page }) => {
   await page.goto('/tools/calendar')
-  await expect(page.locator('body')).toContainText('Calendar')
+  await expect(page.locator('.v-app-bar')).toContainText('Calendar')
   await page.locator('.v-app-bar__nav-icon').click()
   utils = new Utilities(page)
 })
@@ -226,7 +226,7 @@ test('test timeline select and activity delete functionality', async ({ page }) 
   await page.locator('button:has-text("Delete")').click()
 })
 
-test.fixme('test delete timeline functionality', async ({ page }) => {
+test('test delete timeline functionality', async ({ page }) => {
   await page.locator('[data-test=Alpha-options]').click()
   await page.locator('[data-test=Alpha-delete]').click()
   await page.locator('[data-test=confirm-dialog-cancel]').click()
