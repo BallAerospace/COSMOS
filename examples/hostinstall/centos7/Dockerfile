@@ -38,21 +38,30 @@ WORKDIR /home/cosmos/
 RUN git clone https://github.com/BallAerospace/COSMOS.git
 
 # Install extra needed packages
+COPY ./cosmosc2_install_packages.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 RUN ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_packages.sh
 
 # Install Ruby
+COPY ./cosmosc2_install_ruby.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 RUN ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_ruby.sh
 
 # Install Redis
+COPY ./cosmosc2_install_redis.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 RUN ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_redis.sh
 
 # Install Minio
+COPY ./cosmosc2_install_minio.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 RUN ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_minio.sh
 
 # Install Traefik
+COPY ./cosmosc2_install_traefik.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 RUN ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_traefik.sh
 
 # Install COSMOS
+COPY ./cosmosc2_install_cosmosc2.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 RUN ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_cosmosc2.sh
 
+COPY ./cosmosc2_start_services.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
+COPY ./cosmosc2_first_init.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
+COPY ./docker_init.sh /home/cosmos/COSMOS/examples/hostinstall/centos7/.
 CMD [ "/home/cosmos/COSMOS/examples/hostinstall/centos7/docker_init.sh" ]

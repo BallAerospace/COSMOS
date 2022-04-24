@@ -2,7 +2,7 @@
 set -eux
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd SCRIPT_DIR
+cd $SCRIPT_DIR
 source ./cosmosc2_env.sh
 
 export USER=`whoami`
@@ -11,7 +11,7 @@ export USER=`whoami`
 sudo mkdir /gems && sudo chown $USER:$USER /gems
 
 # COSMOS Containerized apps expect the cosmos libraries to be at /cosmos
-sudo cp -r $SCIPT_DIR/../../../cosmos /cosmos
+sudo cp -r $SCRIPT_DIR/../../../cosmos /cosmos
 
 cd /cosmos
 
