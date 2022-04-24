@@ -1,9 +1,6 @@
 # This script install COSMOS C2 directly on a host instead of Docker
 # Note: This is not a supported configuration. Official Releases are provided as Docker Containers
 
-# Pull the latest COSMOS from Github
-git clone https://github.com/BallAerospace/COSMOS.git
-
 # Install extra needed packages
 ./COSMOS/examples/hostinstall/centos7/cosmosc2_install_packages.sh
 
