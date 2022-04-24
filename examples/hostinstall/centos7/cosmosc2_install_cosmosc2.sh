@@ -30,7 +30,14 @@ cd $SCRIPT_DIR/../../../cosmos-script-runner-api
 sudo -E bundle config set --local without 'development'
 sudo -E bundle install --quiet 
 
-sudo yum install epel-release -y
+if [ -f "/etc/centos-release" ]; then
+  sudo yum install epel-release -y
+else 
+  sudo subscription-manager repos --enable rhel-*-optional-rpms \
+                           --enable rhel-*-extras-rpms \
+                           --enable rhel-ha-for-rhel-*-server-rpms
+  sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+fi
 sudo yum install nodejs npm -y
 sudo npm install --global yarn
 
