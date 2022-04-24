@@ -7,6 +7,7 @@ source ./cosmosc2_env.sh
 
 sed -i "s|RUBYGEMS_URL|${RUBYGEMS_URL}|g" .gemrc
 cp .gemrc ~/.
+sudo cp .gemrc /root/.
 
 # Only ruby 2.0 in Centos7 so build from source
 
