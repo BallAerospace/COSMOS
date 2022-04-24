@@ -2,7 +2,7 @@
 # Listen for everything coming in on the standard HTTP port
 entrypoints:
   web:
-    address: ":80"
+    address: ":2900"
 http:
   middlewares:
     # Removes the first part of the url before passing onto the service

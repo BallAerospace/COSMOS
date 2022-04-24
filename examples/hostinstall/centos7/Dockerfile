@@ -1,7 +1,7 @@
 # WARNING: This Dockerfile is used as an easy way to develop running COSMOS directly on a host
 # To install on your host, use the cosmosc2_install.sh script instead
 # docker build -t cosmosc2_centos7 . 
-# docker run -it --rm --name cosmosc2_centos7 -p 2900:80 cosmosc2_centos7
+# docker run -it --rm --name cosmosc2_centos7 -p 2900:2900 cosmosc2_centos7
 
 FROM centos:7
 

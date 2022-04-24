@@ -31,12 +31,13 @@ sudo -E bundle config set --local without 'development'
 sudo -E bundle install --quiet 
 
 if [ -f "/etc/centos-release" ]; then
-  sudo yum install epel-release -y
+  sudo yum install epel-release -y || true
 else 
   sudo subscription-manager repos --enable rhel-*-optional-rpms \
                            --enable rhel-*-extras-rpms \
                            --enable rhel-ha-for-rhel-*-server-rpms
-  sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  sudo subscription-manager repos --disable=rhel-7-server-e4s-optional-rpms --disable=rhel-7-server-eus-optional-rpms
+  sudo yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || true
 fi
 sudo yum install nodejs npm -y
 sudo npm install --global yarn

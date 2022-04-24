@@ -21,3 +21,5 @@ sudo make install
 
 cd ~/
 sudo rm -r /usr/src/redis
+
+sudo sysctl vm.overcommit_memory=1
