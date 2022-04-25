@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/version'
 
 module Cosmos
 
@@ -91,7 +92,7 @@ module Cosmos
       data << '&grant_type=password&scope=openid'
       headers = {
         'Content-Type' => 'application/x-www-form-urlencoded',
-        'User-Agent' => 'CosmosKeycloakAuthorization / 5.0.0 (ruby/cosmos/lib/utilities/authentication)',
+        'User-Agent' => "CosmosKeycloakAuthorization / #{COSMOS_VERSION} (ruby/cosmos/lib/utilities/authentication)",
       }
       oath = _make_request(headers, data)
       @token = oath['access_token']
@@ -106,7 +107,7 @@ module Cosmos
       data = "client_id=#{client_id}&refresh_token=#{@refresh_token}&grant_type=refresh_token"
       headers = {
         'Content-Type' => 'application/x-www-form-urlencoded',
-        'User-Agent' => 'CosmosKeycloakAuthorization / 5.0.0 (ruby/cosmos/lib/utilities/authentication)',
+        'User-Agent' => "CosmosKeycloakAuthorization / #{COSMOS_VERSION} (ruby/cosmos/lib/utilities/authentication)",
       }
       oath = _make_request(headers, data)
       @token = oath["access_token"]

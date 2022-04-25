@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/version'
 require 'cosmos/models/model'
 require 'cosmos/models/microservice_model'
 
@@ -161,7 +162,7 @@ module Cosmos
       # Set default values for items in the db that should be set
       # Use the "nx" (not-exists) variant of redis calls here to not overwrite things the user has already set
       Cosmos::Store.hsetnx('cosmos__settings', 'source_url', 'https://github.com/BallAerospace/COSMOS')
-      Cosmos::Store.hsetnx('cosmos__settings', 'version', ENV['COSMOS_VERSION'] || '5.0.X')
+      Cosmos::Store.hsetnx('cosmos__settings', 'version', ENV['COSMOS_VERSION'] || COSMOS_VERSION)
     end
   end
 end

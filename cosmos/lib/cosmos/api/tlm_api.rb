@@ -217,7 +217,7 @@ module Cosmos
     # can be from any target and packet and thus must be fully qualified with
     # their target and packet names.
     #
-    # @version 5.0.0
+    # @since 5.0.0
     # @param items [Array<String>] Array of items consisting of 'tgt__pkt__item__type'
     # @return [Array<Object, Symbol>]
     #   Array consisting of the item value and limits state

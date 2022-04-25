@@ -316,6 +316,12 @@ export default {
     },
     handleMessages(messages) {
       for (let message of messages) {
+        // We only want to handle LIMITS_CHANGE messages
+        // NOTE: The channel also sends LIMITS_SETTINGS and LIMITS_SET messages
+        if (message.type != 'LIMITS_CHANGE') {
+          continue
+        }
+
         let itemName = `${message.target_name}__${message.packet_name}__${message.item_name}`
         const index = this.itemList.findIndex((arrayItem) =>
           arrayItem.includes(itemName)

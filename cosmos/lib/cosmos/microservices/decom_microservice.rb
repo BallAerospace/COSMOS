@@ -95,6 +95,7 @@ module Cosmos
         when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
           Logger.warn message
         when :RED, :RED_LOW, :RED_HIGH
+          # TODO: Is this necessary? The LimitsEventTopic is what communicates with LimitsMonitor
           notification = NotificationModel.new(
             time: time_nsec,
             severity: "critical",

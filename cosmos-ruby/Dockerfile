@@ -32,8 +32,9 @@ ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 
 ENV NOKOGIRI_USE_SYSTEM_LIBRARIES=1
 
-ADD gemrc /root/.gemrc
+ADD .gemrc /root/.gemrc
 RUN sed -i "s|RUBYGEMS_URL|${RUBYGEMS_URL}|g" /root/.gemrc
+RUN cp /root/.gemrc /etc/.gemrc
 
 RUN apk update \
   && apk add ruby \

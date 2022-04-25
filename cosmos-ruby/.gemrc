@@ -1,7 +1,7 @@
 ---
 gem: --no-ri --no-rdoc --no-document --suggestions
-install: --no-rdoc --no-ri
-update:  --no-rdoc --no-ri
+install: --no-document
+update: --no-document
 
 :benchmark: false
 
@@ -10,6 +10,6 @@ update:  --no-rdoc --no-ri
 :backtrace: true
 
 :update_sources: true
-sources:
+:sources:
   # This is a variable that gets substituted by the Dockerfile
   - RUBYGEMS_URL
