@@ -131,9 +131,7 @@ test('cancels a process', async ({ page }) => {
 test('adds an entire target', async ({ page }) => {
   await utils.addTargetPacketItem('INST')
   // Since we're checking count() which is instant we need to poll
-  await expect
-    .poll(() => page.locator('[data-test=item-list] > div').count(), { timeout: 10000 })
-    .toBeGreaterThan(50)
+  await expect.poll(() => page.locator('[data-test=item-list] > div').count()).toBeGreaterThan(50)
 })
 
 test('adds an entire packet', async ({ page }) => {

@@ -228,6 +228,12 @@ module Cosmos
                    green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true,
                    scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
+      if (red_low > yellow_low) || (yellow_low >= yellow_high) || (yellow_high > red_high)
+        raise "Invalid limits specified. Ensure yellow limits are within red limits."
+      end
+      if (green_low && green_high) && ((yellow_low > green_low) || (green_low >= green_high) || (green_high > yellow_high))
+        raise "Invalid limits specified. Ensure green limits are within yellow limits."
+      end
       packet = TargetModel.packet(target_name, packet_name, scope: scope)
       found_item = nil
       packet['items'].each do |item|
@@ -243,20 +249,25 @@ module Cosmos
           limits['yellow_low'] = yellow_low
           limits['yellow_high'] = yellow_high
           limits['red_high'] = red_high
-          limits['green_low'] = green_low if green_low
-          limits['green_high'] = green_high if green_high
+          limits['green_low'] = green_low if green_low && green_high
+          limits['green_high'] = green_high if green_low && green_high
           item['limits'][limits_set] = limits
           found_item = item
           break
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+      message = "Setting '#{target_name} #{packet_name} #{item_name}' limits to #{red_low} #{yellow_low} #{yellow_high} #{red_high}"
+      message << " #{green_low} #{green_high}" if green_low && green_high
+      message << " in set #{limits_set} with persistence #{persistence} as enabled #{enabled}"
+      Logger.info(message)
 
       TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
 
       event = { type: :LIMITS_SETTINGS, target_name: target_name, packet_name: packet_name,
                 item_name: item_name, red_low: red_low, yellow_low: yellow_low, yellow_high: yellow_high, red_high: red_high,
-                green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled }
+                green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled,
+                time_nsec: Time.now.to_nsec_from_epoch, message: message }
       LimitsEventTopic.write(event, scope: scope)
     end
 
@@ -295,8 +306,10 @@ module Cosmos
     # @param limits_set [String] The name of the limits set
     def set_limits_set(limits_set, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', scope: scope, token: token)
-      Logger.info("Setting Limits Set: #{limits_set}")
-      LimitsEventTopic.write({ type: :LIMITS_SET, set: limits_set.to_s }, scope: scope)
+      message = "Setting Limits Set: #{limits_set}"
+      Logger.info(message)
+      LimitsEventTopic.write({ type: :LIMITS_SET, set: limits_set.to_s,
+        time_nsec: Time.now.to_nsec_from_epoch, message: message }, scope: scope)
     end
 
     # Returns the active limits set that applies to all telemetry
