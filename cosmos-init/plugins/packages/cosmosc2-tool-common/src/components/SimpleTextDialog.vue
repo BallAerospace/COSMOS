@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <v-dialog v-model="show" width="600">
+  <v-dialog v-model="show" :width="width">
     <v-card>
       <v-system-bar>
         <v-spacer />
@@ -56,6 +56,7 @@ export default {
     value: Boolean, // value is the default prop when using v-model
     text: String,
     title: String,
+    width: 800,
   },
   computed: {
     show: {
