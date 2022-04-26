@@ -38,10 +38,7 @@ async function saveAs(page, filename: string) {
   await page.locator('text=Save As...').click()
   await page.locator('[data-test=file-open-save-filename]').fill(`INST/procedures/${filename}`)
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  // It can take a bit for the suite to parse and render so give extra time
-  await expect(page.locator('[data-test=start-suite]')).toBeVisible({
-    timeout: 10000,
-  })
+  await expect(page.locator('[data-test=start-suite]')).toBeVisible()
   expect(await page.locator('#sr-controls')).toContainText(`INST/procedures/${filename}`)
 }
 

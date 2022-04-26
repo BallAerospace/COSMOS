@@ -73,7 +73,7 @@ test('links to packet viewer', async ({ page }) => {
     page.context().waitForEvent('page'),
     await page.locator('text=INSTHEALTH_STATUS >> td >> nth=4').click(),
   ])
-  await expect(newPage.locator('.v-app-bar')).toContainText('Packet Viewer', { timeout: 10000 })
+  await expect(newPage.locator('.v-app-bar')).toContainText('Packet Viewer')
   await expect(newPage.locator('id=cosmos-tool')).toContainText(
     'Health and status from the INST target'
   )
