@@ -54,12 +54,10 @@ class ScriptsController < ApplicationController
         "locked" => locked
       }
       if params[:name].include?('suite')
-        results_suites, success = Script.process_suite(params[:name], file, scope: params[:scope])
-        if success
-          results['suites'] = results_suites
-        else
-          results['error'] = results_suites
-        end
+        results_suites, results_error, success = Script.process_suite(params[:name], file, scope: params[:scope])
+        results['suites'] = results_suites
+        results['error'] = results_error
+        results['success'] = success
       end
       render :json => results
     else
@@ -79,12 +77,10 @@ class ScriptsController < ApplicationController
     if success
       results = {}
       if params[:name].include?('suite')
-        results_suites, success = Script.process_suite(params[:name], params[:text], scope: params[:scope])
-        if success
-          results['suites'] = results_suites
-        else
-          results['error'] = results_suites
-        end
+        results_suites, results_error, success = Script.process_suite(params[:name], params[:text], scope: params[:scope])
+        results['suites'] = results_suites
+        results['error'] = results_error
+        results['success'] = success
       end
       Cosmos::Logger.info("Script created: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION'])) if success
       render :json => results

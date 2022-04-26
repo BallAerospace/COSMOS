@@ -146,16 +146,22 @@ class Script
         end
       end
       process.environment['RUBYOPT'] = nil # Removes loading bundler setup
-      out = Tempfile.new("child-output")
-      out.sync = true
-      process.io.stdout = out
-      process.io.stderr = out
+      stdout = Tempfile.new("child-stdout")
+      stdout.sync = true
+      stderr = Tempfile.new("child-stderr")
+      stderr.sync = true
+      process.io.stdout = stdout
+      process.io.stderr = stderr
       process.start
       process.wait
-      out.rewind
-      results = out.read
-      out.close
-      out.unlink
+      stdout.rewind
+      stdout_results = stdout.read
+      stdout.close
+      stdout.unlink
+      stderr.rewind
+      stderr_results = stderr.read
+      stderr.close
+      stderr.unlink
       success = process.exit_code == 0
     else
       require temp.path
@@ -163,8 +169,9 @@ class Script
     end
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
-    puts "Results: #{results}"
-    return results, success
+    puts "Stdout Results: #{stdout_results}"
+    puts "Stderr Results: #{stderr_results}"
+    return stdout_results, stderr_results, success
   end
 
   def self.create(scope, name, text = nil, breakpoints = nil)
