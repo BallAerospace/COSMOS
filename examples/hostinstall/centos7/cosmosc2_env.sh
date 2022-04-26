@@ -25,7 +25,6 @@ export COSMOS_SR_MINIO_USERNAME=scriptrunnerminio
 export COSMOS_SR_MINIO_PASSWORD=scriptrunnerminiopassword
 
 export COSMOS_TAG=latest
-export COSMOS_VERSION=5.0.2.beta
 
 export COSMOS_DEMO=1
 

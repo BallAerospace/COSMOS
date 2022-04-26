@@ -4,7 +4,7 @@ set -e
 PLUGINS="/cosmos/plugins"
 GEMS="/cosmos/plugins/gems/"
 PACKAGES="packages"
-RVERSION="5.0.1"
+COSMOS_RELEASE_VERSION=5.0.2.beta.1
 
 mkdir -p ${GEMS}
 
@@ -17,7 +17,7 @@ echo "--- packageInstall $1 yarn build"
 yarn run build
 echo "=== packageInstall $1 yarn run build complete"
 echo "--- packageInstall $1 rake build"
-rake build VERSION=${RVERSION}
+rake build VERSION=${COSMOS_RELEASE_VERSION}
 echo "=== packageInstall $1 rake build complete"
 ls *.gem
 echo "--- packageInstall $1 mv gem file"

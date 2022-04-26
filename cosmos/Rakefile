@@ -33,65 +33,6 @@ def which(cmd)
   return nil
 end
 
-# Pure Ruby CRC class to avoid circular dependency with c_cosmos
-class RakeCrc32
-  attr_reader :crc32_poly
-  attr_reader :crc32_seed
-  attr_reader :crc32_xor
-  attr_reader :crc32_table
-  attr_reader :crc32_raw_table
-
-  # Default Polynomial for 32-bit CRC
-  DEFAULT_CRC32_POLY = 0x04C11DB7
-
-  # Default Seed for 32-bit CRC
-  DEFAULT_CRC32_SEED = 0xFFFFFFFF
-
-  def initialize(crc32_poly = DEFAULT_CRC32_POLY, crc32_seed = DEFAULT_CRC32_SEED, crc32_xor = true)
-    @crc32_poly = crc32_poly
-    @crc32_seed = crc32_seed
-    @crc32_xor = crc32_xor
-    @crc32_table = []
-
-    (0..255).each do |index|
-      entry = compute_crc32_table_entry(index)
-      @crc32_table << entry
-    end
-  end
-
-  # Calculate a 32-bit CRC
-  def calc(data, seed = nil)
-    seed = @crc32_seed unless seed
-    crc  = seed
-    data.each_byte do |byte|
-      index = ((crc >> 24) ^ byte) & 0xFF
-      crc = ((crc << 8) ^ @crc32_table[index]) & 0xFFFFFFFF
-    end
-    if @crc32_xor
-      crc ^ 0xFFFFFFFF
-    else
-      crc
-    end
-  end
-
-  protected
-
-  # Compute a single entry in the 32-bit crc lookup table
-  def compute_crc32_table_entry(index)
-    crc = index << 24
-
-    8.times do
-      if (crc & 0x80000000) != 0
-        crc = (crc << 1) ^ @crc32_poly
-      else
-        crc = crc << 1
-      end
-    end
-
-    return (crc & 0xFFFFFFFF)
-  end
-end
-
 # Import the rake tasks
 import 'tasks/manifest.rake'
 import 'tasks/spec.rake'
@@ -166,17 +107,6 @@ task :git_checkout_master do
   system('git checkout master')
 end
 
-task :install_crc do
-  saved = Dir.pwd
-  Dir.chdir 'demo'
-  system('bundle exec rake crc_official')
-  Dir.chdir saved
-  saved = Dir.pwd
-  Dir.chdir 'install'
-  system('bundle exec rake crc_official')
-  Dir.chdir saved
-end
-
 task :gem => [:require_version] do
   _, platform, *_ = RUBY_PLATFORM.split("-")
   if platform == 'mswin32' or platform == 'mingw32'
@@ -223,15 +153,6 @@ task :version => [:require_version] do
     file.puts "end"
   end
   puts "Successfully updated lib/cosmos/version.rb"
-
-  # Create the crc.txt file
-  crc = RakeCrc32.new
-  File.open("data/crc.txt", 'w') do |file|
-    Dir[File.join('lib', '**', '*.rb')].each do |filename|
-      file_data = File.open(filename, 'rb').read.gsub("\x0D\x0A", "\x0A")
-      file.puts "\"#{filename}\" #{sprintf("0x%08X", crc.calc(file_data))}"
-    end
-  end
 end
 
 task :metrics do
@@ -274,15 +195,6 @@ task :stress do
   end
 end
 
-# Make all the main.sh files executable in the demo and install Mac applications
-task :mac_app_exec_bit do
-  %w(demo install).each do |root|
-    Dir["#{root}/tools/mac/**/Contents/MacOS/main.sh"].each do |main|
-      `git add --chmod=+x #{main}`
-    end
-  end
-end
-
 if RUBY_ENGINE == 'ruby'
   require 'yard'
   YARD::Rake::YardocTask.new do |t|
@@ -292,37 +204,3 @@ end
 
 task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem]
 task :commit_release => [:commit_release_ticket, :tag_release]
-
-task :docker_build do
-  _, platform, *_ = RUBY_PLATFORM.split("-")
-  if (platform == 'mswin32' or platform == 'mingw32') and which('winpty')
-    system('winpty docker build --tag cosmos-dev .')
-  else
-    system('docker build --tag cosmos-dev .')
-  end
-end
-
-task :docker_run do
-  STDOUT.puts "Note, this is not automated on purpose to ensure each step is successful (with user entry of credentials for github/rubygems.org)"
-  STDOUT.puts "Steps to perform a COSMOS release:"
-  STDOUT.puts "1. git config --global user.name \"Last, First\""
-  STDOUT.puts "2. git config --global user.email \"me@ball.com\""
-  STDOUT.puts "3. git pull"
-  STDOUT.puts "4. export VERSION=X.X.X"
-  STDOUT.puts "5. rake release"
-  STDOUT.puts "6. rake commit_release"
-  STDOUT.puts "7. export PATH=/opt/jruby/bin:$PATH"
-  STDOUT.puts "8. rake gem"
-  STDOUT.puts "9. /usr/bin/gem push cosmos-X.X.X.gem"
-  STDOUT.puts "10. /usr/bin/gem push cosmos-X.X.X-java.gem"
-  STDOUT.puts "11. cd /devel/cosmos-docker"
-  STDOUT.puts "12. git pull"
-  STDOUT.puts "13. Update COSMOS_VERSION in all Dockerfiles. Also update README.md"
-  STDOUT.puts "14. git commit -a -m \"Release COSMOS vX.X.X\""
-  STDOUT.puts "15. git push"
-  STDOUT.puts "16. git checkout -b vX.X.X"
-  STDOUT.puts "17. git push --set-upstream origin vX.X.X"
-  STDOUT.puts "18. Update release notes on github.com and cosmosc2.com"
-
-  system('docker run -it --rm cosmos-dev')
-end
