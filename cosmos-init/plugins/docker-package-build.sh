@@ -4,7 +4,7 @@ set -e
 PLUGINS="/cosmos/plugins"
 GEMS="/cosmos/plugins/gems/"
 PACKAGES="packages"
-COSMOS_RELEASE_VERSION=5.0.2.beta.1
+COSMOS_RELEASE_VERSION=5.0.2-beta1
 
 mkdir -p ${GEMS}
 

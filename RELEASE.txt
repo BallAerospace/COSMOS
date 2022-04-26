@@ -9,11 +9,11 @@ COSMOS 5 Release Process
    * Tool Ruby Gems
    * Demo Ruby Gem
    * Tool-Common Npm Package
-   * 8 Docker Containers
+   * 11 Docker Containers (6 runtime, 2 init, 3 base - multiple platforms)
 6. Publish Artifacts
    * Ruby gems to rubygems.org
    * Tool-Common to Npm
-   * Docker Containers to Docker Hub (Or have docker hub build on tag? Probably not, but how to build for ARM?)
+   * Docker Containers to Docker Hub
 7. Change versions to next beta
 8. Commit
 9. Write-up Release Notes on Github
