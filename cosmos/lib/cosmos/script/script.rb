@@ -129,14 +129,10 @@ module Cosmos
       message_box(string, *items, **options)
     end
 
-    def _file_dialog(message, directory, filter, select_files = true)
+    def _file_dialog(message, directory, filter)
       answer = ''
       files = Dir["#{directory}/#{filter}"]
-      if select_files
-        files.select! { |f| !File.directory? f }
-      else
-        files.select! { |f| File.directory? f }
-      end
+      files.select! { |f| !File.directory? f }
       while answer.empty?
         print message + "\n" + files.join("\n") + "\n<Type file name>:"
         answer = gets
@@ -145,6 +141,7 @@ module Cosmos
       return answer
     end
 
+    # TODO: Should this be deleted?
     def save_file_dialog(directory, message = "Save File", filter = "*")
       _file_dialog(message, directory, filter)
     end
@@ -155,10 +152,6 @@ module Cosmos
 
     def open_files_dialog(directory, message = "Open File(s)", filter = "*")
       _file_dialog(message, directory, filter)
-    end
-
-    def open_directory_dialog(directory, message = "Open Directory")
-      _file_dialog(message, directory, "*", false)
     end
 
     def prompt_for_hazardous(target_name, cmd_name, hazardous_description)

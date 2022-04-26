@@ -277,6 +277,15 @@
       :answer-required="ask.answerRequired"
       @response="ask.callback"
     />
+    <file-dialog
+      v-if="file.show"
+      v-model="file.show"
+      :directory="file.directory"
+      :message="file.message"
+      :multiple="file.multiple"
+      :filter="file.filter"
+      @response="file.callback"
+    />
     <information-dialog
       v-if="information.show"
       v-model="information.show"
@@ -352,6 +361,7 @@ import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDia
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 import AskDialog from '@/tools/ScriptRunner/Dialogs/AskDialog'
+import FileDialog from '@/tools/ScriptRunner/Dialogs/FileDialog'
 import InformationDialog from '@/tools/ScriptRunner/Dialogs/InformationDialog'
 import InputMetadataDialog from '@/tools/ScriptRunner/Dialogs/InputMetadataDialog'
 import PromptDialog from '@/tools/ScriptRunner/Dialogs/PromptDialog'
@@ -382,6 +392,7 @@ export default {
     MultipaneResizer,
     TopBar,
     AskDialog,
+    FileDialog,
     InformationDialog,
     InputMetadataDialog,
     PromptDialog,
@@ -454,6 +465,14 @@ export default {
         default: null,
         password: false,
         answerRequired: true,
+        callback: () => {},
+      },
+      file: {
+        show: false,
+        message: '',
+        directory: null,
+        filter: '*',
+        multiple: false,
         callback: () => {},
       },
       prompt: {
@@ -1349,6 +1368,19 @@ export default {
                 answer: value,
               },
             })
+          }
+          break
+        case 'open_file_dialog':
+        case 'open_files_dialog':
+          this.file.show = true
+          this.file.directory = data.args[0]
+          this.file.message = data.args[1]
+          if (data.method == open_files_dialog) {
+            this.file.multiple = true
+          }
+          this.file.callback = (value) => {
+            this.file.show = false // Close the dialog
+            // console.log(`file callback:${value}`)
           }
           break
         default:
