@@ -24,6 +24,7 @@ jobs:
         with:
           node-version: '14'
           cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
       - name: Install playwright dependencies
         run: yarn; yarn playwright install --with-deps
         working-directory: playwright
