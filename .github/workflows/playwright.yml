@@ -19,10 +19,11 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: '14.x'
+          node-version: '14'
+          cache: 'yarn'
       - name: Install playwright dependencies
         run: yarn; yarn playwright install --with-deps
         working-directory: playwright

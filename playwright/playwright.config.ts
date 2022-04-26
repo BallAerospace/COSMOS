@@ -44,7 +44,7 @@ const config: PlaywrightTestConfig = {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:2900',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: process.env.CI ? 'on-first-retry' : 'on',
+    trace: process.env.CI ? 'retain-on-failure' : 'on',
     // Tell all tests to load signed-in state from 'storageState.json'.
     storageState: 'storageState.json',
     screenshot: 'only-on-failure',
