@@ -47,23 +47,23 @@ cd $SCRIPT_DIR/../../../cosmos-init/plugins/
 yarn config set registry $NPM_URL
 yarn
 
-export PLUGINS="$SCRIPT_DIR/../../../cosmos-init/plugins/"
-export GEMS="$SCRIPT_DIR/../../../cosmos-init/plugins/gems/"
-export RVERSION="5.0.1"
+PLUGINS="$SCRIPT_DIR/../../../cosmos-init/plugins/"
+GEMS="$SCRIPT_DIR/../../../cosmos-init/plugins/gems/"
+COSMOS_RELEASE_VERSION=5.0.2-beta1
 
 mkdir -p ${GEMS}
-cd ${PLUGINS}cosmosc2-tool-base && yarn install && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-admin && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-cmdsender && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-cmdtlmserver && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-dataextractor && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-dataviewer && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-limitsmonitor && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-packetviewer && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-scriptrunner && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-calendar && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-tablemanager && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-tlmgrapher && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-tlmviewer && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-tool-autonomic && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
-cd ${PLUGINS}packages/cosmosc2-demo && yarn run build && rake build VERSION=${RVERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}cosmosc2-tool-base && yarn install && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-admin && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-cmdsender && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-cmdtlmserver && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-dataextractor && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-dataviewer && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-limitsmonitor && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-packetviewer && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-scriptrunner && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-calendar && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-tablemanager && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-tlmgrapher && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-tlmviewer && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-autonomic && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-demo && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}

@@ -46,7 +46,7 @@ spec = Gem::Specification.new do |s|
   else
     s.version = '0.0.0'
   end
-  s.license = 'AGPL-3.0-only'
+  s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
   # Executables
   s.executables << 'cosmos'

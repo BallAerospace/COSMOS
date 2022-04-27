@@ -319,6 +319,7 @@
       v-model="showSuiteError"
       title="Suite Analysis Error"
       :text="suiteError"
+      :width="1000"
     />
     <v-bottom-sheet v-model="showStartedScripts">
       <v-sheet class="pb-11 pt-5 px-5">
@@ -819,14 +820,16 @@ export default {
     tryLoadSuites: function () {
       Api.get(`/script-api/scripts/${this.filename}`).then((response) => {
         if (response.data.suites) {
+          this.startOrGoDisabled = true
           this.suiteRunner = true
           this.suiteMap = JSON.parse(response.data.suites)
-          this.startOrGoDisabled = true
-        } else {
-          this.startOrGoDisabled = false
-          this.suiteRunner = false
-          this.suiteMap = {}
         }
+        if (response.data.error) {
+          this.suiteError = response.data.error
+          this.showSuiteError = true
+        }
+        // Disable suite buttons if we didn't successfully parse the suite
+        this.disableSuiteButtons = response.data.success == false
       })
     },
     showExecuteSelectionMenu: function ($event) {
@@ -1391,15 +1394,13 @@ export default {
         this.suiteRunner = true
         this.suiteMap = file.suites
         this.startOrGoDisabled = true
-      } else {
-        this.startOrGoDisabled = false
-        this.suiteRunner = false
-        this.suiteMap = {}
-        if (file.error) {
-          this.suiteError = file.error
-          this.showSuiteError = true
-        }
       }
+      if (file.error) {
+        this.suiteError = file.error
+        this.showSuiteError = true
+      }
+      // Disable suite buttons if we didn't successfully parse the suite
+      this.disableSuiteButtons = file.success == false
     },
     // saveFile takes a type to indicate if it was called by the Menu
     // or automatically by 'Start' (to ensure a consistent backend file) or autoSave
@@ -1455,6 +1456,8 @@ export default {
                 this.suiteError = response.data.error
                 this.showSuiteError = true
               }
+              // Disable suite buttons if we didn't successfully parse the suite
+              this.disableSuiteButtons = response.data.success == false
               this.fileModified = ''
               setTimeout(() => {
                 this.showSave = false

@@ -261,7 +261,9 @@ export default {
           }
           if (response.data.error) {
             file['error'] = response.data.error
-            // Intentionally don't emit error.  These errors are handled elsewhere
+          }
+          if (response.data.success) {
+            file['success'] = response.data.success
           }
           const locked = response.data.locked
           const breakpoints = response.data.breakpoints
