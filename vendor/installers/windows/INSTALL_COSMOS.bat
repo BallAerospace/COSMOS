@@ -300,7 +300,7 @@ call gem update --system
 :: install COSMOS gem and dependencies
 echo Installing COSMOS gem !COSMOS_VERSION!...
 if !COSMOS_VERSION!=="LATEST" (
-  call gem install cosmos
+  call gem install cosmos -v "~>4.5"
 ) else (
   call gem install cosmos -v !COSMOS_VERSION!
 )

@@ -36,7 +36,7 @@ if [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "bsd44"* ]]; then
 
   # Install COSMOS
   echo "Installing COSMOS gem"
-  gem install cosmos --no-rdoc --no-ri
+  gem install cosmos --no-rdoc --no-ri -v "~>4.5"
   rbenv rehash
 
   # Install COSMOS Demo
@@ -120,7 +120,7 @@ fi
 
   # Install COSMOS
   echo "Installing COSMOS gem"
-  gem install cosmos --no-rdoc --no-ri
+  gem install cosmos --no-rdoc --no-ri -v "~>4.5"
   rbenv rehash
 
   # Install demo
