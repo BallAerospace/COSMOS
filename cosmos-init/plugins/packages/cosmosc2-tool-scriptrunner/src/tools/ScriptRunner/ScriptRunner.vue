@@ -1037,6 +1037,8 @@ export default {
       this.startOrGoDisabled = this.suiteRunner
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
+      // Ensure stopped, if the script has an error we don't get the server stopped message
+      this.state = 'stopped'
       this.fatal = false
       this.scriptId = null
       this.editor.setReadOnly(false)
@@ -1448,10 +1450,10 @@ export default {
                 this.startOrGoDisabled = false
                 this.suiteRunner = false
                 this.suiteMap = {}
-                if (response.data.error) {
-                  this.suiteError = response.data.error
-                  this.showSuiteError = true
-                }
+              }
+              if (response.data.error) {
+                this.suiteError = response.data.error
+                this.showSuiteError = true
               }
               this.fileModified = ''
               setTimeout(() => {
