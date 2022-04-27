@@ -17,7 +17,7 @@ RUN mkdir -p lib/cosmos/ext \
   && bundle install --quiet \
   && rake gems \
   && gem install --local ./cosmosc2-*.gem \
-  && mkdir gems \
+  && mkdir -p gems \
   && mv *.gem gems/. \
   && gem cleanup \
   && rm -rf /usr/lib/ruby/gems/*/cache/* /var/cache/apk/* /tmp/* /var/tmp/*
