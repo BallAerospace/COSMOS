@@ -68,7 +68,7 @@ spec = Gem::Specification.new do |s|
   end
 
   # Files are defined in Manifest.txt
-  s.files = Dir.glob("{bin,data,ext,lib,spec,tasks,templates,test}/**/*") + %w(.yardopts Gemfile Guardfile LICENSE.txt Rakefile README.md)
+  s.files = Dir.glob("{bin,data,ext,lib,spec,tasks,templates,test}/**/*") + %w(Gemfile Guardfile LICENSE.txt Rakefile README.md)
 
   s.required_ruby_version = '>= 2.7'
 
