@@ -17,15 +17,4 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-desc 'Create a new manifest'
-task :manifest do
-  puts "Now calculating the file list from git. Please wait..."
-  fn = 'Manifest.txt'
-  # Ask git what all our files are
-  files = `git ls-tree --full-tree -r --name-only HEAD`.split($\)
-  # Remove all the directories
-  files.reject! { |f| File::Stat.new(f).directory? or f.include?("vendor") }
-  # Write out the manifest file
-  File.open(fn, 'w') { |fp| fp.puts files.sort }
-  puts "Successfully created #{fn}."
-end
+require 'cosmos'

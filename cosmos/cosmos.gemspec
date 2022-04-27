@@ -41,11 +41,8 @@ spec = Gem::Specification.new do |s|
   else
     s.platform = Gem::Platform::CURRENT
   end
-  if ENV['VERSION']
-    s.version = ENV['VERSION'].dup
-  else
-    s.version = '0.0.0'
-  end
+ 
+  s.version = '5.0.2-beta1'
   s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
   # Executables
@@ -71,12 +68,7 @@ spec = Gem::Specification.new do |s|
   end
 
   # Files are defined in Manifest.txt
-  s.files =
-    if test ?f, 'Manifest.txt'
-      files = File.readlines('Manifest.txt').map { |fn| fn.chomp.strip }
-      files.delete ''
-      files
-    else [] end
+  s.files = Dir.glob("{bin,data,ext,lib,spec,tasks,templates,test}/**/*") + %w(.yardopts Gemfile Guardfile LICENSE.txt Rakefile README.md)
 
   s.required_ruby_version = '>= 2.7'
 

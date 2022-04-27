@@ -1,0 +1,49 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Cosmos 5 Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version string"
+        required: true
+        type: string
+      next_version:
+        description: "Next version string"
+        required: true
+        type: string
+
+jobs:
+  release:
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby 3.1
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+          working-directory: cosmos
+      - name: Update version to desired
+        run: ruby cosmos_set_versions.rb
+        working-directory: scripts/release
+        env:
+          COSMOS_RELEASE_VERSION: ${{ github.event.inputs.version }}
+      - name: cosmos-control.sh build
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh build
+      - name: extract gems
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./scripts/release/extract_gems.sh
+      - name: Update version to next
+        run: ruby cosmos_set_versions.rb
+        working-directory: scripts/release
+        env:
+          COSMOS_RELEASE_VERSION: ${{ github.event.inputs.next_version }}
