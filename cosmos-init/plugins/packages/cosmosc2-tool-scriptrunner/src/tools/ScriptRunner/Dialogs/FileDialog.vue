@@ -29,7 +29,10 @@
         <div class="pa-2">
           <v-card-text>
             <v-row>
-              <v-card-title v-text="message" />
+              <v-card-title v-text="title" />
+            </v-row>
+            <v-row v-if="message">
+              <span v-text="message" />
             </v-row>
             <v-row class="my-1">
               <v-file-input
@@ -72,13 +75,13 @@
 <script>
 export default {
   props: {
-    message: {
+    title: {
       type: String,
       required: true,
     },
-    directory: {
+    message: {
       type: String,
-      required: true,
+      default: null,
     },
     filter: {
       type: String,
@@ -107,6 +110,10 @@ export default {
   },
   methods: {
     submitHandler: function () {
+      // Ensure we send back an array of file names even in the single case
+      if (!Array.isArray(this.inputValue)) {
+        this.inputValue = [this.inputValue]
+      }
       this.$emit('response', this.inputValue)
     },
     cancelHandler: function () {

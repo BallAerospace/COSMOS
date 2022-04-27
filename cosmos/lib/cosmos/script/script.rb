@@ -141,11 +141,6 @@ module Cosmos
       return answer
     end
 
-    # TODO: Should this be deleted?
-    def save_file_dialog(directory, message = "Save File", filter = "*")
-      _file_dialog(message, directory, filter)
-    end
-
     def open_file_dialog(directory, message = "Open File", filter = "*")
       _file_dialog(message, directory, filter)
     end
@@ -164,16 +159,6 @@ module Cosmos
         return true
       else
         return false
-      end
-    end
-
-    def prompt_for_script_abort
-      print "Stop running script? (y,n): "
-      answer = gets.chomp
-      if answer.downcase == 'y'
-        exit
-      else
-        return false # Not aborted - Retry
       end
     end
 

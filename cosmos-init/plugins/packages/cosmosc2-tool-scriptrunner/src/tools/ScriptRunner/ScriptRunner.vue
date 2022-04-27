@@ -284,7 +284,7 @@
       :message="file.message"
       :multiple="file.multiple"
       :filter="file.filter"
-      @response="file.callback"
+      @response="fileDialogCallback"
     />
     <information-dialog
       v-if="information.show"
@@ -346,6 +346,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import ActionCable from 'actioncable'
 import Api from '@cosmosc2/tool-common/src/services/api'
 import * as ace from 'ace-builds'
@@ -1373,14 +1374,10 @@ export default {
         case 'open_file_dialog':
         case 'open_files_dialog':
           this.file.show = true
-          this.file.directory = data.args[0]
+          this.file.title = data.args[0]
           this.file.message = data.args[1]
-          if (data.method == open_files_dialog) {
+          if (data.method == 'open_files_dialog') {
             this.file.multiple = true
-          }
-          this.file.callback = (value) => {
-            this.file.show = false // Close the dialog
-            // console.log(`file callback:${value}`)
           }
           break
         default:
@@ -1389,6 +1386,35 @@ export default {
           ) */
           break
       }
+    },
+    async fileDialogCallback(files) {
+      this.file.show = false // Close the dialog
+      let fileNames = []
+      await files.forEach(async (file) => {
+        console.log(file)
+        fileNames.push(file.name)
+        const { data: presignedRequest } = await Api.get(
+          `/cosmos-api/storage/upload/${encodeURIComponent(
+            `${localStorage.scope}/tmp/${file.name}`
+          )}?bucket=config`
+        )
+        const response = await axios({
+          ...presignedRequest,
+          data: this.file,
+        })
+        console.log(response)
+        // const formData = new FormData()
+        // formData.append('file', file, file.name)
+        // await Api.put(response.data.url, { data: formData })
+      })
+      console.log(fileNames)
+      await Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
+        data: {
+          method: this.file.multiple ? 'open_files_dialog' : 'open_file_dialog',
+          answer: fileNames,
+          prompt_id: this.activePromptId,
+        },
+      })
     },
     setError(event) {
       this.alertType = 'error'
