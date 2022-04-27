@@ -148,6 +148,7 @@ test('disables all suite buttons when running', async ({ page }) => {
   // Wait for the results
   await expect(page.locator('.v-dialog')).toContainText('Script Results')
   await page.locator('button:has-text("Ok")').click()
+  await deleteFile(page)
 })
 
 test('starts a suite', async ({ page }) => {
