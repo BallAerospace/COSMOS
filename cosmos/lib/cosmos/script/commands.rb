@@ -116,8 +116,6 @@ module Cosmos
           if ok_to_proceed
             target_name, cmd_name, cmd_params = $api_server.method_missing(cmd_no_hazardous, *args)
             _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
-          else
-            retry
           end
         end
       end

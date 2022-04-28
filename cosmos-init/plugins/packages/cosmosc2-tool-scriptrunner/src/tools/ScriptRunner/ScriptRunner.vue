@@ -1391,7 +1391,6 @@ export default {
       this.file.show = false // Close the dialog
       let fileNames = []
       await files.forEach(async (file) => {
-        console.log(file)
         fileNames.push(file.name)
         const { data: presignedRequest } = await Api.get(
           `/cosmos-api/storage/upload/${encodeURIComponent(
@@ -1402,12 +1401,7 @@ export default {
           ...presignedRequest,
           data: this.file,
         })
-        console.log(response)
-        // const formData = new FormData()
-        // formData.append('file', file, file.name)
-        // await Api.put(response.data.url, { data: formData })
       })
-      console.log(fileNames)
       await Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
         data: {
           method: this.file.multiple ? 'open_files_dialog' : 'open_file_dialog',

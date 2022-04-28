@@ -47,11 +47,17 @@ module Cosmos
             RunningScript.instance.perform_wait(prompt: {'method' => method, 'id' => prompt_id, 'args' => args, 'kwargs' => kwargs })
             input = RunningScript.instance.user_input
             # All ask and prompt dialogs should include a 'Cancel' button
-            # If they cancel we loop right back around and re-display the prompt
+            # If they cancel we wait so they can potentially stop
+            # if not we loop right back around and re-display the prompt
             if input == 'Cancel'
               RunningScript.instance.perform_pause
             else
-              return input
+              if (method.to_s.include?('open_file'))
+                puts "input:#{input} class:#{input.class}"
+                return _get_storage_file("tmp/#{input}", scope: RunningScript.instance.scope)
+              else
+                return input
+              end
             end
           else
             raise "Script input method called outside of running script"
