@@ -1,6 +1,6 @@
 {
 	"name": "@cosmosc2/tool-base",
-  "version": "5.0.2-beta2",
+  "version": "5.0.2",
 	"scripts": {
 		"serve": "webpack serve --port 2910 --env isLocal",
 		"lint": "eslint src --ext js",

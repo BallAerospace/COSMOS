@@ -49,7 +49,7 @@ yarn
 
 PLUGINS="$SCRIPT_DIR/../../../cosmos-init/plugins/"
 GEMS="$SCRIPT_DIR/../../../cosmos-init/plugins/gems/"
-COSMOS_RELEASE_VERSION=5.0.2-beta2
+COSMOS_RELEASE_VERSION=5.0.2
 
 mkdir -p ${GEMS}
 cd ${PLUGINS}cosmosc2-tool-base && yarn install && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
