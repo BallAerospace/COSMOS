@@ -70,7 +70,7 @@ test('links to command sender', async ({ page }) => {
     page.context().waitForEvent('page'),
     await page.locator('text=INSTCOLLECT >> td >> nth=4').click(),
   ])
-  await expect(newPage.locator('.v-app-bar')).toContainText('Command Sender')
+  await expect(newPage.locator('.v-app-bar')).toContainText('Command Sender', { timeout: 30000 })
   await expect(newPage.locator('id=cosmos-tool')).toContainText(
     'Starts a collect on the INST target'
   )

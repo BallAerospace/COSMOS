@@ -1040,6 +1040,8 @@ export default {
       this.startOrGoDisabled = this.suiteRunner
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
+      // Ensure stopped, if the script has an error we don't get the server stopped message
+      this.state = 'stopped'
       this.fatal = false
       this.scriptId = null
       this.editor.setReadOnly(false)
@@ -1366,7 +1368,8 @@ export default {
     // ScriptRunner File menu actions
     newFile() {
       this.filename = NEW_FILENAME
-      this.clearBreakpoints()
+      this.currentFilename = null
+      this.files = {} // Clear the cached file list
       this.editor.session.setValue('')
       this.fileModified = ''
       this.suiteRunner = false
@@ -1382,6 +1385,7 @@ export default {
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
       this.filename = file.name.split('*')[0]
+      this.currentFilename = null
       this.editor.session.setValue(file.contents)
       this.breakpoints[filename] = breakpoints
       this.restoreBreakpoints(filename)
@@ -1445,13 +1449,15 @@ export default {
                 this.startOrGoDisabled = true
                 this.suiteRunner = true
                 this.suiteMap = JSON.parse(response.data.suites)
+              } else {
+                this.startOrGoDisabled = false
+                this.suiteRunner = false
+                this.suiteMap = {}
               }
               if (response.data.error) {
                 this.suiteError = response.data.error
                 this.showSuiteError = true
               }
-              // Disable suite buttons if we didn't successfully parse the suite
-              this.disableSuiteButtons = response.data.success == false
               this.fileModified = ''
               setTimeout(() => {
                 this.showSave = false

@@ -281,6 +281,11 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
+    // Sometimes when we move graphs, other graphs become non-interactive
+    // This seems to fix that issue
+    this.grid.on('move', function (data) {
+      data.item.getGrid().synchronize()
+    })
     const previousConfig = this.getLocalStorageConfig()
     // If we're passed in the route then manually addItem
     if (
@@ -378,8 +383,10 @@ export default {
       }
     },
     saveConfiguration: function (name) {
-      const config = this.graphs.map((graphId) => {
-        const vueGraph = this.$refs[`graph${graphId}`][0]
+      const config = this.grid.getItems().map((item) => {
+        // Map the gridItem id to the graph id
+        const graphId = `graph${item.getElement().id.substring(8)}`
+        const vueGraph = this.$refs[graphId][0]
         return {
           items: vueGraph.items,
           title: vueGraph.title,

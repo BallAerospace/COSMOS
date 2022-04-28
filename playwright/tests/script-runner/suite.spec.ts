@@ -22,12 +22,12 @@ import { test, expect } from 'playwright-test-coverage'
 import { Utilities } from '../../utilities'
 
 let utils
-test.beforeEach(async ({ page }, testInfo) => {
+test.beforeEach(async ({ page }) => {
   await page.goto('/tools/scriptrunner')
   await expect(page.locator('.v-app-bar')).toContainText('Script Runner')
   await page.locator('.v-app-bar__nav-icon').click()
   // Close the dialog that says how many running scripts there are
-  if (await page.$('text=Enter the password')) {
+  if (await page.$('text=running scripts')) {
     await page.locator('button:has-text("Close")').click()
   }
   utils = new Utilities(page)
@@ -53,14 +53,6 @@ async function deleteFile(page) {
 // and finally click OK to close the dialog
 async function runAndCheckResults(page, startLocator, validator, download = false) {
   await page.locator(startLocator).click()
-  // After script starts the Script Start/Go and all Suite buttons should be disabled
-  await expect(page.locator('[data-test=start-suite]')).toBeDisabled()
-  await expect(page.locator('[data-test=start-group]')).toBeDisabled()
-  await expect(page.locator('[data-test=start-script]')).toBeDisabled()
-  await expect(page.locator('[data-test=setup-suite]')).toBeDisabled()
-  await expect(page.locator('[data-test=setup-group]')).toBeDisabled()
-  await expect(page.locator('[data-test=teardown-suite]')).toBeDisabled()
-  await expect(page.locator('[data-test=teardown-group]')).toBeDisabled()
   // Wait for the results ... allow for additional time
   await expect(page.locator('.v-dialog')).toContainText('Script Results', {
     timeout: 30000,
@@ -126,6 +118,39 @@ test('loads Suite controls when opening a suite', async ({ page }) => {
   await expect(page.locator('[data-test=teardown-group]')).not.toBeVisible()
 })
 
+test('disables all suite buttons when running', async ({ page }) => {
+  await page.locator('textarea').fill(`
+  load "cosmos/script/suite.rb"
+  class TestGroup < Cosmos::Group
+    def test_test; wait; end
+  end
+  class TestSuite < Cosmos::Suite
+    def initialize
+      super()
+      add_group("TestGroup")
+    end
+  end
+  `)
+  await saveAs(page, 'test_suite_buttons.rb')
+
+  await page.locator('[data-test=start-script]').click()
+  await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
+  // After script starts the Script Start/Go and all Suite buttons should be disabled
+  await expect(page.locator('[data-test=start-suite]')).toBeDisabled()
+  await expect(page.locator('[data-test=start-group]')).toBeDisabled()
+  await expect(page.locator('[data-test=start-script]')).toBeDisabled()
+  await expect(page.locator('[data-test=setup-suite]')).toBeDisabled()
+  await expect(page.locator('[data-test=setup-group]')).toBeDisabled()
+  await expect(page.locator('[data-test=teardown-suite]')).toBeDisabled()
+  await expect(page.locator('[data-test=teardown-group]')).toBeDisabled()
+
+  await page.locator('[data-test=go-button]').click()
+  // Wait for the results
+  await expect(page.locator('.v-dialog')).toContainText('Script Results')
+  await page.locator('button:has-text("Ok")').click()
+  await deleteFile(page)
+})
+
 test('starts a suite', async ({ page }) => {
   await page.locator('textarea').fill(`
   load "cosmos/script/suite.rb"
@@ -177,7 +202,7 @@ test('starts a suite', async ({ page }) => {
   await page.keyboard.press('Control+A')
   await page.keyboard.press('Backspace')
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
+  require "cosmos/script/suite.rb"
   class TestGroup < Cosmos::Group
     def test_test; puts "test"; end
   end
@@ -202,7 +227,7 @@ test('starts a suite', async ({ page }) => {
 
 test('starts a group', async ({ page }) => {
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
+  require "cosmos/script/suite.rb"
   class TestGroup1 < Cosmos::Group
     def setup; Cosmos::Group.puts("setup"); end
     def teardown; Cosmos::Group.puts("teardown"); end
@@ -250,7 +275,7 @@ test('starts a group', async ({ page }) => {
   await page.keyboard.press('Control+A')
   await page.keyboard.press('Backspace')
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
+  require "cosmos/script/suite.rb"
   class TestGroup1 < Cosmos::Group
     def test_test1; puts "test"; end
   end
@@ -279,7 +304,7 @@ test('starts a group', async ({ page }) => {
 
 test('starts a script', async ({ page }) => {
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
+  require "cosmos/script/suite.rb"
   class TestGroup < Cosmos::Group
     def test_test1; puts "test1"; end
     def test_test2; puts "test2"; end
@@ -303,7 +328,7 @@ test('starts a script', async ({ page }) => {
 
 test('handles manual mode', async ({ page }) => {
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
+  require "cosmos/script/suite.rb"
   class TestGroup < Cosmos::Group
     def test_test1; Cosmos::Group.puts "manual1" if $manual; end
     def test_test2; Cosmos::Group.puts "manual2" unless $manual; end
