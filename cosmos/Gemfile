@@ -4,7 +4,7 @@ source ENV['RUBYGEMS_URL'] || "https://rubygems.org"
 
 gem 'ruby-termios', '>= 0.9' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
 
-gemspec
+gemspec :name => 'cosmos'
 
 # unless ENV['JENKINS_HOME']
 #   # Example of how to use a local branch (doesn't work on Jenkins)

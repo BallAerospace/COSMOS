@@ -1,4 +1,7 @@
-FROM ballaerospace/cosmosc2-node AS cosmos-frontend-tmp
+ARG COSMOS_REGISTRY=docker.io
+ARG COSMOS_TAG=latest
+
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_TAG} AS cosmos-frontend-tmp
 
 WORKDIR /cosmos/plugins/
 
@@ -23,7 +26,7 @@ COPY ./plugins/packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 COPY ./plugins/packages/cosmosc2-demo/*.json packages/cosmosc2-demo/
 
 ARG NPM_URL
-RUN yarn config set registry $NPM_URL && yarn
+RUN yarn config set registry $NPM_URL && yarn --network-timeout 600000
 
 COPY ./plugins/docker-package-build.sh ./plugins/docker-package-install.sh ./plugins/babel.config.js ./plugins/.eslintrc.js ./plugins/.nycrc ./
 RUN chmod +x ./docker-package-build.sh ./docker-package-install.sh
@@ -97,7 +100,7 @@ COPY --from=cosmos-tmp2 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 COPY --from=cosmos-tmp3 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
-FROM ballaerospace/cosmosc2-base
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}
 
 COPY --from=cosmos-frontend-base-tmp --chown=${IMAGE_USER}:${IMAGE_GROUP} /cosmos/plugins/gems/* /cosmos/plugins/gems/
 COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./init.sh /cosmos/

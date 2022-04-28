@@ -21,7 +21,7 @@ version: "3.5"
 
 services:
   cosmos-minio:
-    image: "minio/minio:RELEASE.2021-06-17T00-10-46Z"
+    image: "${COSMOS_REGISTRY}/minio/minio:RELEASE.2021-06-17T00-10-46Z"
     volumes:
       - "cosmos-minio-v:/data"
     command: ["server", "/data"]
@@ -31,7 +31,7 @@ services:
       MINIO_ROOT_PASSWORD: "${COSMOS_MINIO_PASSWORD}"
 
   cosmos-minio-init:
-    image: "ballaerospace/cosmosc2-minio-init:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio-init:${COSMOS_TAG}"
     restart: on-failure
     depends_on:
       - "cosmos-minio"
@@ -39,13 +39,13 @@ services:
       - ".env"
 
   cosmos-redis:
-    image: "ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
     volumes:
       - "cosmos-redis-v:/data"
     restart: "unless-stopped"
 
   cosmos-cmd-tlm-api:
-    image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
@@ -59,7 +59,7 @@ services:
       - ".env"
 
   cosmos-script-runner-api:
-    image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
@@ -73,7 +73,7 @@ services:
       - ".env"
 
   cosmos-operator:
-    image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
@@ -88,7 +88,7 @@ services:
       - host.docker.internal:host-gateway
 
   cosmos-traefik:
-    image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
     ports:
       - "2900:80"
     restart: "unless-stopped"
@@ -97,7 +97,7 @@ services:
       - "cosmos-minio"
 
   cosmos-init:
-    image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:${COSMOS_TAG}"
     restart: on-failure
     depends_on:
       - "cosmos-traefik"

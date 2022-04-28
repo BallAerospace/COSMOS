@@ -29,13 +29,17 @@ services:
         ALPINE_BUILD: ${ALPINE_BUILD}
         APK_URL: ${APK_URL}
         RUBYGEMS_URL: ${RUBYGEMS_URL}
-    image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
 
   cosmos-node:
     build:
       context: "cosmos-node"
       network: host
-    image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
 
@@ -43,7 +47,10 @@ services:
     build:
       context: "cosmos"
       network: host
-    image: "ballaerospace/cosmosc2-base:${COSMOS_TAG}"
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
 
@@ -51,16 +58,23 @@ services:
     build:
       context: "cosmos-minio-init"
       network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
 
   cosmos-redis:
     build:
       context: "cosmos-redis"
       network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
 
   cosmos-cmd-tlm-api:
     build:
       context: "cosmos-cmd-tlm-api"
       network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-base"
 
@@ -68,6 +82,9 @@ services:
     build:
       context: "cosmos-script-runner-api"
       network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-base"
 
@@ -75,6 +92,9 @@ services:
     build:
       context: "cosmos-operator"
       network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-base"
 
@@ -82,6 +102,8 @@ services:
     build:
       context: "cosmos-traefik"
       network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
 
   cosmos-init:
     build:
@@ -89,6 +111,8 @@ services:
       network: host
       args:
         NPM_URL: ${NPM_URL}
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-node"
       - "cosmos-base"

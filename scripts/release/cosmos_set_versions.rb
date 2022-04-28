@@ -8,12 +8,26 @@ puts "Git revision: #{revision}"
 
 version = ENV['COSMOS_RELEASE_VERSION'].to_s.dup
 if version.length <= 0
-  # Increment version from previous
-  require path
-  version_split = COSMOS_VERSION.split('.')
-  version = version_split[0..-2].concat([version_split[-1].to_i + 1]).join(".")
+  raise "Version is required"
 end
-major, minor, patch, *other = version.to_s.split('.')
+
+split_version = version.to_s.split('.')
+major = split_version[0]
+minor = split_version[1]
+if version =~ /[a-zA-z]+/
+  # Prerelease version
+  remainder = split_version[2..-1].join(".")
+  remainder.gsub!('.', '-')
+  remainder_split = remainder.split('-')
+  patch = remainder_split[0]
+  other = remainder_split[1..-1].join('')
+  version = "#{major}.#{minor}.#{patch}-#{other}"
+else
+  # Production Release Version
+  patch = split_version[2]
+  other = split_version[3..-1].join('.')
+end
+
 puts "Setting version to: #{version}"
 
 # Update main rubygem version.rb
@@ -26,7 +40,7 @@ File.open(path, 'wb') do |file|
   file.puts "    MAJOR = '#{major}'"
   file.puts "    MINOR = '#{minor}'"
   file.puts "    PATCH = '#{patch}'"
-  file.puts "    OTHER = '#{other.join('.')}'"
+  file.puts "    OTHER = '#{other}'"
   file.puts "    BUILD = '#{revision}'"
   file.puts "  end"
   file.puts "  VERSION = '#{version}'"
@@ -35,6 +49,33 @@ end
 puts "Updated: #{path}"
 
 require path
+
+gemspec_files = [
+  'cosmos/cosmos.gemspec',
+  'cosmos/cosmosc2.gemspec',
+]
+
+gemspec_files.each do |rel_path|
+  full_path = File.join(base_path, rel_path)
+  data = nil
+  File.open(full_path, 'rb') do |file|
+    data = file.read
+  end
+  mod_data = ''
+  data.each_line do |line|
+    if line =~ /s\.version =/
+      mod_data << "  s.version = '#{version}'\n"
+    elsif line =~ /s\.add_runtime_dependency 'cosmos'/
+      mod_data << "  s.add_runtime_dependency 'cosmos', '#{version}'\n"
+    else
+      mod_data << line
+    end
+  end
+  File.open(full_path, 'wb') do |file|
+    file.write(mod_data)
+  end
+  puts "Updated: #{full_path}"
+end
 
 package_dot_json_files = [
   'cosmos-init/plugins/cosmosc2-tool-base/package.json',

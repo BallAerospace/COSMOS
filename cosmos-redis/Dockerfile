@@ -1,4 +1,6 @@
-FROM redis:6.2
+ARG COSMOS_REGISTRY=docker.io
+
+FROM ${COSMOS_REGISTRY}/redis:6.2
 
 RUN mkdir /config
 COPY ./config/* /config/

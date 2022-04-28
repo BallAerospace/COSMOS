@@ -1,4 +1,7 @@
-FROM ballaerospace/cosmosc2-base
+ARG COSMOS_REGISTRY=docker.io
+ARG COSMOS_TAG=latest
+
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}
 
 WORKDIR /src/
 COPY Gemfile ./
