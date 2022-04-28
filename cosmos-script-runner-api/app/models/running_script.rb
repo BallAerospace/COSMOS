@@ -53,8 +53,9 @@ module Cosmos
               RunningScript.instance.perform_pause
             else
               if (method.to_s.include?('open_file'))
-                puts "input:#{input} class:#{input.class}"
-                return _get_storage_file("tmp/#{input}", scope: RunningScript.instance.scope)
+                files = input.map { |file| _get_storage_file("tmp/#{file}", scope: RunningScript.instance.scope) }
+                files = files[0] if method.to_s == 'open_file_dialog' # Simply return the only file
+                return files
               else
                 return input
               end
