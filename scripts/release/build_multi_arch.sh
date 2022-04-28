@@ -25,6 +25,7 @@ fi
 cd cosmos-ruby
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
   --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
   --build-arg APK_URL=${APK_URL} \
@@ -35,6 +36,7 @@ if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
   --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
   --build-arg APK_URL=${APK_URL} \
@@ -45,28 +47,36 @@ fi
 cd ../cosmos-node
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:latest .
 fi
 
 cd ../cosmos
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:latest .
 fi
 
@@ -74,12 +84,14 @@ fi
 cd ../cosmos-minio-init
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio-init:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio-init:latest .
 fi
 
@@ -87,54 +99,68 @@ fi
 cd ../cosmos-redis
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:latest .
 fi
 
 cd ../cosmos-cmd-tlm-api
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:latest .
 fi
 
 cd ../cosmos-script-runner-api
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-script-runner-api:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-script-runner-api:latest .
 fi
 
 cd ../cosmos-operator
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-operator:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-operator:latest .
 fi
 
@@ -142,19 +168,23 @@ fi
 cd ../cosmos-traefik
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:latest .
 fi
 
 cd ../cosmos-init
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --build-arg NPM_URL=${NPM_URL} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:${COSMOS_RELEASE_VERSION} .
 
@@ -162,7 +192,9 @@ if [ $COSMOS_UPDATE_LATEST = true ]
 then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
+  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
   --build-arg NPM_URL=${NPM_URL} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:latest .
 fi

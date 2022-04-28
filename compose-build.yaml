@@ -38,6 +38,7 @@ services:
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
@@ -48,6 +49,7 @@ services:
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
@@ -72,6 +74,7 @@ services:
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-base"
 
@@ -81,6 +84,7 @@ services:
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-base"
 
@@ -90,6 +94,7 @@ services:
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-base"
 
@@ -107,6 +112,7 @@ services:
       args:
         NPM_URL: ${NPM_URL}
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
       - "cosmos-node"
       - "cosmos-base"

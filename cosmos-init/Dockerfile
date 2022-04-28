@@ -1,6 +1,7 @@
 ARG COSMOS_REGISTRY=docker.io
+ARG COSMOS_TAG=latest
 
-FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node AS cosmos-frontend-tmp
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_TAG} AS cosmos-frontend-tmp
 
 WORKDIR /cosmos/plugins/
 
@@ -99,7 +100,7 @@ COPY --from=cosmos-tmp2 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 COPY --from=cosmos-tmp3 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
-FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}
 
 COPY --from=cosmos-frontend-base-tmp --chown=${IMAGE_USER}:${IMAGE_GROUP} /cosmos/plugins/gems/* /cosmos/plugins/gems/
 COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./init.sh /cosmos/

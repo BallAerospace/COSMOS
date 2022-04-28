@@ -1,6 +1,7 @@
 ARG COSMOS_REGISTRY=docker.io
+ARG COSMOS_TAG=latest
 
-FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_TAG}
 
 WORKDIR /cosmos/
 
