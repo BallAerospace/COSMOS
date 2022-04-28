@@ -26,7 +26,7 @@ COPY ./plugins/packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 COPY ./plugins/packages/cosmosc2-demo/*.json packages/cosmosc2-demo/
 
 ARG NPM_URL
-RUN yarn config set registry $NPM_URL && yarn --network-timeout 100000
+RUN yarn config set registry $NPM_URL && yarn --network-timeout 600000
 
 COPY ./plugins/docker-package-build.sh ./plugins/docker-package-install.sh ./plugins/babel.config.js ./plugins/.eslintrc.js ./plugins/.nycrc ./
 RUN chmod +x ./docker-package-build.sh ./docker-package-install.sh
