@@ -1,6 +1,6 @@
 {
   "name": "@cosmosc2/tool-common",
-  "version": "5.0.2-beta1",
+  "version": "5.0.2-beta2",
   "private": false,
   "dependencies": {
     "actioncable": "5.2.7",
