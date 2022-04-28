@@ -11,23 +11,14 @@ eval $(sed -e '/^#/d' -e 's/^/export /' -e 's/$/;/' .env) ;
 #COSMOS_REGISTRY=localhost:5000
 
 # Setup cacert.pem
-if [ ! -f cosmos-ruby/cacert.pem ]; then
-  if [ ! -z "$SSL_CERT_FILE" ]; then
-    cp $SSL_CERT_FILE cosmos-ruby/cacert.pem
-    echo Using $SSL_CERT_FILE as cacert.pem
-  else
-    echo "Downloading cert from curl"
-    curl -q -L https://curl.se/ca/cacert.pem --output cosmos-ruby/cacert.pem
-    if [ $? -ne 0 ]; then
-      echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" 1>&2
-      echo "cosmos_setup FAILED" 1>&2
-      exit 1
-    else
-      echo "Successfully downloaded cosmos-ruby/cacert.pem file from: https://curl.se/ca/cacert.pem"
-    fi
-  fi
+echo "Downloading cert from curl"
+curl -q -L https://curl.se/ca/cacert.pem --output cosmos-ruby/cacert.pem
+if [ $? -ne 0 ]; then
+  echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" 1>&2
+  echo "cosmos_setup FAILED" 1>&2
+  exit 1
 else
-  echo "Using existing cosmos-ruby/cacert.pem"
+  echo "Successfully downloaded cosmos-ruby/cacert.pem file from: https://curl.se/ca/cacert.pem"
 fi
 
 # Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
