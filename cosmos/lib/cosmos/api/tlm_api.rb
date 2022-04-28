@@ -358,10 +358,14 @@ module Cosmos
       # Request the path by calling the key method. Returns something like this:
       # DEFAULT/decom_logs/tlm/INST2/MECH/20220104/20220104165449021942700__20220104170449148642700__DEFAULT__INST2__MECH__rt__decom.bin
       # Thus we split and take the start date/time part of the filename
-      start = list[0].key.split('/')[-1].split('__')[0]
-      # Format as YYYY-MM-DD HH:MM:SS for use by the frontend
-      # utc_time = Time.utc(start[0,4], start[4,2], start[6,2], start[8,2], start[10,2], start[12,2])
-      return "#{start[0,4]}-#{start[4,2]}-#{start[6,2]} #{start[8,2]}:#{start[10,2]}:#{start[12,2]}"
+      if list and list[0]
+        start = list[0].key.split('/')[-1].split('__')[0]
+        # Format as YYYY-MM-DD HH:MM:SS for use by the frontend
+        # utc_time = Time.utc(start[0,4], start[4,2], start[6,2], start[8,2], start[10,2], start[12,2])
+        return "#{start[0,4]}-#{start[4,2]}-#{start[6,2]} #{start[8,2]}:#{start[10,2]}:#{start[12,2]}"
+      else
+        return Time.now.utc.to_s[0..18]
+      end
     end
 
     # PRIVATE
