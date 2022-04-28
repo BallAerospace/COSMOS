@@ -22,11 +22,9 @@ import { test, expect } from 'playwright-test-coverage'
 
 test('waits for the services to deploy and connect', async ({ page }) => {
   await page.goto('/tools/cmdtlmserver')
-  await expect(page.locator('.v-app-bar')).toContainText('CmdTlmServer')
-  await page.locator('.v-app-bar__nav-icon').click()
   // Check the 3rd column (nth starts at 0) on the row containing INST_INT says CONNECTED
   await expect(page.locator('tr:has-text("INST_INT") td >> nth=2')).toContainText('CONNECTED', {
-    timeout: 300000,
+    timeout: 120000,
   })
   await expect(page.locator('tr:has-text("INST2_INT") td >> nth=2')).toContainText('CONNECTED', {
     timeout: 60000,
