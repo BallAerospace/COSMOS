@@ -30,20 +30,13 @@ test('prompts for hazardous commands', async ({ page }) => {
   await page.locator('textarea').fill('cmd("INST CLEAR")')
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('.v-dialog')).toContainText('Hazardous Command')
-  await page.locator('.v-dialog >> button:has-text("No")').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
-  await expect(page.locator('[data-test=output-messages]')).toContainText('User input: false')
-  await expect(page.locator('[data-test=output-messages]')).not.toContainText('cmd("INST CLEAR")')
-
-  await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('.v-dialog')).toContainText('Hazardous Command')
   await page.locator('.v-dialog >> button:has-text("Cancel")').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
   await page.locator('[data-test=go-button]').click()
   await expect(page.locator('.v-dialog')).toContainText('Hazardous Command')
   await page.locator('.v-dialog >> button:has-text("Yes")').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
-  await expect(page.locator('[data-test=output-messages]')).toContainText('User input: true')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('User input: Yes')
   await expect(page.locator('[data-test=output-messages]')).toContainText('cmd("INST CLEAR")')
 })
 
@@ -232,6 +225,8 @@ test('opens a file dialog', async ({ page }) => {
   await expect(page.locator('.v-dialog')).toBeVisible({
     timeout: 20000,
   })
+  await expect(page.locator('.v-dialog')).toContainText('Open a single file')
+  await expect(page.locator('.v-dialog')).toContainText('Choose something interesting')
   await page.locator('.v-dialog >> button:has-text("Cancel")').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('paused')
   // Clicking Go re-executes the prompt
@@ -243,8 +238,8 @@ test('opens a file dialog', async ({ page }) => {
   const [fileChooser] = await Promise.all([
     // It is important to call waitForEvent before click to set up waiting.
     page.waitForEvent('filechooser'),
-    // Opens the file chooser.
-    page.locator('[data-test=file-input]').click(),
+    // Open the file chooser
+    page.locator('text=Choose File').click(),
   ])
   await fileChooser.setFiles('.env')
   await page.locator('.v-dialog >> button:has-text("Ok")').click()

@@ -1257,7 +1257,6 @@ export default {
       this.prompt.title = 'Prompt'
       this.prompt.subtitle = ''
       this.prompt.details = ''
-      this.prompt.buttons = [] // Reset buttons so 'Yes', 'No' are used by default
       switch (data.method) {
         case 'ask':
         case 'ask_string':
@@ -1306,6 +1305,7 @@ export default {
             this.prompt.message += data.args[2] + ' '
           }
           this.prompt.message += 'Send?'
+          this.prompt.buttons = [{ text: 'Yes', value: 'Yes' }]
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
@@ -1378,6 +1378,9 @@ export default {
           this.file.show = true
           this.file.title = data.args[0]
           this.file.message = data.args[1]
+          if (data.kwargs && data.kwargs.filter) {
+            this.file.filter = data.kwargs.filter
+          }
           if (data.method == 'open_files_dialog') {
             this.file.multiple = true
           }

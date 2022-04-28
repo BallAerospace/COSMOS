@@ -1,5 +1,5 @@
-# Specify the title and message
-file = open_file_dialog("Open a single file", "Choose something interesting")
+# Specify the title and message and filter to txt files
+file = open_file_dialog("Open a single file", "Choose something interesting", filter: ".txt")
 puts file # Ruby File object
 puts file.read
 file.delete

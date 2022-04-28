@@ -47,7 +47,7 @@
             color="secondary"
             class="ma-1"
             data-test="prompt-select"
-            :items="computedButtons"
+            :items="buttons"
           />
         </v-row>
         <v-card-actions>
@@ -82,7 +82,7 @@
           >
             Cancel
           </v-btn>
-          <div v-for="(button, index) in computedButtons" :key="index">
+          <div v-for="(button, index) in buttons" :key="index">
             <v-btn
               @click="submitWrapper(button.value)"
               class="ma-1"
@@ -141,16 +141,6 @@ export default {
       set(value) {
         this.$emit('input', value) // input is the default event when using v-model
       },
-    },
-    computedButtons() {
-      if (this.buttons.length === 0) {
-        return [
-          { text: 'No', value: false },
-          { text: 'Yes', value: true },
-        ]
-      } else {
-        return this.buttons
-      }
     },
     layoutClass() {
       let layout = 'd-flex align-start'
