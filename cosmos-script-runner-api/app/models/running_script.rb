@@ -44,11 +44,10 @@ module Cosmos
           if RunningScript.instance
             RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
             prompt_id = SecureRandom.uuid
-            RunningScript.instance.perform_wait(prompt: {'method' => method, 'id' => prompt_id, 'args' => args, 'kwargs' => kwargs })
+            RunningScript.instance.perform_wait({ 'method' => method, 'id' => prompt_id, 'args' => args, 'kwargs' => kwargs })
             input = RunningScript.instance.user_input
             # All ask and prompt dialogs should include a 'Cancel' button
             # If they cancel we wait so they can potentially stop
-            # if not we loop right back around and re-display the prompt
             if input == 'Cancel'
               RunningScript.instance.perform_pause
             else
@@ -821,7 +820,7 @@ class RunningScript
     end
   end
 
-  def perform_wait(prompt: nil)
+  def perform_wait(prompt)
     mark_waiting()
     wait_for_go_or_stop(prompt: prompt)
   end

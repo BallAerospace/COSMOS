@@ -280,7 +280,7 @@
     <file-dialog
       v-if="file.show"
       v-model="file.show"
-      :directory="file.directory"
+      :title="file.title"
       :message="file.message"
       :multiple="file.multiple"
       :filter="file.filter"
@@ -1391,19 +1391,27 @@ export default {
     },
     async fileDialogCallback(files) {
       this.file.show = false // Close the dialog
-      let fileNames = []
-      await files.forEach(async (file) => {
-        fileNames.push(file.name)
-        const { data: presignedRequest } = await Api.get(
-          `/cosmos-api/storage/upload/${encodeURIComponent(
-            `${localStorage.scope}/tmp/${file.name}`
-          )}?bucket=config`
-        )
-        const response = await axios({
-          ...presignedRequest,
-          data: this.file,
+      // Set fileNames to 'Cancel' in case they cancelled
+      // otherwise we will populate it with the file names they selected
+      let fileNames = 'Cancel'
+      if (files != 'Cancel') {
+        fileNames = []
+        await files.forEach(async (file) => {
+          fileNames.push(file.name)
+          // Reassign data to presignedRequest for readability
+          const { data: presignedRequest } = await Api.get(
+            `/cosmos-api/storage/upload/${encodeURIComponent(
+              `${localStorage.scope}/tmp/${file.name}`
+            )}?bucket=config`
+          )
+          // This pushes the file into S3 by using the fields in the presignedRequest
+          // See storage_controller.rb get_presigned_request()
+          const response = await axios({
+            ...presignedRequest,
+            data: file,
+          })
         })
-      })
+      }
       await Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
         data: {
           method: this.file.multiple ? 'open_files_dialog' : 'open_file_dialog',

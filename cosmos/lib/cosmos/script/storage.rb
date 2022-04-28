@@ -29,11 +29,12 @@ module Cosmos
     def delete_target_file(path, scope: $cosmos_scope)
       begin
         # Only delete from the targets_modified
-        endpoint = "/cosmos-api/storage/delete/#{scope}/targets_modified/#{path}"
-        Cosmos::Logger.info "Deleting #{scope}/targets_modified/#{path}"
+        delete_path = "#{scope}/targets_modified/#{path}"
+        endpoint = "/cosmos-api/storage/delete/#{delete_path}"
+        Cosmos::Logger.info "Deleting #{delete_path}"
         response = $api_server.request('delete', endpoint, query: {bucket: 'config'})
         if response.nil? || response.code != 200
-          raise "Failed to delete #{scope}/targets_modified/#{path}"
+          raise "Failed to delete #{delete_path}. Note: #{scope}/targets is read-only."
         end
       rescue => error
         raise "Failed deleting #{path} due to #{error.message}"
@@ -46,32 +47,30 @@ module Cosmos
     # @param path [String] Path to a file in a target directory
     # @param io_or_string [Io or String] IO object
     def put_target_file(path, io_or_string, scope: $cosmos_scope)
-      # Get presigned url
-      part = "targets_modified"
-      begin
-        endpoint = "/cosmos-api/storage/upload/#{scope}/#{part}/#{path}"
-        Cosmos::Logger.info "Writing #{scope}/#{part}/#{path}"
-        result = _get_presigned_request(endpoint)
+      raise "Disallowed path modifier '..' found in #{path}" if path.include?('..')
+      upload_path = "#{scope}/targets_modified/#{path}"
+      endpoint = "/cosmos-api/storage/upload/#{upload_path}"
+      Cosmos::Logger.info "Writing #{upload_path}"
+      result = _get_presigned_request(endpoint)
 
-        # Try to put the file
-        success = false
-        begin
-          uri = _get_uri(result['url'])
-          Net::HTTP.start(uri.host, uri.port) do |http|
-            request = Net::HTTP::Put.new(uri, {'Content-Length' => io_or_string.length.to_s})
-            if String === io_or_string
-              request.body = io_or_string
-            else
-              request.body_stream = io_or_string
-            end
-            result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-              http.request(request)
-            end
-            return result
+      # Try to put the file
+      success = false
+      begin
+        uri = _get_uri(result['url'])
+        Net::HTTP.start(uri.host, uri.port) do |http|
+          request = Net::HTTP::Put.new(uri, {'Content-Length' => io_or_string.length.to_s})
+          if String === io_or_string
+            request.body = io_or_string
+          else
+            request.body_stream = io_or_string
           end
-        rescue => error
-          raise "Failed to write #{scope}/#{part}/#{path}"
+          result = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            http.request(request)
+          end
+          return result
         end
+      rescue => error
+        raise "Failed to write #{upload_path}"
       end
       nil
     end
@@ -87,13 +86,12 @@ module Cosmos
       # Loop to allow redo when switching from modified to original
       loop do
         begin
-          _get_storage_file("#{part}/#{path}", scope: scope)
+          return _get_storage_file("#{part}/#{path}", scope: scope)
         rescue => error
           if part == "targets_modified"
             part = "targets"
             redo
           else
-            Cosmos::Logger.error(error.message)
             raise error
           end
         end
@@ -140,9 +138,7 @@ module Cosmos
         response = $api_server.request('get', endpoint, query: { bucket: 'config' })
       end
       if response.nil? || response.code != 201
-        message = "Failed to get presigned URL for #{endpoint}"
-        Cosmos::Logger.error message
-        raise message
+        raise "Failed to get presigned URL for #{endpoint}"
       end
       JSON.parse(response.body)
     end

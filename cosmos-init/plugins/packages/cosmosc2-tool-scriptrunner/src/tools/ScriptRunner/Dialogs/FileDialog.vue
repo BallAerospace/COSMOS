@@ -32,7 +32,7 @@
               <v-card-title v-text="title" />
             </v-row>
             <v-row v-if="message">
-              <span v-text="message" />
+              <span class="ma-3" v-text="message" />
             </v-row>
             <v-row class="my-1">
               <v-file-input
@@ -41,6 +41,7 @@
                 autofocus
                 data-test="file-input"
                 :accept="filter"
+                small-chips
                 :multiple="multiple"
               />
             </v-row>
@@ -95,7 +96,7 @@ export default {
   },
   data() {
     return {
-      inputValue: '',
+      inputValue: null,
     }
   },
   computed: {
@@ -111,6 +112,7 @@ export default {
   methods: {
     submitHandler: function () {
       // Ensure we send back an array of file names even in the single case
+      // to make it easier to deal with a consistent result
       if (!Array.isArray(this.inputValue)) {
         this.inputValue = [this.inputValue]
       }
