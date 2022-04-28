@@ -7,7 +7,7 @@ module Cosmos
     MINOR = '0'
     PATCH = '2'
     OTHER = 'beta2'
-    BUILD = 'a5f7bf2fc28b42c520c0d2891208555ff313a5c6'
+    BUILD = '7ed19f86fc1b782dad339c047d89583f8d09012f'
   end
   VERSION = '5.0.2-beta2'
 end
