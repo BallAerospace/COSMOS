@@ -29,13 +29,13 @@ services:
         ALPINE_BUILD: ${ALPINE_BUILD}
         APK_URL: ${APK_URL}
         RUBYGEMS_URL: ${RUBYGEMS_URL}
-    image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
 
   cosmos-node:
     build:
       context: "cosmos-node"
       network: host
-    image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
 
@@ -43,7 +43,7 @@ services:
     build:
       context: "cosmos"
       network: host
-    image: "ballaerospace/cosmosc2-base:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
 

@@ -1,4 +1,6 @@
-FROM ballaerospace/cosmosc2-base
+ARG COSMOS_REGISTRY=docker.io
+
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base
 
 WORKDIR /cosmos/lib/cosmos/operators/
 

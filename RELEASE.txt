@@ -9,7 +9,7 @@ COSMOS 5 Release Process
    * Tool Ruby Gems
    * Demo Ruby Gem
    * Tool-Common Npm Package
-   * 11 Docker Containers (6 runtime, 2 init, 3 base - multiple platforms)
+   * 10 Docker Containers (5 runtime, 2 init, 3 base - multiple platforms)
 6. Publish Artifacts
    * Ruby gems to rubygems.org
    * Tool-Common to Npm

@@ -1,9 +1,10 @@
 # Make managed in .env-build
+ARG COSMOS_REGISTRY=docker.io
 ARG ALPINE_BUILD
 ARG ALPINE_VERSION
 
 # Should be loaded from ARG
-FROM alpine:${ALPINE_VERSION}.${ALPINE_BUILD}
+FROM ${COSMOS_REGISTRY}/alpine:${ALPINE_VERSION}.${ALPINE_BUILD}
 
 # An ARG declared before a FROM is outside of a build stage, so it can’t be
 # used in any instruction after a FROM. So we need to re-ARG ALPINE_VERSION

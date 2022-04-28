@@ -1,4 +1,6 @@
-FROM ballaerospace/cosmosc2-ruby
+ARG COSMOS_REGISTRY=docker.io
+
+FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby
 
 ENV RUBYLIB=/cosmos/lib
 ENV COSMOS_PATH="/cosmos"
