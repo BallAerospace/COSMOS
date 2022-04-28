@@ -8,7 +8,7 @@ set -eux
 COSMOS_PLATFORMS=linux/amd64,linux/arm64
 cd ../..
 eval $(sed -e '/^#/d' -e 's/^/export /' -e 's/$/;/' .env) ;
-COSMOS_REGISTRY=localhost:5000
+#COSMOS_REGISTRY=localhost:5000
 
 # Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
 cd cosmos-ruby
