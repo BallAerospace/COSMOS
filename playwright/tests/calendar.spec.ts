@@ -20,7 +20,6 @@
 // @ts-check
 import { test, expect } from 'playwright-test-coverage'
 import { format, add, sub } from 'date-fns'
-
 import { Utilities } from '../utilities'
 
 let utils

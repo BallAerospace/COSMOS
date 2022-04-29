@@ -21,7 +21,6 @@
 import { test, expect } from 'playwright-test-coverage'
 import { Utilities } from '../utilities'
 
-
 let utils
 test.beforeEach(async ({ page }) => {
   utils = new Utilities(page)
@@ -57,7 +56,7 @@ test('test overview page create trigger group', async ({ page }) => {
 
 test('test trigger page', async ({ page }) => {
   await openPage(page, 'triggers')
-    // download json of triggers
+  // download json of triggers
   await utils.download(page, '[data-test=trigger-download]', function (contents) {
     expect(contents).toContain('[]') // % is empty array
   })
@@ -65,7 +64,10 @@ test('test trigger page', async ({ page }) => {
   await page.locator('[data-test=new-trigger]').click()
   // select FLOAT as operand
   await page.locator('[data-test=trigger-operand-left-type]').click()
-  await page.locator('[data-test=trigger-operand-left-type-FLOAT] div:has-text("FLOAT")').first().click()
+  await page
+    .locator('[data-test=trigger-operand-left-type-FLOAT] div:has-text("FLOAT")')
+    .first()
+    .click()
   await page.locator('[data-test=trigger-operand-left-float]').fill('12345')
   // reset
   await page.locator('[data-test=trigger-create-reset-icon]').click()
@@ -74,7 +76,7 @@ test('test trigger page', async ({ page }) => {
   await page.locator('[data-test=trigger-operand-left-type-STRING]').click()
   await page.locator('[data-test=trigger-operand-left-string]').fill('This should be a string')
   // reset
-  await page.locator('[data-test=trigger-create-reset-icon]').click();
+  await page.locator('[data-test=trigger-create-reset-icon]').click()
   // select LIMIT as operand
   await page.locator('[data-test=trigger-operand-left-type]').click()
   await page.locator('[data-test=trigger-operand-left-type-LIMIT]').click()
@@ -83,7 +85,7 @@ test('test trigger page', async ({ page }) => {
   await page.locator('[data-test=trigger-operand-left-limit]').click()
   await page.locator('[data-test=trigger-operand-left-limit-LOW]').click()
   // reset
-  await page.locator('[data-test=trigger-create-reset-icon]').click();
+  await page.locator('[data-test=trigger-create-reset-icon]').click()
   // select ITEM as operand
   await page.locator('[data-test=trigger-operand-left-type]').click()
   await page.locator('[data-test=trigger-operand-left-type-ITEM]').click()
@@ -91,11 +93,14 @@ test('test trigger page', async ({ page }) => {
   await page.locator('[data-test=trigger-create-step-two-btn]').click()
   // select FLOAT as right operand
   await page.locator('[data-test=trigger-operand-right-type]').click()
-  await page.locator('[data-test=trigger-operand-right-type-FLOAT] div:has-text("FLOAT")').first().click()
+  await page
+    .locator('[data-test=trigger-operand-right-type-FLOAT] div:has-text("FLOAT")')
+    .first()
+    .click()
   await page.locator('[data-test=trigger-operand-right-float]').fill('0')
   // STEP 3
   await page.locator('[data-test=trigger-create-step-three-btn]').click()
-  // 
+  //
   await page.locator('[data-test=trigger-create-select-operator]').click()
   // QUOTES REQUIRED else the ">" will not be selected
   await page.locator('[data-test="trigger-create-select-operator->"]').click()
@@ -106,7 +111,7 @@ test('test trigger page', async ({ page }) => {
 
 test('test reactions page', async ({ page }) => {
   await openPage(page, 'reactions')
-    // download json of reactions
+  // download json of reactions
   await utils.download(page, '[data-test=reaction-download]', function (contents) {
     expect(contents).toContain('[]') // % is empty array
   })
@@ -170,7 +175,7 @@ test('test overview page delete trigger group', async ({ page }) => {
   // Delete trigger group and press delete
   await page.locator('[data-test=delete-group-0]').click()
   await page.locator('[data-test=confirm-dialog-delete]').click()
-  // 
+  //
   await utils.sleep(100)
   // groups
   await utils.download(page, '[data-test="group-download"]', function (contents) {
