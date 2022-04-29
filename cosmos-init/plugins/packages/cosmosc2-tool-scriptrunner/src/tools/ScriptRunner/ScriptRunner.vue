@@ -277,6 +277,15 @@
       :answer-required="ask.answerRequired"
       @response="ask.callback"
     />
+    <file-dialog
+      v-if="file.show"
+      v-model="file.show"
+      :title="file.title"
+      :message="file.message"
+      :multiple="file.multiple"
+      :filter="file.filter"
+      @response="fileDialogCallback"
+    />
     <information-dialog
       v-if="information.show"
       v-model="information.show"
@@ -337,6 +346,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import ActionCable from 'actioncable'
 import Api from '@cosmosc2/tool-common/src/services/api'
 import * as ace from 'ace-builds'
@@ -352,6 +362,7 @@ import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDia
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 import AskDialog from '@/tools/ScriptRunner/Dialogs/AskDialog'
+import FileDialog from '@/tools/ScriptRunner/Dialogs/FileDialog'
 import InformationDialog from '@/tools/ScriptRunner/Dialogs/InformationDialog'
 import InputMetadataDialog from '@/tools/ScriptRunner/Dialogs/InputMetadataDialog'
 import PromptDialog from '@/tools/ScriptRunner/Dialogs/PromptDialog'
@@ -382,6 +393,7 @@ export default {
     MultipaneResizer,
     TopBar,
     AskDialog,
+    FileDialog,
     InformationDialog,
     InputMetadataDialog,
     PromptDialog,
@@ -454,6 +466,14 @@ export default {
         default: null,
         password: false,
         answerRequired: true,
+        callback: () => {},
+      },
+      file: {
+        show: false,
+        message: '',
+        directory: null,
+        filter: '*',
+        multiple: false,
         callback: () => {},
       },
       prompt: {
@@ -1237,7 +1257,7 @@ export default {
       this.prompt.title = 'Prompt'
       this.prompt.subtitle = ''
       this.prompt.details = ''
-      this.prompt.buttons = [] // Reset buttons so 'Yes', 'No' are used by default
+      this.prompt.buttons = []
       switch (data.method) {
         case 'ask':
         case 'ask_string':
@@ -1286,6 +1306,7 @@ export default {
             this.prompt.message += data.args[2] + ' '
           }
           this.prompt.message += 'Send?'
+          this.prompt.buttons = [{ text: 'Yes', value: 'Yes' }]
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
@@ -1342,7 +1363,6 @@ export default {
           break
         case 'input_metadata':
           this.inputMetadata.target = data.args[0]
-          this.inputMetadata.show = true
           this.inputMetadata.callback = (value) => {
             this.inputMetadata.show = false
             Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
@@ -1352,6 +1372,19 @@ export default {
               },
             })
           }
+          this.inputMetadata.show = true
+          break
+        case 'open_file_dialog':
+        case 'open_files_dialog':
+          this.file.title = data.args[0]
+          this.file.message = data.args[1]
+          if (data.kwargs && data.kwargs.filter) {
+            this.file.filter = data.kwargs.filter
+          }
+          if (data.method == 'open_files_dialog') {
+            this.file.multiple = true
+          }
+          this.file.show = true
           break
         default:
           /* console.log(
@@ -1359,6 +1392,37 @@ export default {
           ) */
           break
       }
+    },
+    async fileDialogCallback(files) {
+      this.file.show = false // Close the dialog
+      // Set fileNames to 'Cancel' in case they cancelled
+      // otherwise we will populate it with the file names they selected
+      let fileNames = 'Cancel'
+      if (files != 'Cancel') {
+        fileNames = []
+        await files.forEach(async (file) => {
+          fileNames.push(file.name)
+          // Reassign data to presignedRequest for readability
+          const { data: presignedRequest } = await Api.get(
+            `/cosmos-api/storage/upload/${encodeURIComponent(
+              `${localStorage.scope}/tmp/${file.name}`
+            )}?bucket=config`
+          )
+          // This pushes the file into S3 by using the fields in the presignedRequest
+          // See storage_controller.rb get_presigned_request()
+          const response = await axios({
+            ...presignedRequest,
+            data: file,
+          })
+        })
+      }
+      await Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
+        data: {
+          method: this.file.multiple ? 'open_files_dialog' : 'open_file_dialog',
+          answer: fileNames,
+          prompt_id: this.activePromptId,
+        },
+      })
     },
     setError(event) {
       this.alertType = 'error'

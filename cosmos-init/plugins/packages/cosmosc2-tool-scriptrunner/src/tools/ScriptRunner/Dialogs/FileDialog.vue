@@ -23,21 +23,26 @@
       <v-form v-model="valid" v-on:submit.prevent="submitHandler">
         <v-system-bar>
           <v-spacer />
-          <span> User Input Required </span>
+          <span> File Dialog </span>
           <v-spacer />
         </v-system-bar>
         <div class="pa-2">
           <v-card-text>
             <v-row>
-              <v-card-title v-text="question" />
+              <v-card-title v-text="title" />
+            </v-row>
+            <v-row v-if="message">
+              <span class="ma-3" v-text="message" />
             </v-row>
             <v-row class="my-1">
-              <v-text-field
+              <v-file-input
+                label="Choose File"
                 v-model="inputValue"
                 autofocus
-                data-test="ask-value-input"
-                :type="password ? 'password' : 'text'"
-                :rules="rules"
+                data-test="file-input"
+                :accept="filter"
+                small-chips
+                :multiple="multiple"
               />
             </v-row>
           </v-card-text>
@@ -48,7 +53,7 @@
             @click="cancelHandler"
             outlined
             class="mx-1"
-            data-test="ask-cancel"
+            data-test="file-cancel"
           >
             Cancel
           </v-btn>
@@ -57,7 +62,7 @@
             class="mx-1"
             color="primary"
             type="submit"
-            data-test="ask-ok"
+            data-test="file-ok"
             :disabled="!valid"
           >
             Ok
@@ -71,39 +76,27 @@
 <script>
 export default {
   props: {
-    question: {
+    title: {
       type: String,
       required: true,
     },
-    default: {
+    message: {
       type: String,
       default: null,
     },
-    password: {
+    filter: {
+      type: String,
+      default: '*',
+    },
+    multiple: {
       type: Boolean,
       default: false,
-    },
-    answerRequired: {
-      type: Boolean,
-      default: true,
     },
     value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
-      inputValue: '',
-      valid: false,
-      rules: [(v) => !!v || 'Required'],
-    }
-  },
-  created() {
-    if (this.default) {
-      this.valid = true
-      this.inputValue = this.default
-    }
-    if (this.answerRequired === false) {
-      this.valid = true
-      this.rules = [(v) => true]
+      inputValue: null,
     }
   },
   computed: {
@@ -118,6 +111,11 @@ export default {
   },
   methods: {
     submitHandler: function () {
+      // Ensure we send back an array of file names even in the single case
+      // to make it easier to deal with a consistent result
+      if (!Array.isArray(this.inputValue)) {
+        this.inputValue = [this.inputValue]
+      }
       this.$emit('response', this.inputValue)
     },
     cancelHandler: function () {

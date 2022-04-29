@@ -35,29 +35,29 @@ module Cosmos
   module Script
     private
     # Define all the user input methods used in scripting which we need to broadcast to the frontend
-    # TODO: ask(question, blank_or_default = false, password = false)
-    #   ask differs from ask_string in that it automatically converts the value to the correct type
-    # TODO: How do we handle file dialogs:
-    # save_file_dialog(directory, message = "Save File", filter = "*")
-    # open_file_dialog(directory, message = "Open File", filter = "*")
-    # open_files_dialog(directory, message = "Open File(s)", filter = "*")
-    # open_directory_dialog(directory, message = "Open Directory")
-
-    SCRIPT_METHODS = %i[ask ask_string prompt_for_hazardous prompt combo_box message_box vertical_message_box input_metadata]
+    # Note: This list matches the list in run_script.rb:112
+    SCRIPT_METHODS = %i[ask ask_string message_box vertical_message_box combo_box prompt prompt_for_hazardous
+       input_metadata open_file_dialog open_files_dialog]
     SCRIPT_METHODS.each do |method|
       define_method(method) do |*args, **kwargs|
         while true
           if RunningScript.instance
             RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
             prompt_id = SecureRandom.uuid
-            RunningScript.instance.perform_wait(prompt: {'method' => method, 'id' => prompt_id, 'args' => args, 'kwargs' => kwargs })
+            RunningScript.instance.perform_wait({ 'method' => method, 'id' => prompt_id, 'args' => args, 'kwargs' => kwargs })
             input = RunningScript.instance.user_input
             # All ask and prompt dialogs should include a 'Cancel' button
-            # If they cancel we loop right back around and re-display the prompt
+            # If they cancel we wait so they can potentially stop
             if input == 'Cancel'
               RunningScript.instance.perform_pause
             else
-              return input
+              if (method.to_s.include?('open_file'))
+                files = input.map { |file| _get_storage_file("tmp/#{file}", scope: RunningScript.instance.scope) }
+                files = files[0] if method.to_s == 'open_file_dialog' # Simply return the only file
+                return files
+              else
+                return input
+              end
             end
           else
             raise "Script input method called outside of running script"
@@ -114,11 +114,6 @@ module Cosmos
             raise LoadError
           end
         end
-      end
-
-      def prompt_for_script_abort
-        RunningScript.instance.perform_wait
-        return false # Not aborted - Retry
       end
 
       def start(procedure_name)
@@ -825,7 +820,7 @@ class RunningScript
     end
   end
 
-  def perform_wait(prompt: nil)
+  def perform_wait(prompt)
     mark_waiting()
     wait_for_go_or_stop(prompt: prompt)
   end

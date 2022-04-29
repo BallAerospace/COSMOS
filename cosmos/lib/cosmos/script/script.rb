@@ -129,58 +129,38 @@ module Cosmos
       message_box(string, *items, **options)
     end
 
-    def _file_dialog(message, directory, filter, select_files = true)
+    def _file_dialog(title, message, filter:)
       answer = ''
-      files = Dir["#{directory}/#{filter}"]
-      if select_files
-        files.select! { |f| !File.directory? f }
-      else
-        files.select! { |f| File.directory? f }
-      end
+      path = "./*"
+      path += filter if filter
+      files = Dir[path]
+      files.select! { |f| !File.directory? f }
       while answer.empty?
-        print message + "\n" + files.join("\n") + "\n<Type file name>:"
+        print "#{title}\n#{message}\n#{files.join("\n")}\n<Type file name>:"
         answer = gets
         answer.chomp!
       end
       return answer
     end
 
-    def save_file_dialog(directory, message = "Save File", filter = "*")
-      _file_dialog(message, directory, filter)
+    def open_file_dialog(title, message = "Open File", filter:)
+      _file_dialog(title, message, filter)
     end
 
-    def open_file_dialog(directory, message = "Open File", filter = "*")
-      _file_dialog(message, directory, filter)
-    end
-
-    def open_files_dialog(directory, message = "Open File(s)", filter = "*")
-      _file_dialog(message, directory, filter)
-    end
-
-    def open_directory_dialog(directory, message = "Open Directory")
-      _file_dialog(message, directory, "*", false)
+    def open_files_dialog(title, message = "Open File(s)", filter:)
+      _file_dialog(title, message, filter)
     end
 
     def prompt_for_hazardous(target_name, cmd_name, hazardous_description)
-      message = "Warning: Command #{target_name} #{cmd_name} is Hazardous. "
-      message << "\n#{hazardous_description}\n" if hazardous_description
-      message << "Send? (y,n): "
-      print message
-      answer = gets.chomp
-      if answer.downcase == 'y'
-        return true
-      else
-        return false
-      end
-    end
-
-    def prompt_for_script_abort
-      print "Stop running script? (y,n): "
-      answer = gets.chomp
-      if answer.downcase == 'y'
-        exit
-      else
-        return false # Not aborted - Retry
+      loop do
+        message = "Warning: Command #{target_name} #{cmd_name} is Hazardous. "
+        message << "\n#{hazardous_description}\n" if hazardous_description
+        message << "Send? (y): "
+        print message
+        answer = gets.chomp
+        if answer.downcase == 'y'
+          return true
+        end
       end
     end
 

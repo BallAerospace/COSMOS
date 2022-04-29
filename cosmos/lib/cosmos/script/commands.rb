@@ -112,13 +112,11 @@ module Cosmos
           target_name, cmd_name, cmd_params = $api_server.method_missing(cmd, *args)
           _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
         rescue HazardousError => e
-          ok_to_proceed = prompt_for_hazardous(e.target_name, e.cmd_name, e.hazardous_description)
-          if ok_to_proceed
-            target_name, cmd_name, cmd_params = $api_server.method_missing(cmd_no_hazardous, *args)
-            _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
-          else
-            retry unless prompt_for_script_abort()
-          end
+          # This opens a prompt at which point they can cancel and stop the script
+          # or say Yes and send the command. Thus we don't care about the return value.
+          prompt_for_hazardous(e.target_name, e.cmd_name, e.hazardous_description)
+          target_name, cmd_name, cmd_params = $api_server.method_missing(cmd_no_hazardous, *args)
+          _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
         end
       end
     end

@@ -51,7 +51,6 @@ test('saves and opens the configuration', async ({ page }) => {
   await page.locator('text=Save Configuration').click()
   await page.locator('[data-test=name-input-save-config-dialog]').fill(config)
   await page.locator('button:has-text("Ok")').click()
-  await expect(page.locator('.v-dialog')).not.toBeVisible()
 
   // Reload page
   await page.reload()
@@ -59,7 +58,6 @@ test('saves and opens the configuration', async ({ page }) => {
   await page.locator('text=Open Configuration').click()
   await page.locator(`td:has-text("${config}")`).click()
   await page.locator('button:has-text("Ok")').click()
-  await expect(page.locator('.v-dialog')).not.toBeVisible()
   await utils.sleep(2000) // Let the page re-render .. not sure how else to wait
 
   await page.locator('[data-test=limits-monitor-file]').click()
