@@ -1,6 +1,6 @@
 {
   "name": "@cosmosc2/tool-cmdtlmserver",
-  "version": "5.0.2-beta2",
+  "version": "5.0.3-beta0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -14,7 +14,7 @@
     "acorn": "npm:acorn-with-stage3"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "5.0.2-beta2",
+    "@cosmosc2/tool-common": "5.0.3-beta0",
     "axios": "0.22.0",
     "date-fns": "2.28.0",
     "portal-vue": "2.1.7",
