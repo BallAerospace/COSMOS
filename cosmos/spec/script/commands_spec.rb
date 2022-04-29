@@ -138,7 +138,7 @@ module Cosmos
 
           it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
             capture_io do |stdout|
-              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              allow(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd("INST COLLECT with TYPE SPECIAL")
               expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) # "
               if connect == 'connected'
@@ -146,7 +146,6 @@ module Cosmos
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
                 stdout.rewind
-                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
                 cmd("INST COLLECT with TYPE SPECIAL")
                 expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) # "
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
@@ -164,7 +163,7 @@ module Cosmos
 
           it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
             capture_io do |stdout|
-              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              allow(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
 
               expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) # "
@@ -173,7 +172,6 @@ module Cosmos
                 expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
                 stdout.rewind
-                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
                 cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
               else
@@ -239,7 +237,7 @@ module Cosmos
 
           it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
             capture_io do |stdout|
-              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              allow(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd_raw("INST COLLECT with TYPE 1")
 
               expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST COLLECT/) # "
@@ -248,7 +246,6 @@ module Cosmos
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
                 stdout.rewind
-                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
                 cmd_raw("INST COLLECT with TYPE 1")
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
               else
@@ -265,7 +262,7 @@ module Cosmos
 
           it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
             capture_io do |stdout|
-              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              allow(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd_raw_no_range_check("INST COLLECT with TYPE 1")
 
               expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST COLLECT/) # "
@@ -274,7 +271,6 @@ module Cosmos
                 expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
                 stdout.rewind
-                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
                 cmd_raw_no_range_check("INST COLLECT with TYPE 1")
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
               else

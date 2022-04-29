@@ -1257,6 +1257,7 @@ export default {
       this.prompt.title = 'Prompt'
       this.prompt.subtitle = ''
       this.prompt.details = ''
+      this.prompt.buttons = []
       switch (data.method) {
         case 'ask':
         case 'ask_string':
@@ -1362,7 +1363,6 @@ export default {
           break
         case 'input_metadata':
           this.inputMetadata.target = data.args[0]
-          this.inputMetadata.show = true
           this.inputMetadata.callback = (value) => {
             this.inputMetadata.show = false
             Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
@@ -1372,10 +1372,10 @@ export default {
               },
             })
           }
+          this.inputMetadata.show = true
           break
         case 'open_file_dialog':
         case 'open_files_dialog':
-          this.file.show = true
           this.file.title = data.args[0]
           this.file.message = data.args[1]
           if (data.kwargs && data.kwargs.filter) {
@@ -1384,6 +1384,7 @@ export default {
           if (data.method == 'open_files_dialog') {
             this.file.multiple = true
           }
+          this.file.show = true
           break
         default:
           /* console.log(
