@@ -47,11 +47,3 @@ yarn-error.log*
 
 # Ignore node modules
 node_modules
-
-# Cypress
-*/cypress/screenshots
-*/cypress/videos
-*/cypress/downloads
-
-# Playwright
-playwright/storageState.json

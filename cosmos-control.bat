@@ -138,7 +138,7 @@ GOTO :EOF
   @echo *    repository: hostname of the docker repository 1>&2
   @echo *  test: test COSMOS 1>&2
   @echo *    rspec: run tests against Ruby code 1>&2
-  @echo *    cypress: run end-to-end tests 1>&2
+  @echo *    playwright: run end-to-end tests 1>&2
   @echo *  util: various helper commands 1>&2
   @echo *    encode: encode a string to base64 1>&2
   @echo *    hash: hash a string using SHA-256 1>&2

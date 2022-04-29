@@ -29,7 +29,6 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('keeps a debug command history', async ({ page }) => {
-  // Note we have to escape the { in cypress with {{}
   await page.locator('textarea').fill(`
   x = 12345
   wait
