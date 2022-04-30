@@ -164,11 +164,10 @@
 
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
-          <div :id="`chart${id}`" @mousedown="mousedown"></div>
+          <div :id="`chart${id}`"></div>
           <div
             :id="`overview${id}`"
             v-show="!hideOverview"
-            @mousedown="mousedown"
           ></div>
         </div>
       </v-expand-transition>
@@ -624,16 +623,19 @@ export default {
           (u) => {
             let clientX
             let clientY
-            let canvas = u.root.querySelector('canvas')
+            let canvas = u.root.querySelector('.u-over')
             canvas.addEventListener('contextmenu', (e) => {
               e.preventDefault()
+              this.itemMenu = false
               this.editGraphMenuX = e.clientX
               this.editGraphMenuY = e.clientY
               this.editGraphMenu = true
             })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
+              console.log('legend context')
               e.preventDefault()
+              this.editGraphMenu = false
               this.itemMenuX = e.clientX
               this.itemMenuY = e.clientY
               // Grab the closest series and then figure out which index it is
@@ -782,9 +784,6 @@ export default {
     },
   },
   methods: {
-    mousedown: function ($event) {
-      this.$emit('mousedown', $event) // Bubble from the two graph divs
-    },
     clearErrors: function () {
       this.errors = []
     },
@@ -1131,6 +1130,13 @@ export default {
 }
 #chart >>> .u-inline {
   max-width: fit-content;
+}
+/* Prevent the axis from responding to pointer-events. This fixes a bug where we
+   vertically shrink the chart the overview chart is hidden but still present
+   and the overview bottom axis absorbs the click events meant for the main chart.
+   See https://github.com/leeoniya/uPlot/issues/689 */
+#chart >>> .u-axis {
+  pointer-events: none;
 }
 /* TODO: Get this to work with white theme, values would be 0 in white */
 #chart >>> .u-select {

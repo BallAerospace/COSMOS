@@ -120,7 +120,6 @@
               @min-max-graph="() => minMaxGraph(graph)"
               @resize="() => resize(graph)"
               @click="() => graphSelected(graph)"
-              @mousedown="mousedown"
               @started="graphStarted"
             />
           </div>
@@ -303,12 +302,6 @@ export default {
     }
   },
   methods: {
-    mousedown: function ($event) {
-      // Only respond to left button mousedown events
-      if ($event.button === 0 || $event.which === 1) {
-        this.state = 'pause'
-      }
-    },
     alertHandler: function (event) {
       this.alert = event.text
       this.alertType = event.type
