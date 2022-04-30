@@ -633,7 +633,6 @@ export default {
             })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
-              console.log('legend context')
               e.preventDefault()
               this.editGraphMenu = false
               this.itemMenuX = e.clientX
