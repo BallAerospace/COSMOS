@@ -3,9 +3,9 @@
 set -e
 
 usage() {
-  echo "Usage: $1 [rspec, cypress]" >&2
+  echo "Usage: $1 [rspec, playwright]" >&2
   echo "*  rspec: run tests against Ruby code" >&2
-  echo "*  cypress: run end-to-end tests" >&2
+  echo "*  playwright: run end-to-end tests" >&2
   exit 1
 }
 
@@ -21,12 +21,11 @@ case $1 in
     ;;
   hash )
     docker-compose -f compose.yaml up -d
-    cd cypress
-    yarn
+    cd playwright
     yarn run fixlinux
-    yarn run cypress run
+    yarn playwright test
+    yarn coverage
     cd -
-    docker-compose -f compose.yaml down -v
     ;;
   * )
     usage $0
