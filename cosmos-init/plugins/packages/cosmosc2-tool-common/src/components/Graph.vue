@@ -639,10 +639,10 @@ export default {
             // Tell TlmGrapher that you might need to resize since on mouseenter
             // we start showing value popups and the graph can expand
             canvas.addEventListener('mouseenter', (e) => {
-              this.$emit('resize', this.id)
+              this.$emit('resize')
             })
             canvas.addEventListener('mouseleave', (e) => {
-              this.$emit('resize', this.id)
+              this.$emit('resize')
             })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
