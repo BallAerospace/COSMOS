@@ -56,7 +56,11 @@
         </v-row>
       </div>
 
-      <v-row justify="space-between" v-show="this.selectedGraphId !== null">
+      <v-row
+        class="px-1"
+        justify="space-between"
+        v-show="this.selectedGraphId !== null"
+      >
         <v-col cols="11">
           <target-packet-item-chooser
             :initial-target-name="this.$route.params.target"
@@ -118,9 +122,8 @@
               :points-graphed="settings.pointsGraphed.value"
               @close-graph="() => closeGraph(graph)"
               @min-max-graph="() => minMaxGraph(graph)"
-              @resize="() => resize(graph)"
+              @resize="() => resize()"
               @click="() => graphSelected(graph)"
-              @mousedown="mousedown"
               @started="graphStarted"
             />
           </div>
@@ -303,12 +306,6 @@ export default {
     }
   },
   methods: {
-    mousedown: function ($event) {
-      // Only respond to left button mousedown events
-      if ($event.button === 0 || $event.which === 1) {
-        this.state = 'pause'
-      }
-    },
     alertHandler: function (event) {
       this.alert = event.text
       this.alertType = event.type
@@ -366,8 +363,7 @@ export default {
         MURRI_REFRESH_TIME * 2 // Double the time since there is more animation
       )
     },
-    resize: function (id) {
-      this.selectedGraphId = id
+    resize: function () {
       setTimeout(
         () => {
           this.grid.refreshItems().layout()

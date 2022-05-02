@@ -100,13 +100,13 @@ test('shrinks and expands a graph width', async ({ page }) => {
   await chart.waitForElementState('stable')
   const origBox = await chart.boundingBox()
 
-  await page.locator('[data-test=expand-width]').click()
-  await chart.waitForElementState('stable')
-  const expandWidthBox = await chart.boundingBox()
-  // Check that we're now double with only 1 digit of precision
-  expect(expandWidthBox.width / origBox.width).toBeCloseTo(2, 1)
-  expect(expandWidthBox.height).toBe(origBox.height)
   await page.locator('[data-test=collapse-width]').click()
+  await chart.waitForElementState('stable')
+  const halfWidthBox = await chart.boundingBox()
+  // Check that we're now half with only 1 digit of precision
+  expect(origBox.width / halfWidthBox.width).toBeCloseTo(2, 1)
+  expect(halfWidthBox.height).toBe(origBox.height)
+  await page.locator('[data-test=expand-width]').click()
   await chart.waitForElementState('stable')
   const collapseWidthBox = await chart.boundingBox()
   expect(collapseWidthBox.width).toBe(origBox.width)
