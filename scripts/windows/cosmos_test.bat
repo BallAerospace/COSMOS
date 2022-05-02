@@ -6,8 +6,8 @@ if ("%1"=="") (
 if "%1" == "rspec" (
   GOTO rspec
 )
-if "%1" == "cypress" (
-  GOTO cypress
+if "%1" == "playwright" (
+  GOTO playwright
 )
 
 GOTO usage
@@ -18,20 +18,18 @@ GOTO usage
   CD ..
 GOTO :EOF
 
-:cypress
+:playwright
   REM Starting COSMOS
   docker-compose -f compose.yaml up -d
-  CD cypress
-  CALL yarn
+  CD playwright
   CALL yarn run fixwindows
-  CALL yarn run cypress run
+  CALL yarn playwright test
+  CALL yarn coverage
   CD ..
-  REM Stopping COSMOS
-  docker-compose -f compose.yaml down -v
 GOTO :EOF
 
 :usage
-  @echo Usage: %1 [rspec, cypress] 1>&2
+  @echo Usage: %1 [rspec, playwright] 1>&2
   @echo *  rspec: run tests against Ruby code 1>&2
-  @echo *  cypress: run end-to-end tests 1>&2
+  @echo *  playwright: run end-to-end tests 1>&2
 @echo on

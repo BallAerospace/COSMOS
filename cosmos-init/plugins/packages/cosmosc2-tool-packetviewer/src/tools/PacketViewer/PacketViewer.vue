@@ -214,7 +214,6 @@ export default {
       })
     }
   },
-  // TODO: This doesn't seem to be called / covered when running cypress tests?
   beforeDestroy() {
     if (this.updater != null) {
       clearInterval(this.updater)

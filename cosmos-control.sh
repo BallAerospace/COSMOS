@@ -17,7 +17,7 @@ usage() {
   echo "*    repository: hostname of the docker repository" >&2
   echo "*  test: test COSMOS" >&2
   echo "*    rspec: run tests against Ruby code" >&2
-  echo "*    cypress: run end-to-end tests" >&2
+  echo "*    playwright: run end-to-end tests" >&2
   echo "*  util: various helper commands" >&2
   echo "*    encode: encode a string to base64" >&2
   echo "*    hash: hash a string using SHA-256" >&2
