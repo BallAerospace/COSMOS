@@ -328,11 +328,10 @@
           hide-details
           label="Value Type"
           :items="valueTypes"
-          v-model="selectedItem.valueType"
-          @change="changeType($event)"
+          v-model="currentType"
         />
         <v-card-actions>
-          <v-btn color="primary" @click="editItem = false">Ok</v-btn>
+          <v-btn color="primary" @click="closeEditItem()">Ok</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -347,7 +346,7 @@
       offset-y
     >
       <v-list>
-        <v-list-item @click="editItem = true">
+        <v-list-item @click="openEditItem()">
           <v-list-item-title style="cursor: pointer">
             Edit {{ selectedItem.itemName }}
           </v-list-item-title>
@@ -435,7 +434,7 @@ export default {
       valueTypes: ['CONVERTED', 'RAW'],
       active: true,
       expand: true,
-      fullWidth: false,
+      fullWidth: true,
       fullHeight: true,
       graph: null,
       editGraph: false,
@@ -447,6 +446,7 @@ export default {
       itemMenuX: 0,
       itemMenuY: 0,
       selectedItem: null,
+      currentType: null,
       title: '',
       overview: null,
       data: [[]],
@@ -566,8 +566,13 @@ export default {
           ...commonProps,
           item: item,
           label: item.itemName,
-          value: (self, rawValue) =>
-            rawValue == null ? '--' : rawValue.toFixed(2),
+          value: (self, rawValue) => {
+            if (typeof rawValue === 'string' || isNaN(rawValue)) {
+              return 'NaN'
+            } else {
+              return rawValue == null ? '--' : rawValue.toFixed(2)
+            }
+          }
         })
         seriesObj.overviewSeries.push({
           ...commonProps,
@@ -630,6 +635,14 @@ export default {
               this.editGraphMenuX = e.clientX
               this.editGraphMenuY = e.clientY
               this.editGraphMenu = true
+            })
+            // Tell TlmGrapher that you might need to resize since on mouseenter
+            // we start showing value popups and the graph can expand
+            canvas.addEventListener('mouseenter', (e) => {
+              this.$emit('resize', this.id)
+            })
+            canvas.addEventListener('mouseleave', (e) => {
+              this.$emit('resize', this.id)
             })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
@@ -912,9 +925,8 @@ export default {
       const chooser = document.getElementsByClassName('c-chooser')[0]
       let height = 100
       if (type === 'overview') {
-        if (!this.fullHeight) {
-          height = 0
-        }
+        // Hide overview if we're NOT full height
+        this.hideOverview = !this.fullHeight
       } else if (chooser) {
         // Height of chart is viewportSize - chooser - overview - fudge factor (primarily padding)
         height = viewHeight - chooser.clientHeight - height - 190
@@ -978,9 +990,21 @@ export default {
         ],
       }
     },
-    changeType: function (event) {
+    openEditItem: function () {
+      this.currentType = this.selectedItem.valueType
+      this.editItem = true
+    },
+    closeEditItem: function () {
+      this.editItem = false
+      // Only change if the type was changed
+      if (this.selectedItem.valueType !== this.currentType) {
+        this.changeType()
+      }
+    },
+    changeType: function () {
       this.removeItems([this.selectedItem])
-      this.addItems([this.selectedItem], event)
+      this.selectedItem.valueType = this.currentType
+      this.addItems([this.selectedItem])
     },
     addItems: function (itemArray, type = 'CONVERTED') {
       for (const item of itemArray) {
@@ -994,8 +1018,13 @@ export default {
             item: item,
             label: item.itemName,
             stroke: color,
-            value: (self, rawValue) =>
-              rawValue == null ? '--' : rawValue.toFixed(2),
+            value: (self, rawValue) => {
+              if (typeof rawValue === 'string' || isNaN(rawValue)) {
+                return 'NaN'
+              } else {
+                return rawValue === null ? '--' : rawValue.toFixed(2)
+              }
+            }
           },
           index
         )
@@ -1105,10 +1134,27 @@ export default {
         let key_index = this.indexes[key]
         if (key_index) {
           let array = this.data[key_index]
-          if (!value.raw) {
-            array[index] = value
-          } else {
+          // NaN and Infinite values are sent as objects with raw attribute set
+          // to 'NaN', '-Infinity', or 'Infinity', just set data to null
+          if (value.raw) {
             array[index] = null
+          } else if (typeof value === 'string') {
+            // Can't graph strings so just set to null
+            array[index] = null
+            // If it's not already RAW, change the type to RAW
+            // NOTE: Some items are RAW strings so they won't ever work
+            if (!key.includes('__RAW')) {
+              for (let item of this.items) {
+                if (this.subscriptionKey(item) === key) {
+                  this.selectedItem = item
+                  break
+                }
+              }
+              this.currentType = 'RAW'
+              this.changeType()
+            }
+          } else {
+            array[index] = value
           }
         }
       }
@@ -1130,15 +1176,15 @@ export default {
 #chart >>> .u-inline {
   max-width: fit-content;
 }
-/* Prevent the axis from responding to pointer-events. This fixes a bug where we
-   vertically shrink the chart the overview chart is hidden but still present
-   and the overview bottom axis absorbs the click events meant for the main chart.
-   See https://github.com/leeoniya/uPlot/issues/689 */
-#chart >>> .u-axis {
-  pointer-events: none;
-}
 /* TODO: Get this to work with white theme, values would be 0 in white */
 #chart >>> .u-select {
   background-color: rgba(255, 255, 255, 0.07);
 }
+/* This prevents the axis from responding to pointer-events.
+   Necessary if we set overview height to 0 which makes it hidden but still present.
+   However, we simply don't display the overview with v-show.
+   See https://github.com/leeoniya/uPlot/issues/689
+#chart >>> .u-axis {
+  pointer-events: none;
+} */
 </style>
