@@ -41,7 +41,7 @@ module Cosmos
                        'get_telemetry',
                        'get_item',
                        'subscribe_packets',
-                       'get_packet',
+                       'get_packets',
                        'get_all_tlm_info',
                        'get_tlm_cnt',
                        'get_packet_derived_items',
@@ -271,41 +271,53 @@ module Cosmos
       TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
     end
 
+    # 2x double underscore since __ is reserved
+    SUBSCRIPTION_DELIMITER = '____'
+
     # Subscribe to a list of packets. An ID is returned which is passed to
-    # get_packet(id) to yield packets back to a block.
+    # get_packets(id) to return packets.
     #
     # @param packets [Array<Array<String, String>>] Array of arrays consisting of target name, packet name
-    # @return [String] ID which should be passed to get_packet
+    # @return [String] ID which should be passed to get_packets
     def subscribe_packets(packets, scope: $cosmos_scope, token: $cosmos_token)
       if !packets.is_a?(Array) || !packets[0].is_a?(Array)
         raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
       end
 
-      result = [Time.now.to_nsec_from_epoch]
+      result = {}
       packets.each do |target_name, packet_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-        result << "#{scope}__DECOM__{#{target_name}}__#{packet_name}"
+        topic = "#{scope}__DECOM__{#{target_name}}__#{packet_name}"
+        id, _ = Store.read_topic_last(topic)
+        result[topic] = id ? id : '0-0'
       end
-      result.join("\n")
+      result.to_a.join(SUBSCRIPTION_DELIMITER)
     end
     # Alias the singular as well since that matches COSMOS 4
     alias subscribe_packet subscribe_packets
 
-    # Get a packet which was previously subscribed to by subscribe_packet.
-    # This method takes a block and yields back packet hashes.
-    def get_packet(id, scope: $cosmos_scope, token: $cosmos_token)
+    # Get packets based on ID returned from subscribe_packet.
+    # @param id [String] ID returned from subscribe_packets or last call to get_packets
+    # @param block [Integer] Number of milliseconds to block when requesting packets
+    # @param count [Integer] Maximum number of packets to return from EACH packet stream
+    # @return [Array<String, Array<Hash>] Array of the ID and array of all packets found
+    def get_packets(id, block: nil, count: 1000, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      offset, *topics = id.split("\n")
-      offsets = []
-      # Create a common array of offsets for each of the topics
-      topics.length.times do
-        offsets << (offset.to_i / 1_000_000).to_s + '-0'
+      # Split the list of topic, ID values and turn it into a hash for easy updates
+      lookup = Hash[*id.split(SUBSCRIPTION_DELIMITER)]
+      xread = Store.xread(lookup.keys, lookup.values, block: block, count: count)
+      # Return the original ID and nil if we didn't get anything
+      return [id, nil] if xread.empty?
+      packets = []
+      xread.each do |topic, data|
+        data.each do |id, msg_hash|
+          lookup[topic] = id # Store the new ID
+          json_hash = JSON.parse(msg_hash['json_data'])
+          msg_hash.delete('json_data')
+          packets << msg_hash.merge(json_hash)
+        end
       end
-      Topic.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
-        json_hash = JSON.parse(msg_hash['json_data'])
-        msg_hash.delete('json_data')
-        yield msg_hash.merge(json_hash)
-      end
+      return [lookup.to_a.join(SUBSCRIPTION_DELIMITER), packets]
     end
 
     # Get the receive count for a telemetry packet
@@ -336,7 +348,7 @@ module Cosmos
         key = "#{scope}__TELEMETRY__{#{x}}__#{x}"
         result << [x, x, _get_cnt(key)]
       end
-      # Return the results sorted by target, packet
+      # Return the result sorted by target, packet
       result.sort_by { |a| [a[0], a[1]] }
     end
 
