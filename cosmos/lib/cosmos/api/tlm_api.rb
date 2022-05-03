@@ -304,7 +304,7 @@ module Cosmos
       Topic.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
         json_hash = JSON.parse(msg_hash['json_data'])
         msg_hash.delete('json_data')
-        yield msg_hash.merge(json_hash)
+        return msg_hash.merge(json_hash)
       end
     end
 
