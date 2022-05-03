@@ -639,7 +639,7 @@ module Cosmos
       end
     end
 
-    describe "subscribe_packets, get_packet" do
+    describe "subscribe_packets, get_packets" do
       it "streams packets since the subscription was created" do
         # Write an initial packet that should not be returned
         packet = System.telemetry.packet("INST", "HEALTH_STATUS")
@@ -665,22 +665,21 @@ module Cosmos
         packet.received_time = Time.now.sys
         TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
 
-        index = 0
-        @api.get_packet(id) do |hash|
-          expect(hash['target_name']).to eql "INST"
+        id, packets = @api.get_packets(id)
+        packets.each_with_index do |packet, index|
+          expect(packet['target_name']).to eql "INST"
           case index
           when 0
-            expect(hash['packet_name']).to eql "HEALTH_STATUS"
-            expect(hash['DURATION']).to eql 2.0
+            expect(packet['packet_name']).to eql "HEALTH_STATUS"
+            expect(packet['DURATION']).to eql 2.0
           when 1
-            expect(hash['packet_name']).to eql "HEALTH_STATUS"
-            expect(hash['DURATION']).to eql 3.0
+            expect(packet['packet_name']).to eql "HEALTH_STATUS"
+            expect(packet['DURATION']).to eql 3.0
           when 2
-            expect(hash['packet_name']).to eql "ADCS"
+            expect(packet['packet_name']).to eql "ADCS"
           else
             raise "Found too many packets"
           end
-          index += 1
         end
       end
     end
