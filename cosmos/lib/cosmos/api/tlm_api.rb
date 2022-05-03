@@ -301,11 +301,13 @@ module Cosmos
       topics.length.times do
         offsets << (offset.to_i / 1_000_000).to_s + '-0'
       end
+      all_msgs = {}
       Topic.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
         json_hash = JSON.parse(msg_hash['json_data'])
         msg_hash.delete('json_data')
-        yield msg_hash.merge(json_hash)
+        all_msgs[msg_id] = msg_hash.merge(json_hash)
       end
+      return all_msgs
     end
 
     # Get the receive count for a telemetry packet
