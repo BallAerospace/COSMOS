@@ -72,7 +72,7 @@ module Cosmos
     def verify_parameters
       @usage = "#{@parser.keyword} <TARGET NAME> <PACKET NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DESCRIPTION (Optional)>"
       @parser.verify_num_parameters(3, 4, @usage)
-      @parser.verify_parameters_underscores(2) # Packet name is the 2nd parameter
+      @parser.verify_parameter_naming(2) # Packet name is the 2nd parameter
     end
 
     def create_command(target_name, commands, warnings)

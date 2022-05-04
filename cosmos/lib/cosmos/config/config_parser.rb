@@ -238,27 +238,24 @@ module Cosmos
       end
     end
 
-    # Verifies the indicated parameter(s) in the config don't start or end
-    # with an underscore and don't contain a double underscore. Raises an
-    # Error if they do.
+    # Verifies the indicated parameter in the config doesn't start or end
+    # with an underscore, doesn't contain a double underscore, doesn't contain
+    # spaces and doesn't start with a close bracket.
     #
-    # @param [Integer|Range<Integer>|Array<Integer>] indeces_to_check The
-    #   indeces of the parameters that must follow underscore rules
-    def verify_parameters_underscores(indeces_to_check, usage = "")
-      indeces_to_check = (1..@parameters.length) if indeces_to_check.nil?
-      indeces_to_check = [indeces_to_check] unless indeces_to_check.respond_to? 'each'
-
-      indeces_to_check.each do |index|
-        param = @parameters[index - 1]
-        if param.end_with? '_'
-          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot end with an underscore ('_').", usage, @url)
-        end
-        if param.include? '__'
-          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot contain a double underscore ('__').", usage, @url)
-        end
-        if param.include? ' '
-          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot contain a space (' ').", usage, @url)
-        end
+    # @param [Integer] index The index of the parameter to check
+    def verify_parameter_naming(index, usage = "")
+      param = @parameters[index - 1]
+      if param.end_with? '_'
+        raise Error.new(self, "Parameter #{index} (#{param}) for #{@keyword} cannot end with an underscore ('_').", usage, @url)
+      end
+      if param.include? '__'
+        raise Error.new(self, "Parameter #{index} (#{param}) for #{@keyword} cannot contain a double underscore ('__').", usage, @url)
+      end
+      if param.include? ' '
+        raise Error.new(self, "Parameter #{index} (#{param}) for #{@keyword} cannot contain a space (' ').", usage, @url)
+      end
+      if param.start_with?('}')
+        raise Error.new(self, "Parameter #{index} (#{param}) for #{@keyword} cannot start with a close bracket ('}').", usage, @url)
       end
     end
 
