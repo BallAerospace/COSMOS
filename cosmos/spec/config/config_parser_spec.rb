@@ -279,6 +279,23 @@ module Cosmos
       end
     end
 
+    describe "verify_parameter_naming" do
+      it "verifies parameters do not have bad characters" do
+        tf = Tempfile.new('unittest')
+        line = "KEYWORD BAD1_ BAD__2 'BAD 3' }BAD_4"
+        tf.puts line
+        tf.close
+
+        @cp.parse_file(tf.path) do |keyword, params|
+          expect { @cp.verify_parameter_naming(1) }.to raise_error(ConfigParser::Error, /cannot end with an underscore/)
+          expect { @cp.verify_parameter_naming(2) }.to raise_error(ConfigParser::Error, /cannot contain a double underscore/)
+          expect { @cp.verify_parameter_naming(3) }.to raise_error(ConfigParser::Error, /cannot contain a space/)
+          expect { @cp.verify_parameter_naming(4) }.to raise_error(ConfigParser::Error, /cannot start with a close bracket/)
+        end
+        tf.unlink
+      end
+    end
+
     describe "error" do
       it "returns an Error" do
         tf = Tempfile.new('unittest')
