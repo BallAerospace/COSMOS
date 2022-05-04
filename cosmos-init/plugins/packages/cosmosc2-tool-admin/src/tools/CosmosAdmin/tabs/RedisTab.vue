@@ -24,6 +24,10 @@
       <v-card-subtitle>
         THIS IS DANGEROUS. This allows you to interact directly with the
         underlying Redis database, making it easy to modify or delete data.
+        <br /><br />
+        Enter commands like you would at the Redis cli prompt:
+        <code>ping</code> or
+        <code>hget cosmos__settings version</code>
       </v-card-subtitle>
       <v-card-text class="pb-0 ml-2">
         <v-text-field

@@ -324,16 +324,6 @@ module Cosmos
         return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)
       end
     end
-
-    # Execute any Redis command. Args must be an array (e.g. ["KEYS", "*"])
-    def self.execute_raw(args)
-      self.instance.execute_raw(args)
-    end
-
-    # Execute any Redis command. Args must be an array (e.g. ["KEYS", "*"])
-    def execute_raw(args)
-      synchronize { |client| client.call(args) }
-    end
   end
 end
 

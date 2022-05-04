@@ -39,7 +39,7 @@ class RedisController < ApplicationController
       render(:json => { :status => 'error', :message => "The #{command} command is not allowed." }, :status => 422) and return
     end
 
-    result = Cosmos::Store.execute_raw(args)
+    result = Cosmos::Store.method_missing(command, args[1..-1])
     Cosmos::Logger.info("Redis command executed: #{args} - with result #{result}", user: user_info(request.headers['HTTP_AUTHORIZATION']))
     render :json => { :result => result }, :status => 201
   end
