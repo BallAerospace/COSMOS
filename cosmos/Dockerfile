@@ -3,6 +3,8 @@ ARG COSMOS_TAG=latest
 
 FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_TAG}
 
+ENV RUBYLIB=/cosmos/lib
+ENV COSMOS_PATH="/cosmos"
 WORKDIR /cosmos/
 
 USER ${USER_ID}:${GROUP_ID}
@@ -16,6 +18,7 @@ RUN mkdir -p lib/cosmos/ext \
   && apk add build-base ruby-dev libressl-dev \
   && bundle config set --local without 'development' \
   && bundle install --quiet \
+  && rake build \
   && rake gems \
   && gem install --local ./cosmosc2-*.gem \
   && mkdir -p gems \

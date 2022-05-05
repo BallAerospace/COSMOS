@@ -69,7 +69,8 @@ class ApiController < ApplicationController
       request_headers = Hash[*request.env.select {|k,v| k.start_with? 'HTTP_'}.sort.flatten]
       request_data = req.body.read
       status, content_type, body = handle_post(request_data, request_headers)
-      Cosmos::Logger.info("User performed API action: #{request_data} #{request_headers}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      Cosmos::Logger.info("API data: #{request_data}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      Cosmos::Logger.debug("API headers: #{request_headers}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     else
       status       = 405
       content_type = "text/plain"
@@ -88,7 +89,6 @@ class ApiController < ApplicationController
   # @return [Integer, String, String] - Http response code, content type,
   #   response body.
   def handle_post(request_data, request_headers)
-    STDOUT.puts "API request data:\n #{request_data.inspect}"
     response_data, error_code = Cosmos::Cts.instance.json_drb.process_request(
       request_data: request_data,
       request_headers: request_headers,
@@ -109,8 +109,10 @@ class ApiController < ApplicationController
       end
       parsed = JSON.parse(response_data)
       if parsed["error"]
-        Rails.logger.error "\n#{parsed['error']['data']['class']} : #{parsed['error']['data']['message']}\n"
-        Rails.logger.error parsed['error']['data']['backtrace'].join("\n")
+        Cosmos::Logger.error("\n#{parsed['error']['data']['class']} : #{parsed['error']['data']['message']}\n")
+        # Filter out all the framework stack trace (rails, rack, puma etc)
+        i = parsed['error']['data']['backtrace'].find_index { |row| row.include?('actionpack') || row.include?('activesupport') }
+        Cosmos::Logger.error(parsed['error']['data']['backtrace'][0...i].join("\n"))
       end
     else
       status = 200 # OK
