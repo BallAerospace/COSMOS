@@ -25,6 +25,9 @@ const config: PlaywrightTestConfig = {
      */
     timeout: 10000,
   },
+  /* Maximum time for the entire test run. Since we run the entire suite
+     on each browser separately this should be enough. */
+  globalTimeout: 60 * 60 * 1000,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */

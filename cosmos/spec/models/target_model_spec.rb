@@ -113,6 +113,7 @@ module Cosmos
         pkts.each do |pkt|
           expect(pkt).to be_a Hash
           expect(pkt['target_name']).to eql "INST"
+          expect(pkt['items']).to be_a Array
           names << pkt['packet_name']
         end
         expect(names).to include("ABORT", "COLLECT", "CLEAR") # Spot check
@@ -123,6 +124,29 @@ module Cosmos
         # Verify result is Array of packet Hashes
         expect(pkts).to be_a Array
         expect(pkts).to be_empty
+      end
+    end
+
+    describe "self.all_packet_name_descriptions" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "returns only the packet_name and description" do
+        pkts = TargetModel.all_packet_name_descriptions("INST", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        names = []
+        pkts.each do |pkt|
+          expect(pkt).to be_a Hash
+          expect(pkt.keys).to eql(%w(packet_name description))
+        end
       end
     end
 
