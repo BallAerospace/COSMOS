@@ -233,7 +233,7 @@ export default {
         return
       }
       this.internalDisabled = true
-      const cmd = this.mode === 'tlm' ? 'get_all_telemetry' : 'get_all_commands'
+      const cmd = this.mode === 'tlm' ? 'get_all_telemetry_list' : 'get_all_commands_list'
       this.api[cmd](this.selectedTargetName).then((packets) => {
         this.packetNames = packets.map((packet) => {
           return {

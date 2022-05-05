@@ -38,6 +38,7 @@ module Cosmos
                        'get_tlm_packet',
                        'get_tlm_values',
                        'get_all_telemetry',
+                       'get_all_telemetry_list',
                        'get_telemetry',
                        'get_item',
                        'subscribe_packets',
@@ -246,6 +247,16 @@ module Cosmos
     def get_all_telemetry(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
       TargetModel.packets(target_name, scope: scope)
+    end
+
+    # Returns an array of all telemetry packet's name and descriptions
+    #
+    # @since 5.0.3
+    # @param target_name [String] Name of the target
+    # @return [Array<Hash>] Array of all telemetry packet name and descriptions
+    def get_all_telemetry_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
+      TargetModel.all_packet_name_descriptions(target_name, scope: scope)
     end
 
     # Returns a telemetry packet hash

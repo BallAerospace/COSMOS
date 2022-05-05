@@ -234,6 +234,10 @@ export class CosmosApi {
     return this.exec('get_all_telemetry', [target_name])
   }
 
+  get_all_telemetry_list(target_name) {
+    return this.exec('get_all_telemetry_list', [target_name])
+  }
+
   // Called by PacketViewerComponent
   async get_tlm_packet(target_name, packet_name, value_type) {
     const data = await this.exec('get_tlm_packet', [target_name, packet_name], {
@@ -294,6 +298,10 @@ export class CosmosApi {
 
   get_all_commands(target_name) {
     return this.exec('get_all_commands', [target_name])
+  }
+
+  get_all_commands_list(target_name) {
+    return this.exec('get_all_commands_list', [target_name])
   }
 
   get_command(target_name, command_name) {

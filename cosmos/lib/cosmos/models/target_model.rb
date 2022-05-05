@@ -97,6 +97,19 @@ module Cosmos
       result
     end
 
+    # @return [Array>Hash>] All packet hashes under the target_name
+    def self.all_packet_name_descriptions(target_name, type: :TLM, scope:)
+      raise "Unknown type #{type} for #{target_name}" unless VALID_TYPES.include?(type)
+      raise "Target '#{target_name}' does not exist" unless get(name: target_name, scope: scope)
+
+      result = []
+      packets = Store.hgetall("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
+      packets.sort.each do |packet_name, packet_json|
+        result << JSON.parse(packet_json).slice("packet_name", "description")
+      end
+      result
+    end
+
     def self.set_packet(target_name, packet_name, packet, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
 
