@@ -1,6 +1,6 @@
 @echo off
 
-if ("%1"=="") (
+if ("%1" == "") (
   GOTO usage
 )
 if "%1" == "rspec" (
