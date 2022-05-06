@@ -23,25 +23,25 @@ saveTar() {
   docker pull minio/minio
   docker save minio/minio -o tmp/minio_minio.tar
   docker pull ballaerospace/cosmosc2-minio-init:$tag
-  docker save ballaerospace/cosmosc2-minio-init -o tmp/cosmosc2-minio-init-$tag.tar
+  docker save ballaerospace/cosmosc2-minio-init:$tag -o tmp/cosmosc2-minio-init-$tag.tar
   docker pull ballaerospace/cosmosc2-redis:$tag
-  docker save ballaerospace/cosmosc2-redis -o tmp/cosmosc2-redis-$tag.tar
+  docker save ballaerospace/cosmosc2-redis:$tag -o tmp/cosmosc2-redis-$tag.tar
   docker pull ballaerospace/cosmosc2-traefik:$tag
-  docker save ballaerospace/cosmosc2-traefik -o tmp/cosmosc2-traefik-$tag.tar
+  docker save ballaerospace/cosmosc2-traefik:$tag -o tmp/cosmosc2-traefik-$tag.tar
   docker pull ballaerospace/cosmosc2-ruby:$tag
-  docker save ballaerospace/cosmosc2-ruby -o tmp/cosmosc2-ruby-$tag.tar
+  docker save ballaerospace/cosmosc2-ruby:$tag -o tmp/cosmosc2-ruby-$tag.tar
   docker pull ballaerospace/cosmosc2-node:$tag
-  docker save ballaerospace/cosmosc2-node -o tmp/cosmosc2-node-$tag.tar
+  docker save ballaerospace/cosmosc2-node:$tag -o tmp/cosmosc2-node-$tag.tar
   docker pull ballaerospace/cosmosc2-base:$tag
-  docker save ballaerospace/cosmosc2-base -o tmp/cosmosc2-base-$tag.tar
+  docker save ballaerospace/cosmosc2-base:$tag -o tmp/cosmosc2-base-$tag.tar
   docker pull ballaerospace/cosmosc2-cmd-tlm-api:$tag
-  docker save ballaerospace/cosmosc2-cmd-tlm-api -o tmp/cosmosc2-cmd-tlm-api-$tag.tar
+  docker save ballaerospace/cosmosc2-cmd-tlm-api:$tag -o tmp/cosmosc2-cmd-tlm-api-$tag.tar
   docker pull ballaerospace/cosmosc2-script-runner-api:$tag
-  docker save ballaerospace/cosmosc2-script-runner-api -o tmp/cosmosc2-script-runner-api-$tag.tar
+  docker save ballaerospace/cosmosc2-script-runner-api:$tag -o tmp/cosmosc2-script-runner-api-$tag.tar
   docker pull ballaerospace/cosmosc2-operator:$tag
-  docker save ballaerospace/cosmosc2-operator -o tmp/cosmosc2-operator-$tag.tar
+  docker save ballaerospace/cosmosc2-operator:$tag -o tmp/cosmosc2-operator-$tag.tar
   docker pull ballaerospace/cosmosc2-init:$tag
-  docker save ballaerospace/cosmosc2-init -o tmp/cosmosc2-init-$tag.tar
+  docker save ballaerospace/cosmosc2-init:$tag -o tmp/cosmosc2-init-$tag.tar
 }
 
 loadTar() {
