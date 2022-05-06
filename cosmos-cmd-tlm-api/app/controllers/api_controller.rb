@@ -107,17 +107,10 @@ class ApiController < ApplicationController
       when Cosmos::JsonRpcError::ErrorCode::FORBIDDEN_ERROR  then status = 403
       else status = 500 # Internal server error
       end
-      parsed = JSON.parse(response_data)
-      if parsed["error"]
-        Cosmos::Logger.error("\n#{parsed['error']['data']['class']} : #{parsed['error']['data']['message']}\n")
-        # Filter out all the framework stack trace (rails, rack, puma etc)
-        i = parsed['error']['data']['backtrace'].find_index { |row| row.include?('actionpack') || row.include?('activesupport') }
-        Cosmos::Logger.error(parsed['error']['data']['backtrace'][0...i].join("\n"))
-      end
+      # Note we don't log an error here because it's logged in JsonDRb::process_request
     else
       status = 200 # OK
     end
-
     return status, "application/json-rpc", response_data
   end
 end
