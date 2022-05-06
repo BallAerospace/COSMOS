@@ -39,7 +39,7 @@ jobs:
           node-version: "16.x"
           registry-url: "https://registry.npmjs.org"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v1
