@@ -134,7 +134,9 @@ test('disables all suite buttons when running', async ({ page }) => {
   await saveAs(page, 'test_suite_buttons.rb')
 
   await page.locator('[data-test=start-script]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('waiting')
+  await expect(page.locator('[data-test=state]')).toHaveValue('waiting', {
+    timeout: 20000,
+  })
   // After script starts the Script Start/Go and all Suite buttons should be disabled
   await expect(page.locator('[data-test=start-suite]')).toBeDisabled()
   await expect(page.locator('[data-test=start-group]')).toBeDisabled()

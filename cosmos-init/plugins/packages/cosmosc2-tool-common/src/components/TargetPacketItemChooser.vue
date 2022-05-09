@@ -21,7 +21,7 @@
   <v-container class="c-chooser px-0">
     <v-row>
       <v-col :cols="colSize" data-test="select-target">
-        <v-select
+        <v-autocomplete
           label="Select Target"
           hide-details
           dense
@@ -33,7 +33,7 @@
         />
       </v-col>
       <v-col :cols="colSize" data-test="select-packet">
-        <v-select
+        <v-autocomplete
           label="Select Packet"
           hide-details
           dense
@@ -50,7 +50,7 @@
         :cols="colSize"
         data-test="select-item"
       >
-        <v-select
+        <v-autocomplete
           label="Select Item"
           hide-details
           dense
