@@ -63,12 +63,16 @@ test('selects a target and packet', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'ABORT')
   await page.locator('button:has-text("Send")').click()
   await expect(page.locator('main')).toContainText('cmd("INST ABORT") sent')
+  // Test the autocomplete by typing in a command
+  await page.locator('[data-test="select-packet"] input[type="text"]').fill('COL')
+  await page.locator('span:has-text("COL")').click()
+  await expect(page.locator('main')).toContainText('Starts a collect')
 })
 
 test('displays INST COLLECT using the route', async ({ page }) => {
   await page.goto('/tools/cmdsender/INST/COLLECT')
-  await expect(page.locator('main')).toContainText('INST')
-  await expect(page.locator('main')).toContainText('COLLECT')
+  expect(await page.inputValue('[data-test=select-target] input')).toMatch('INST')
+  expect(await page.inputValue('[data-test=select-packet] input')).toMatch('COLLECT')
   await expect(page.locator('main')).toContainText('Starts a collect')
   await expect(page.locator('main')).toContainText('Parameters')
   await expect(page.locator('main')).toContainText('DURATION')
