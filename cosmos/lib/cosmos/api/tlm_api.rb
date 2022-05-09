@@ -246,7 +246,7 @@ module Cosmos
     # @return [Array<Hash>] Array of all telemetry packet hashes
     def get_all_telemetry(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
-      TargetModel.packets(target_name, scope: scope)
+      TargetModel.packets(target_name, type: :TLM, scope: scope)
     end
 
     # Returns an array of all telemetry packet's name and descriptions
@@ -256,7 +256,7 @@ module Cosmos
     # @return [Array<Hash>] Array of all telemetry packet name and descriptions
     def get_all_telemetry_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
-      TargetModel.all_packet_name_descriptions(target_name, scope: scope)
+      TargetModel.all_packet_name_descriptions(target_name, type: :TLM, scope: scope)
     end
 
     # Returns a telemetry packet hash

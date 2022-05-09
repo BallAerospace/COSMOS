@@ -118,7 +118,6 @@ module Cosmos
       packet = packet(target_name, packet_name, type: type, scope: scope)
       item = packet['items'].find { |item| item['name'] == item_name.to_s }
       raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
-
       item
     end
 
