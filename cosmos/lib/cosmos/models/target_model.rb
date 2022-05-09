@@ -97,6 +97,11 @@ module Cosmos
       result
     end
 
+    # @return [Array>Hash>] All packet hashes under the target_name
+    def self.all_packet_name_descriptions(target_name, type: :TLM, scope:)
+      self.packets(target_name, type: type, scope: scope).map! { |hash| hash.slice("packet_name", "description") }
+    end
+
     def self.set_packet(target_name, packet_name, packet, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
 
@@ -113,7 +118,6 @@ module Cosmos
       packet = packet(target_name, packet_name, type: type, scope: scope)
       item = packet['items'].find { |item| item['name'] == item_name.to_s }
       raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
-
       item
     end
 

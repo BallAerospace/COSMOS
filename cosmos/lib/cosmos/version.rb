@@ -6,8 +6,9 @@ module Cosmos
     MAJOR = '5'
     MINOR = '0'
     PATCH = '3'
-    OTHER = 'beta0'
-    BUILD = '7e5eb5362829eb143e6a3d05cf4cbb18fd362fee'
+    OTHER = 'pre.beta0'
+    BUILD = '4ba6eaba71ee4f30488414b6e3de56f9791ee361'
   end
   VERSION = '5.0.3-beta0'
+  GEM_VERSION = '5.0.3.pre.beta0'
 end

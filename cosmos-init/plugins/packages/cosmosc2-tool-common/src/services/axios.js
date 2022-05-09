@@ -36,6 +36,12 @@ axiosInstance.interceptors.response.use(
       CosmosAuth.login(location.href)
     } else {
       let body = `HTTP ${error.response.status} - `
+      if (error.response?.statusText) {
+        body += `${error.response.statusText} `
+      }
+      if (error.response?.config?.data) {
+        body += `${error.response.config.data} `
+      }
       if (error.response?.data?.message) {
         body += `${error.response.data.message}`
       } else if (error.response?.data?.exception) {

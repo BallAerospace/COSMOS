@@ -269,7 +269,11 @@ module Cosmos
               response = JsonRpcSuccessResponse.new(result, request.id)
             end
           rescue Exception => error
-            Logger.error error.formatted
+            # Filter out the framework stack trace (rails, rack, puma etc)
+            lines = error.formatted.split("\n")
+            i = lines.find_index { |row| row.include?('actionpack') || row.include?('activesupport') }
+            Logger.error lines[0...i].join("\n")
+
             if request.id
               if NoMethodError === error
                 error_code = JsonRpcError::ErrorCode::METHOD_NOT_FOUND

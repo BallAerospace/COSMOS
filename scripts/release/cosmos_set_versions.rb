@@ -17,15 +17,16 @@ minor = split_version[1]
 if version =~ /[a-zA-z]+/
   # Prerelease version
   remainder = split_version[2..-1].join(".")
-  remainder.gsub!('.', '-')
-  remainder_split = remainder.split('-')
+  remainder.gsub!('-', '.pre.') # Rubygems replaces dashes with .pre.
+  remainder_split = remainder.split('.')
   patch = remainder_split[0]
-  other = remainder_split[1..-1].join('')
-  version = "#{major}.#{minor}.#{patch}-#{other}"
+  other = remainder_split[1..-1].join('.')
+  gem_version = "#{major}.#{minor}.#{patch}.#{other}"
 else
   # Production Release Version
   patch = split_version[2]
   other = split_version[3..-1].join('.')
+  gem_version = version
 end
 
 puts "Setting version to: #{version}"
@@ -44,6 +45,7 @@ File.open(path, 'wb') do |file|
   file.puts "    BUILD = '#{revision}'"
   file.puts "  end"
   file.puts "  VERSION = '#{version}'"
+  file.puts "  GEM_VERSION = '#{gem_version}'"
   file.puts "end"
 end
 puts "Updated: #{path}"
@@ -64,9 +66,9 @@ gemspec_files.each do |rel_path|
   mod_data = ''
   data.each_line do |line|
     if line =~ /s\.version =/
-      mod_data << "  s.version = '#{version}'\n"
+      mod_data << "  s.version = '#{gem_version}'\n"
     elsif line =~ /s\.add_runtime_dependency 'cosmos'/
-      mod_data << "  s.add_runtime_dependency 'cosmos', '#{version}'\n"
+      mod_data << "  s.add_runtime_dependency 'cosmos', '#{gem_version}'\n"
     else
       mod_data << line
     end
@@ -134,6 +136,31 @@ shell_scripts.each do |rel_path|
   data.each_line do |line|
     if line =~ /COSMOS_RELEASE_VERSION=/
       mod_data << "COSMOS_RELEASE_VERSION=#{version}\n"
+    else
+      mod_data << line
+    end
+  end
+  File.open(full_path, 'wb') do |file|
+    file.write(mod_data)
+  end
+  puts "Updated: #{full_path}"
+end
+
+gemfiles = [
+  'cosmos-cmd-tlm-api/Gemfile',
+  'cosmos-script-runner-api/Gemfile',
+]
+
+gemfiles.each do |rel_path|
+  full_path = File.join(base_path, rel_path)
+  data = nil
+  File.open(full_path, 'rb') do |file|
+    data = file.read
+  end
+  mod_data = ''
+  data.each_line do |line|
+    if line =~ /gem 'cosmos'/ and line !~ /:path/
+      mod_data << "  gem 'cosmos', '#{gem_version}'\n"
     else
       mod_data << line
     end
