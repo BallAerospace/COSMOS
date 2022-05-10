@@ -40,15 +40,14 @@ test('view started scripts', async ({ page }) => {
   `)
   // NOTE: We can't check that there are no running scripts because
   // the tests run in parallel and there actually could be running scripts
-  // await page.locator('[data-test=script-runner-script]').click()
-  // await page.locator('text="View Started Scripts"').click()
-  // await expect(page.locator('[data-test=running-scripts]')).toContainText('No data available')
-  // await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
+
   // Start the script
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('waiting', {
     timeout: 20000,
   })
+  // Traverse up to get the name of the running script
+  const filename = await page.locator('[data-test=filename]').locator('xpath=../div').textContent()
 
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text="View Started Scripts"').click()
@@ -58,13 +57,6 @@ test('view started scripts', async ({ page }) => {
   await expect(page.locator('[data-test=running-scripts]')).toContainText(
     format(new Date(), 'yyyy_MM_dd')
   )
-  const filename = await page
-    .locator('[data-test=running-scripts]')
-    .locator('tr')
-    .nth(1) // First row (after the header)
-    .locator('td')
-    .nth(2) // Third column is the file name
-    .textContent()
 
   // Get out of the Running Scripts sheet
   await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })

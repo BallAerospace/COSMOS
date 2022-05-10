@@ -5,9 +5,11 @@ export class Utilities {
   constructor(page: Page) {
     this.page = page
   }
+
   async sleep(time) {
     await new Promise((resolve) => setTimeout(resolve, time))
   }
+
   async selectTargetPacketItem(target: string, packet: string, item: string) {
     await this.page.locator('[data-test=select-target] i').click()
     await this.page.locator(`div[role="option"] div:text-matches("^${target}$")`).click()
@@ -29,6 +31,7 @@ export class Utilities {
       await this.sleep(500)
     }
   }
+
   async addTargetPacketItem(target: string, packet: string, item: string) {
     await this.selectTargetPacketItem(target, packet, item)
     await this.page.locator('[data-test="select-send"]').click()
@@ -49,5 +52,14 @@ export class Utilities {
     if (validator) {
       validator(contents)
     }
+  }
+
+  async inputValue(page, locator, regex) {
+    // Poll since inputValue is immediate
+    await expect
+      .poll(async () => {
+        return await page.inputValue(locator)
+      })
+      .toMatch(regex)
   }
 }
