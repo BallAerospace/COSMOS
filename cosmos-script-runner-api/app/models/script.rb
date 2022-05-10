@@ -169,8 +169,10 @@ class Script
     end
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
-    puts "Stdout Results: #{stdout_results}"
-    puts "Stderr Results: #{stderr_results}"
+    # Make sure we're getting the last line which should be the suite
+    puts "Stdout Results:#{stdout_results}:"
+    puts "Stderr Results:#{stderr_results}:"
+    stdout_results = stdout_results.split("\n")[-1] if stdout_results
     return stdout_results, stderr_results, success
   end
 

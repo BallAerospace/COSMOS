@@ -63,12 +63,16 @@ test('selects a target and packet', async ({ page }) => {
   await utils.selectTargetPacketItem('INST', 'ABORT')
   await page.locator('button:has-text("Send")').click()
   await expect(page.locator('main')).toContainText('cmd("INST ABORT") sent')
+  // Test the autocomplete by typing in a command
+  await page.locator('[data-test="select-packet"] input[type="text"]').fill('COL')
+  await page.locator('span:has-text("COL")').click()
+  await expect(page.locator('main')).toContainText('Starts a collect')
 })
 
 test('displays INST COLLECT using the route', async ({ page }) => {
   await page.goto('/tools/cmdsender/INST/COLLECT')
-  await expect(page.locator('main')).toContainText('INST')
-  await expect(page.locator('main')).toContainText('COLLECT')
+  await utils.inputValue(page, '[data-test=select-target] input', 'INST')
+  await utils.inputValue(page, '[data-test=select-packet] input', 'COLLECT')
   await expect(page.locator('main')).toContainText('Starts a collect')
   await expect(page.locator('main')).toContainText('Parameters')
   await expect(page.locator('main')).toContainText('DURATION')
@@ -299,7 +303,9 @@ test('disable parameter conversions', async ({ page }) => {
     .locator('textarea')
     .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
+    timeout: 20000,
+  })
   await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 02')
 
   await page.locator('text=Command Sender').click()
@@ -316,6 +322,8 @@ test('disable parameter conversions', async ({ page }) => {
     .locator('textarea')
     .fill('puts get_cmd_buffer("INST", "SETPARAMS")["buffer"].formatted')
   await page.locator('[data-test=start-button]').click()
-  await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
+    timeout: 20000,
+  })
   await expect(page.locator('[data-test=output-messages]')).toContainText('00000010: 00 01')
 })
