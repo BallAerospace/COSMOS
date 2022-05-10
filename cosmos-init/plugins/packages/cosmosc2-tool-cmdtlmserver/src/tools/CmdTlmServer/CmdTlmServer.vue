@@ -86,9 +86,6 @@ export default {
           name: 'Routers',
           url: '/routers',
         },
-        // TODO: Remove these until they work
-        // { name: 'Routers', component: 'RoutersTab' },
-        // { name: 'Logging', component: 'LoggingTab' },
         {
           name: 'Status',
           url: '/status',

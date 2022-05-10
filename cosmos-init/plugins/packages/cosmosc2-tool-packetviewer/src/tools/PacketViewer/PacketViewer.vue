@@ -41,9 +41,9 @@
         :headers="headers"
         :items="rows"
         :search="search"
+        :items-per-page="20"
+        :footer-props="{ itemsPerPageOptions: [10, 20, 50, 100, -1] }"
         calculate-widths
-        disable-pagination
-        hide-default-footer
         multi-sort
         dense
       >

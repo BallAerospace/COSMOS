@@ -34,10 +34,9 @@
       :headers="headers"
       :items="data"
       :search="search"
-      class="data-table"
+      :items-per-page="10"
+      :footer-props="{ itemsPerPageOptions: [10, 20, 50, 100, -1] }"
       calculate-widths
-      disable-pagination
-      hide-default-footer
       multi-sort
       data-test="cmd-packets-table"
     >
