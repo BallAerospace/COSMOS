@@ -154,7 +154,7 @@ module Cosmos
       end
     end
 
-    describe "to_hash" do
+    describe "as_json" do
       it "creates a Hash" do
         @l.enabled = true
         @l.values = { :DEFAULT => [0, 1, 2, 3, 4, 5] }
@@ -164,7 +164,7 @@ module Cosmos
         @l.persistence_setting = 1
         @l.persistence_count = 2
 
-        hash = @l.to_hash
+        hash = @l.as_json
         expect(hash.keys.length).to eql 6
         expect(hash.keys).to include('values', 'enabled', 'state', 'response', 'persistence_setting', 'persistence_count')
         expect(hash["enabled"]).to be true
@@ -182,13 +182,42 @@ module Cosmos
         @l.persistence_setting = 1
         @l.persistence_count = 2
 
-        hash = @l.to_hash
+        hash = @l.as_json
         expect(hash["enabled"]).to be true
         expect(hash["values"]).to include(:DEFAULT => [0, 1, 2, 3, 4, 5])
         expect(hash["state"]).to eql :RED_LOW
         expect(hash["response"]).to be_nil
         expect(hash["persistence_setting"]).to eql 1
         expect(hash["persistence_count"]).to eql 2
+      end
+    end
+
+    describe "self.from_json" do
+      it "converts empty object from JSON" do
+        pil = PacketItemLimits.from_json(@l.as_json)
+        expect(pil.enabled).to eql @l.enabled
+        expect(pil.values).to eql @l.values
+        expect(pil.state).to eql @l.state
+        # We don't reconsitute the LimitsResponse
+        expect(pil.persistence_setting).to eql @l.persistence_setting
+        expect(pil.persistence_count).to eql @l.persistence_count
+      end
+
+      it "converts populated object from JSON" do
+        @l.enabled = true
+        @l.values = { :DEFAULT => [0, 1, 4, 5, 2, 3], :TVAC => [0, 1, 4, 5, 2, 3] }
+        @l.state = :RED_LOW
+        r = LimitsResponse.new()
+        @l.response = r
+        @l.persistence_setting = 10
+        @l.persistence_count = 20
+        pil = PacketItemLimits.from_json(@l.as_json)
+        expect(pil.enabled).to eql @l.enabled
+        expect(pil.values).to eql @l.values
+        expect(pil.state).to eql @l.state
+        # We don't reconsitute the LimitsResponse
+        expect(pil.persistence_setting).to eql @l.persistence_setting
+        expect(pil.persistence_count).to eql @l.persistence_count
       end
     end
   end

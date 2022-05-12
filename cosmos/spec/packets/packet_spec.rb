@@ -1509,5 +1509,17 @@ module Cosmos
         expect(json['items']).to eql []
       end
     end
-  end # describe Packet
+
+    describe "self.from_json" do
+      it "creates a Packet from a hash" do
+        p = Packet.new("tgt", "pkt")
+        p.append_item("test1", 8, :UINT)
+        packet = Packet.from_json(p.as_json)
+        expect(packet.target_name).to eql p.target_name
+        expect(packet.packet_name).to eql p.packet_name
+        item = packet.sorted_items[0]
+        expect(item.name).to eql "TEST1"
+      end
+    end
+  end
 end

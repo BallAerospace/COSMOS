@@ -44,6 +44,10 @@ module Cosmos
         expect(StructureItem.new("test", 0, 8, :UINT, :LITTLE_ENDIAN, nil).endianness).to eql :LITTLE_ENDIAN
       end
 
+      it "complains about string endianness" do
+        expect { StructureItem.new("test", 0, 8, :UINT, 'BIG_ENDIAN', nil) }.to raise_error(ArgumentError, "TEST: endianness must be a Symbol")
+      end
+
       it "complains about bad endianness" do
         expect { StructureItem.new("test", 0, 8, :UINT, :BLAH, nil) }.to raise_error(ArgumentError, "TEST: unknown endianness: BLAH - Must be :BIG_ENDIAN or :LITTLE_ENDIAN")
       end
@@ -57,6 +61,10 @@ module Cosmos
         expect(StructureItem.new("test", 0, 0, :DERIVED, :BIG_ENDIAN, nil).data_type).to eql :DERIVED
       end
 
+      it "complains about string data_type" do
+        expect { StructureItem.new("test", 0, 0, 'UINT', :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: data_type must be a Symbol")
+      end
+
       it "complains about bad data types" do
         expect { StructureItem.new("test", 0, 0, :UNKNOWN, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: unknown data_type: UNKNOWN - Must be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED")
       end
@@ -67,6 +75,10 @@ module Cosmos
         %w(ERROR ERROR_ALLOW_HEX TRUNCATE SATURATE).each do |type|
           expect(StructureItem.new("test", 0, 32, :INT, :BIG_ENDIAN, nil, type.to_sym).overflow).to eql type.to_sym
         end
+      end
+
+      it "complains about string overflow types" do
+        expect { StructureItem.new("test", 0, 32, :INT, :BIG_ENDIAN, nil, 'ERROR') }.to raise_error(ArgumentError, "TEST: overflow type must be a Symbol")
       end
 
       it "complains about bad overflow types" do
@@ -205,10 +217,10 @@ module Cosmos
       end
     end
 
-    describe "to_hash" do
+    describe "as_json" do
       it "creates a Hash" do
         item = StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
-        hash = item.to_hash
+        hash = item.as_json
         expect(hash.keys.length).to eql 7
         expect(hash.keys).to include('name', 'bit_offset', 'bit_size', 'data_type', 'endianness', 'array_size', 'overflow')
         expect(hash["name"]).to eql "TEST"
@@ -218,6 +230,20 @@ module Cosmos
         expect(hash["endianness"]).to eql :BIG_ENDIAN
         expect(hash["array_size"]).to eql 16
         expect(hash["overflow"]).to eql :ERROR
+      end
+    end
+
+    describe "self.from_json" do
+      it "creates StructureItem from hash" do
+        item = StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, 16)
+        new_item = StructureItem.from_json(item.as_json)
+        expect(new_item.name).to eql item.name
+        expect(new_item.bit_offset).to eql item.bit_offset
+        expect(new_item.bit_size).to eql item.bit_size
+        expect(new_item.data_type).to eql item.data_type
+        expect(new_item.endianness).to eql item.endianness
+        expect(new_item.array_size).to eql item.array_size
+        expect(new_item.overflow).to eql item.overflow
       end
     end
   end

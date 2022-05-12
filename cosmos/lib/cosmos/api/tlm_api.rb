@@ -19,6 +19,8 @@
 
 require 'cosmos/models/target_model'
 require 'cosmos/models/cvt_model'
+require 'cosmos/packets/packet'
+require 'cosmos/topics/telemetry_topic'
 require 'cosmos/utilities/s3'
 
 module Cosmos
@@ -126,19 +128,17 @@ module Cosmos
         # Check that the packet exists ... exceptions are raised if not
         TargetModel.packet(target_name, packet_name, scope: scope)
       end
-      inject = {}
-      inject['inject_tlm'] = true
-      inject['log'] = log
-      inject['target_name'] = target_name
-      inject['packet_name'] = packet_name
-      inject['item_hash'] = JSON.generate(item_hash) if item_hash
-      inject['type'] = type
 
-      InterfaceModel.all(scope: scope).each do |name, interface|
-        if interface['target_names'].include? target_name
-          Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface['name']}", inject, '*', 100)
+      packet_hash = get_telemetry(target_name, packet_name, scope: scope, token: token)
+      packet = Packet.from_json(packet_hash)
+      if item_hash
+        item_hash.each do |name, value|
+          packet.write(name.to_s, value, type)
         end
       end
+      packet.received_time = Time.now.sys
+      packet.received_count += 1
+      TelemetryTopic.write_packet(packet, scope: scope)
     end
 
     # Override the current value table such that a particular item always

@@ -400,8 +400,83 @@ module Cosmos
       end
     end
 
-    describe "to_hash" do
+    describe "as_json" do
       it "converts to a Hash" do
+        @pi.format_string = "%5.1f"
+        @pi.id_value = 10
+        @pi.array_size = 64
+        @pi.states = { "TRUE" => 1, "FALSE" => 0 }
+        @pi.read_conversion = GenericConversion.new("value / 2")
+        @pi.write_conversion = GenericConversion.new("value * 2")
+        @pi.description = "description"
+        @pi.units_full = "Celsius"
+        @pi.units = "C"
+        @pi.default = 0
+        @pi.range = (0..100)
+        @pi.required = true
+        @pi.hazardous = { "TRUE" => nil, "FALSE" => "NO!" }
+        @pi.state_colors = { "TRUE" => :GREEN, "FALSE" => :RED }
+        @pi.limits = PacketItemLimits.new
+
+        hash = @pi.as_json
+        expect(hash["name"]).to eql "TEST"
+        expect(hash["bit_offset"]).to eql 0
+        expect(hash["bit_size"]).to eql 32
+        expect(hash["data_type"]).to eql 'UINT'
+        expect(hash["endianness"]).to eql 'BIG_ENDIAN'
+        expect(hash["array_size"]).to eql 64
+        expect(hash["overflow"]).to eql 'ERROR'
+        expect(hash["format_string"]).to eql "%5.1f"
+        expect(hash["read_conversion"]).to_not be_nil
+        expect(hash["write_conversion"]).to_not be_nil
+        expect(hash["id_value"]).to eql 10
+        true_hash = { "value" => 1, "color" => "GREEN" }
+        false_hash = { "value" => 0, "hazardous" => "NO!", "color" => "RED"}
+        expect(hash["states"]).to eql({ "TRUE" => true_hash, "FALSE" => false_hash })
+        expect(hash["description"]).to eql "description"
+        expect(hash["units_full"]).to eql "Celsius"
+        expect(hash["units"]).to eql "C"
+        expect(hash["default"]).to eql 0
+        # range turns into minimum and maximum
+        expect(hash["minimum"]).to eql 0
+        expect(hash["maximum"]).to eql 100
+        expect(hash["required"]).to be true
+        expect(hash["limits"]).to be_nil
+        expect(hash["meta"]).to be_nil
+      end
+    end
+
+    describe "self.from_hash" do
+      it "creates empty PacketItem from hash" do
+        item = PacketItem.from_json(@pi.as_json)
+        expect(item.name).to eql @pi.name
+        expect(item.bit_offset).to eql @pi.bit_offset
+        expect(item.bit_size).to eql @pi.bit_size
+        expect(item.data_type).to eql @pi.data_type
+        expect(item.endianness).to eql @pi.endianness
+        expect(item.array_size).to eql @pi.array_size
+        expect(item.overflow).to eql @pi.overflow
+        expect(item.format_string).to eql @pi.format_string
+        # conversions don't round trip
+        # expect(item.read_conversion).to eql @pi.read_conversion
+        # expect(item.write_conversion).to eql @pi.write_conversion
+        expect(item.id_value).to eql @pi.id_value
+        expect(item.states).to eql @pi.states
+        expect(item.description).to eql @pi.description
+        expect(item.units_full).to eql @pi.units_full
+        expect(item.units).to eql @pi.units
+        expect(item.default).to eql @pi.default
+        expect(item.range).to eql @pi.range
+        expect(item.required).to eql @pi.required
+        expect(item.state_colors).to eql @pi.state_colors
+        expect(item.hazardous).to eql @pi.hazardous
+        expect(item.limits.enabled).to eql @pi.limits.enabled
+        expect(item.limits.persistence_setting).to eql @pi.limits.persistence_setting
+        expect(item.limits.values).to eql @pi.limits.values
+        expect(item.meta).to eql @pi.meta
+      end
+
+      it "converts a populated item to and from JSON" do
         @pi.format_string = "%5.1f"
         @pi.id_value = 10
         @pi.states = { "TRUE" => 1, "FALSE" => 0 }
@@ -416,41 +491,33 @@ module Cosmos
         @pi.hazardous = { "TRUE" => nil, "FALSE" => "NO!" }
         @pi.state_colors = { "TRUE" => :GREEN, "FALSE" => :RED }
         @pi.limits = PacketItemLimits.new
-
-        hash = @pi.to_hash
-        expect(hash.keys.length).to eql 22
-        # Check the values from StructureItem
-        expect(hash.keys).to include('name', 'bit_offset', 'bit_size', 'data_type', 'endianness', 'array_size', 'overflow')
-        expect(hash["name"]).to eql "TEST"
-        expect(hash["bit_offset"]).to eql 0
-        expect(hash["bit_size"]).to eql 32
-        expect(hash["data_type"]).to eql :UINT
-        expect(hash["endianness"]).to eql :BIG_ENDIAN
-        expect(hash["array_size"]).to be_nil
-        expect(hash["overflow"]).to eql :ERROR
-        # Check the unique PacketItem values
-        expect(hash.keys).to include('format_string', 'read_conversion', 'write_conversion', 'id_value', 'states', 'description', 'units_full', 'units', 'default', 'range', 'required', 'hazardous', 'state_colors', 'limits')
-        expect(hash["format_string"]).to eql "%5.1f"
-        expect(hash["read_conversion"]).to match("value / 2")
-        expect(hash["write_conversion"]).to match(/value \* 2/)
-        expect(hash["id_value"]).to eql 10
-        expect(hash["states"]).to include("TRUE" => 1, "FALSE" => 0)
-        expect(hash["description"]).to eql "description"
-        expect(hash["units_full"]).to eql "Celsius"
-        expect(hash["units"]).to eql "C"
-        expect(hash["default"]).to eql 0
-        expect(hash["range"]).to eql (0..100)
-        expect(hash["required"]).to be true
-        expect(hash["hazardous"]).to include("TRUE" => nil, "FALSE" => "NO!")
-        expect(hash["state_colors"]).to include("TRUE" => :GREEN, "FALSE" => :RED)
-        expect(hash["limits"]).to eql PacketItemLimits.new.to_hash
-        expect(hash["meta"]).to be_nil
-      end
-
-      it "converts to a Hash with no conversions" do
-        hash = @pi.to_hash
-        expect(hash["read_conversion"]).to be_nil
-        expect(hash["write_conversion"]).to be_nil
+        @pi.limits.values = { DEFAULT: [10, 20, 80, 90, 40, 50], TVAC: [100, 200, 800, 900] }
+        item = PacketItem.from_json(@pi.as_json)
+        expect(item.name).to eql @pi.name
+        expect(item.bit_offset).to eql @pi.bit_offset
+        expect(item.bit_size).to eql @pi.bit_size
+        expect(item.data_type).to eql @pi.data_type
+        expect(item.endianness).to eql @pi.endianness
+        expect(item.array_size).to eql @pi.array_size
+        expect(item.overflow).to eql @pi.overflow
+        expect(item.format_string).to eql @pi.format_string
+        # conversions don't round trip
+        # expect(item.read_conversion).to eql @pi.read_conversion
+        # expect(item.write_conversion).to eql @pi.write_conversion
+        expect(item.id_value).to eql @pi.id_value
+        expect(item.states).to eql @pi.states
+        expect(item.description).to eql @pi.description
+        expect(item.units_full).to eql @pi.units_full
+        expect(item.units).to eql @pi.units
+        expect(item.default).to eql @pi.default
+        expect(item.range).to eql @pi.range
+        expect(item.required).to eql @pi.required
+        expect(item.state_colors).to eql @pi.state_colors
+        expect(item.hazardous).to eql @pi.hazardous
+        expect(item.limits.enabled).to eql @pi.limits.enabled
+        expect(item.limits.persistence_setting).to eql @pi.limits.persistence_setting
+        expect(item.limits.values).to eql @pi.limits.values
+        expect(item.meta).to eql @pi.meta
       end
     end
   end
