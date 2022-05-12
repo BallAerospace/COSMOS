@@ -307,14 +307,14 @@ module Cosmos
       it "returns the overall system limits state" do
         @api.inject_tlm("INST", "HEALTH_STATUS",
                         { 'TEMP1' => 0, 'TEMP2' => 0, 'TEMP3' => 0, 'TEMP4' => 0, 'GROUND1STATUS' => 1, 'GROUND2STATUS' => 1 })
-        sleep(0.2)
+        sleep 1
         expect(@api.get_overall_limits_state).to eql "GREEN"
         # TEMP1 limits: -80.0 -70.0 60.0 80.0 -20.0 20.0
         # TEMP2 limits: -60.0 -55.0 30.0 35.0
-        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32 }) # Both YELLOW
+        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32, 'TEMP3' => 0, 'TEMP4' => 0 }) # Both YELLOW
         sleep 1
         expect(@api.get_overall_limits_state).to eql "YELLOW"
-        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP2' => 40 })
+        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 0, 'TEMP2' => 40, 'TEMP3' => 0, 'TEMP4' => 0 })
         sleep 1
         expect(@api.get_overall_limits_state).to eql "RED"
         expect(@api.get_overall_limits_state([])).to eql "RED"
