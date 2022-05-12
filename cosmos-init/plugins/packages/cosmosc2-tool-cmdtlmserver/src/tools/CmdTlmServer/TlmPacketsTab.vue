@@ -31,14 +31,14 @@
       />
     </v-card-title>
     <v-data-table
-      calculate-widths
-      disable-pagination
-      hide-default-footer
-      multi-sort
-      data-test="tlm-packets-table"
       :headers="headers"
       :items="data"
       :search="search"
+      :items-per-page="10"
+      :footer-props="{ itemsPerPageOptions: [10, 20, 50, 100, -1] }"
+      calculate-widths
+      multi-sort
+      data-test="tlm-packets-table"
     >
       <template v-slot:item.view_raw="{ item }">
         <v-btn

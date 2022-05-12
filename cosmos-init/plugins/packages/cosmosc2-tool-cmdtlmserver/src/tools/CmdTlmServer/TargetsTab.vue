@@ -34,9 +34,9 @@
       :headers="headers"
       :items="data"
       :search="search"
+      :items-per-page="10"
+      :footer-props="{ itemsPerPageOptions: [10, 20, -1] }"
       calculate-widths
-      disable-pagination
-      hide-default-footer
       multi-sort
       data-test="targets-table"
     />
