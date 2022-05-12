@@ -249,23 +249,11 @@ module Cosmos
 
     describe "inject_tlm" do
       before(:each) do
-      #   model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
-      #   model.create
-
         # Mock out some stuff in Microservice initialize()
         dbl = double("AwsS3Client").as_null_object
         allow(Aws::S3::Client).to receive(:new).and_return(dbl)
         allow(Zip::File).to receive(:open).and_return(true)
-      #   allow_any_instance_of(Cosmos::Interface).to receive(:connected?).and_return(true)
-      #   @im_shutdown = false
-      #   allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep(0.01) until @im_shutdown }
-
-      #   model = MicroserviceModel.new(name: "DEFAULT__INTERFACE__INST_INT", scope: "DEFAULT", target_names: ["INST"])
-      #   model.create
-      #   @im = InterfaceMicroservice.new("DEFAULT__INTERFACE__INST_INT")
-      #   @im_thread = Thread.new { @im.run }
-
-        model = MicroserviceModel.new(name: "DEFAULT__DECOM__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__TELEMETRY__{INST}__HEALTH_STATUS"])
+        model = MicroserviceModel.new(name: "DEFAULT__DECOM__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__TELEMETRY__{INST}__HEALTH_STATUS", "DEFAULT__TELEMETRY__{SYSTEM}__META"])
         model.create
         @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
         @dm_thread = Thread.new { @dm.run }
@@ -273,8 +261,6 @@ module Cosmos
       end
 
       after(:each) do
-        # @im_shutdown = true
-        # @im.shutdown
         @dm.shutdown
         sleep(1.01)
       end
@@ -293,21 +279,21 @@ module Cosmos
 
       it "injects a packet into the system" do
         @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 10, TEMP2: 20 }, type: :CONVERTED)
-        sleep 2
+        sleep 0.1
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
 
         @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 0, TEMP2: 0 }, type: :RAW)
-        sleep 2
+        sleep 0.1
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
       end
 
       it "injects a packet into a target without an interface" do
-        @api.inject_tlm("SYSTEM", "META", { 'CONFIG' => 'testconfig', COSMOS_VERSION: '5.0.0', RUBY_VERSION: '3.0' })
+        @api.inject_tlm("SYSTEM", "META", { 'CONFIG' => 'testconfig', COSMOS_VERSION: '5.0.0' })
+        sleep 0.1
         expect(@api.tlm("SYSTEM META CONFIG")).to eql 'testconfig'
         expect(@api.tlm("SYSTEM META COSMOS_VERSION")).to eql '5.0.0'
-        expect(@api.tlm("SYSTEM META RUBY_VERSION")).to eql '3.0'
         expect(@api.tlm("SYSTEM META USER_VERSION")).to eql ''
       end
     end

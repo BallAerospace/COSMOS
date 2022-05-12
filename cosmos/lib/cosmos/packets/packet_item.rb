@@ -511,6 +511,18 @@ module Cosmos
           item.state_colors[state_name] = state['color'].to_sym if state['color']
         end
       end
+      # Recreate COSMOS built-in conversions
+      if hash['read_conversion']
+        if hash['read_conversion']['class'].include?("Cosmos::")
+          item.read_conversion = Cosmos::const_get(hash['read_conversion']['class']).new(*hash['read_conversion']['params'])
+        end
+      end
+      if hash['write_conversion']
+        if hash['write_conversion']['class'].include?("Cosmos::")
+          item.write_conversion = Cosmos::const_get(hash['write_conversion']['class']).new(*hash['write_conversion']['params'])
+        end
+      end
+
       if hash['limits']
         item.limits = PacketItemLimits.new
         # Delete these keys so the only ones left are limits sets
@@ -524,7 +536,6 @@ module Cosmos
         item.limits.values = values
       end
       item.meta = hash['meta']
-      # Can't recreate conversion classes from strings
       item
     end
 

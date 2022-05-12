@@ -42,5 +42,20 @@ module Cosmos
         expect(PolynomialConversion.new([1, 2, 3]).to_s).to eql "1.0 + 2.0x + 3.0x^2"
       end
     end
+
+    describe "as_json" do
+      it "creates a reproducable format" do
+        pc = PolynomialConversion.new([1,2,3])
+        json = pc.as_json
+        expect(json['class']).to eql "Cosmos::PolynomialConversion"
+        new_pc = Cosmos::const_get(json['class']).new(*json['params'])
+        expect(pc.coeffs).to eql (new_pc.coeffs)
+        expect(pc.converted_type).to eql (new_pc.converted_type)
+        expect(pc.converted_bit_size).to eql (new_pc.converted_bit_size)
+        expect(pc.converted_array_size).to eql (new_pc.converted_array_size)
+        expect(pc.call(1, nil, nil)).to eql 6.0
+        expect(new_pc.call(1, nil, nil)).to eql 6.0
+      end
+    end
   end
 end

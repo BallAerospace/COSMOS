@@ -47,5 +47,20 @@ module Cosmos
         expect(GenericConversion.new("10 / 2").to_s).to eql "10 / 2"
       end
     end
+
+    describe "as_json" do
+      it "creates a reproducable format" do
+        gc = GenericConversion.new("10.0 / 2", "FLOAT", "32")
+        json = gc.as_json
+        expect(json['class']).to eql "Cosmos::GenericConversion"
+        new_gc = Cosmos::const_get(json['class']).new(*json['params'])
+        expect(gc.code_to_eval).to eql (new_gc.code_to_eval)
+        expect(gc.converted_type).to eql (new_gc.converted_type)
+        expect(gc.converted_bit_size).to eql (new_gc.converted_bit_size)
+        expect(gc.converted_array_size).to eql (new_gc.converted_array_size)
+        expect(gc.call(0, 0, 0)).to eql 5.0
+        expect(new_gc.call(0, 0, 0)).to eql 5.0
+      end
+    end
   end
 end

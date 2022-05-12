@@ -481,7 +481,7 @@ module Cosmos
         @pi.id_value = 10
         @pi.states = { "TRUE" => 1, "FALSE" => 0 }
         @pi.read_conversion = GenericConversion.new("value / 2")
-        @pi.write_conversion = GenericConversion.new("value * 2")
+        @pi.write_conversion = PolynomialConversion.new([1, 2, 3])
         @pi.description = "description"
         @pi.units_full = "Celsius"
         @pi.units = "C"
@@ -501,9 +501,8 @@ module Cosmos
         expect(item.array_size).to eql @pi.array_size
         expect(item.overflow).to eql @pi.overflow
         expect(item.format_string).to eql @pi.format_string
-        # conversions don't round trip
-        # expect(item.read_conversion).to eql @pi.read_conversion
-        # expect(item.write_conversion).to eql @pi.write_conversion
+        expect(item.read_conversion).to eql @pi.read_conversion
+        expect(item.write_conversion).to eql @pi.write_conversion
         expect(item.id_value).to eql @pi.id_value
         expect(item.states).to eql @pi.states
         expect(item.description).to eql @pi.description
