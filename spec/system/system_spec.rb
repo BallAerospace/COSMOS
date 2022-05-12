@@ -833,7 +833,7 @@ module Cosmos
 
         it "complains about bad addresses" do
           tf = Tempfile.new('unittest')
-          tf.puts("ALLOW_ACCESS blah")
+          tf.puts("ALLOW_ACCESS blah.")
           tf.close
           expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error)
           tf.unlink

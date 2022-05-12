@@ -16,7 +16,7 @@ module Cosmos
   describe JsonDRbObject do
     describe "initialize" do
       it "rescues bad hosts" do
-        expect { JsonDRbObject.new("blah", 7777) }.to raise_error("Invalid hostname: blah")
+        expect { JsonDRbObject.new("blah.", 7777) }.to raise_error("Invalid hostname: blah.")
       end
     end
 
