@@ -1,12 +1,12 @@
 {
   "name": "widgets_src",
-  "version": "5.0.3-beta0",
+  "version": "5.0.3",
   "private": true,
   "scripts": {
     "build": "vue-cli-service build --target lib --dest tools/widgets/HelloworldWidget --formats umd-min src/HelloworldWidget.vue --name HelloworldWidget && vue-cli-service build --target lib --dest tools/widgets/BigWidget --formats umd-min src/BigWidget.vue --name BigWidget"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "5.0.3-beta0",
+    "@cosmosc2/tool-common": "5.0.3",
     "vue": "2.6.14",
     "vuetify": "2.6.4"
   },

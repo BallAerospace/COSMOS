@@ -41,7 +41,7 @@ spec = Gem::Specification.new do |s|
   else
     s.platform = Gem::Platform::CURRENT
   end
-  s.version = '5.0.3.pre.beta0'
+  s.version = '5.0.3'
   s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
   s.files = [ 'lib/cosmosc2.rb' ]
@@ -49,5 +49,5 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.7'
 
   # Runtime Dependencies
-  s.add_runtime_dependency 'cosmos', '5.0.3.pre.beta0'
+  s.add_runtime_dependency 'cosmos', '5.0.3'
 end
