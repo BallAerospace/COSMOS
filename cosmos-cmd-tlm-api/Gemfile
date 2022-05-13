@@ -49,5 +49,5 @@ if ENV['COSMOS_DEVEL']
 elsif ENV['COSMOS_PATH']
   gem 'cosmos', :path => ENV['COSMOS_PATH']
 else
-  gem 'cosmos', '5.0.3'
+  gem 'cosmos', '5.0.4.pre.beta0'
 end
