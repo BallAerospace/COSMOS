@@ -293,7 +293,7 @@ module Cosmos
         xtce_recurse_element(element) do |block_element|
           if block_element.name == 'Term'
             exponent = Float(block_element['exponent']).to_i
-            @current_type.conversion ||= PolynomialConversion.new([])
+            @current_type.conversion ||= PolynomialConversion.new()
             @current_type.conversion.coeffs[exponent] = Float(block_element['coefficient'])
             @current_type.conversion.coeffs.each_with_index do |value, index|
               @current_type.conversion.coeffs[index] = 0.0 if value.nil?

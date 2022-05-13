@@ -34,6 +34,7 @@ module Cosmos
       #   should apply. All values >= to this value will be converted using the
       #   given coefficients.
       attr_reader :lower_bound
+
       # @return [Array<Integer>] The polynomial coefficients
       attr_reader :coeffs
 
@@ -64,7 +65,8 @@ module Cosmos
       #
       # @param segment [Segment] Other segment
       def ==(other_segment)
-        @lower_bound == other_segment.lower_bound && @coeffs == other_segment.coeffs
+        @lower_bound == other_segment.lower_bound &&
+          @coeffs == other_segment.coeffs
       end
 
       # Perform the polynomial conversion
@@ -89,9 +91,7 @@ module Cosmos
     def initialize(segments = [])
       super()
       @segments = []
-      segments.each do |lower_bound, coeffs|
-        add_segment(lower_bound, *coeffs)
-      end
+      segments.each { |lower_bound, coeffs| add_segment(lower_bound, *coeffs) }
       @converted_type = :FLOAT
       @converted_bit_size = 64
     end
@@ -113,9 +113,7 @@ module Cosmos
     def call(value, packet, buffer)
       # Try to find correct segment
       @segments.each do |segment|
-        if value >= segment.lower_bound
-          return segment.calculate(value)
-        end
+        return segment.calculate(value) if value >= segment.lower_bound
       end
 
       # Default to using segment with smallest lower_bound
@@ -130,7 +128,7 @@ module Cosmos
     # @return [String] The name of the class followed by a description of all
     #   the polynomial segments.
     def to_s
-      result = ""
+      result = ''
       count = 0
       @segments.each do |segment|
         result << "\n" if count > 0
@@ -154,7 +152,8 @@ module Cosmos
     def to_config(read_or_write)
       config = ''
       @segments.each do |segment|
-        config << "    SEG_POLY_#{read_or_write}_CONVERSION #{segment.lower_bound} #{segment.coeffs.join(' ')}\n"
+        config <<
+          "    SEG_POLY_#{read_or_write}_CONVERSION #{segment.lower_bound} #{segment.coeffs.join(' ')}\n"
       end
       config
     end

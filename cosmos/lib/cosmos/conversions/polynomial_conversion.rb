@@ -32,10 +32,7 @@ module Cosmos
     # @param coeffs [Array<Float>] The polynomial coefficients
     def initialize(*coeffs)
       super()
-      @coeffs = []
-      coeffs.each do |coeff|
-        @coeffs << coeff.to_f
-      end
+      @coeffs = coeffs.map { |coeff| coeff.to_f }
       @converted_type = :FLOAT
       @converted_bit_size = 64
     end

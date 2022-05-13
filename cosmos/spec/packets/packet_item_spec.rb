@@ -481,7 +481,7 @@ module Cosmos
         @pi.id_value = 10
         @pi.states = { "TRUE" => 1, "FALSE" => 0 }
         @pi.read_conversion = GenericConversion.new("value / 2")
-        @pi.write_conversion = PolynomialConversion.new([1, 2, 3])
+        @pi.write_conversion = PolynomialConversion.new(1, 2, 3)
         @pi.description = "description"
         @pi.units_full = "Celsius"
         @pi.units = "C"
