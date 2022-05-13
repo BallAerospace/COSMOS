@@ -17,50 +17,49 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/models/target_model'
 require 'cosmos/microservices/microservice'
 require 'cosmos/utilities/s3'
 
 module Cosmos
   class CleanupMicroservice < Microservice
     def run
-      # Update settings from config
-      @config['options'].each do |option|
-        case option[0].upcase
-        when 'SIZE' # Max size to use in S3 in bytes
-          @size = option[1].to_i
-        when 'DELAY' # Delay between size checks
-          @delay = option[1].to_i
-        when 'BUCKET' # Which bucket to monitor
-          @bucket = option[1]
-        when 'PREFIX' # Path into bucket to monitor
-          @prefix = option[1]
-        else
-          Logger.error("Unknown option passed to microservice #{@name}: #{option}")
-        end
-      end
-
-      raise "Microservice #{@name} not fully configured" unless @size and @delay and @bucket and @prefix
+      split_name = @name.split("__")
+      target_name = split_name[-1]
+      target = TargetModel.get_model(name: target_name, scope: @scope)
 
       rubys3_client = Aws::S3::Client.new
       while true
         break if @cancel_thread
 
         @state = 'GETTING_OBJECTS'
-        total_size, oldest_list = S3Utilities.get_total_size_and_oldest_list(@bucket, @prefix)
-        delete_items = []
-        oldest_list.each do |item|
-          break if total_size <= @size
+        start_time = Time.now
+        [
+         ["#{@scope}/raw_logs/cmd/#{target_name}/", target.cmd_log_retain_time], 
+         ["#{@scope}/decom_logs/cmd/#{target_name}/", target.cmd_decom_log_retain_time], 
+         ["#{@scope}/raw_logs/tlm/#{target_name}/", target.tlm_log_retain_time], 
+         ["#{@scope}/decom_logs/tlm/#{target_name}/", target.tlm_decom_log_retain_time],
+         ["#{@scope}/reduced_minute_logs/tlm/#{target_name}/", target.reduced_minute_log_retain_time],
+         ["#{@scope}/reduced_hour_logs/tlm/#{target_name}/", target.reduced_hour_log_retain_time],
+         ["#{@scope}/reduced_day_logs/tlm/#{target_name}/", target.reduced_day_log_retain_time],
+        ].each do |prefix, retain_time|
+          next unless retain_time
+          time = start_time - retain_time
+          total_size, oldest_list = S3Utilities.list_files_before_time('logs', prefix, time)
+          delete_items = []
+          oldest_list.each do |item|
+            delete_items << { :key => item.key }
+          end
+          if delete_items.length > 0
+            @state = 'DELETING_OBJECTS'
+            rubys3_client.delete_objects({ bucket: 'logs', delete: { objects: delete_items } })
+            Logger.info("Deleted #{delete_items.length} #{target_name} log files")
+          end
+        end
 
-          delete_items << { :key => item.key }
-          total_size -= item.size
-        end
-        if delete_items.length > 0
-          @state = 'DELETING_OBJECTS'
-          rubys3_client.delete_objects({ bucket: @bucket, delete: { objects: delete_items } })
-        end
         @count += 1
         @state = 'SLEEPING'
-        break if @microservice_sleeper.sleep(@delay)
+        break if @microservice_sleeper.sleep(target.cleanup_poll_time)
       end
     end
   end

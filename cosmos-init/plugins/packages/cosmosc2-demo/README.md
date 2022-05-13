@@ -8,7 +8,7 @@ This plugin provides a simple demo configuration for COSMOS that shows off a lot
 
 1.  At the COSMOS Admin - Plugins, upload the cosmosc2-demo.gem file
 
-2. To build widgets run: yard && yard install
+2. To build widgets run: yarn && yarn build
 
 ## Contributing
 

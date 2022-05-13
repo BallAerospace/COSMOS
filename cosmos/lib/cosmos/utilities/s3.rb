@@ -22,6 +22,67 @@ require 'cosmos/models/reducer_model'
 
 module Cosmos
   class S3Utilities
+    def self.list_files_before_time(bucket, prefix, time)
+      rubys3_client = Aws::S3::Client.new
+      oldest_list = []
+      total_size = 0
+
+      # Return nothing if bucket doesn't exist (it won't at the very beginning)
+      begin
+        rubys3_client.head_bucket(bucket: bucket)
+      rescue Aws::S3::Errors::NotFound
+        return total_size, oldest_list
+      end
+
+      # Get List of Packet Names - Assumes prefix gets us to a folder of packet names
+      token = nil
+      folder_list = []
+      while true
+        resp = rubys3_client.list_objects_v2({
+          bucket: bucket,
+          max_keys: 1000,
+          prefix: prefix,
+          delimiter: '/',
+          continuation_token: token
+        })
+        
+        resp.common_prefixes.each do |item|
+          folder_list << item.prefix
+        end
+        break unless resp.is_truncated
+        token = resp.next_continuation_token
+      end
+
+      # Go through each folder and keep files that end before time
+      folder_list.each do |folder|
+        token = nil
+        next_folder = false
+        while true
+          resp = rubys3_client.list_objects_v2({
+                                                bucket: bucket,
+                                                max_keys: 1000,
+                                                prefix: folder,
+                                                continuation_token: token
+                                              })
+          resp.contents.each do |item|
+            t = item.key.split('__')[1]
+            file_end_time = Time.utc(t[0..3], t[4..5], t[6..7], t[8..9], t[10..11], t[12..13])
+            if file_end_time < time
+              oldest_list << item
+              total_size += item.size
+            else
+              next_folder = true
+              break
+            end
+          end
+          break if !resp.is_truncated or next_folder
+
+          token = resp.next_continuation_token
+        end
+      end
+      return total_size, oldest_list
+    end
+
     def self.get_total_size_and_oldest_list(bucket, prefix, max_list_length = 10000)
       rubys3_client = Aws::S3::Client.new
       oldest_list = []

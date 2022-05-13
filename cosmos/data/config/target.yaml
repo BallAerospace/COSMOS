@@ -28,6 +28,13 @@ TARGET:
           required: true
           description: Maximum file size in bytes (default = 50_000_000)
           values: \d+
+    CMD_LOG_RETAIN_TIME:
+      summary: How long to keep raw command logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep raw command logs (default = nil = Forever)
+          values: \d+
     CMD_DECOM_LOG_CYCLE_TIME:
       summary: Command decommutation logs can be cycled on a time interval.
       parameters:
@@ -41,6 +48,13 @@ TARGET:
         - name: Size
           required: true
           description: Maximum file size in bytes (default = 50_000_000)
+          values: \d+
+    CMD_DECOM_LOG_RETAIN_TIME:
+      summary: How long to keep decom command logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep decom command logs (default = nil = Forever)
           values: \d+
     TLM_LOG_CYCLE_TIME:
       summary: Telemetry binary logs can be cycled on a time interval.
@@ -56,6 +70,13 @@ TARGET:
           required: true
           description: Maximum file size in bytes (default = 50_000_000)
           values: \d+
+    TLM_LOG_RETAIN_TIME:
+      summary: How long to keep raw telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep raw telemetry logs (default = nil = Forever)
+          values: \d+
     TLM_DECOM_LOG_CYCLE_TIME:
       summary: Telemetry decommutation logs can be cycled on a time interval.
       parameters:
@@ -69,4 +90,53 @@ TARGET:
         - name: Size
           required: true
           description: Maximum file size in bytes (default = 50_000_000)
+          values: \d+
+    TLM_DECOM_LOG_RETAIN_TIME:
+      summary: How long to keep decom telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep decom telemetry logs (default = nil = Forever)
+          values: \d+
+    REDUCED_MINUTE_LOG_RETAIN_TIME:
+      summary: How long to keep reduced minute telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep reduced minute telemetry logs (default = nil = Forever)
+          values: \d+
+    REDUCED_HOUR_LOG_RETAIN_TIME:
+      summary: How long to keep reduced hour telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep reduced hour telemetry logs (default = nil = Forever)
+          values: \d+
+    REDUCED_DAY_LOG_RETAIN_TIME:
+      summary: How long to keep reduced day telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep reduced day telemetry logs (default = nil = Forever)
+          values: \d+
+    LOG_RETAIN_TIME:
+      summary: How long to keep all regular telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep all regular telemetry logs (default = nil = Forever)
+          values: \d+
+    REDUCED_LOG_RETAIN_TIME:
+      summary: How long to keep all reduced telemetry logs in seconds.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds to keep all reduced telemetry logs (default = nil = Forever)
+          values: \d+
+    CLEANUP_POLL_TIME:
+      summary: Period at which to run the cleanup process.
+      parameters:
+        - name: Time
+          required: true
+          description: Number of seconds between runs of the cleanup process (default = 900 = 15 minutes)
           values: \d+

@@ -548,8 +548,8 @@ module Cosmos
         orig_keys << "cosmos_microservices"
 
         umodel = double(MicroserviceModel)
-        expect(umodel).to receive(:destroy).exactly(12).times
-        expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(12).times
+        expect(umodel).to receive(:destroy).exactly(14).times
+        expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(14).times
         inst_model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT", plugin: "INST")
         inst_model.create
         inst_model.deploy(@target_dir, {})
