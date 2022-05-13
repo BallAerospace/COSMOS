@@ -463,8 +463,8 @@ module Cosmos
       when 'POLY_READ_CONVERSION', 'POLY_WRITE_CONVERSION'
         usage = "#{keyword} <C0> <C1> <C2> ..."
         parser.verify_num_parameters(1, nil, usage)
-        @current_item.read_conversion = PolynomialConversion.new(params) if keyword.include? "READ"
-        @current_item.write_conversion = PolynomialConversion.new(params) if keyword.include? "WRITE"
+        @current_item.read_conversion = PolynomialConversion.new(*params) if keyword.include? "READ"
+        @current_item.write_conversion = PolynomialConversion.new(*params) if keyword.include? "WRITE"
 
       # Apply a segmented polynomial conversion to the current item
       # after it is read from the telemetry packet
