@@ -137,6 +137,7 @@ module Cosmos
         end
       end
       packet.received_time = Time.now.sys
+      # TODO: New packet so received_count is not correct
       packet.received_count += 1
       TelemetryTopic.write_packet(packet, scope: scope)
     end

@@ -23,6 +23,7 @@ require 'cosmos/utilities/store'
 require 'socket'
 require 'logger'
 require 'time'
+require 'json'
 
 module Cosmos
   # Supports different levels of logging and only writes if the level

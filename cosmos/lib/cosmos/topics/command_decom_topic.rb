@@ -21,6 +21,10 @@ require 'cosmos/topics/topic'
 
 module Cosmos
   class CommandDecomTopic < Topic
+    def self.topics(scope:)
+      super(scope, 'DECOMCMD')
+    end
+
     def self.write_packet(packet, scope:)
       topic = "#{scope}__DECOMCMD__{#{packet.target_name}}__#{packet.packet_name}"
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,

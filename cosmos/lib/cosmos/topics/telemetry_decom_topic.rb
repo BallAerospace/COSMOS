@@ -21,6 +21,10 @@ require 'cosmos/topics/topic'
 
 module Cosmos
   class TelemetryDecomTopic < Topic
+    def self.topics(scope:)
+      super(scope, 'DECOM')
+    end
+
     def self.write_packet(packet, id: nil, scope:)
       # Need to build a JSON hash of the decommutated data
       # Support "downward typing"

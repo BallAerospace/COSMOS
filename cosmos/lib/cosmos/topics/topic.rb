@@ -34,5 +34,15 @@ module Cosmos
         Store.xtrim(topic, maxlen)
       end
     end
+
+    def self.topics(scope, key)
+      topics = []
+      loop do
+        token, streams = Store.scan(0, :match => "#{scope}__#{key}__*", :count => 1000)
+        topics.concat(streams)
+        break if token == 0
+      end
+      topics
+    end
   end
 end

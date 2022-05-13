@@ -513,13 +513,17 @@ module Cosmos
       end
       # Recreate COSMOS built-in conversions
       if hash['read_conversion']
-        if hash['read_conversion']['class'].include?("Cosmos::")
+        begin
           item.read_conversion = Cosmos::const_get(hash['read_conversion']['class']).new(*hash['read_conversion']['params'])
+        rescue => error
+          Logger.instance.error "#{item.name} read_conversion of #{hash['read_conversion']} could not be instantiated due to #{error}"
         end
       end
       if hash['write_conversion']
-        if hash['write_conversion']['class'].include?("Cosmos::")
+        begin
           item.write_conversion = Cosmos::const_get(hash['write_conversion']['class']).new(*hash['write_conversion']['params'])
+        rescue => error
+          Logger.instance.error "#{item.name} write_conversion of #{hash['write_conversion']} could not be instantiated due to #{error}"
         end
       end
 
