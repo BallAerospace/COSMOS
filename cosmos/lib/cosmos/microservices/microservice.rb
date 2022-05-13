@@ -40,7 +40,7 @@ module Cosmos
     attr_accessor :scope
 
     def self.run
-      microservice = self.new(ARGV[0])
+      microservice = self.new(ENV['MICROSERVICE_NAME'])
       begin
         MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
         microservice.state = 'RUNNING'
@@ -52,7 +52,7 @@ module Cosmos
         else
           microservice.error = err
           microservice.state = 'DIED_ERROR'
-          Logger.fatal("Microservice #{ARGV[0]} dying from exception\n#{err.formatted}")
+          Logger.fatal("Microservice #{ENV['MICROSERVICE_NAME']} dying from exception\n#{err.formatted}")
         end
       ensure
         MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
