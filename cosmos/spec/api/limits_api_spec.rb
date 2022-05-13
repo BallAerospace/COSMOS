@@ -43,9 +43,6 @@ module Cosmos
         model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
       end
 
-      model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
-      model.create
-
       # Mock out some stuff in Microservice initialize()
       dbl = double("AwsS3Client").as_null_object
       allow(Aws::S3::Client).to receive(:new).and_return(dbl)
@@ -54,16 +51,10 @@ module Cosmos
       @im_shutdown = false
       allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep(0.01) until @im_shutdown }
 
-      model = MicroserviceModel.new(name: "DEFAULT__INTERFACE__INST_INT", scope: "DEFAULT", target_names: ["INST"])
-      model.create
-      @im = InterfaceMicroservice.new("DEFAULT__INTERFACE__INST_INT")
-      @im_thread = Thread.new { @im.run }
-
       model = MicroserviceModel.new(name: "DEFAULT__DECOM__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__TELEMETRY__{INST}__HEALTH_STATUS"])
       model.create
       @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
       @dm_thread = Thread.new { @dm.run }
-
       sleep(0.01) # Allow the threads to run
 
       @api = ApiTest.new
@@ -71,8 +62,6 @@ module Cosmos
 
     after(:each) do
       @dm.shutdown
-      @im_shutdown = true
-      @im.shutdown
       sleep(1.01)
     end
 
@@ -303,7 +292,7 @@ module Cosmos
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
         @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0 }, type: :RAW)
-        sleep 2
+        sleep 1
         items = @api.get_out_of_limits
         (0..3).each do |i|
           expect(items[i][0]).to eql "INST"
@@ -318,15 +307,15 @@ module Cosmos
       it "returns the overall system limits state" do
         @api.inject_tlm("INST", "HEALTH_STATUS",
                         { 'TEMP1' => 0, 'TEMP2' => 0, 'TEMP3' => 0, 'TEMP4' => 0, 'GROUND1STATUS' => 1, 'GROUND2STATUS' => 1 })
-        sleep(0.2)
+        sleep 1
         expect(@api.get_overall_limits_state).to eql "GREEN"
         # TEMP1 limits: -80.0 -70.0 60.0 80.0 -20.0 20.0
         # TEMP2 limits: -60.0 -55.0 30.0 35.0
-        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32 }) # Both YELLOW
-        sleep 2
+        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32, 'TEMP3' => 0, 'TEMP4' => 0 }) # Both YELLOW
+        sleep 1
         expect(@api.get_overall_limits_state).to eql "YELLOW"
-        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP2' => 40 })
-        sleep 2
+        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 0, 'TEMP2' => 40, 'TEMP3' => 0, 'TEMP4' => 0 })
+        sleep 1
         expect(@api.get_overall_limits_state).to eql "RED"
         expect(@api.get_overall_limits_state([])).to eql "RED"
 

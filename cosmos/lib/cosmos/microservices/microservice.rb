@@ -75,7 +75,7 @@ module Cosmos
 
       @name = name
       split_name = name.split("__")
-      raise "Microservice names should be scope, type, and then name" if split_name.length != 3
+      raise "Name #{name} doesn't match convention of SCOPE__TYPE__NAME" if split_name.length != 3
 
       @scope = split_name[0]
       $cosmos_scope = @scope

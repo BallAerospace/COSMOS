@@ -132,7 +132,7 @@ module Cosmos
     end
     alias dup clone
 
-    def to_hash
+    def as_json
       hash = {}
       hash['values'] = self.values
       hash['enabled'] = self.enabled
@@ -146,5 +146,17 @@ module Cosmos
       hash['persistence_count'] = self.persistence_count
       hash
     end
+
+    def self.from_json(hash)
+      limits = PacketItemLimits.new
+      limits.values = hash['values'].transform_keys(&:to_sym) if hash['values']
+      limits.enabled = hash['enabled']
+      limits.state = hash['state'] ? hash['state'].to_sym : nil
+      # Can't recreate a LimitsResponse class
+      # limits.response = hash['response']
+      limits.persistence_setting = hash['persistence_setting'] if hash['persistence_setting']
+      limits.persistence_count = hash['persistence_count'] if hash['persistence_count']
+      limits
+    end
   end
-end # module Cosmos
+end

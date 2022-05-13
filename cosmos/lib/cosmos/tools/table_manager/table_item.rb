@@ -80,7 +80,7 @@ module Cosmos
     alias dup clone
 
     # Create a hash of this item's attributes
-    def to_hash
+    def as_json
       hash = super()
       hash['editable'] = self.editable
       hash['hidden'] = self.hidden

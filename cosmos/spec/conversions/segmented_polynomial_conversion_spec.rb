@@ -53,5 +53,27 @@ module Cosmos
         expect(gc.to_s).to eql "Lower Bound: 15 Polynomial: 3 + 2x + 3x^2\nLower Bound: 10 Polynomial: 1\nLower Bound: 5 Polynomial: 2 + 2x"
       end
     end
+
+    describe "as_json" do
+      it "creates a reproducable format" do
+        spc = SegmentedPolynomialConversion.new()
+        spc.add_segment(10, 1, 2)
+        spc.add_segment(5,  2, 2)
+        spc.add_segment(15, 3, 2)
+        json = spc.as_json
+        expect(json['class']).to eql "Cosmos::SegmentedPolynomialConversion"
+        new_spc = Cosmos::const_get(json['class']).new(*json['params'])
+        spc.segments.each_with_index do |segment, index|
+          expect(segment).to be == new_spc.segments[index]
+        end
+        expect(spc.converted_type).to eql (new_spc.converted_type)
+        expect(spc.converted_bit_size).to eql (new_spc.converted_bit_size)
+        expect(spc.converted_array_size).to eql (new_spc.converted_array_size)
+        expect(spc.call(1, nil, nil)).to eql new_spc.call(1, nil, nil)
+        expect(spc.call(5, nil, nil)).to eql new_spc.call(5, nil, nil)
+        expect(spc.call(11, nil, nil)).to eql new_spc.call(11, nil, nil)
+        expect(spc.call(20, nil, nil)).to eql new_spc.call(20, nil, nil)
+      end
+    end
   end
 end

@@ -445,6 +445,11 @@ module Cosmos
       @meta ||= {}
     end
 
+    # Sets packet specific metadata
+    def meta=(meta)
+      @meta = meta
+    end
+
     # Indicates if the packet has been identified
     # @return [TrueClass or FalseClass]
     def identified?
@@ -1007,6 +1012,24 @@ module Cosmos
       end
 
       config
+    end
+
+    def self.from_json(hash)
+      endianness = hash['endianness'] ? hash['endianness'].intern : nil # Convert to symbol
+      packet = Packet.new(hash['target_name'], hash['packet_name'], endianness, hash['description'])
+      packet.short_buffer_allowed = hash['short_buffer_allowed']
+      packet.hazardous = hash['hazardous']
+      packet.hazardous_description = hash['hazardous_description']
+      packet.messages_disabled = hash['messages_disabled']
+      packet.disabled = hash['disabled']
+      packet.hidden = hash['hidden']
+      # packet.stale is read only
+      packet.meta = hash['meta']
+      # Can't convert processors
+      hash['items'].each do |item|
+        packet.define(PacketItem.from_json(item))
+      end
+      packet
     end
 
     protected

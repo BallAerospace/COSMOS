@@ -29,13 +29,10 @@ module Cosmos
     # Initializes the conversion with the given polynomial coefficients. Sets
     # the converted_type to :FLOAT and the converted_bit_size to 64.
     #
-    # @param coeff_array [Array<Float>] The polynomial coefficients
-    def initialize(coeff_array)
+    # @param coeffs [Array<Float>] The polynomial coefficients
+    def initialize(*coeffs)
       super()
-      @coeffs = []
-      coeff_array.each do |coeff|
-        @coeffs << coeff.to_f
-      end
+      @coeffs = coeffs.map { |coeff| coeff.to_f }
       @converted_type = :FLOAT
       @converted_bit_size = 64
     end
@@ -84,5 +81,5 @@ module Cosmos
     def as_json
       { 'class' => self.class.name.to_s, 'params' => @coeffs }
     end
-  end # class PolynomialConversion
-end # module Cosmos
+  end
+end

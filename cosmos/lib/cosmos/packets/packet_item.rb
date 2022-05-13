@@ -486,6 +486,63 @@ module Cosmos
       config
     end
 
+    def self.from_json(hash)
+      # Convert strings to symbols
+      endianness = hash['endianness'] ? hash['endianness'].intern : nil
+      data_type = hash['data_type'] ? hash['data_type'].intern : nil
+      overflow = hash['overflow'] ? hash['overflow'].intern : nil
+      item = PacketItem.new(hash['name'], hash['bit_offset'], hash['bit_size'],
+        data_type, endianness, hash['array_size'], overflow)
+      item.description = hash['description']
+      item.id_value = hash['id_value']
+      item.default = hash['default']
+      item.range = (hash['minimum']..hash['maximum']) if hash['minimum'] && hash['maximum']
+      item.required = hash['required']
+      item.format_string = hash['format_string']
+      item.units = hash['units']
+      item.units_full = hash['units_full']
+      if hash['states']
+        item.states = {}
+        item.hazardous = {}
+        item.state_colors = {}
+        hash['states'].each do |state_name, state|
+          item.states[state_name] = state['value']
+          item.hazardous[state_name] = state['hazardous']
+          item.state_colors[state_name] = state['color'].to_sym if state['color']
+        end
+      end
+      # Recreate COSMOS built-in conversions
+      if hash['read_conversion']
+        begin
+          item.read_conversion = Cosmos::const_get(hash['read_conversion']['class']).new(*hash['read_conversion']['params'])
+        rescue => error
+          Logger.instance.error "#{item.name} read_conversion of #{hash['read_conversion']} could not be instantiated due to #{error}"
+        end
+      end
+      if hash['write_conversion']
+        begin
+          item.write_conversion = Cosmos::const_get(hash['write_conversion']['class']).new(*hash['write_conversion']['params'])
+        rescue => error
+          Logger.instance.error "#{item.name} write_conversion of #{hash['write_conversion']} could not be instantiated due to #{error}"
+        end
+      end
+
+      if hash['limits']
+        item.limits = PacketItemLimits.new
+        # Delete these keys so the only ones left are limits sets
+        item.limits.persistence_setting = hash['limits'].delete('persistence_setting')
+        item.limits.enabled = true if hash['limits'].delete('enabled')
+        values = {}
+        hash['limits'].each do |set, items|
+          values[set.to_sym] = [items['red_low'], items['yellow_low'], items['yellow_high'], items['red_high']]
+          values[set.to_sym].concat([items['green_low'], items['green_high']]) if items['green_low'] && items['green_high']
+        end
+        item.limits.values = values
+      end
+      item.meta = hash['meta']
+      item
+    end
+
     protected
 
     def parameter_config

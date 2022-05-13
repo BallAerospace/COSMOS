@@ -39,16 +39,16 @@ module Cosmos
       end
     end
 
-    describe "to_hash" do
+    describe "as_json" do
       it "converts to a Hash" do
-        hash = @ti.to_hash
+        hash = @ti.as_json
         # Check the values from StructureItem
         expect(hash.keys).to include('editable')
         expect(hash["editable"]).to eql true
 
         @ti.editable = false
 
-        hash = @ti.to_hash
+        hash = @ti.as_json
         expect(hash["editable"]).to eql false
       end
     end

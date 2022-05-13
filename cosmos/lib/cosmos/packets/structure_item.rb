@@ -292,7 +292,16 @@ module Cosmos
     end
     alias dup clone
 
-    def to_hash
+    def self.from_json(hash)
+      # Convert strings to symbols
+      endianness = hash['endianness'] ? hash['endianness'].intern : nil
+      data_type = hash['data_type'] ? hash['data_type'].intern : nil
+      overflow = hash['overflow'] ? hash['overflow'].intern : nil
+      StructureItem.new(hash['name'], hash['bit_offset'], hash['bit_size'], data_type,
+        endianness, hash['array_size'], overflow)
+    end
+
+    def as_json
       hash = {}
       hash['name'] = self.name
       hash['bit_offset'] = self.bit_offset

@@ -20,6 +20,4 @@ spec = Gem::Specification.new do |s|
     s.version = '0.0.0' + ".#{time}"
   end
   s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile README.md plugin.txt)
-
-  s.add_runtime_dependency 'cosmos', '~> 5.0'
 end
