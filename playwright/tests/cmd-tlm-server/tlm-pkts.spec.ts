@@ -34,7 +34,6 @@ test('displays the list of telemetry', async ({ page }) => {
   await expect(page.locator('text=EXAMPLESTATUS')).toBeVisible()
   await expect(page.locator('text=INSTADCS')).toBeVisible()
   await expect(page.locator('text=INSTHEALTH_STATUS')).toBeVisible()
-  await expect(page.locator('text=UNKNOWNUNKNOWN')).toBeVisible()
 })
 
 test('displays the packet count', async ({ page }) => {
