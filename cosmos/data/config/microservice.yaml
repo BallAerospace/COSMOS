@@ -2,65 +2,77 @@
 MICROSERVICE:
   summary: Defines a new microservice
   example: MICROSERVICE EXAMPLE example-microservice
+  description: Defines a microservice that the plugin adds to the COSMOS system. Microservices are background software processes that perform persistent processing.
   parameters:
-    - name: Folder Name
+    - name: Microservice Folder Name
+      description: The exact name of the microservice folder in the plugin. ie. microservices/<Microservice Folder Name>
       required: true
-      description: The target folder where the microservice is located
-      values: .*
-    - name: Name
+      values: .+
+    - name: Microservice Name
+      description: The specific name of this instance of the microservice in the COSMOS system
       required: true
-      description: The microservice name
-      values: .*
+      values: .+
   modifiers:
     ENV:
-      summary: Environment variable
+      summary: Sets an environment variable in the microservice.
       parameters:
-        - name: Name
+        - name: Key
           required: true
           description: Environment variable name
-          values: .*
+          values: .+
         - name: Value
           required: true
           description: Environment variable value
-          values: .*
+          values: .+
     WORK_DIR:
-      summary: Directory to start the microservice in (CWD)
+      summary: Set the working directory
+      description: Working directory to run the microservice CMD in.  Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.
       parameters:
-        - name: Path
+        - name: Directory
           required: true
-          description: Relative path from the target directory
-          values: .*
+          description: Working directory to run the microservice CMD in. Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.
+          values: .+
     TOPIC:
-      summary: Topic the microservice should process data from
+      summary: Associate a Redis topic
+      description: Redis topic to associate with this microservice. Standard COSMOS microservices such as decom_microservice use this information to know what packet streams to subscribe to. The TOPIC keyword can be used as many times as necessary to associate all needed topics.
       parameters:
-        - name: Name
+        - name: Topic Name
           required: true
-          description: Topic name
-          values: .*
+          description: Redis Topic to associate with the microservice
+          values: .+
     TARGET_NAME:
-      summary: Target which this microservice processes
+      summary: Associate a COSMOS target
+      description: COSMOS target to associate with the microservice. For standard COSMOS microservices such as decom_microservice this causes the target configuration to get loaded into the container for the microservice.
       parameters:
-        - name: Name
+        - name: Target Name
           required: true
-          description: Target name
-          values: .*
+          description: COSMOS target to associate with the microservice
+          values: .+
     CMD:
-      summary: Command to run which starts the microservice
+      summary: Command line to execute to run the microservice.
+      description: Command line to execute to run the microservice.
       parameters:
-        - name: Executable
+        - name: Args
           required: true
-          description: Executable to call
-          values: .*
-        - name: Command parameters
-          required: false
-          description: Additional parameters used by the command
+          description: One or more arguments to exec to run the microservice.
+          values: .+
     OPTION:
-      summary: Options to pass to the underlying microservice (used by InterfaceMicroservice, etc.)
+      summary: Pass an option to the microservice
+      description: Generic key/value(s) options to pass to the microservice. These take the form of KEYWORD/PARAMS like a line in a COSMOS configuration file. Multiple OPTION keywords can be used to pass multiple options to the microservice.
       parameters:
-        - name: Name
+        - name: Option Name
           required: true
-          description: Option name
-          values: .*
-        - name: Values
+          description: Name of the option
+          values: .+
+        - name: Option Value(s)
+          required: true
+          description: One or more values to associate with the option
+          values: .+
+    CONTAINER:
+      summary: Docker Container.
+      description: Container to execute and run the microservice in.
+      parameters:
+        - name: Args
           required: false
-          description: Option values
+          description: Name of the container
+          values: .+
