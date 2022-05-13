@@ -52,9 +52,9 @@ RUN apk update \
   git \
   libxml2-dev \
   libxslt-dev \
-  && gem update --system 3.3.5 \
-  && gem install bundler || apk add ruby-bundler \
-  && gem install rake || apk add ruby-rake \
+  && gem update --system 3.3.13 \
+  && gem install rake \
+  && gem cleanup \
   && bundle config build.nokogiri --use-system-libraries \
   && bundle config git.allow_insecure true
 

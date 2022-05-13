@@ -51,24 +51,6 @@ module Cosmos
     def deploy(gem_path, variables)
       seed_database()
 
-      # Cleanup Microservice
-      microservice_name = "#{@scope}__CLEANUP__S3"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        cmd: ["ruby", "cleanup_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [
-          ["SIZE", "20_000_000_000"], # Max Size to keep in S3
-          ["DELAY", "300"], # Delay between size checks
-          ["BUCKET", "logs"], # Bucket to monitor
-          ["PREFIX", @scope + "/"], # Path into bucket to monitor
-        ],
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
-
       # COSMOS Log Microservice
       microservice_name = "#{@scope}__COSMOS__LOG"
       microservice = MicroserviceModel.new(
@@ -146,8 +128,6 @@ module Cosmos
     end
 
     def undeploy
-      model = MicroserviceModel.get_model(name: "#{@scope}__CLEANUP__S3", scope: @scope)
-      model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__COSMOS__LOG", scope: @scope)
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__NOTIFICATION__LOG", scope: @scope)

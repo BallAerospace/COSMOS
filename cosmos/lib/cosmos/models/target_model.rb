@@ -51,12 +51,20 @@ module Cosmos
     attr_accessor :id
     attr_accessor :cmd_log_cycle_time
     attr_accessor :cmd_log_cycle_size
+    attr_accessor :cmd_log_retain_time
     attr_accessor :cmd_decom_log_cycle_time
     attr_accessor :cmd_decom_log_cycle_size
+    attr_accessor :cmd_decom_log_retain_time
     attr_accessor :tlm_log_cycle_time
     attr_accessor :tlm_log_cycle_size
+    attr_accessor :tlm_log_retain_time
     attr_accessor :tlm_decom_log_cycle_time
     attr_accessor :tlm_decom_log_cycle_size
+    attr_accessor :tlm_decom_log_retain_time
+    attr_accessor :reduced_minute_log_retain_time
+    attr_accessor :reduced_hour_log_retain_time
+    attr_accessor :reduced_day_log_retain_time
+    attr_accessor :cleanup_poll_time
     attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
@@ -175,20 +183,35 @@ module Cosmos
       plugin: nil,
       cmd_log_cycle_time: 600,
       cmd_log_cycle_size: 50_000_000,
+      cmd_log_retain_time: nil,
       cmd_decom_log_cycle_time: 600,
       cmd_decom_log_cycle_size: 50_000_000,
+      cmd_decom_log_retain_time: nil,
       tlm_log_cycle_time: 600,
       tlm_log_cycle_size: 50_000_000,
+      tlm_log_retain_time: nil,
       tlm_decom_log_cycle_time: 600,
       tlm_decom_log_cycle_size: 50_000_000,
+      tlm_decom_log_retain_time: nil,
+      reduced_minute_log_retain_time: nil,
+      reduced_hour_log_retain_time: nil,
+      reduced_day_log_retain_time: nil,
+      cleanup_poll_time: 900,
       needs_dependencies: false,
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at,
         cmd_log_cycle_time: cmd_log_cycle_time, cmd_log_cycle_size: cmd_log_cycle_size,
+        cmd_log_retain_time: cmd_log_retain_time,
         cmd_decom_log_cycle_time: cmd_decom_log_cycle_time, cmd_decom_log_cycle_size: cmd_decom_log_cycle_size,
+        cmd_decom_log_retain_time: cmd_decom_log_retain_time,
         tlm_log_cycle_time: tlm_log_cycle_time, tlm_log_cycle_size: tlm_log_cycle_size,
+        tlm_log_retain_time: tlm_log_retain_time,
         tlm_decom_log_cycle_time: tlm_decom_log_cycle_time, tlm_decom_log_cycle_size: tlm_decom_log_cycle_size,
+        tlm_decom_log_retain_time: tlm_decom_log_retain_time, 
+        reduced_minute_log_retain_time: reduced_minute_log_retain_time,
+        reduced_hour_log_retain_time: reduced_hour_log_retain_time, reduced_day_log_retain_time: reduced_day_log_retain_time,
+        cleanup_poll_time: cleanup_poll_time, needs_dependencies: needs_dependencies,
         scope: scope)
       @folder_name = folder_name
       @requires = requires
@@ -201,12 +224,20 @@ module Cosmos
       @id = id
       @cmd_log_cycle_time = cmd_log_cycle_time
       @cmd_log_cycle_size = cmd_log_cycle_size
+      @cmd_log_retain_time = cmd_log_retain_time
       @cmd_decom_log_cycle_time = cmd_decom_log_cycle_time
       @cmd_decom_log_cycle_size = cmd_decom_log_cycle_size
+      @cmd_decom_log_retain_time = cmd_decom_log_retain_time
       @tlm_log_cycle_time = tlm_log_cycle_time
       @tlm_log_cycle_size = tlm_log_cycle_size
+      @tlm_log_retain_time = tlm_log_retain_time
       @tlm_decom_log_cycle_time = tlm_decom_log_cycle_time
       @tlm_decom_log_cycle_size = tlm_decom_log_cycle_size
+      @tlm_decom_log_retain_time = tlm_decom_log_retain_time
+      @reduced_minute_log_retain_time = reduced_minute_log_retain_time
+      @reduced_hour_log_retain_time = reduced_hour_log_retain_time
+      @reduced_day_log_retain_time = reduced_day_log_retain_time
+      @cleanup_poll_time = cleanup_poll_time
       @needs_dependencies = needs_dependencies
     end
 
@@ -226,12 +257,20 @@ module Cosmos
         'plugin' => @plugin,
         'cmd_log_cycle_time' => @cmd_log_cycle_time,
         'cmd_log_cycle_size' => @cmd_log_cycle_size,
+        'cmd_log_retain_time' => @cmd_log_retain_time,
         'cmd_decom_log_cycle_time' => @cmd_decom_log_cycle_time,
         'cmd_decom_log_cycle_size' => @cmd_decom_log_cycle_size,
+        'cmd_decom_log_retain_time' => @cmd_decom_log_retain_time,
         'tlm_log_cycle_time' => @tlm_log_cycle_time,
         'tlm_log_cycle_size' => @tlm_log_cycle_size,
+        'tlm_log_retain_time' => @tlm_log_retain_time,
         'tlm_decom_log_cycle_time' => @tlm_decom_log_cycle_time,
         'tlm_decom_log_cycle_size' => @tlm_decom_log_cycle_size,
+        'tlm_decom_log_retain_time' => @tlm_decom_log_retain_time,
+        'reduced_minute_log_retain_time' => @reduced_minute_log_retain_time,
+        'reduced_hour_log_retain_time' => @reduced_hour_log_retain_time,
+        'reduced_day_log_retain_time' => @reduced_day_log_retain_time,        
+        'cleanup_poll_time' => @cleanup_poll_time,
         'needs_dependencies' => @needs_dependencies,
       }
     end
@@ -249,24 +288,72 @@ module Cosmos
       when 'CMD_LOG_CYCLE_SIZE'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
         @cmd_log_cycle_size = parameters[0].to_i
+      when 'CMD_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for cmd log files in seconds - nil = Forever>")
+        @cmd_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @cmd_log_retain_time = @cmd_log_retain_time.to_i if @cmd_log_retain_time
       when 'CMD_DECOM_LOG_CYCLE_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
         @cmd_decom_log_cycle_time = parameters[0].to_i
       when 'CMD_DECOM_LOG_CYCLE_SIZE'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
         @cmd_decom_log_cycle_size = parameters[0].to_i
+      when 'CMD_DECOM_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for cmd decom log files in seconds - nil = Forever>")
+        @cmd_decom_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @cmd_decom_log_retain_time = @cmd_decom_log_retain_time.to_i if @cmd_decom_log_retain_time        
       when 'TLM_LOG_CYCLE_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
         @tlm_log_cycle_time = parameters[0].to_i
       when 'TLM_LOG_CYCLE_SIZE'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
         @tlm_log_cycle_size = parameters[0].to_i
+      when 'TLM_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for tlm log files in seconds - nil = Forever>")
+        @tlm_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @tlm_log_retain_time = @tlm_log_retain_time.to_i if @tlm_log_retain_time        
       when 'TLM_DECOM_LOG_CYCLE_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
         @tlm_decom_log_cycle_time = parameters[0].to_i
       when 'TLM_DECOM_LOG_CYCLE_SIZE'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
         @tlm_decom_log_cycle_size = parameters[0].to_i
+      when 'TLM_DECOM_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for tlm decom log files in seconds - nil = Forever>")
+        @tlm_decom_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @tlm_decom_log_retain_time = @tlm_decom_log_retain_time.to_i if @tlm_decom_log_retain_time
+      when 'REDUCED_MINUTE_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for reduced minute log files in seconds - nil = Forever>")
+        @reduced_minute_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @reduced_minute_log_retain_time = @reduced_minute_log_retain_time.to_i if @reduced_minute_log_retain_time
+      when 'REDUCED_HOUR_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for reduced hour log files in seconds - nil = Forever>")
+        @reduced_hour_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @reduced_hour_log_retain_time = @reduced_hour_log_retain_time.to_i if @reduced_hour_log_retain_time
+      when 'REDUCED_DAY_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for reduced day log files in seconds - nil = Forever>")
+        @reduced_day_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        @reduced_day_log_retain_time = @reduced_day_log_retain_time.to_i if @reduced_day_log_retain_time                
+      when 'LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for all log files in seconds - nil = Forever>")
+        log_retain_time = ConfigParser.handle_nil(parameters[0])
+        if log_retain_time 
+          @cmd_log_retain_time = log_retain_time.to_i
+          @cmd_decom_log_retain_time = log_retain_time.to_i   
+          @tlm_log_retain_time = log_retain_time.to_i
+          @tlm_decom_log_retain_time = log_retain_time.to_i
+        end     
+      when 'REDUCED_LOG_RETAIN_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for all reduced log files in seconds - nil = Forever>")
+        reduced_log_retain_time = ConfigParser.handle_nil(parameters[0])
+        if reduced_log_retain_time 
+          @reduced_minute_log_retain_time = reduced_log_retain_time.to_i
+          @reduced_hour_log_retain_time = reduced_log_retain_time.to_i   
+          @reduced_day_log_retain_time = reduced_log_retain_time.to_i
+        end
+      when 'CLEANUP_POLL_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Cleanup polling period in seconds>")
+        @cleanup_poll_time = parameters[0].to_i
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Target: #{keyword} #{parameters.join(" ")}")
       end
@@ -339,7 +426,7 @@ module Cosmos
       Store.del("#{@scope}__cosmoscmd__#{@name}")
 
       # Note: these match the names of the services in deploy_microservices
-      %w(DECOM COMMANDLOG DECOMCMDLOG PACKETLOG DECOMLOG REDUCER).each do |type|
+      %w(DECOM COMMANDLOG DECOMCMDLOG PACKETLOG DECOMLOG REDUCER CLEANUP).each do |type|
         model = MicroserviceModel.get_model(name: "#{@scope}__#{type}__#{@name}", scope: @scope)
         model.destroy if model
       end
@@ -625,6 +712,22 @@ module Cosmos
           topics: decom_topic_list,
           plugin: plugin,
           needs_dependencies: @needs_dependencies,
+          scope: @scope
+        )
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured microservice #{microservice_name}"
+      end
+
+      if @cmd_log_retain_time or @cmd_decom_log_retain_time or @tlm_log_retain_time or @tlm_decom_log_retain_time or
+         @reduced_minute_log_retain_time or @reduced_hour_log_retain_time or @reduced_day_log_retain_time
+        # Cleanup Microservice
+        microservice_name = "#{@scope}__CLEANUP__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          cmd: ["ruby", "cleanup_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          plugin: plugin,
           scope: @scope
         )
         microservice.create

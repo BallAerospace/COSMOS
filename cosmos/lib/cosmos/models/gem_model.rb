@@ -84,7 +84,7 @@ module Cosmos
         rubygems_url = get_setting('rubygems_url')
         Gem.sources = [rubygems_url] if rubygems_url
         Gem.done_installing_hooks.clear
-        Gem.install(gem_file_path, {:build_args => '--no-document'})
+        Gem.install(gem_file_path, "> 0.pre", :build_args => ['--no-document'], :prerelease => true)
       rescue => err
         message = "Gem file #{gem_file_path} error installing to /gems\n#{err.formatted}"
         Logger.error message

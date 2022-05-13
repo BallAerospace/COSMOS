@@ -17,6 +17,8 @@ VARIABLE example_microservice_name cosmos-example
 VARIABLE templated_microservice_name cosmos-templated
 VARIABLE example_port 9999
 VARIABLE templated_port 5025
+VARIABLE log_retain_time 172800
+VARIABLE reduced_log_retain_time 2592000
 
 <% include_inst = (inst_target_name.strip.length > 0) %>
 <% include_inst2 = (inst2_target_name.strip.length > 0) %>
@@ -33,24 +35,34 @@ VARIABLE templated_port 5025
 
 <% if include_inst %>
   TARGET INST <%= inst_target_name %>
+    LOG_RETAIN_TIME <%= log_retain_time %>
+    REDUCED_LOG_RETAIN_TIME <%= reduced_log_retain_time %>
     TLM_LOG_CYCLE_TIME 300
 <% end %>
 
 <% if include_inst2 %>
   TARGET INST <%= inst2_target_name %>
+    LOG_RETAIN_TIME <%= log_retain_time %>
+    REDUCED_LOG_RETAIN_TIME <%= reduced_log_retain_time %>
     TLM_LOG_CYCLE_TIME 600
 <% end %>
 
 <% if include_example %>
   TARGET EXAMPLE <%= example_target_name %>
+    LOG_RETAIN_TIME <%= log_retain_time %>
+    REDUCED_LOG_RETAIN_TIME <%= reduced_log_retain_time %>
 <% end %>
 
 <% if include_templated %>
   TARGET TEMPLATED <%= templated_target_name %>
+    LOG_RETAIN_TIME <%= log_retain_time %>
+    REDUCED_LOG_RETAIN_TIME <%= reduced_log_retain_time %>
 <% end %>
 
 <% if include_system %>
   TARGET SYSTEM <%= system_target_name %>
+    LOG_RETAIN_TIME <%= log_retain_time %>
+    REDUCED_LOG_RETAIN_TIME <%= reduced_log_retain_time %>
 <% end %>
 
 <% if include_inst and include_inst_int %>
