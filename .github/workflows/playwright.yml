@@ -22,9 +22,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+          node-version: "14"
+          cache: "yarn"
+          cache-dependency-path: "**/yarn.lock"
       - name: Install playwright dependencies
         run: yarn; yarn playwright install --with-deps
         working-directory: playwright
@@ -44,11 +44,13 @@ jobs:
         run: yarn playwright test --project=chromium tests/wait-for-build.spec.ts
         working-directory: playwright
       - name: Run Playwright tests
+        env:
+          DEBUG: pw:api
         # Run separately to allow for parallelism
         run: |
           yarn playwright test --project=chromium
           # Temporarily disable firefox: https://github.com/microsoft/playwright/issues/13853
-          # yarn playwright test --project=firefox
+          yarn playwright test --project=firefox
         working-directory: playwright
       - name: Upload test artifacts
         if: always() # Upload on pass or fail
