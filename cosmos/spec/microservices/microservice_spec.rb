@@ -38,14 +38,14 @@ module Cosmos
         allow(MicroserviceStatusModel).to receive(:set).with(any_args)
       end
 
-      it "expects SCOPE__TYPE__NAME parameter as ENV['MICROSERVICE_NAME']" do
-        ENV.delete('MICROSERVICE_NAME')
+      it "expects SCOPE__TYPE__NAME parameter as ENV['COSMOS_MICROSERVICE_NAME ']" do
+        ENV.delete('COSMOS_MICROSERVICE_NAME ')
         expect { Microservice.run }.to raise_error("Microservice must be named")
-        ENV['MICROSERVICE_NAME'] = "DEFAULT"
+        ENV['COSMOS_MICROSERVICE_NAME '] = "DEFAULT"
         expect { Microservice.run }.to raise_error(/Name DEFAULT doesn't match convention/)
-        ENV['MICROSERVICE_NAME'] = "DEFAULT_TYPE_NAME"
+        ENV['COSMOS_MICROSERVICE_NAME '] = "DEFAULT_TYPE_NAME"
         expect { Microservice.run }.to raise_error(/Name DEFAULT_TYPE_NAME doesn't match convention/)
-        ENV['MICROSERVICE_NAME'] = "DEFAULT__TYPE__NAME"
+        ENV['COSMOS_MICROSERVICE_NAME '] = "DEFAULT__TYPE__NAME"
         Microservice.run
         sleep 0.1
       end
