@@ -30,19 +30,15 @@ module Cosmos
     end
 
     def self.clear_topics(topics, maxlen = 0)
-      topics.each do |topic|
-        Store.xtrim(topic, maxlen)
-      end
+      topics.each { |topic| Store.xtrim(topic, maxlen) }
     end
 
     def self.topics(scope, key)
-      topics = []
-      loop do
-        token, streams = Store.scan(0, :match => "#{scope}__#{key}__*", :count => 1000)
-        topics.concat(streams)
-        break if token == 0
-      end
-      topics
+      Store
+        .scan_each(match: "#{scope}__#{key}__*", type: 'stream', count: 100)
+        .to_a # Change the enumerator into an array
+        .uniq # Scan can return duplicates so ensure unique
+        .sort # Sort not entirely necessary but nice
     end
   end
 end
