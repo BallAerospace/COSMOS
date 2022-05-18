@@ -29,15 +29,16 @@ module Cosmos
 
   class NarrativeOverlapError < NarrativeError; end
 
+  # TODO: Refactor based on SortedModel
   class NarrativeModel < Model
 
     CHRONICLE_TYPE = 'narrative'.freeze
     PRIMARY_KEY = '__NARRATIVE'.freeze
-    
+
     def self.pk(scope)
       return "#{scope}#{PRIMARY_KEY}"
     end
-  
+
     # @return [Array|nil] Array up to 100 of this model or empty array
     def self.get(start:, stop:, scope:, limit: 100)
       if start > stop
@@ -54,7 +55,7 @@ module Cosmos
 
     # @return [Array<Hash>] Array up to the limit of the models (as Hash objects) stored under the primary key
     def self.all(scope:, limit: 100)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       array = Store.zrange(pk, 0, -1, :limit => [0, limit])
       ret_array = Array.new
       array.each do |value|
@@ -70,7 +71,7 @@ module Cosmos
 
     # @return [String|nil] String of the saved json or nil if score not found under primary_key
     def self.score(score:, scope:)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       array = Store.zrangebyscore(pk, score, score, :limit => [0, 1])
       array.each do |value|
         return JSON.parse(value)
@@ -81,14 +82,14 @@ module Cosmos
     # Remove member from a sorted set based on the score.
     # @return [Integer] count of the members removed
     def self.destroy(scope:, score:)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       Store.zremrangebyscore(pk, score, score)
     end
 
     # Remove members from min to max of the sorted set.
     # @return [Integer] count of the members removed
     def self.range_destroy(scope:, min:, max:)
-      pk = self.pk(scope) 
+      pk = self.pk(scope)
       Store.zremrangebyscore(pk, min, max)
     end
 

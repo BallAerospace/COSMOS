@@ -22,28 +22,25 @@
 require 'cosmos/topics/calendar_topic'
 
 module Cosmos
-
   class MetadataError < StandardError; end
-
   class MetadataInputError < MetadataError; end
-
   class MetadataOverlapError < MetadataError; end
 
+  # TODO: Refactor based on SortedModel
   class MetadataModel < Model
-
     CHRONICLE_TYPE = 'metadata'.freeze
-    CURRENT_VALUE = '__current.metadata.value'.freeze
     PRIMARY_KEY = '__METADATA'.freeze
 
     def self.pk(scope)
       return "#{scope}#{PRIMARY_KEY}"
     end
 
-    # @return [String|nil] String of the saved json or nil if score not found under current value
-    def self.get_current_value(target:, scope:)
-      json = Store.hget("#{scope}#{CURRENT_VALUE}", target)
-      return nil unless json
-      return self.from_json(JSON.parse(json), scope: scope)
+    # @return [String|nil] json or nil if metadata empty
+    def self.get_current_value(scope:)
+      start = Time.now.to_i
+      array = Store.zrevrangebyscore(self.pk(scope), start, '-inf', :limit => [0, 1])
+      return nil if array.empty?
+      return array[0]
     end
 
     # @return [Array|nil] Array up to 100 of this model or empty array
@@ -109,15 +106,13 @@ module Cosmos
       self.new(**json, scope: scope)
     end
 
-    attr_reader :target, :start, :color, :metadata, :type
+    attr_reader :start, :color, :metadata, :type
 
-    # @param [String] target - should be the target but can be anything
     # @param [Integer] start - time metadata is active in seconds from Epoch
     # @param [String] color - The event color
     # @param [String] metadata - Key value pair object to link to name
     # @param [String] scope - Cosmos scope to track event to
     def initialize(
-      target:,
       start:,
       color: nil,
       metadata:,
@@ -127,7 +122,6 @@ module Cosmos
     )
       super(MetadataModel.pk(scope), name: start.to_s, scope: scope)
       set_input(start: start, color: color, metadata: metadata)
-      @target = target
       @type = type
       @updated_at = updated_at
     end
@@ -204,7 +198,6 @@ module Cosmos
 
       @updated_at = Time.now.to_nsec_from_epoch
       Store.zadd(@primary_key, @start, JSON.generate(as_json()))
-      update_current_value()
       notify(kind: 'created')
     end
 
@@ -226,25 +219,8 @@ module Cosmos
         multi.zremrangebyscore(@primary_key, old_start, old_start)
         multi.zadd(@primary_key, @start, JSON.generate(as_json()))
       end
-      update_current_value(old_start: old_start)
       notify(kind: 'updated', extra: old_start)
       return @start
-    end
-
-    # Update the Redis hash at primary_key and check if this metadata instance
-    # is newer than the current instance stored in the hash. If the hash does
-    # NOT contain an instance or this metadata instance is newer it will update
-    # the current hash.
-    def update_current_value(old_start: nil)
-      update = true
-      json = Store.hget("#{@scope}#{CURRENT_VALUE}", @target)
-      unless json.nil?
-        model = MetadataModel.from_json(JSON.parse(json), scope: @scope)
-        update = model.start <= @start || model.start == old_start
-      end
-      if update
-        return Store.hset("#{@scope}#{CURRENT_VALUE}", @target, JSON.generate(as_json()))
-      end
     end
 
     # destroy the activity from the redis database
@@ -271,7 +247,6 @@ module Cosmos
     # @return [Hash] generated from the MetadataModel
     def as_json
       return {
-        'target' => @target,
         'scope' => @scope,
         'updated_at' => @updated_at,
         'start' => @start,
@@ -283,7 +258,7 @@ module Cosmos
 
     # @return [String] string view of metadata
     def to_s
-      return "<MetadataModel t: #{@target}, s: #{@start}, c: #{@color}, m: #{@metadata}>"
+      return "<MetadataModel s: #{@start}, c: #{@color}, m: #{@metadata}>"
     end
   end
 end

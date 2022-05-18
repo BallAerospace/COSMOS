@@ -27,11 +27,10 @@ module Cosmos
       mock_redis()
     end
 
-    def generate_metadata(start:, target: 'FOO', scope: 'DEFAULT', metadata: nil)
+    def generate_metadata(start:, scope: 'DEFAULT', metadata: nil)
       start_time = DateTime.now.new_offset(0) + (start / 24.0)
       metadata = {'cat' => 'dog', 'version' => 'v1'} if metadata.nil?
       MetadataModel.new(
-        target: target,
         scope: scope,
         start: start_time.strftime("%s").to_i,
         color: '#FF0000',
@@ -44,16 +43,9 @@ module Cosmos
         metadata = generate_metadata(start: -1.5)
         metadata.create()
         ret = MetadataModel.get_current_value(
-          target: metadata.target,
           scope: 'DEFAULT'
         )
         expect(ret).not_to be_nil
-
-        ret = MetadataModel.get_current_value(
-          target: 'test',
-          scope: 'DEFAULT'
-        )
-        expect(ret).to eql(nil)
       end
     end
 
@@ -92,7 +84,6 @@ module Cosmos
         metadata = generate_metadata(start: -1.0)
         metadata.create()
         model = MetadataModel.score(score: metadata.start, scope: 'DEFAULT')
-        expect(model["target"]).to eql(metadata.target)
         expect(model["start"]).to eql(metadata.start)
         expect(model["metadata"]).not_to be_nil
       end
@@ -155,7 +146,6 @@ module Cosmos
       it "raises error due to invalid time" do
         expect {
           MetadataModel.new(
-            target: 'FOO',
             scope: 'DEFAULT',
             start: 'foo',
             color: '#00FF00',
@@ -169,7 +159,6 @@ module Cosmos
       it "raises error due to invalid color" do
         expect {
           MetadataModel.new(
-            target: 'FOO',
             scope: 'DEFAULT',
             start: Time.now.to_i,
             color: 'foo',
@@ -234,7 +223,6 @@ module Cosmos
         scope = "scope"
         metadata = generate_metadata(start: -1.0)
         json = metadata.as_json
-        expect(json["target"]).to eql(metadata.target)
         expect(json["start"]).to eql(metadata.start)
         expect(json["metadata"]).not_to be_nil
       end

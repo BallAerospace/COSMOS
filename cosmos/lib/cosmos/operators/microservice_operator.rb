@@ -47,7 +47,7 @@ module Cosmos
       else
         env['GEM_HOME'] = nil
       end
-      env['COSMOS_MICROSERVICE_NAME '] = microservice_name
+      env['COSMOS_MICROSERVICE_NAME'] = microservice_name
       container = microservice_config["container"]
       scope = microservice_name.split("__")[0]
       return process_definition, work_dir, env, scope, container

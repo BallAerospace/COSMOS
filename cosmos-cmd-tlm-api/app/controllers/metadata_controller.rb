@@ -33,9 +33,7 @@ class MetadataController < ApplicationController
 
   # Returns a single metadata in json
   #
-  # name [String] the target or name of metadata, `INST`
-  # scope [String] the scope of the chronicle, `DEFAULT`
-  # target [String] (required) The key in the metadata
+  # scope [String] the scope of the metadata, `DEFAULT`
   # @return [String] the current metadata converted into json format.
   def get
     begin
@@ -46,12 +44,12 @@ class MetadataController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      model = @model_class.get_current_value(target: params[:name], scope: params[:scope])
-      if model.nil?
+      json = @model_class.get_current_value(scope: params[:scope])
+      if json.nil?
         render :json => { :status => 'error', :message => 'not found' }, :status => 204
         return
       end
-      render :json => model.as_json(), :status => 200
+      render :json => json, :status => 200
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
@@ -188,7 +186,6 @@ class MetadataController < ApplicationController
   # Request Post Body
   # ```json
   #  {
-  #    "target": "INST",
   #    "start": "2031-04-16T01:02:00.001+00:00",
   #    "color": "#FF0000",
   #    "metadata": {"version"=>"v1234567"}
@@ -203,7 +200,7 @@ class MetadataController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      hash = params.to_unsafe_h.slice(:target, :start, :color, :metadata).to_h
+      hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
       if hash['start'].nil?
         hash['start'] = DateTime.now.strftime('%s%3N').to_i
       else
@@ -245,7 +242,6 @@ class MetadataController < ApplicationController
   # Request Post Body
   # ```json
   #  {
-  #    "target": "target",
   #    "start": "2031-04-16T01:02:00.001+00:00",
   #    "metadata": {"version"=>"v1234567"}
   #    "color": "#FF0000",
@@ -267,7 +263,7 @@ class MetadataController < ApplicationController
       end
       model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
 
-      hash = params.to_unsafe_h.slice(:target, :start, :color, :metadata).to_h
+      hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
       hash['start'] = DateTime.parse(hash['start']).strftime('%s%3N').to_i
       model.update(start: hash['start'], color: hash['color'], metadata: hash['metadata'])
       Cosmos::Logger.info(
