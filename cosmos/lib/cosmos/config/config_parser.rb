@@ -168,7 +168,7 @@ module Cosmos
         path = File.join(File.dirname(@filename), template_name)
       end
       Cosmos.set_working_dir(File.dirname(path)) do
-        return ERB.new(File.read(path)).result(b)
+        return ERB.new(File.read(path), trim_mode: "-").result(b)
       end
     end
 
@@ -377,7 +377,7 @@ module Cosmos
         output = nil
         if run_erb
           Cosmos.set_working_dir(File.dirname(filename)) do
-            output = ERB.new(File.read(filename)).result(binding.set_variables(variables))
+            output = ERB.new(File.read(filename), trim_mode: "-").result(binding.set_variables(variables))
           end
         else
           output = File.read(filename)
