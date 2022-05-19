@@ -19,6 +19,8 @@
 
 require 'cosmos/api/authorized_api'
 require 'cosmos/io/json_drb'
+require 'cosmos/models/settings_model'
+require 'cosmos/version'
 
 module Cosmos
   class Cts
@@ -41,3 +43,6 @@ module Cosmos
 end
 
 Cosmos::Cts.instance
+
+# Set the displayed COSMOS version
+Cosmos::SettingsModel.set({name: 'version', data: COSMOS_VERSION}, scope: nil)

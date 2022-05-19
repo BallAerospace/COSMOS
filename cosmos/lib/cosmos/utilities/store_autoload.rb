@@ -31,7 +31,7 @@ end
 module Cosmos
   class Store
     # Variable that holds the singleton instance
-    @@instance = nil
+    @instance = nil
 
     # Mutex used to ensure that only one instance is created
     @@instance_mutex = Mutex.new
@@ -42,11 +42,11 @@ module Cosmos
     # Get the singleton instance
     def self.instance(pool_size = 100)
       # Logger.level = Logger::DEBUG
-      return @@instance if @@instance
+      return @instance if @instance
 
       @@instance_mutex.synchronize do
-        @@instance ||= self.new(pool_size)
-        return @@instance
+        @instance ||= self.new(pool_size)
+        return @instance
       end
     end
 
@@ -87,43 +87,9 @@ module Cosmos
       end
     end
 
-    def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
-      msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__{#{target_name}}__#{packet_name}")
-      if msg_id
-        # TODO: We now have these reserved items directly on command packets
-        # Do we still calculate from msg_hash['time'] or use the times directly?
-        #
-        # if param_name == 'RECEIVED_TIMESECONDS' || param_name == 'PACKET_TIMESECONDS'
-        #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).to_f
-        # elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
-        #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
-        if param_name == 'RECEIVED_COUNT'
-          msg_hash['received_count'].to_i
-        else
-          json = msg_hash['json_data']
-          hash = JSON.parse(json)
-          # Start from the most complex down to the basic raw value
-          value = hash["#{param_name}__U"]
-          return value if value && type == :WITH_UNITS
-
-          value = hash["#{param_name}__F"]
-          return value if value && (type == :WITH_UNITS || type == :FORMATTED)
-
-          value = hash["#{param_name}__C"]
-          return value if value && (type == :WITH_UNITS || type == :FORMATTED || type == :CONVERTED)
-
-          return hash[param_name]
-        end
-      end
-    end
-
     ###########################################################################
     # Stream APIs
     ###########################################################################
-
-    def self.initialize_streams(topics)
-      self.instance.initialize_streams(topics)
-    end
 
     def initialize_streams(topics)
       @redis_pool.with do |redis|
@@ -134,48 +100,18 @@ module Cosmos
       end
     end
 
-    def self.get_oldest_message(topic)
-      self.instance.get_oldest_message(topic)
-    end
-
     def get_oldest_message(topic)
       @redis_pool.with do |redis|
         result = redis.xrange(topic, count: 1)
-        return result[0]
-      end
-    end
-
-    def self.get_newest_message(topic)
-      self.instance.get_newest_message(topic)
-    end
-
-    def get_newest_message(topic)
-      @redis_pool.with do |redis|
-        result = redis.xrevrange(topic, count: 1)
-        return result[0]
-      end
-    end
-
-    def self.get_last_offset(topic)
-      self.instance.get_last_offset(topic)
-    end
-
-    def get_last_offset(topic)
-      @redis_pool.with do |redis|
-        result = redis.xrevrange(topic, count: 1)
-        if result and result[0] and result[0][0]
-          result[0][0]
+        if result and result.length > 0
+          return result[0]
         else
-          "0-0"
+          return nil
         end
       end
     end
 
-    def self.read_topic_last(topic)
-      self.instance.read_topic_last(topic)
-    end
-
-    def read_topic_last(topic)
+    def get_newest_message(topic)
       @redis_pool.with do |redis|
         # Default in xrevrange is range end '+', start '-' which means get all
         # elements from higher ID to lower ID and since we're limiting to 1
@@ -189,18 +125,15 @@ module Cosmos
       end
     end
 
-    # TODO: Currently unused
-    # def decrement_id(id)
-    #   time, sequence = id.split('-')
-    #   if sequence == '0'
-    #     "#{time.to_i - 1}-18446744073709551615"
-    #   else
-    #     "#{time}-#{sequence.to_i - 1}"
-    #   end
-    # end
-
-    def self.update_topic_offsets(topics)
-      self.instance.update_topic_offsets(topics)
+    def get_last_offset(topic)
+      @redis_pool.with do |redis|
+        result = redis.xrevrange(topic, count: 1)
+        if result and result[0] and result[0][0]
+          result[0][0]
+        else
+          "0-0"
+        end
+      end
     end
 
     def update_topic_offsets(topics)
@@ -221,15 +154,12 @@ module Cosmos
       return offsets
     end
 
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      self.instance.read_topics(topics, offsets, timeout_ms, &block)
-    end
     unless $enterprise_cosmos
-      def read_topics(topics, offsets = nil, timeout_ms = 1000)
+      def read_topics(topics, offsets = nil, timeout_ms = 1000, count = nil)
         # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
         @redis_pool.with do |redis|
           offsets = update_topic_offsets(topics) unless offsets
-          result = redis.xread(topics, offsets, block: timeout_ms)
+          result = redis.xread(topics, offsets, block: timeout_ms, count: count)
           if result and result.length > 0
             result.each do |topic, messages|
               messages.each do |msg_id, msg_hash|
@@ -242,26 +172,6 @@ module Cosmos
           return result
         end
       end
-    end
-
-    # Add new entry to the redis stream.
-    # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xadd
-    #
-    # @example Without options
-    #   COSMOS::Store().write_topic('MANGO__TOPIC', {'message' => 'something'})
-    # @example With options
-    #   COSMOS::Store().write_topic('MANGO__TOPIC', {'message' => 'something'}, id: '0-0', maxlen: 1000, approximate: false)
-    #
-    # @param topic [String] the stream / topic
-    # @param msg_hash [Hash]   one or multiple field-value pairs
-    #
-    # @option opts [String]  :id          the entry id, default value is `*`, it means auto generation
-    # @option opts [Integer] :maxlen      max length of entries
-    # @option opts [Boolean] :approximate whether to add `~` modifier of maxlen or not
-    #
-    # @return [String] the entry id
-    def self.write_topic(topic, msg_hash, id = '*', maxlen = nil, approximate = true)
-      self.instance.write_topic(topic, msg_hash, id, maxlen, approximate)
     end
 
     # Add new entry to the redis stream.
@@ -293,23 +203,6 @@ module Cosmos
     # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xtrim
     #
     # @example Without options
-    #   COSMOS::Store.trim_topic('MANGO__TOPIC', 1000)
-    # @example With options
-    #   COSMOS::Store.trim_topic('MANGO__TOPIC', 1000, approximate: true, limit: 0)
-    #
-    # @param topic  [String]  the stream key
-    # @param minid  [Integer] max length of entries to trim
-    # @param limit  [Boolean] whether to add `~` modifier of maxlen or not
-    #
-    # @return [Integer] the number of entries actually deleted
-    def self.trim_topic(topic, minid, approximate = true, limit: 0)
-      self.instance.trim_topic(topic, minid, approximate, limit: limit)
-    end
-
-    # Trims older entries of the redis stream if needed.
-    # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xtrim
-    #
-    # @example Without options
     #   store.trim_topic('MANGO__TOPIC', 1000)
     # @example With options
     #   store.trim_topic('MANGO__TOPIC', 1000, approximate: true, limit: 0)
@@ -323,6 +216,14 @@ module Cosmos
       @redis_pool.with do |redis|
         return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)
       end
+    end
+  end
+
+  class EphemeralStore < Store
+    def initialize(pool_size = 10)
+      super(pool_size)
+      @redis_url = "redis://#{ENV['COSMOS_REDIS_NOPERSIST_HOSTNAME']}:#{ENV['COSMOS_REDIS_NOPERSIST_PORT']}"
+      @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
     end
   end
 end

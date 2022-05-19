@@ -22,7 +22,7 @@ require 'cosmos/topics/topic'
 module Cosmos
   class NotificationsTopic < Topic
     def self.write_notification(notification, scope:)
-      Store.write_topic("#{scope}__cosmos_notifications", notification)
+      Topic.write_topic("#{scope}__cosmos_notifications", notification)
     end
   end
 end

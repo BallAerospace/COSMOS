@@ -31,17 +31,17 @@ module Cosmos
                    received_count: packet.received_count,
                    stored: packet.stored,
                    buffer: packet.buffer(false) }
-      Store.write_topic(topic, msg_hash)
+      Topic.write_topic(topic, msg_hash)
     end
 
     # @param command [Hash] Command hash structure read to be written to a topic
     def self.send_command(command, scope:)
       ack_topic = "{#{scope}__ACKCMD}TARGET__#{command['target_name']}"
-      Store.update_topic_offsets([ack_topic])
+      Topic.update_topic_offsets([ack_topic])
       # Save the existing cmd_params Hash and JSON generate before writing to the topic
       cmd_params = command['cmd_params']
       command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
-      cmd_id = Store.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command, '*', 100)
+      cmd_id = Topic.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command, '*', 100)
       # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
       time = Time.now
       while (Time.now - time) < COMMAND_ACK_TIMEOUT_S

@@ -195,7 +195,7 @@ module Cosmos
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       topic = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
-      msg_id, msg_hash = Store.instance.read_topic_last(topic)
+      msg_id, msg_hash = Topic.get_newest_message(topic)
       if msg_id
         msg_hash['buffer'] = msg_hash['buffer'].b
         return msg_hash
@@ -302,7 +302,7 @@ module Cosmos
     # @return [Varies] value
     def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      Store.instance.get_cmd_item(target_name, command_name, parameter_name, type: value_type, scope: scope)
+      CommandDecomTopic.get_cmd_item(target_name, command_name, parameter_name, type: value_type, scope: scope)
     end
 
     # Returns the time the most recent command was sent
@@ -315,7 +315,7 @@ module Cosmos
     def get_cmd_time(target_name = nil, command_name = nil, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       if target_name and command_name
-        time = Store.instance.get_cmd_item(target_name, command_name, 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
+        time = CommandDecomTopic.get_cmd_item(target_name, command_name, 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
         [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
       else
         if target_name.nil?
@@ -327,7 +327,7 @@ module Cosmos
           time = 0
           command_name = nil
           TargetModel.packets(target_name, type: :CMD, scope: scope).each do |packet|
-            cur_time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
+            cur_time = CommandDecomTopic.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
             next unless cur_time
 
             if cur_time > time
@@ -349,7 +349,7 @@ module Cosmos
     def get_cmd_cnt(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
-      _get_cnt("#{scope}__COMMAND__{#{target_name}}__#{command_name}")
+      Topic.get_cnt("#{scope}__COMMAND__{#{target_name}}__#{command_name}")
     end
 
     # Get information on all command packets
@@ -362,7 +362,7 @@ module Cosmos
         TargetModel.packets(target_name, type: :CMD, scope: scope).each do | packet |
           command_name = packet['packet_name']
           key = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
-          result << [target_name, command_name, _get_cnt(key)]
+          result << [target_name, command_name, Topic.get_cnt(key)]
         end
       end
       # Return the results sorted by target, packet

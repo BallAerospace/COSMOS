@@ -38,7 +38,7 @@ module Cosmos
     #  }
     # ```
     def self.write_entry(entry, scope:)
-      Store.write_topic("#{scope}#{PRIMARY_KEY}", entry, '*', 1000)
+      Topic.write_topic("#{scope}#{PRIMARY_KEY}", entry, '*', 1000)
     end
   end
 end

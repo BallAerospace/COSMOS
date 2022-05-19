@@ -52,13 +52,13 @@ module Cosmos
         raise "Invalid limits event type '#{event[:type]}'"
       end
 
-      Store.write_topic("#{scope}__cosmos_limits_events", event, '*', 1000)
+      Topic.write_topic("#{scope}__cosmos_limits_events", event, '*', 1000)
     end
 
     def self.read(offset = nil, count: 100, scope:)
       topic = "#{scope}__cosmos_limits_events"
       if offset
-        result = Store.xread(topic, offset, count: count)
+        result = Topic.read_topics([topic], [offset], nil, count)
         if result.empty?
           [] # We want to return an empty array rather than an empty hash
         else
@@ -67,7 +67,9 @@ module Cosmos
           result[topic]
         end
       else
-        Store.xrevrange(topic, count: 1)
+        result = Topic.get_newest_message(topic)
+        return [result] if result
+        return []
       end
     end
 

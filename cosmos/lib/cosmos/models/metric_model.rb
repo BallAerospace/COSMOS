@@ -20,7 +20,7 @@
 require 'cosmos/models/model'
 
 module Cosmos
-  class MetricModel < Model
+  class MetricModel < EphemeralModel
     PRIMARY_KEY = '__cosmos__metric'.freeze
 
     # NOTE: The following three class methods are used by the ModelController
@@ -38,7 +38,7 @@ module Cosmos
     end
 
     def self.destroy(scope:, name:)
-      Store.hdel("#{scope}#{PRIMARY_KEY}", name)
+      EphemeralStore.hdel("#{scope}#{PRIMARY_KEY}", name)
     end
 
     def initialize(name:, scope:, metric_name:, label_list:)

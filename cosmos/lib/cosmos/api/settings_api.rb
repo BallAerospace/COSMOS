@@ -19,8 +19,6 @@
 
 module Cosmos
   module Api
-    SETTINGS_KEY = "cosmos__settings"
-
     WHITELIST ||= []
     WHITELIST.concat([
                        'list_settings',
@@ -31,28 +29,42 @@ module Cosmos
                      ])
 
     def list_settings(scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hkeys(SETTINGS_KEY)
+      authorize(permission: 'system', scope: scope, token: token)
+      SettingsModel.names(scope: scope)
     end
 
     def get_all_settings(scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hgetall(SETTINGS_KEY)
+      authorize(permission: 'system', scope: scope, token: token)
+      SettingsModel.all(scope: scope)
     end
 
     def get_setting(name, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hget(SETTINGS_KEY, name)
+      authorize(permission: 'system', scope: scope, token: token)
+      setting = SettingsModel.get(name: name, scope: scope)
+      if setting
+        return setting["data"]
+      else
+        return nil
+      end
     end
 
     def get_settings(*args, scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system', scope: scope, token: token)
       ret = []
       args.each do |name|
-        ret << Store.instance.hget(SETTINGS_KEY, name)
+        setting = SettingsModel.get(name: name, scope: scope)
+        if setting
+          ret << setting["data"]
+        else
+          ret << nil
+        end
       end
       return ret
     end
 
     def save_setting(name, data, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'admin', scope: scope, token: token)
-      Store.instance.hset(SETTINGS_KEY, name, data)
+      SettingsModel.set({ name: name,  data: data }, scope: scope)
     end
   end
 end

@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/models/tool_config_model'
+
 module Cosmos
   module Api
     WHITELIST ||= []
@@ -34,19 +36,23 @@ module Cosmos
     end
 
     def list_configs(tool, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hkeys("#{scope}__config__#{tool}")
+      authorize(permission: 'system', scope: scope, token: token)
+      ToolConfigModel.list_configs(tool, scope: scope)
     end
 
     def load_config(tool, name, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hget("#{scope}__config__#{tool}", name)
+      authorize(permission: 'system', scope: scope, token: token)
+      ToolConfigModel.load_config(tool, name, scope: scope)
     end
 
     def save_config(tool, name, data, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hset("#{scope}__config__#{tool}", name, data)
+      authorize(permission: 'system_set', scope: scope, token: token)
+      ToolConfigModel.save_config(tool, name, data, scope: scope)
     end
 
     def delete_config(tool, name, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hdel("#{scope}__config__#{tool}", name)
+      authorize(permission: 'system_set', scope: scope, token: token)
+      ToolConfigModel.delete_config(tool, name, scope: scope)
     end
   end
 end

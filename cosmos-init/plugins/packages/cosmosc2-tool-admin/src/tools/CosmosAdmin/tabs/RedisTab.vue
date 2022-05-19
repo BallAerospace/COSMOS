@@ -47,6 +47,10 @@
         >
           Execute
         </v-btn>
+        <v-radio-group v-model="redisEndpoint" row hide-details class="mt-0">
+          <v-radio label="Persistent" value="/cosmos-api/redis/exec" data-test="persistent-radio" />
+          <v-radio label="Ephemeral" value="/cosmos-api/redis/exec?ephemeral=1" data-test="ephemeral-radio" />
+        </v-radio-group>
       </v-card-actions>
     </v-card>
   </div>
@@ -60,6 +64,7 @@ export default {
     return {
       redisCommandText: '',
       redisResponse: null,
+      redisEndpoint: '/cosmos-api/redis/exec'
     }
   },
   methods: {
@@ -68,7 +73,7 @@ export default {
     },
     executeRaw: function () {
       this.redisResponse = null
-      Api.post('/cosmos-api/redis/exec', {
+      Api.post(this.redisEndpoint, {
         data: this.redisCommandText,
         headers: {
           Accept: 'application/json',
