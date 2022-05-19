@@ -71,7 +71,7 @@ ENV['COSMOS_REDIS_PORT'] = '6379'
 # Set redis host
 ENV['COSMOS_REDIS_NOPERSIST_HOSTNAME'] = '127.0.0.1'
 # Set redis port
-ENV['COSMOS_REDIS_NOPERSIST_PORT'] = '6379'
+ENV['COSMOS_REDIS_NOPERSIST_PORT'] = '6380'
 # Set redis username
 ENV['COSMOS_REDIS_USERNAME'] = 'cosmos'
 # Set redis password

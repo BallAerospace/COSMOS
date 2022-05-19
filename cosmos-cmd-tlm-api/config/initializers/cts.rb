@@ -44,5 +44,8 @@ end
 
 Cosmos::Cts.instance
 
-# Set the displayed COSMOS version
-Cosmos::SettingsModel.set({name: 'version', data: COSMOS_VERSION}, scope: nil)
+# Accessing Redis early can break specs
+unless ENV['COSMOS_NO_STORE']
+  # Set the displayed COSMOS version
+  Cosmos::SettingsModel.set({name: 'version', data: COSMOS_VERSION}, scope: nil)
+end
