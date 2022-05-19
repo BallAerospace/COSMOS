@@ -17,11 +17,11 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/models/narrative_model'
+require 'cosmos/models/note_model'
 
 class NarrativeController < ApplicationController
   def initialize
-    @model_class = Cosmos::NarrativeModel
+    @model_class = Cosmos::NoteModel
   end
 
   def parse_time_input(x_start:, x_stop:)
@@ -79,7 +79,7 @@ class NarrativeController < ApplicationController
       start, stop = parse_time_input(x_start: params[:start], x_stop: params[:stop])
       q = params[:q]
       raise NarrativeInputError "Must include q value" if q.nil?
-      model_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
+      model_array = @model_class.range(scope: params[:scope], start: start, stop: stop)
       model_array.find { |model| model.description.include? q }
       render :json => model_array, :status => 200
     rescue ArgumentError
@@ -139,7 +139,7 @@ class NarrativeController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      model_hash = @model_class.score(score: params[:id], scope: params[:scope])
+      model_hash = @model_class.get(score: params[:id], scope: params[:scope])
       if model_hash.nil?
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
@@ -238,7 +238,7 @@ class NarrativeController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      hash = @model_class.score(score: params[:id], scope: params[:scope])
+      hash = @model_class.get(score: params[:id], scope: params[:scope])
       if hash.nil?
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
@@ -295,19 +295,17 @@ class NarrativeController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      hash = @model_class.score(score: params[:id], scope: params[:scope])
-      if hash.nil?
+      count = @model_class.destroy(start: params[:id], scope: params[:scope])
+      if count == 0
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
       end
-      model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
-      model.destroy()
       Cosmos::Logger.info(
         "Narrative destroyed: #{model}",
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION'])
       )
-      render :json => { "status" => 1 }, :status => 204
+      render :json => { "status" => count }, :status => 204
     rescue Cosmos::NarrativeError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 400
     rescue StandardError => e

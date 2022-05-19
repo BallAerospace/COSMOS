@@ -26,107 +26,99 @@ module Cosmos
       mock_redis()
     end
 
-    describe "as_json, self.from_json" do
-      it "round trips the json representation" do
-        time = Time.now
-        model = SortedModel.new(scope: 'DEFAULT', value: 123, plugin: true, updated_at: time)
-        json = model.as_json
-        expect(json['name']).to eql '123' # Name is a String rep of the value parameter
-        expect(json['value']).to eql 123
-        expect(json['scope']).to eql 'DEFAULT'
-        expect(json['updated_at']).to eql time
-        expect(json['plugin']).to eql true
-        model2 = SortedModel.from_json(JSON.generate(json), scope: "DEFAULT")
-        expect(model2).to be_a SortedModel
-        json2 = model2.as_json
-        expect(json['name']).to eql json2['name']
-        expect(json['value']).to eql json2['value']
-        expect(json['scope']).to eql json2['scope']
-        # TODO: Times don't seem to be round tripping
-        # expect(json['updated_at']).to eql json2['updated_at']
-        expect(json['plugin']).to eql json2['plugin']
+    def create_model(start: Time.now.to_i, scope: 'DEFAULT')
+      model = SortedModel.new(
+        scope: scope,
+        start: start,
+      )
+      model.create()
+      model
+    end
+
+    describe "self.pk" do
+      it "returns the primary key" do
+        expect(SortedModel.pk('DEFAULT')).to eql("DEFAULT__SORTED")
       end
     end
 
-    describe "create" do
-      it "stores the value" do
-        model = SortedModel.new(scope: 'DEFAULT', value: 100)
-        model.create
-        data = Store.zrange(SortedModel.pk('DEFAULT'), 0, 1)
-        result = JSON.parse(data[0]) # zrange returns array
-        expect(result['value']).to eql 100
-      end
-
-      it "validates the value for overlap" do
-        model = SortedModel.new(scope: 'DEFAULT', value: 100)
-        model.create
-        expect { model.create }.to raise_error(SortedModel::SortedOverlapError)
+    describe "self.get_current_value" do
+      it "get the current sorted entry (latest before Time.now)" do
+        now = Time.now.to_i
+        create_model(start: now + 10) # future
+        create_model(start: now)
+        create_model(start: now - 10)
+        create_model(start: now - 20)
+        json = SortedModel.get_current_value(
+          scope: 'DEFAULT'
+        )
+        hash = JSON.parse(json)
+        expect(hash['start']).to eql(now)
       end
     end
 
     describe "self.get" do
-      it "returns data" do
+      it "returns a sorted item" do
         time1 = Time.now
-        model = SortedModel.new(scope: 'DEFAULT', value: 100, updated_at: time1)
+        model = SortedModel.new(scope: 'DEFAULT', start: 100, updated_at: time1)
         model.create()
         time2 = Time.now + 100
-        model = SortedModel.new(scope: 'DEFAULT', value: 200, updated_at: time2)
+        model = SortedModel.new(scope: 'DEFAULT', start: 200, updated_at: time2)
         model.create()
-        json = SortedModel.get(scope: 'DEFAULT', value: 100)
-        expect(json["value"]).to eql 100
+        json = SortedModel.get(scope: 'DEFAULT', start: 100)
+        expect(json["start"]).to eql 100
         # TODO: Times don't seem to be round tripping
         # expect(json["updated_at"]).to eql time1
-        json = SortedModel.get(scope: 'DEFAULT', value: 200)
-        expect(json["value"]).to eql 200
+        json = SortedModel.get(scope: 'DEFAULT', start: 200)
+        expect(json["start"]).to eql 200
         # TODO: Times don't seem to be round tripping
         # expect(json["updated_at"]).to eql time2
-        json = SortedModel.get(scope: 'DEFAULT', value: 300)
+        json = SortedModel.get(scope: 'DEFAULT', start: 300)
         expect(json).to be_nil
       end
     end
 
     describe "self.all" do
       it "returns all entries" do
-        model = SortedModel.new(scope: 'DEFAULT', value: 100)
+        model = SortedModel.new(scope: 'DEFAULT', start: 100)
         model.create()
-        model = SortedModel.new(scope: 'DEFAULT', value: 200)
+        model = SortedModel.new(scope: 'DEFAULT', start: 200)
         model.create()
         all = SortedModel.all(scope: 'DEFAULT')
         expect(all.empty?).to eql(false)
         expect(all.length).to eql(2)
-        expect(all[0]["value"]).to eql 100
-        expect(all[1]["value"]).to eql 200
+        expect(all[0]["start"]).to eql 100
+        expect(all[1]["start"]).to eql 200
       end
     end
 
     describe "self.range" do
       it "validates start and stop" do
-        expect { SortedModel.range(scope: 'DEFAULT', start: 100, stop: 99) }.to raise_error(SortedModel::SortedInputError)
+        expect { SortedModel.range(scope: 'DEFAULT', start: 100, stop: 99) }.to raise_error(SortedInputError)
       end
 
-      it "returns data between X and Y" do
-        model = SortedModel.new(scope: 'DEFAULT', value: 100)
+      it "returns items between start and stop" do
+        model = SortedModel.new(scope: 'DEFAULT', start: 100)
         model.create()
-        model = SortedModel.new(scope: 'DEFAULT', value: 200)
+        model = SortedModel.new(scope: 'DEFAULT', start: 200)
         model.create()
         array = SortedModel.range(scope: 'DEFAULT', start: 100, stop: 200)
         expect(array.length).to eql(2)
-        expect(array[0]["value"]).to eql 100
-        expect(array[1]["value"]).to eql 200
+        expect(array[0]["start"]).to eql 100
+        expect(array[1]["start"]).to eql 200
 
         array = SortedModel.range(scope: 'DEFAULT', start: 101, stop: 199)
         expect(array.empty?).to eql(true)
 
         array = SortedModel.range(scope: 'DEFAULT', start: 150, stop: 250)
         expect(array.length).to eql(1)
-        expect(array[0]["value"]).to eql 200
+        expect(array[0]["start"]).to eql 200
       end
     end
 
     describe "self.count" do
-      it "returns the count/number of chronicles" do
+      it "returns the count/number of sorted items" do
         10.times do |x|
-          model = SortedModel.new(scope: 'DEFAULT', value: x)
+          model = SortedModel.new(scope: 'DEFAULT', start: x)
           model.create()
         end
         count = SortedModel.count(scope: 'DEFAULT')
@@ -135,23 +127,23 @@ module Cosmos
     end
 
     describe "self.destroy" do
-      it "removes the score from the chronicle" do
-        model = SortedModel.new(scope: 'DEFAULT', value: 100)
+      it "removes the sorted item" do
+        model = SortedModel.new(scope: 'DEFAULT', start: 100)
         model.create()
-        ret = SortedModel.destroy(scope: 'DEFAULT', value: 100)
+        ret = SortedModel.destroy(scope: 'DEFAULT', start: 100)
         expect(ret).to eql(1)
         count = SortedModel.count(scope: 'DEFAULT')
         expect(count).to eql(0)
-        ret = SortedModel.destroy(scope: 'DEFAULT', value: 100)
+        ret = SortedModel.destroy(scope: 'DEFAULT', start: 100)
         expect(ret).to eql(0)
       end
     end
 
     describe "self.range_destroy" do
-      it "removes multiple members form of the timeline" do
-        model = SortedModel.new(scope: 'DEFAULT', value: 100)
+      it "removes multiple sorted items" do
+        model = SortedModel.new(scope: 'DEFAULT', start: 100)
         model.create
-        model = SortedModel.new(scope: 'DEFAULT', value: 200)
+        model = SortedModel.new(scope: 'DEFAULT', start: 200)
         model.create
         ret = SortedModel.range_destroy(
           scope: 'DEFAULT',
@@ -160,6 +152,82 @@ module Cosmos
         )
         expect(ret).to eql(2)
         expect(SortedModel.count(scope: 'DEFAULT')).to eql(0)
+      end
+    end
+
+    describe "initialize" do
+      it "raises error due to invalid start" do
+        expect { create_model(start: 'foo') }.to raise_error(SortedInputError)
+        expect { create_model(start: 5.5) }.to raise_error(SortedInputError)
+        expect { create_model(start: -1) }.to raise_error(SortedInputError)
+      end
+
+      it "allows future start times" do
+        future = Time.now.to_i + 1000
+        create_model(start: future)
+      end
+
+      it "raises error due to start overlap" do
+        now = Time.now.to_i
+        create_model(start: now)
+        expect { create_model(start: now) }.to raise_error(SortedOverlapError)
+      end
+    end
+
+    describe "create" do
+      it "stores the start" do
+        create_model(start: 100)
+        data = Store.zrange(SortedModel.pk('DEFAULT'), 0, 1)
+        result = JSON.parse(data[0]) # zrange returns array
+        expect(result['start']).to eql 100
+      end
+
+      it "validates the start for overlap" do
+        model = create_model(start: 100)
+        expect { model.create }.to raise_error(SortedOverlapError)
+      end
+    end
+
+    describe "update" do
+      it "updates the sorted item" do
+        now = Time.now.to_i
+        model = create_model(start: now)
+        model.update(
+          start: now + 10,
+        )
+        hash = SortedModel.get(scope: 'DEFAULT', start: now + 10)
+        expect(hash['start']).to eql(now + 10)
+      end
+    end
+
+    describe "destroy" do
+      it "removes the sorted item" do
+        model = create_model()
+        expect(SortedModel.count(scope: 'DEFAULT')).to eql(1)
+        model.destroy
+        expect(SortedModel.count(scope: 'DEFAULT')).to eql(0)
+      end
+    end
+
+    describe "as_json" do
+      it "encodes all the input parameters" do
+        now = Time.now.to_i
+        model = create_model(start: now)
+        json = model.as_json
+        expect(json["start"]).to eql(now)
+        expect(json['type']).to eql("sorted")
+      end
+    end
+
+    describe "from_json" do
+      it "encodes all the input parameters" do
+        model = create_model()
+        hash = model.as_json
+        json = JSON.generate(hash)
+        # We have to delete the existing first to allow the new one to be created
+        model.destroy
+        new_model = SortedModel.from_json(json, scope: 'DEFAULT')
+        expect(model.start).to eql(hash['start'])
       end
     end
   end

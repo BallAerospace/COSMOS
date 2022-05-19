@@ -18,22 +18,22 @@
 # copyright holder
 
 require 'spec_helper'
-require 'cosmos/models/metadata_model'
+require 'cosmos/models/note_model'
 
 module Cosmos
-
-  describe MetadataModel do
+  describe NoteModel do
     before(:each) do
       mock_redis()
     end
 
-    def create_model(start: Time.now.to_i, scope: 'DEFAULT', color: '#FF0000',
-      metadata: {'cat' => 'dog', 'version' => 'v1'})
-      model = MetadataModel.new(
+    def create_model(start: Time.now.to_i, stop: Time.now.to_i + 10,
+      scope: 'DEFAULT', color: '#FF0000', description: '')
+      model = NoteModel.new(
         scope: scope,
         start: start,
+        stop: stop,
         color: color,
-        metadata: metadata,
+        description: description,
       )
       model.create()
       model
@@ -41,20 +41,31 @@ module Cosmos
 
     describe "self.pk" do
       it "returns the primary key" do
-        expect(MetadataModel.pk('DEFAULT')).to eql("DEFAULT__METADATA")
+        expect(NoteModel.pk('DEFAULT')).to eql("DEFAULT__NOTE")
       end
     end
 
     describe "initialize" do
-      it "raises error due to invalid start" do
+      it "raises error due to invalid start time" do
         expect { create_model(start: 'foo') }.to raise_error(SortedInputError)
         expect { create_model(start: 5.5) }.to raise_error(SortedInputError)
         expect { create_model(start: -1) }.to raise_error(SortedInputError)
       end
 
+      it "raises error due to invalid stop time" do
+        expect { create_model(stop: 'foo') }.to raise_error(SortedInputError)
+        expect { create_model(stop: 5.5) }.to raise_error(SortedInputError)
+        expect { create_model(stop: -1) }.to raise_error(SortedInputError)
+      end
+
       it "allows future start times" do
         future = Time.now.to_i + 1000
-        create_model(start: future)
+        create_model(start: future, stop: future + 10)
+      end
+
+      it "creates default color for nil" do
+        model = create_model(color: nil)
+        expect(model.color).to_not be_nil
       end
 
       it "raises error due to start overlap" do
@@ -63,52 +74,45 @@ module Cosmos
         expect { create_model(start: now) }.to raise_error(SortedOverlapError)
       end
 
+      it "raises error due to stop < start" do
+        now = Time.now.to_i
+        expect { create_model(start: now, stop: now - 1) }.to raise_error(SortedInputError)
+      end
+
       it "raises error due to invalid color" do
         expect { create_model(color: 'foo') }.to raise_error(SortedInputError)
-      end
-
-      it "creates default color for nil" do
-        model = create_model(color: nil)
-        expect(model.color).to_not be_nil
-      end
-
-      it "raises error due to invalid metadata" do
-        expect { create_model(metadata: nil) }.to raise_error(SortedInputError)
-        expect { create_model(metadata: 'foo') }.to raise_error(SortedInputError)
-        expect { create_model(metadata: ['one', 'two']) }.to raise_error(SortedInputError)
       end
     end
 
     describe "update" do
-      it "updates metadata" do
+      it "updates all the attributes" do
         now = Time.now.to_i
         model = create_model(start: now)
-        model.update(
-          start: now,
-          color: '#00AA00',
-          metadata: {'bird' => 'update'}
-        )
-        expect(model.start).to eql(now)
-        expect(model.color).to eql('#00AA00')
-        expect(model.metadata).to eql({'bird' => 'update'})
+        model.update(start: now - 100, stop: now - 50, color: "#FFFFFF", description: "update")
+        expect(model.start).to eql(now - 100)
+        expect(model.stop).to eql(now - 50)
+        expect(model.color).to eql('#FFFFFF')
+        expect(model.description).to eql('update')
 
-        hash = MetadataModel.get(scope: 'DEFAULT', start: now)
+        hash = NoteModel.get(scope: 'DEFAULT', start: now - 100)
         # Test that the hash returned by get is updated
         expect(model.start).to eql(hash['start'])
+        expect(model.stop).to eql(hash['stop'])
         expect(model.color).to eql(hash['color'])
-        expect(model.metadata).to eql(hash['metadata'])
+        expect(model.description).to eql(hash['description'])
       end
     end
 
     describe "as_json" do
       it "encodes all the input parameters" do
         now = Time.now.to_i
-        model = create_model(start: now, color: '#123456', metadata: {'test' => 'one', 'foo' => 'bar'})
+        model = create_model(start: now, stop: now + 5, color: '#123456', description: 'json')
         json = model.as_json
         expect(json["start"]).to eql(now)
+        expect(json["stop"]).to eql(now + 5)
         expect(json["color"]).to eql('#123456')
-        expect(json["metadata"]).to eql({'test' => 'one', 'foo' => 'bar'})
-        expect(json['type']).to eql("metadata")
+        expect(json['description']).to eql("json")
+        expect(json['type']).to eql("note")
       end
     end
 
@@ -119,10 +123,11 @@ module Cosmos
         json = JSON.generate(hash)
         # We have to delete the existing first to allow the new one to be created
         model.destroy
-        new_model = MetadataModel.from_json(json, scope: 'DEFAULT')
+        new_model = NoteModel.from_json(json, scope: 'DEFAULT')
         expect(new_model.start).to eql(hash['start'])
+        expect(new_model.stop).to eql(hash['stop'])
         expect(new_model.color).to eql(hash['color'])
-        expect(new_model.metadata).to eql(hash['metadata'])
+        expect(new_model.description).to eql(hash['description'])
       end
     end
   end
