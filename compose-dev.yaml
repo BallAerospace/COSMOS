@@ -24,7 +24,7 @@ services:
     ports:
       - "127.0.0.1:6379:6379" # only allow localhost access to internal apis
 
-  cosmos-redis-nopersist:
+  cosmos-redis-ephemeral:
     ports:
       - "127.0.0.1:6380:6380" # only allow localhost access to internal apis
 

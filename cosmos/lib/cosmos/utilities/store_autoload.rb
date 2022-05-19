@@ -222,7 +222,7 @@ module Cosmos
   class EphemeralStore < Store
     def initialize(pool_size = 10)
       super(pool_size)
-      @redis_url = "redis://#{ENV['COSMOS_REDIS_NOPERSIST_HOSTNAME']}:#{ENV['COSMOS_REDIS_NOPERSIST_PORT']}"
+      @redis_url = "redis://#{ENV['COSMOS_REDIS_EPHEMERAL_HOSTNAME']}:#{ENV['COSMOS_REDIS_EPHEMERAL_PORT']}"
       @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
     end
   end
