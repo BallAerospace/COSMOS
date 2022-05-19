@@ -121,7 +121,7 @@ module Cosmos
       # Load widget file
       data = File.read(filename, mode: "rb")
       Cosmos.set_working_dir(File.dirname(filename)) do
-        data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+        data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
       end
       # TODO: support widgets that aren't just a single js file (and its associated map file)
       rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: cache_control, key: @s3_key, body: data)

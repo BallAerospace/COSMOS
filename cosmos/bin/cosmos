@@ -99,7 +99,7 @@ def generate(args)
       end
       base_name.sub!("target.rb", target_lib_filename)
       base_name.sub!("plugin.gemspec", "#{plugin_name}.gemspec")
-      output = ERB.new(File.read(file)).result(b)
+      output = ERB.new(File.read(file), trim_mode: "-").result(b)
       File.open(base_name, 'w') do |file|
         file.write output
       end

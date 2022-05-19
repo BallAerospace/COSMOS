@@ -380,7 +380,7 @@ module Cosmos
           data = File.read(filename, mode: "rb")
           begin
             Cosmos.set_working_dir(File.dirname(filename)) do
-              data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
+              data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
             end
           rescue => error
             raise "ERB error parsing: #{filename}: #{error.formatted}"
@@ -455,7 +455,7 @@ module Cosmos
 
       begin
         Cosmos.set_working_dir(File.dirname(path)) do
-          return ERB.new(File.read(path)).result(b)
+          return ERB.new(File.read(path), trim_mode: "-").result(b)
         end
       rescue => error
         raise "ERB error parsing: #{path}: #{error.formatted}"
