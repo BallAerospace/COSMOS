@@ -31,7 +31,9 @@ module Cosmos
     SORTED_TYPE = 'sorted'.freeze # To be overriden by base class
     PRIMARY_KEY = '__SORTED'.freeze # To be overriden by base class
 
+    # MUST be overriden by any subclasses
     def self.pk(scope)
+      puts "sorted pk:#{scope}#{PRIMARY_KEY}"
       return "#{scope}#{PRIMARY_KEY}"
     end
 

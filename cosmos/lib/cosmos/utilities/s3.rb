@@ -45,7 +45,7 @@ module Cosmos
           delimiter: '/',
           continuation_token: token
         })
-        
+
         resp.common_prefixes.each do |item|
           folder_list << item.prefix
         end

@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/metadata_model'
+require 'time'
 
 class MetadataController < ApplicationController
   def initialize
@@ -25,17 +26,17 @@ class MetadataController < ApplicationController
   end
 
   def parse_time_input(x_start:, x_stop:)
-    now = DateTime.now.new_offset(0)
-    start = x_start.nil? ? (now - 7) : DateTime.parse(x_start) # minus 7 days
-    stop = x_stop.nil? ? (now + 7) : DateTime.parse(x_stop) # plus 7 days
-    return start.strftime('%s%3N').to_i, stop.strftime('%s%3N').to_i
+    now = Time.now
+    start = x_start.nil? ? (now - 7.days) : Time.parse(x_start) # minus 7 days
+    stop = x_stop.nil? ? (now + 7.days) : Time.parse(x_stop) # plus 7 days
+    return start.to_i, stop.to_i
   end
 
   # Returns a single metadata in json
   #
   # scope [String] the scope of the metadata, `DEFAULT`
   # @return [String] the current metadata converted into json format.
-  def get
+  def latest
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
@@ -57,9 +58,11 @@ class MetadataController < ApplicationController
 
   # Returns an array/list of metadata in json. With optional start_time and end_time parameters
   #
-  # scope [String] the scope of the chronicle, `DEFAULT`
-  # start [String] (optional) The start time of the search window for chronicle to return. Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided start_time is equal to 12 hours before the request is made.
-  # stop [String] (optional) The stop time of the search window for chronicle to return. Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided end_time is equal to 2 days after the request is made.
+  # scope [String] the scope of the metadata, `DEFAULT`
+  # start [String] (optional) The start time of the search window for metadata to return.
+  #   Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided start_time is equal to 12 hours before the request is made.
+  # stop [String] (optional) The stop time of the search window for metadata to return.
+  #   Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided end_time is equal to 2 days after the request is made.
   # @return [String] the array of entries converted into json format.
   def index
     begin
@@ -71,7 +74,7 @@ class MetadataController < ApplicationController
     end
     begin
       start, stop = parse_time_input(x_start: params[:start], x_stop: params[:stop])
-      json_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
+      json_array = @model_class.range(scope: params[:scope], start: start, stop: stop)
       render :json => json_array, :status => 200
     rescue ArgumentError
       render :json => { :status => 'error', :message => 'Invalid input provided' }, :status => 400
@@ -82,9 +85,11 @@ class MetadataController < ApplicationController
 
   # Returns an array/list of metadata in json. With optional start_time and end_time parameters
   #
-  # scope [String] the scope of the chronicle, `DEFAULT`
-  # start [String] (optional) The start time of the search window for chronicle to return. Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided start_time is equal to 12 hours before the request is made.
-  # stop [String] (optional) The stop time of the search window for chronicle to return. Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided end_time is equal to 2 days after the request is made.
+  # scope [String] the scope of the metadata, `DEFAULT`
+  # start [String] (optional) The start time of the search window for metadata to return.
+  #   Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided start_time is equal to 12 hours before the request is made.
+  # stop [String] (optional) The stop time of the search window for metadata to return.
+  #   Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided end_time is equal to 2 days after the request is made.
   # key [String] (required) The key in the metadata
   # value [String] (required) The value equal to the value of the key in the metadata
   # @return [String] the array of entries converted into json format.
@@ -98,7 +103,7 @@ class MetadataController < ApplicationController
     end
     begin
       start, stop = parse_time_input(x_start: params[:start], x_stop: params[:stop])
-      json_array = @model_class.get(scope: params[:scope], start: start, stop: stop)
+      json_array = @model_class.range(scope: params[:scope], start: start, stop: stop)
       key, value = [params[:key], params[:value]]
       raise MetadataInputError "Must include key, value in metadata search" if key.nil? || value.nil?
       selected_array = json_array.select { | json_model | json_model['metadata'][key] == value }
@@ -114,7 +119,7 @@ class MetadataController < ApplicationController
 
   # Returns an object/hash the contains `count` as a key in json.
   #
-  # scope [String] the scope of the chronicle, `DEFAULT`
+  # scope [String] the scope of the metadata, `DEFAULT`
   # @return [String] the object/hash converted into json format
   # Request Headers
   # ```json
@@ -141,7 +146,7 @@ class MetadataController < ApplicationController
 
   # Returns an object/hash of a single metadata in json.
   #
-  # scope [String] the scope of the chronicle, `DEFAULT`
+  # scope [String] the scope of the metadata, `DEFAULT`
   # id [String] the id of the entry, `1620248449`
   # @return [String] the metadata as a object/hash converted into json format
   # Request Headers
@@ -160,12 +165,12 @@ class MetadataController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      model_hash = @model_class.score(score: params[:id], scope: params[:scope])
-      if model_hash.nil?
+      model_hash = @model_class.get(start: params[:id], scope: params[:scope])
+      if model_hash
+        render :json => model_hash, :status => 200
+      else
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
-        return
       end
-      render :json => model_hash, :status => 200
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
@@ -173,7 +178,7 @@ class MetadataController < ApplicationController
 
   # Record metadata and returns an object/hash of in json.
   #
-  # scope [String] the scope of the chronicle, `DEFAULT`
+  # scope [String] the scope of the metadata, `DEFAULT`
   # json [String] The json of the activity (see below)
   # @return [String] the metadata converted into json format
   # Request Headers
@@ -202,9 +207,9 @@ class MetadataController < ApplicationController
     begin
       hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
       if hash['start'].nil?
-        hash['start'] = DateTime.now.strftime('%s%3N').to_i
+        hash['start'] = Time.now.to_i
       else
-        hash['start'] = DateTime.parse(hash['start']).strftime('%s%3N').to_i
+        hash['start'] = Time.parse(hash['start']).to_i
       end
       model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
       model.create()
@@ -229,7 +234,7 @@ class MetadataController < ApplicationController
   # Update metadata and returns an object/hash of in json.
   #
   # id [String] the id or start value, `12345667`
-  # scope [String] the scope of the chronicle, `TEST`
+  # scope [String] the scope of the metadata, `TEST`
   # json [String] The json of the activity (see below)
   # @return [String] the activity converted into json format
   # Request Headers
@@ -256,7 +261,7 @@ class MetadataController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      hash = @model_class.score(score: params[:id], scope: params[:scope])
+      hash = @model_class.get(start: params[:id], scope: params[:scope])
       if hash.nil?
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
@@ -264,7 +269,7 @@ class MetadataController < ApplicationController
       model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
 
       hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
-      hash['start'] = DateTime.parse(hash['start']).strftime('%s%3N').to_i
+      hash['start'] = Time.parse(hash['start']).to_i
       model.update(start: hash['start'], color: hash['color'], metadata: hash['metadata'])
       Cosmos::Logger.info(
         "Metadata updated: #{model}",
@@ -305,13 +310,11 @@ class MetadataController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      hash = @model_class.score(score: params[:id], scope: params[:scope])
-      if hash.nil?
+      count = @model_class.destroy(start: params[:id], scope: params[:scope])
+      if count == 0
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
       end
-      model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
-      model.destroy()
       Cosmos::Logger.info(
         "Metadata destroyed: #{params[:id]}",
         scope: params[:scope],
@@ -324,5 +327,4 @@ class MetadataController < ApplicationController
       render :json => { :status => 'error', :message => e.message, :type => e.class, :backtrace => e.backtrace }, :status => 400
     end
   end
-
 end

@@ -125,8 +125,8 @@ Rails.application.routes.draw do
 
     get '/metadata', to: 'metadata#index'
     post '/metadata', to: 'metadata#create'
+    get '/metadata/latest', to: 'metadata#latest', name: /[^\/]+/
     get '/metadata/_search', to: 'metadata#search'
-    get '/metadata/_get/:name', to: 'metadata#get', name: /[^\/]+/
     get '/metadata/:id', to: 'metadata#show', id: /[^\/]+/
     match '/metadata/:id', to: 'metadata#update', id: /[^\/]+/, via: [:patch, :put]
     delete '/metadata/:id', to: 'metadata#delete', id: /[^\/]+/

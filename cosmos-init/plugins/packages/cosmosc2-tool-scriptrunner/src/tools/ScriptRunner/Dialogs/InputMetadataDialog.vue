@@ -22,14 +22,11 @@
     <v-card>
       <v-system-bar>
         <v-spacer />
-        <span> Input Metadata </span>
+        <span>Input Metadata</span>
         <v-spacer />
       </v-system-bar>
       <div class="pa-2">
         <v-card-text>
-          <v-row>
-            <v-card-title> Target: {{ target }} </v-card-title>
-          </v-row>
           <v-simple-table dense>
             <tbody>
               <tr>

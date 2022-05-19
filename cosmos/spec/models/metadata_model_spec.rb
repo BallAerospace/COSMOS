@@ -27,215 +27,188 @@ module Cosmos
       mock_redis()
     end
 
-    def generate_metadata(start:, scope: 'DEFAULT', metadata: nil)
-      start_time = DateTime.now.new_offset(0) + (start / 24.0)
-      metadata = {'cat' => 'dog', 'version' => 'v1'} if metadata.nil?
-      MetadataModel.new(
+    def create_metadata(start: Time.now.to_i, scope: 'DEFAULT', color: '#FF0000',
+      metadata: {'cat' => 'dog', 'version' => 'v1'})
+      model = MetadataModel.new(
         scope: scope,
-        start: start_time.strftime("%s").to_i,
-        color: '#FF0000',
+        start: start,
+        color: color,
         metadata: metadata,
       )
+      model.create()
+      model
     end
 
-    describe "self.X_current_value" do
+    describe "self.pk" do
+      it "returns the primary key" do
+        expect(MetadataModel.pk('DEFAULT')).to eql("DEFAULT__METADATA")
+      end
+    end
+
+    describe "self.get_current_value" do
       it "get the current metadata" do
-        metadata = generate_metadata(start: -1.5)
-        metadata.create()
-        ret = MetadataModel.get_current_value(
+        now = Time.now.to_i
+        create_metadata(color: '#FFFFFF', start: now)
+        create_metadata(start: now - 10)
+        create_metadata(start: now - 20)
+        json = MetadataModel.get_current_value(
           scope: 'DEFAULT'
         )
-        expect(ret).not_to be_nil
+        hash = JSON.parse(json)
+        expect(hash['start']).to eql(now)
+        expect(hash['color']).to eql('#FFFFFF')
       end
     end
 
     describe "self.get" do
-      it "returns metadata between X and Y" do
-        metadata = generate_metadata(start: -1.5)
-        metadata.create()
-        metadata = generate_metadata(start: -5.0)
-        metadata.create()
-        dt = DateTime.now.new_offset(0)
-        start = (dt - (3 / 24.0)).strftime("%s").to_i
-        stop = (dt - (1 / 24.0)).strftime("%s").to_i
-        array = MetadataModel.get(scope: 'DEFAULT', start: start, stop: stop)
-        expect(array.empty?).to eql(false)
-        expect(array.length).to eql(1)
-        expect(array[0]["start"]).not_to be_nil
+      it "returns metadata" do
+        now = Time.now.to_i
+        create_metadata(start: now)
+        create_metadata(color: '#FFFFFF', start: now - 10)
+        create_metadata(start: now - 20)
+        hash = MetadataModel.get(scope: 'DEFAULT', start: now - 10)
+        expect(hash["start"]).to eql(now - 10)
+        expect(hash['color']).to eql('#FFFFFF')
       end
     end
 
     describe "self.all" do
       it "returns all entries" do
-        metadata = generate_metadata(start: -2.0)
-        metadata.create()
-        metadata = generate_metadata(start: -4.0)
-        metadata.create()
+        now = Time.now.to_i
+        create_metadata(start: now)
+        create_metadata(start: now - 10)
+        create_metadata(start: now - 20)
         all = MetadataModel.all(scope: 'DEFAULT')
-        expect(all.empty?).to eql(false)
-        expect(all.length).to eql(2)
-        expect(all[0]["start"]).not_to be_nil
-        expect(all[1]["start"]).not_to be_nil
-      end
-    end
-
-    describe "self.score" do
-      it "returns a MetadataModel at the start" do
-        metadata = generate_metadata(start: -1.0)
-        metadata.create()
-        model = MetadataModel.score(score: metadata.start, scope: 'DEFAULT')
-        expect(model["start"]).to eql(metadata.start)
-        expect(model["metadata"]).not_to be_nil
+        # Returned in order from oldest to newest
+        expect(all[0]["start"]).to eql(now - 20)
+        expect(all[1]["start"]).to eql(now - 10)
+        expect(all[2]["start"]).to eql(now)
       end
     end
 
     describe "self.count" do
-      it "returns the count/number of chronicles" do
-        metadata = generate_metadata(start: -1.0)
-        metadata.create()
-        metadata = generate_metadata(start: -2.5)
-        metadata.create()
-        count = MetadataModel.count(scope: 'DEFAULT')
-        expect(count).to eql(2)
+      it "returns the count of metadata" do
+        now = Time.now.to_i
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(0)
+        create_metadata(start: now)
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
+        create_metadata(start: now - 10)
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(2)
+        create_metadata(start: now - 20)
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(3)
       end
     end
 
     describe "self.destroy" do
-      it "removes the score from the chronicle" do
-        metadata = generate_metadata(start: -2.0)
-        metadata.create()
-        ret = MetadataModel.destroy(scope: 'DEFAULT', score: metadata.start)
+      it "removes the metadata" do
+        now = Time.now.to_i
+        create_metadata(start: now)
+        create_metadata(start: now - 10)
+        create_metadata(start: now - 20)
+        ret = MetadataModel.destroy(scope: 'DEFAULT', start: now - 10)
         expect(ret).to eql(1)
-        count = MetadataModel.count(scope: 'DEFAULT')
-        expect(count).to eql(0)
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(2)
+        all = MetadataModel.all(scope: 'DEFAULT')
+        expect(all[0]["start"]).to eql(now - 20)
+        expect(all[1]["start"]).to eql(now)
       end
     end
 
     describe "self.range_destroy" do
-      it "removes multiple members form of the timeline" do
-        metadata = generate_metadata(start: -0.5)
-        metadata.create()
-        metadata = generate_metadata(start: -2.0)
-        metadata.create()
-        dt = DateTime.now.new_offset(0)
-        min_score = (dt - (3.0 / 24.0)).strftime("%s").to_i
-        max_score = (dt - (0.5 / 24.0)).strftime("%s").to_i
+      it "removes multiple metadata entries" do
+        now = Time.now.to_i
+        create_metadata(start: now)
+        create_metadata(start: now - 10)
+        create_metadata(start: now - 20)
         ret = MetadataModel.range_destroy(
           scope: 'DEFAULT',
-          min: min_score,
-          max: max_score
+          start: now - 10,
+          stop: now
         )
         expect(ret).to eql(2)
-        count = MetadataModel.count(scope: 'DEFAULT')
-        expect(count).to eql(0)
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
+        all = MetadataModel.all(scope: 'DEFAULT')
+        expect(all[0]["start"]).to eql(now - 20)
       end
     end
 
-    describe "model.create" do
-      it "raises error due to overlap starts inside A and ends inside A" do
-        metadata = generate_metadata(start: -1.0)
-        metadata.create()
-        model = generate_metadata(start: -1.0)
-        expect {
-          model.create()
-        }.to raise_error(MetadataOverlapError)
-      end
-    end
-
-    describe "time parse" do
+    describe "initialize" do
       it "raises error due to invalid time" do
-        expect {
-          MetadataModel.new(
-            scope: 'DEFAULT',
-            start: 'foo',
-            color: '#00FF00',
-            metadata: {'test' => 'fail'},
-          )
-        }.to raise_error(MetadataInputError)
+        expect { create_metadata(start: 'foo') }.to raise_error(MetadataInputError)
+        expect { create_metadata(start: 5.5) }.to raise_error(MetadataInputError)
+        expect { create_metadata(start: -1) }.to raise_error(MetadataInputError)
       end
-    end
 
-    describe "color parse" do
+      it "allows future times" do
+        future = Time.now.to_i + 1000
+        create_metadata(start: future)
+      end
+
+      it "raises error due to start overlap" do
+        now = Time.now.to_i
+        create_metadata(start: now)
+        expect { create_metadata(start: now) }.to raise_error(MetadataOverlapError)
+      end
+
       it "raises error due to invalid color" do
-        expect {
-          MetadataModel.new(
-            scope: 'DEFAULT',
-            start: Time.now.to_i,
-            color: 'foo',
-            metadata: {'test' => 'fail'},
-          ).create()
-        }.to raise_error(MetadataInputError)
+        expect { create_metadata(color: 'foo') }.to raise_error(MetadataInputError)
+      end
+
+      it "raises error due to invalid metadata" do
+        expect { create_metadata(metadata: nil) }.to raise_error(MetadataInputError)
+        expect { create_metadata(metadata: 'foo') }.to raise_error(MetadataInputError)
+        expect { create_metadata(metadata: ['one', 'two']) }.to raise_error(MetadataInputError)
       end
     end
 
-    describe "model.update" do
-      it "update metadata" do
-        z_metadata = generate_metadata(start: -2.0)
-        a_metadata = generate_metadata(start: -0.5)
-        a_metadata.create()
-        a_metadata.update(
-          start: z_metadata.start,
+    describe "update" do
+      it "updates metadata" do
+        now = Time.now.to_i
+        model = create_metadata(start: now)
+        model.update(
+          start: now,
           color: '#00AA00',
           metadata: {'bird' => 'update'}
         )
-        expect(a_metadata.start).to eql(z_metadata.start)
-        expect(a_metadata.color).to eql('#00AA00')
-        expect(a_metadata.metadata).to include('bird')
-      end
-    end
-
-    describe "update error" do
-      it "raises error due to update is overlapping time point" do
-        a_metadata = generate_metadata(start: -0.5)
-        a_metadata.create()
-        b_metadata = generate_metadata(start: -2.0)
-        b_metadata.create()
-        expect {
-          a_metadata.update(
-            start: b_metadata.start,
-            color: "#00FF00",
-            metadata: {'test' => 'bad_update'}
-          )
-        }.to raise_error(MetadataOverlapError)
-      end
-    end
-
-    describe "notify" do
-      it "update the top of a change to the timeline" do
-        metadata = generate_metadata(start: -1.0)
-        metadata.notify(kind: "new")
+        hash = MetadataModel.get(scope: 'DEFAULT', start: now)
+        expect(hash['start']).to eql(now)
+        expect(hash['color']).to eql('#00AA00')
+        expect(hash['metadata']).to eql({'bird' => 'update'})
       end
     end
 
     describe "destroy" do
-      it "the model to remove it" do
-        metadata = generate_metadata(start: -1.0)
-        metadata.create
+      it "removes the metadata" do
+        metadata = create_metadata()
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
         metadata.destroy
-        metadata = MetadataModel.score(scope: 'DEFAULT', score: metadata.start)
-        expect(metadata).to eql(nil)
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(0)
       end
     end
 
     describe "as_json" do
       it "encodes all the input parameters" do
-        name = "foobar"
-        scope = "scope"
-        metadata = generate_metadata(start: -1.0)
+        now = Time.now.to_i
+        metadata = create_metadata(start: now, color: '#123456', metadata: {'test' => 'one', 'foo' => 'bar'})
         json = metadata.as_json
-        expect(json["start"]).to eql(metadata.start)
-        expect(json["metadata"]).not_to be_nil
+        expect(json["start"]).to eql(now)
+        expect(json["color"]).to eql('#123456')
+        expect(json["color"]).to eql('#123456')
+        expect(json["metadata"]).to eql({'test' => 'one', 'foo' => 'bar'})
+        expect(json['type']).to eql("metadata")
       end
     end
 
     describe "from_json" do
       it "encodes all the input parameters" do
-        metadata = generate_metadata(start: -1.0)
-        model_hash = metadata.as_json
-        json = JSON.generate(model_hash)
+        metadata = create_metadata()
+        hash = metadata.as_json
+        json = JSON.generate(hash)
+        # We have to delete the existing first to allow the new one to be created
+        metadata.destroy
         new_metadata = MetadataModel.from_json(json, scope: 'DEFAULT')
-        expect(metadata.start).to eql(new_metadata.start)
-        expect(metadata.metadata).not_to be_nil
+        expect(metadata.start).to eql(hash['start'])
+        expect(metadata.metadata).to eql(hash['metadata'])
       end
     end
   end

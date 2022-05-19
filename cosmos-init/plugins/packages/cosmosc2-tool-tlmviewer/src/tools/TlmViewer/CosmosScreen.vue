@@ -412,6 +412,8 @@ export default {
     // Called by button scripts to get named widgets
     // Underscores used to match COSMOS API rather than Javascript convention
     get_named_widget: function (name) {
+      console.log(`name:${name}`)
+      console.log(`text:${this.namedWidgets[name].text()}`)
       return this.namedWidgets[name]
     },
     // Called by named widgets to register with the screen

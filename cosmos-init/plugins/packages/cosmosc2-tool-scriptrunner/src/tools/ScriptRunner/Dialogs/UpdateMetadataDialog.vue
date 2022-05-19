@@ -22,21 +22,11 @@
     <v-card>
       <v-system-bar>
         <v-spacer />
-        <span> Start Metadata Configuration </span>
+        <span>Metadata</span>
         <v-spacer />
       </v-system-bar>
       <div class="pa-2">
         <v-card-text>
-          <v-row>
-            <v-col>
-              <v-select
-                v-model="target"
-                :items="targets"
-                label="Target"
-                data-test="meta-select-tgt"
-              />
-            </v-col>
-          </v-row>
           <v-simple-table dense>
             <tbody>
               <tr>
@@ -54,7 +44,7 @@
                         </v-icon>
                       </div>
                     </template>
-                    <span> New Metadata </span>
+                    <span>New Metadata</span>
                   </v-tooltip>
                 </th>
               </tr>
@@ -88,7 +78,7 @@
                           </v-icon>
                         </div>
                       </template>
-                      <span> Delete Metadata </span>
+                      <span>Delete Metadata</span>
                     </v-tooltip>
                   </td>
                 </tr>
@@ -142,26 +132,15 @@ export default {
       type: Boolean,
       required: true,
     },
-    inputTarget: {
-      type: Boolean,
-      required: true,
-    },
   },
   data() {
     return {
       lastUpdated: null,
       metadata: [],
-      target: null,
-      targets: [],
     }
   },
   mounted: function () {
-    this.updateTargets()
-  },
-  watch: {
-    target: function () {
-      this.getMetadata()
-    },
+    this.getMetadata()
   },
   computed: {
     inputError: function () {
@@ -189,14 +168,13 @@ export default {
         result[element.key] = element.value
         return result
       }, {})
-      const target = this.target
       const color = '#003784'
       Api.post('/cosmos-api/metadata', {
-        data: { color, target, metadata },
+        data: { color, metadata },
       }).then((response) => {
         this.$notify.normal({
           title: 'Updated Metadata',
-          body: `Metadata updated on ${this.target} (${response.data.start})`,
+          body: `Metadata updated for ${response.data.start}`,
         })
       })
       this.show = !this.show
@@ -204,29 +182,21 @@ export default {
     cancel: function () {
       this.show = !this.show
     },
-    updateTargets: function () {
-      new CosmosApi().get_target_list().then((data) => {
-        this.targets = data
-        this.targets.unshift(localStorage.scope)
-        this.target = this.targets[0]
-      })
-    },
     getMetadata: function () {
-      Api.get(`/cosmos-api/metadata/_get/${this.target}`).then((response) => {
+      Api.get('/cosmos-api/metadata/latest').then((response) => {
         if (response.status !== 200) {
           this.metadata = []
           this.lastUpdated = null
         } else {
-          this.lastUpdated = new Date(response.data.updated_at / 1000000)
+          this.lastUpdated = new Date(response.data.updated_at * 1000)
           this.updateValues(response.data.metadata)
         }
       })
     },
     updateValues: function (metaValues) {
-      const targetMetadata = Object.keys(metaValues).map((k) => {
+      this.metadata = Object.keys(metaValues).map((k) => {
         return { key: k, value: metaValues[k] }
       })
-      this.metadata = targetMetadata
     },
     newMetadata: function () {
       this.metadata.push({
