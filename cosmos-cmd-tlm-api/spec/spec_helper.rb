@@ -100,7 +100,8 @@ def mock_redis
   require 'mock_redis'
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
-  Cosmos::Store.class_variable_set(:@@instance, nil)
+  Cosmos::Store.instance_variable_set(:@instance, nil)
+  Cosmos::EphemeralStore.instance_variable_set(:@instance, nil)
   redis
 end
 

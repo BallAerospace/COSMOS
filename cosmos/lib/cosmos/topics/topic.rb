@@ -21,16 +21,16 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class Topic
-    def self.initialize_streams(topics)
-      EphemeralStore.initialize_streams(topics)
-    end
-
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, count = nil, &block)
-      EphemeralStore.read_topics(topics, offsets, timeout_ms, count, &block)
-    end
-
-    def self.write_topic(topic, msg_hash, id = '*', maxlen = nil, approximate = true)
-      EphemeralStore.write_topic(topic, msg_hash, id, maxlen, approximate)
+    if RUBY_VERSION < "3"
+      # Delegate all unknown class methods to delegate to the EphemeralStore
+      def self.method_missing(message, *args, &block)
+        EphemeralStore.public_send(message, *args, &block)
+      end
+    else
+      # Delegate all unknown class methods to delegate to the EphemeralStore
+      def self.method_missing(message, *args, **kwargs, &block)
+        self.instance.public_send(message, *args, **kwargs, &block)
+      end
     end
 
     def self.clear_topics(topics, maxlen = 0)
@@ -43,26 +43,6 @@ module Cosmos
         .to_a # Change the enumerator into an array
         .uniq # Scan can return duplicates so ensure unique
         .sort # Sort not entirely necessary but nice
-    end
-
-    def self.get_oldest_message(topic)
-      EphemeralStore.get_oldest_message(topic)
-    end
-
-    def self.get_newest_message(topic)
-      EphemeralStore.get_newest_message(topic)
-    end
-
-    def self.trim_topic(topic, minid, approximate = true, limit: 0)
-      EphemeralStore.trim_topic(topic, minid, approximate, limit: limit)
-    end
-
-    def self.update_topic_offsets(topics)
-      EphemeralStore.update_topic_offsets(topics)
-    end
-
-    def self.del(topic)
-      EphemeralStore.del(topic)
     end
 
     def self.get_cnt(topic)
