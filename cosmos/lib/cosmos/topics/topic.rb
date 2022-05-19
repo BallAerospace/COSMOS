@@ -29,7 +29,7 @@ module Cosmos
     else
       # Delegate all unknown class methods to delegate to the EphemeralStore
       def self.method_missing(message, *args, **kwargs, &block)
-        self.instance.public_send(message, *args, **kwargs, &block)
+        EphemeralStore.public_send(message, *args, **kwargs, &block)
       end
     end
 
