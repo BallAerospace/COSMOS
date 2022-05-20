@@ -50,7 +50,7 @@ module Cosmos
 
       output = nil
       Cosmos.set_working_dir(File.dirname(path)) do
-        output = ERB.new(File.read(path)).result(binding)
+        output = ERB.new(File.read(path), trim_mode: "-").result(binding)
       end
       tf.write(output)
       tf.close

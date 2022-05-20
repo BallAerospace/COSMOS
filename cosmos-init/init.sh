@@ -45,6 +45,13 @@ else
         echo "${T} waiting for Redis. RC: ${RC}";
         sleep 1
     done
+    while [ $RC -gt 0 ]; do
+        printf "AUTH healthcheck nopass\r\nCLUSTER INFO\r\n" | nc -w 2 ${COSMOS_REDIS_EPHEMERAL_HOSTNAME} ${COSMOS_REDIS_EPHEMERAL_PORT} | grep -q 'cluster_state:ok'
+        RC=$?
+        T=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        echo "${T} waiting for Redis. RC: ${RC}";
+        sleep 1
+    done
 fi
 
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-base-*.gem || exit 1

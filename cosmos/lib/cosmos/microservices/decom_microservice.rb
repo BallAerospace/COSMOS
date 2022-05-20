@@ -31,7 +31,7 @@ module Cosmos
 
     def initialize(*args)
       super(*args)
-      Store.update_topic_offsets(@topics)
+      Topic.update_topic_offsets(@topics)
       System.telemetry.limits_change_callback = method(:limits_change_callback)
     end
 

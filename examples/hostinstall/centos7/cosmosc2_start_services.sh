@@ -7,6 +7,7 @@ source ./cosmosc2_env.sh
 
 # Start Redis
 redis-server /config/redis.conf &
+redis-server /config/redis_ephemeral.conf &
 
 # Start Minio
 export MINIO_ROOT_USER=${COSMOS_MINIO_USERNAME}

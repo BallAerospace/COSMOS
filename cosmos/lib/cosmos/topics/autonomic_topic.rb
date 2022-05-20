@@ -26,7 +26,7 @@ module Cosmos
     # Notify to the topic
     #
     # ```json
-    #  {  
+    #  {
     #    "kind" => "created",
     #    "type" => "trigger",
     #    "data" => {
@@ -46,7 +46,7 @@ module Cosmos
     #  }
     # ```
     def self.write_notification(notification, scope:)
-      Store.write_topic("#{scope}#{PRIMARY_KEY}", notification, '*', 1000)
+      Topic.write_topic("#{scope}#{PRIMARY_KEY}", notification, '*', 1000)
     end
   end
 end

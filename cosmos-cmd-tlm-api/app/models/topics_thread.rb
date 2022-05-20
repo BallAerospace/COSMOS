@@ -75,7 +75,7 @@ class TopicsThread
 
   def thread_setup
     @topics.each do |topic|
-      results = Cosmos::Store.xrevrange(topic, '+', '-', count: [1, @history_count].max) # Always get at least 1, because 0 breaks redis-rb
+      results = Cosmos::Topic.xrevrange(topic, '+', '-', count: [1, @history_count].max) # Always get at least 1, because 0 breaks redis-rb
       batch = []
       results.reverse_each do |msg_id, msg_hash|
         @offsets[@offset_index_by_topic[topic]] = msg_id
@@ -92,7 +92,7 @@ class TopicsThread
 
   def thread_body
     results = []
-    Cosmos::Store.read_topics(@topics, @offsets) do |topic, msg_id, msg_hash, redis|
+    Cosmos::Topic.read_topics(@topics, @offsets) do |topic, msg_id, msg_hash, redis|
       @offsets[@offset_index_by_topic[topic]] = msg_id
       msg_hash[:msg_id] = msg_id if @transmit_msg_id
       results << msg_hash

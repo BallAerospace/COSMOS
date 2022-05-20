@@ -71,7 +71,7 @@ class Screen
     return resp.body.read
     # # Remove all the commented out lines to prevent ERB from running
     # file.gsub!(/^\s*#.*\n/,'')
-    # ERB.new(file).result(binding)
+    # ERB.new(file, trim_mode: "-").result(binding)
   end
 
   # TODO: This should not be needed as screens should be fully rendered in S3
@@ -90,7 +90,7 @@ class Screen
   #     # Now try the original
   #     resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{template_name}")
   #   end
-  #   ERB.new(resp.body.read).result(b)
+  #   ERB.new(resp.body.read, trim_mode: "-").result(b)
   # end
 
   def self.create(scope, target, screen, text = nil)

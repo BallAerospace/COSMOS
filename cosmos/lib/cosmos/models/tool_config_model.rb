@@ -17,15 +17,22 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/utilities/store'
-
 module Cosmos
-  class InfoModel
-
-    # @return Hash information and statistics about the redis server
-    def self.get()
-      return [Store.info(), EphemeralStore.info]
+  class ToolConfigModel
+    def self.list_configs(tool, scope: $cosmos_scope)
+      Store.hkeys("#{scope}__config__#{tool}")
     end
 
+    def self.load_config(tool, name, scope: $cosmos_scope)
+      Store.hget("#{scope}__config__#{tool}", name)
+    end
+
+    def self.save_config(tool, name, data, scope: $cosmos_scope)
+      Store.hset("#{scope}__config__#{tool}", name, data)
+    end
+
+    def self.delete_config(tool, name, scope: $cosmos_scope)
+      Store.hdel("#{scope}__config__#{tool}", name)
+    end
   end
 end

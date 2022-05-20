@@ -28,7 +28,7 @@ RSpec.describe InternalHealthController, :type => :controller do
     it "returns a Hash<> and status code 200" do
       get :health, params: { 'scope'=>'DEFAULT' }
       json = JSON.parse(response.body)
-      expect(json['redis']).to be_a(Hash)
+      expect(json['redis']).to be_a(Array)
       expect(response).to have_http_status(:ok)
     end
   end

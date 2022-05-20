@@ -20,6 +20,7 @@
 require 'cosmos/version'
 require 'cosmos/models/model'
 require 'cosmos/models/microservice_model'
+require 'cosmos/models/settings_model'
 
 module Cosmos
   class ScopeModel < Model
@@ -87,7 +88,7 @@ module Cosmos
       Logger.info "Configured microservice #{microservice_name}"
 
       # UNKNOWN CommandLog Microservice
-      Store.initialize_streams(["#{@scope}__COMMAND__{UNKNOWN}__UNKNOWN"])
+      Topic.initialize_streams(["#{@scope}__COMMAND__{UNKNOWN}__UNKNOWN"])
       microservice_name = "#{@scope}__COMMANDLOG__UNKNOWN"
       microservice = MicroserviceModel.new(
         name: microservice_name,
@@ -107,7 +108,7 @@ module Cosmos
       Logger.info "Configured microservice #{microservice_name}"
 
       # UNKNOWN PacketLog Microservice
-      Store.initialize_streams(["#{@scope}__TELEMETRY__{UNKNOWN}__UNKNOWN"])
+      Topic.initialize_streams(["#{@scope}__TELEMETRY__{UNKNOWN}__UNKNOWN"])
       microservice_name = "#{@scope}__PACKETLOG__UNKNOWN"
       microservice = MicroserviceModel.new(
         name: microservice_name,
@@ -139,10 +140,12 @@ module Cosmos
     end
 
     def seed_database
-      # Set default values for items in the db that should be set
-      # Use the "nx" (not-exists) variant of redis calls here to not overwrite things the user has already set
-      Cosmos::Store.hsetnx('cosmos__settings', 'source_url', 'https://github.com/BallAerospace/COSMOS')
-      Cosmos::Store.hsetnx('cosmos__settings', 'version', ENV['COSMOS_VERSION'] || COSMOS_VERSION)
+      setting = SettingsModel.get(name: 'source_url')
+      SettingsModel.set({ name: 'source_url', data: 'https://github.com/BallAerospace/COSMOS' }, scope: @scope) unless setting
+    end
+
+    def self.limits_set(scope:)
+      Store.hget("#{scope}__cosmos_system", 'limits_set').intern
     end
   end
 end

@@ -186,7 +186,7 @@ module Cosmos
         # Load microservice files
         data = File.read(filename, mode: "rb")
         Cosmos.set_working_dir(File.dirname(filename)) do
-          data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+          data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
         end
         rubys3_client.put_object(bucket: 'config', key: key, body: data)
       end

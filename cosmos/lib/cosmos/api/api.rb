@@ -28,36 +28,12 @@ require 'cosmos/api/settings_api'
 require 'cosmos/api/target_api'
 require 'cosmos/api/tlm_api'
 require 'cosmos/utilities/authorization'
+require 'cosmos/topics/topic'
 
 module Cosmos
   module Api
     include Extract
     include Authorization
     include ApiShared
-
-    # PRIVATE - Shared by cmd_api and tlm_api
-
-    def _get_cnt(topic)
-      _, packet = Store.instance.read_topic_last(topic)
-      packet ? packet["received_count"].to_i : 0
-    end
-
-    def get_all_cmd_tlm_info(type, scope:, token:)
-      authorize(permission: 'system', scope: scope, token: token)
-      result = []
-      keys = []
-      count = 0
-      loop do
-        count, part = Store.scan(0, :match => "#{scope}__#{type}__*", :count => 1000)
-        keys.concat(part)
-        break if count.to_i == 0
-      end
-      keys.each do |key|
-        _, _, target, packet = key.gsub(/{|}/, '').split('__') # split off scope and type
-        result << [target, packet, _get_cnt(key)]
-      end
-      # Return the results sorted by target, packet
-      result.sort_by { |a| [a[0], a[1]] }
-    end
   end
 end

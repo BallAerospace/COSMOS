@@ -40,7 +40,37 @@ module Cosmos
         json_hash[item.name + "__U"] = packet.read_item(item, :WITH_UNITS) if item.units
       end
       msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-      Store.write_topic(topic, msg_hash)
+      Topic.write_topic(topic, msg_hash)
+    end
+
+    def self.get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
+      msg_id, msg_hash = Topic.get_newest_message("#{scope}__DECOMCMD__{#{target_name}}__#{packet_name}")
+      if msg_id
+        # TODO: We now have these reserved items directly on command packets
+        # Do we still calculate from msg_hash['time'] or use the times directly?
+        #
+        # if param_name == 'RECEIVED_TIMESECONDS' || param_name == 'PACKET_TIMESECONDS'
+        #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).to_f
+        # elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
+        #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
+        if param_name == 'RECEIVED_COUNT'
+          msg_hash['received_count'].to_i
+        else
+          json = msg_hash['json_data']
+          hash = JSON.parse(json)
+          # Start from the most complex down to the basic raw value
+          value = hash["#{param_name}__U"]
+          return value if value && type == :WITH_UNITS
+
+          value = hash["#{param_name}__F"]
+          return value if value && (type == :WITH_UNITS || type == :FORMATTED)
+
+          value = hash["#{param_name}__C"]
+          return value if value && (type == :WITH_UNITS || type == :FORMATTED || type == :CONVERTED)
+
+          return hash[param_name]
+        end
+      end
     end
   end
 end

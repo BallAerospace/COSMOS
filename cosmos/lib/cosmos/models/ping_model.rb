@@ -24,7 +24,8 @@ module Cosmos
     # @return String ['UP' or 'DOWN']
     def self.get()
       response = Store.ping()
-      if response
+      response2 = EphemeralStore.ping()
+      if response and response2
         return 'UP'
       else
         return 'DOWN'

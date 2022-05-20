@@ -19,7 +19,7 @@
 
 require 'thread'
 require 'cosmos/config/config_parser'
-require 'cosmos/utilities/store'
+require 'cosmos/topics/topic'
 require 'cosmos/utilities/s3'
 
 module Cosmos
@@ -211,7 +211,7 @@ module Cosmos
             S3Utilities.move_log_file_to_s3(@filename, s3_key)
             # Now that the file is in S3, trim the Redis stream up until the previous file.
             # This keeps one file worth of data in Redis as a safety buffer
-            Cosmos::Store.trim_topic(@redis_topic, @previous_file_redis_offset) if @redis_topic and @previous_file_redis_offset
+            Topic.trim_topic(@redis_topic, @previous_file_redis_offset) if @redis_topic and @previous_file_redis_offset
             @previous_file_redis_offset = @last_offset
           rescue Exception => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"

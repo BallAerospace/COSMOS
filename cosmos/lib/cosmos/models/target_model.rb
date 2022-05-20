@@ -208,7 +208,7 @@ module Cosmos
         tlm_log_cycle_time: tlm_log_cycle_time, tlm_log_cycle_size: tlm_log_cycle_size,
         tlm_log_retain_time: tlm_log_retain_time,
         tlm_decom_log_cycle_time: tlm_decom_log_cycle_time, tlm_decom_log_cycle_size: tlm_decom_log_cycle_size,
-        tlm_decom_log_retain_time: tlm_decom_log_retain_time, 
+        tlm_decom_log_retain_time: tlm_decom_log_retain_time,
         reduced_minute_log_retain_time: reduced_minute_log_retain_time,
         reduced_hour_log_retain_time: reduced_hour_log_retain_time, reduced_day_log_retain_time: reduced_day_log_retain_time,
         cleanup_poll_time: cleanup_poll_time, needs_dependencies: needs_dependencies,
@@ -269,7 +269,7 @@ module Cosmos
         'tlm_decom_log_retain_time' => @tlm_decom_log_retain_time,
         'reduced_minute_log_retain_time' => @reduced_minute_log_retain_time,
         'reduced_hour_log_retain_time' => @reduced_hour_log_retain_time,
-        'reduced_day_log_retain_time' => @reduced_day_log_retain_time,        
+        'reduced_day_log_retain_time' => @reduced_day_log_retain_time,
         'cleanup_poll_time' => @cleanup_poll_time,
         'needs_dependencies' => @needs_dependencies,
       }
@@ -301,7 +301,7 @@ module Cosmos
       when 'CMD_DECOM_LOG_RETAIN_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for cmd decom log files in seconds - nil = Forever>")
         @cmd_decom_log_retain_time = ConfigParser.handle_nil(parameters[0])
-        @cmd_decom_log_retain_time = @cmd_decom_log_retain_time.to_i if @cmd_decom_log_retain_time        
+        @cmd_decom_log_retain_time = @cmd_decom_log_retain_time.to_i if @cmd_decom_log_retain_time
       when 'TLM_LOG_CYCLE_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
         @tlm_log_cycle_time = parameters[0].to_i
@@ -311,7 +311,7 @@ module Cosmos
       when 'TLM_LOG_RETAIN_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for tlm log files in seconds - nil = Forever>")
         @tlm_log_retain_time = ConfigParser.handle_nil(parameters[0])
-        @tlm_log_retain_time = @tlm_log_retain_time.to_i if @tlm_log_retain_time        
+        @tlm_log_retain_time = @tlm_log_retain_time.to_i if @tlm_log_retain_time
       when 'TLM_DECOM_LOG_CYCLE_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
         @tlm_decom_log_cycle_time = parameters[0].to_i
@@ -333,22 +333,22 @@ module Cosmos
       when 'REDUCED_DAY_LOG_RETAIN_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for reduced day log files in seconds - nil = Forever>")
         @reduced_day_log_retain_time = ConfigParser.handle_nil(parameters[0])
-        @reduced_day_log_retain_time = @reduced_day_log_retain_time.to_i if @reduced_day_log_retain_time                
+        @reduced_day_log_retain_time = @reduced_day_log_retain_time.to_i if @reduced_day_log_retain_time
       when 'LOG_RETAIN_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for all log files in seconds - nil = Forever>")
         log_retain_time = ConfigParser.handle_nil(parameters[0])
-        if log_retain_time 
+        if log_retain_time
           @cmd_log_retain_time = log_retain_time.to_i
-          @cmd_decom_log_retain_time = log_retain_time.to_i   
+          @cmd_decom_log_retain_time = log_retain_time.to_i
           @tlm_log_retain_time = log_retain_time.to_i
           @tlm_decom_log_retain_time = log_retain_time.to_i
-        end     
+        end
       when 'REDUCED_LOG_RETAIN_TIME'
         parser.verify_num_parameters(1, 1, "#{keyword} <Retention time for all reduced log files in seconds - nil = Forever>")
         reduced_log_retain_time = ConfigParser.handle_nil(parameters[0])
-        if reduced_log_retain_time 
+        if reduced_log_retain_time
           @reduced_minute_log_retain_time = reduced_log_retain_time.to_i
-          @reduced_hour_log_retain_time = reduced_log_retain_time.to_i   
+          @reduced_hour_log_retain_time = reduced_log_retain_time.to_i
           @reduced_day_log_retain_time = reduced_log_retain_time.to_i
         end
       when 'CLEANUP_POLL_TIME'
@@ -380,7 +380,7 @@ module Cosmos
           data = File.read(filename, mode: "rb")
           begin
             Cosmos.set_working_dir(File.dirname(filename)) do
-              data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
+              data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
             end
           rescue => error
             raise "ERB error parsing: #{filename}: #{error.formatted}"
@@ -413,12 +413,12 @@ module Cosmos
         Store.hdel("#{@scope}__limits_groups", group)
       end
       self.class.packets(@name, type: :CMD, scope: @scope).each do |packet|
-        Store.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
-        Store.del("#{@scope}__DECOMCMD__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__DECOMCMD__{#{@name}}__#{packet['packet_name']}")
       end
       self.class.packets(@name, scope: @scope).each do |packet|
-        Store.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
-        Store.del("#{@scope}__DECOM__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__DECOM__{#{@name}}__#{packet['packet_name']}")
         CvtModel.del(target_name: @name, packet_name: packet['packet_name'], scope: @scope)
         LimitsEventTopic.delete(@name, packet['packet_name'], scope: @scope)
       end
@@ -455,7 +455,7 @@ module Cosmos
 
       begin
         Cosmos.set_working_dir(File.dirname(path)) do
-          return ERB.new(File.read(path)).result(b)
+          return ERB.new(File.read(path), trim_mode: "-").result(b)
         end
       rescue => error
         raise "ERB error parsing: #{path}: #{error.formatted}"
@@ -585,10 +585,10 @@ module Cosmos
         # No telemetry packets for this target
       end
       # It's ok to call initialize_streams with an empty array
-      Store.initialize_streams(command_topic_list)
-      Store.initialize_streams(decom_command_topic_list)
-      Store.initialize_streams(packet_topic_list)
-      Store.initialize_streams(decom_topic_list)
+      Topic.initialize_streams(command_topic_list)
+      Topic.initialize_streams(decom_command_topic_list)
+      Topic.initialize_streams(packet_topic_list)
+      Topic.initialize_streams(decom_topic_list)
 
       unless command_topic_list.empty?
         # CommandLog Microservice

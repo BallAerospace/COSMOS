@@ -19,4 +19,5 @@
 
 module Cosmos
   autoload(:Store, "cosmos/utilities/store_autoload.rb")
+  autoload(:EphemeralStore, "cosmos/utilities/store_autoload.rb")
 end

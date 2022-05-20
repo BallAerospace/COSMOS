@@ -20,53 +20,34 @@
 require 'cosmos/models/model'
 
 module Cosmos
-  class MicroserviceStatusModel < EphemeralModel
-    PRIMARY_KEY = 'cosmos_microservice_status'
-
-    attr_accessor :state
-    attr_accessor :count
-    attr_accessor :error
-    attr_accessor :custom
+  class SettingsModel < Model
+    PRIMARY_KEY = 'cosmos__settings'
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
-    def self.get(name:, scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name)
+    def self.get(name:, scope: nil)
+      super(PRIMARY_KEY, name: name)
     end
 
-    def self.names(scope:)
-      super("#{scope}__#{PRIMARY_KEY}")
+    def self.names(scope: nil)
+      super(PRIMARY_KEY)
     end
 
-    def self.all(scope:)
-      super("#{scope}__#{PRIMARY_KEY}")
+    def self.all(scope: nil)
+      super(PRIMARY_KEY)
+    end
+    # END NOTE
+
+    def initialize(name:, scope: nil, data:)
+      super(PRIMARY_KEY, name: name, scope: scope)
+      @data = data
     end
 
-    def initialize(
-      name:,
-      state: nil,
-      count: 0,
-      error: nil,
-      custom: nil,
-      updated_at: nil,
-      plugin: nil,
-      scope:
-    )
-      super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
-      @state = state
-      @count = count
-      @error = error
-      @custom = custom
-    end
-
+    # @return [Hash] JSON encoding of this model
     def as_json
       {
         'name' => @name,
-        'state' => @state,
-        'count' => @count,
-        'error' => @error.as_json,
-        'custom' => @custom.as_json,
-        'plugin' => @plugin,
+        'data' => @data,
         'updated_at' => @updated_at
       }
     end

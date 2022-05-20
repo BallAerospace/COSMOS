@@ -44,11 +44,17 @@ services:
       - "cosmos-redis-v:/data"
     restart: "unless-stopped"
 
+  cosmos-redis-ephemeral:
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+    restart: "unless-stopped"
+    command: [ "redis-server", "/config/redis_ephemeral.conf" ]
+
   cosmos-cmd-tlm-api:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
+      - "cosmos-redis-ephemeral"
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems"
@@ -63,6 +69,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
+      - "cosmos-redis-ephemeral"
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems:ro"
@@ -77,6 +84,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
+      - "cosmos-redis-ephemeral"
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems:ro"
@@ -94,6 +102,7 @@ services:
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
+      - "cosmos-redis-ephemeral"
       - "cosmos-minio"
 
   cosmos-init:
@@ -102,6 +111,7 @@ services:
     depends_on:
       - "cosmos-traefik"
       - "cosmos-redis"
+      - "cosmos-redis-ephemeral"
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems"
