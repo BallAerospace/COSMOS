@@ -32,6 +32,7 @@ ENV['COSMOS_MINIO_PASSWORD'] = nil
 
 # Preload Store and remove Redis secrets from ENV
 Cosmos::Store.instance
+Cosmos::EphemeralStore.instance
 ENV['COSMOS_REDIS_USERNAME'] = nil
 ENV['COSMOS_REDIS_PASSWORD'] = nil
 

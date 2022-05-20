@@ -23,7 +23,7 @@ module Cosmos
   # Stores the status about an interface. This class also implements logic
   # to handle status for a router since the functionality is identical
   # (only difference is the Redis key used).
-  class InterfaceStatusModel < Model
+  class InterfaceStatusModel < EphemeralModel
     INTERFACES_PRIMARY_KEY = 'cosmos_interface_status'
     ROUTERS_PRIMARY_KEY = 'cosmos_router_status'
 

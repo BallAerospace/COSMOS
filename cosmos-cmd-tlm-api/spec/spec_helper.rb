@@ -68,6 +68,10 @@ ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmosservice'
 ENV['COSMOS_REDIS_HOSTNAME'] = '127.0.0.1'
 # Set redis port
 ENV['COSMOS_REDIS_PORT'] = '6379'
+# Set redis host
+ENV['COSMOS_REDIS_EPHEMERAL_HOSTNAME'] = '127.0.0.1'
+# Set redis port
+ENV['COSMOS_REDIS_EPHEMERAL_PORT'] = '6380'
 # Set redis username
 ENV['COSMOS_REDIS_USERNAME'] = 'cosmos'
 # Set redis password
@@ -96,7 +100,8 @@ def mock_redis
   require 'mock_redis'
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
-  Cosmos::Store.class_variable_set(:@@instance, nil)
+  Cosmos::Store.instance_variable_set(:@instance, nil)
+  Cosmos::EphemeralStore.instance_variable_set(:@instance, nil)
   redis
 end
 

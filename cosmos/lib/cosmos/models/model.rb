@@ -27,12 +27,16 @@ module Cosmos
     attr_accessor :plugin
     attr_accessor :scope
 
+    def self.store
+      Store
+    end
+
     # NOTE: The following three methods must be reimplemented by Model subclasses
     # without primary_key to support other class methods.
 
     # @return [Hash|nil] Hash of this model or nil if name not found under primary_key
     def self.get(primary_key, name:)
-      json = Store.hget(primary_key, name)
+      json = store.hget(primary_key, name)
       if json
         return JSON.parse(json)
       else
@@ -42,12 +46,12 @@ module Cosmos
 
     # @return [Array<String>] All the names stored under the primary key
     def self.names(primary_key)
-      Store.hkeys(primary_key).sort
+      store.hkeys(primary_key).sort
     end
 
     # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
     def self.all(primary_key)
-      hash = Store.hgetall(primary_key)
+      hash = store.hgetall(primary_key)
       hash.each do |key, value|
         hash[key] = JSON.parse(value)
       end
@@ -117,16 +121,6 @@ module Cosmos
       raise "must be implemented by subclass"
     end
 
-    # TODO: Not used
-    # def self.from_config(primary_key, filename)
-    #   model = nil
-    #   parser = ConfigParser.new
-    #   parser.parse_file(filename) do |keyword, parameters|
-    #     model = self.handle_config(primary_key, parser, model, keyword, parameters)
-    #   end
-    #   model
-    # end
-
     # Store the primary key and keyword arguments
     def initialize(primary_key, **kw_args)
       @primary_key = primary_key
@@ -140,7 +134,7 @@ module Cosmos
     # to the JSON generated via calling as_json
     def create(update: false, force: false)
       unless force
-        existing = Store.hget(@primary_key, @name)
+        existing = self.class.store.hget(@primary_key, @name)
         if existing
           raise "#{@primary_key}:#{@name} already exists at create" unless update
         else
@@ -148,7 +142,7 @@ module Cosmos
         end
       end
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(self.as_json))
+      self.class.store.hset(@primary_key, @name, JSON.generate(self.as_json))
     end
 
     # Alias for create(update: true)
@@ -170,7 +164,7 @@ module Cosmos
     # Delete the model from the Store
     def destroy
       undeploy()
-      Store.hdel(@primary_key, @name)
+      self.class.store.hdel(@primary_key, @name)
     end
 
     # @return [Hash] JSON encoding of this model
@@ -184,6 +178,12 @@ module Cosmos
     # TODO: Not currently used but may be used by a XTCE or other format to COSMOS conversion
     def as_config
       ""
+    end
+  end
+
+  class EphemeralModel < Model
+    def self.store
+      EphemeralStore
     end
   end
 end

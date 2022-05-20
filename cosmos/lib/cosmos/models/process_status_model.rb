@@ -21,7 +21,7 @@ require 'cosmos/models/model'
 
 module Cosmos
   # Stores the status about an process.
-  class ProcessStatusModel < Model
+  class ProcessStatusModel < EphemeralModel
     PRIMARY_KEY = 'cosmos_process_status'
 
     attr_accessor :state

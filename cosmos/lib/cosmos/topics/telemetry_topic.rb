@@ -30,7 +30,7 @@ module Cosmos
         :received_count => packet.received_count,
         :buffer => packet.buffer(false),
       }
-      Store.write_topic("#{scope}__TELEMETRY__{#{packet.target_name}}__#{packet.packet_name}", msg_hash)
+      Topic.write_topic("#{scope}__TELEMETRY__{#{packet.target_name}}__#{packet.packet_name}", msg_hash)
     end
   end
 end

@@ -40,12 +40,12 @@ module Cosmos
 
     # Delete the current value table for a target
     def self.del(target_name:, packet_name:, scope:)
-      Store.hdel("#{scope}__tlm__#{target_name}", packet_name)
+      EphemeralStore.hdel("#{scope}__tlm__#{target_name}", packet_name)
     end
 
     # Set the current value table for a target, packet
     def self.set(hash, target_name:, packet_name:, scope:)
-      Store.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
+      EphemeralStore.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
     end
 
     # Set an item in the current value table
@@ -62,9 +62,9 @@ module Cosmos
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      hash = JSON.parse(Store.hget("#{scope}__tlm__#{target_name}", packet_name))
+      hash = JSON.parse(EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name))
       hash[field] = value
-      Store.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
+      EphemeralStore.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
     end
 
     # Get an item from the current value table
@@ -86,7 +86,7 @@ module Cosmos
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      hash = JSON.parse(Store.hget("#{scope}__tlm__#{target_name}", packet_name))
+      hash = JSON.parse(EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name))
       hash.values_at(*types).each do |result|
         return result if result
       end
@@ -106,7 +106,7 @@ module Cosmos
 
       lookups.each do |target_packet_key, target_name, packet_name, packet_values|
         unless packet_lookup[target_packet_key]
-          packet = Store.hget("#{scope}__tlm__#{target_name}", packet_name)
+          packet = EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name)
           raise "Packet '#{target_name} #{packet_name}' does not exist" unless packet
           packet_lookup[target_packet_key] = JSON.parse(packet)
         end

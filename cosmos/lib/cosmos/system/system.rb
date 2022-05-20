@@ -26,6 +26,7 @@ require 'cosmos/packets/limits'
 require 'cosmos/system/target'
 require 'cosmos/utilities/s3'
 require 'cosmos/utilities/zip'
+require 'cosmos/models/scope_model'
 require 'thread'
 require 'fileutils'
 
@@ -54,7 +55,7 @@ module Cosmos
 
     # @return [Symbol] The current limits_set of the system returned from Redis
     def self.limits_set
-      Store.hget("#{$cosmos_scope}__cosmos_system", 'limits_set').intern
+      ScopeModel.limits_set(scope: $cosmos_scope)
     end
 
     def self.setup_targets(target_names, base_dir, scope:)

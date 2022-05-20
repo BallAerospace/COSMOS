@@ -190,7 +190,7 @@ module Cosmos
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       TargetModel.packet(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
-      msg_id, msg_hash = Store.instance.read_topic_last(topic)
+      msg_id, msg_hash = Topic.get_newest_message(topic)
       if msg_id
         msg_hash['buffer'] = msg_hash['buffer'].b
         return msg_hash
@@ -300,7 +300,7 @@ module Cosmos
       packets.each do |target_name, packet_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
         topic = "#{scope}__DECOM__{#{target_name}}__#{packet_name}"
-        id, _ = Store.read_topic_last(topic)
+        id, _ = Topic.get_newest_message(topic)
         result[topic] = id ? id : '0-0'
       end
       result.to_a.join(SUBSCRIPTION_DELIMITER)
@@ -317,13 +317,13 @@ module Cosmos
       authorize(permission: 'tlm', scope: scope, token: token)
       # Split the list of topic, ID values and turn it into a hash for easy updates
       lookup = Hash[*id.split(SUBSCRIPTION_DELIMITER)]
-      xread = Store.xread(lookup.keys, lookup.values, block: block, count: count)
+      xread = Topic.read_topics(lookup.keys, lookup.values, block, count)
       # Return the original ID and nil if we didn't get anything
       return [id, nil] if xread.empty?
       packets = []
       xread.each do |topic, data|
         data.each do |id, msg_hash|
-          lookup[topic] = id # Store the new ID
+          lookup[topic] = id # save the new ID
           json_hash = JSON.parse(msg_hash['json_data'])
           msg_hash.delete('json_data')
           packets << msg_hash.merge(json_hash)
@@ -340,7 +340,7 @@ module Cosmos
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       TargetModel.packet(target_name, packet_name, scope: scope)
-      _get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}")
+      Topic.get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}")
     end
 
     # Get information on all telemetry packets
@@ -353,12 +353,12 @@ module Cosmos
         TargetModel.packets(target_name, scope: scope).each do | packet |
           packet_name = packet['packet_name']
           key = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
-          result << [target_name, packet_name, _get_cnt(key)]
+          result << [target_name, packet_name, Topic.get_cnt(key)]
         end
       end
       ['UNKNOWN'].each do | x |
         key = "#{scope}__TELEMETRY__{#{x}}__#{x}"
-        result << [x, x, _get_cnt(key)]
+        result << [x, x, Topic.get_cnt(key)]
       end
       # Return the result sorted by target, packet
       result.sort_by { |a| [a[0], a[1]] }
@@ -425,7 +425,7 @@ module Cosmos
         TargetModel.packets(target_name, scope: scope).each do |packet|
           item = packet['items'].find { |item| item['name'] == item_name }
           if item
-            _, msg_hash = Store.instance.get_oldest_message("#{scope}__DECOM__{#{target_name}}__#{packet['packet_name']}")
+            _, msg_hash = Topic.get_oldest_message("#{scope}__DECOM__{#{target_name}}__#{packet['packet_name']}")
             if msg_hash && msg_hash['time'] && msg_hash['time'].to_i > latest
               packet_name = packet['packet_name']
               latest = msg_hash['time'].to_i

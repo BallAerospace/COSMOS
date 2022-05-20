@@ -130,7 +130,8 @@ def mock_redis
   # pool = double(ConnectionPool)
   # allow(pool).to receive(:with) { redis }
   # allow(ConnectionPool).to receive(:new).and_return(pool)
-  Cosmos::Store.class_variable_set(:@@instance, nil)
+  Cosmos::Store.instance_variable_set(:@instance, nil)
+  Cosmos::EphemeralStore.instance_variable_set(:@instance, nil)
   require 'cosmos/models/auth_model'
   Cosmos::AuthModel.set($cosmos_token, nil)
   redis

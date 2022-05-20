@@ -56,12 +56,12 @@ module Cosmos
         cmd_cnt = 0
         packets = TargetModel.packets(target_name, type: :CMD, scope: scope)
         packets.each do |packet|
-          cmd_cnt += _get_cnt("#{scope}__COMMAND__{#{target_name}}__#{packet['packet_name']}")
+          cmd_cnt += Topic.get_cnt("#{scope}__COMMAND__{#{target_name}}__#{packet['packet_name']}")
         end
         tlm_cnt = 0
         packets = TargetModel.packets(target_name, type: :TLM, scope: scope)
         packets.each do |packet|
-          tlm_cnt += _get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet['packet_name']}")
+          tlm_cnt += Topic.get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet['packet_name']}")
         end
         interface_name = ''
         InterfaceModel.all(scope: scope).each do |name, interface|

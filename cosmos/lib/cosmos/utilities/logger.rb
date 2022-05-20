@@ -19,7 +19,7 @@
 
 require 'cosmos/core_ext/class'
 require 'cosmos/core_ext/time'
-require 'cosmos/utilities/store'
+require 'cosmos/topics/topic'
 require 'socket'
 require 'logger'
 require 'time'
@@ -174,11 +174,11 @@ module Cosmos
         puts data.to_json if @stdout
         unless @no_store
           if scope
-            Store.write_topic("#{scope}__cosmos_log_messages", data)
+            Topic.write_topic("#{scope}__cosmos_log_messages", data)
           else
             # The base cosmos_log_messages doesn't have an associated logger
             # so it must be limited to prevent unbounded stream growth
-            Store.write_topic("cosmos_log_messages", data, '*', 1000)
+            Topic.write_topic("cosmos_log_messages", data, '*', 1000)
           end
         end
       end

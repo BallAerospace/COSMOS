@@ -413,12 +413,12 @@ module Cosmos
         Store.hdel("#{@scope}__limits_groups", group)
       end
       self.class.packets(@name, type: :CMD, scope: @scope).each do |packet|
-        Store.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
-        Store.del("#{@scope}__DECOMCMD__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__DECOMCMD__{#{@name}}__#{packet['packet_name']}")
       end
       self.class.packets(@name, scope: @scope).each do |packet|
-        Store.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
-        Store.del("#{@scope}__DECOM__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
+        Topic.del("#{@scope}__DECOM__{#{@name}}__#{packet['packet_name']}")
         CvtModel.del(target_name: @name, packet_name: packet['packet_name'], scope: @scope)
         LimitsEventTopic.delete(@name, packet['packet_name'], scope: @scope)
       end
@@ -585,10 +585,10 @@ module Cosmos
         # No telemetry packets for this target
       end
       # It's ok to call initialize_streams with an empty array
-      Store.initialize_streams(command_topic_list)
-      Store.initialize_streams(decom_command_topic_list)
-      Store.initialize_streams(packet_topic_list)
-      Store.initialize_streams(decom_topic_list)
+      Topic.initialize_streams(command_topic_list)
+      Topic.initialize_streams(decom_command_topic_list)
+      Topic.initialize_streams(packet_topic_list)
+      Topic.initialize_streams(decom_topic_list)
 
       unless command_topic_list.empty?
         # CommandLog Microservice
