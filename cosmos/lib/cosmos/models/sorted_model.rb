@@ -41,21 +41,21 @@ module Cosmos
 
     # @return [String|nil] String of the saved json or nil if start not found
     def self.get(start:, scope:)
-      result = Store.zrangebyscore(self.pk(scope), start, start, :limit => [0, 1])
+      result = Store.zrangebyscore(self.pk(scope), start, start, limit: [0, 1])
       return JSON.parse(result[0]) unless result.empty?
       nil
     end
 
     # @return [Array<Hash>] Array up to the limit of the models (as Hash objects) stored under the primary key
     def self.all(scope:, limit: 100)
-      result = Store.zrange(self.pk(scope), 0, -1, :limit => [0, limit])
+      result = Store.zrange(self.pk(scope), 0, -1, limit: [0, limit])
       result.map { |item| JSON.parse(item) }
     end
 
     # @return [String|nil] json or nil if metadata empty
     def self.get_current_value(scope:)
       start = Time.now.to_i
-      array = Store.zrevrangebyscore(self.pk(scope), start, '-inf', :limit => [0, 1])
+      array = Store.zrevrangebyscore(self.pk(scope), start, '-inf', limit: [0, 1])
       return nil if array.empty?
       return array[0]
     end
@@ -67,7 +67,7 @@ module Cosmos
       if start > stop
         raise SortedInputError.new "start: #{start} must be before stop: #{stop}"
       end
-      result = Store.zrangebyscore(self.pk(scope), start, stop, :limit => [0, limit])
+      result = Store.zrangebyscore(self.pk(scope), start, stop, limit: [0, limit])
       result.map { |item| JSON.parse(item) }
     end
 
@@ -97,43 +97,40 @@ module Cosmos
       # Name becomes the start in the base class
       super(self.class.pk(scope), name: start.to_s, scope: scope, **kwargs)
       @type = type # For the as_json, from_json round trip
-      @start = validate_start(start, update: false)
+      @start = start
     end
 
     # start MUST be a positive integer
-    def validate_start(start, update:)
-      unless start.is_a?(Integer)
-        raise SortedInputError.new "start must be integer: #{start}"
+    def validate_start(update: false)
+      unless @start.is_a?(Integer)
+        raise SortedInputError.new "start must be integer: #{@start}"
       end
-      if start.to_i < 0
-        raise SortedInputError.new "start must be positive: #{start}"
+      if @start.to_i < 0
+        raise SortedInputError.new "start must be positive: #{@start}"
       end
-      if !update and self.class.get(start: start, scope: @scope)
-        raise SortedOverlapError.new "no metadata can overlap, existing data at #{start}"
+      if !update and self.class.get(start: @start, scope: @scope)
+        raise SortedOverlapError.new "duplicate, existing data at #{@start}"
       end
-      start.to_i
+      @start = @start.to_i
     end
 
     # Update the Redis hash at primary_key based on the initial passed start
     # The member is set to the JSON generated via calling as_json
-    def create
-      if self.class.get(start: @start, scope: @scope)
-        raise SortedOverlapError.new "no sorted start can overlap, start: #{@start}"
-      end
+    def create(update: false)
+      validate_start(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
       Store.zadd(@primary_key, @start, JSON.generate(as_json()))
-      notify(kind: 'created')
+      if update
+        notify(kind: 'updated')
+      else
+        notify(kind: 'created')
+      end
     end
 
-    # Update the Redis hash at primary_key by removing the current item
-    # and creating a new item
+    # Update the Redis hash at primary_key
     def update(start:)
-      old_start = @start
-      @updated_at = Time.now.to_nsec_from_epoch
-      @start = validate_start(start, update: true)
-      self.class.destroy(scope: @scope, start: old_start)
-      create()
-      notify(kind: 'updated', extra: old_start)
+      @start = start
+      create(update: true)
     end
 
     # destroy the activity from the redis database

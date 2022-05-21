@@ -126,17 +126,17 @@ Rails.application.routes.draw do
     get '/metadata', to: 'metadata#index'
     post '/metadata', to: 'metadata#create'
     get '/metadata/latest', to: 'metadata#latest', name: /[^\/]+/
-    get '/metadata/_search', to: 'metadata#search'
+    # get '/metadata/_search', to: 'metadata#search'
     get '/metadata/:id', to: 'metadata#show', id: /[^\/]+/
     match '/metadata/:id', to: 'metadata#update', id: /[^\/]+/, via: [:patch, :put]
-    delete '/metadata/:id', to: 'metadata#delete', id: /[^\/]+/
+    delete '/metadata/:id', to: 'metadata#destroy', id: /[^\/]+/
 
-    get '/narrative', to: 'narrative#index'
-    post '/narrative', to: 'narrative#create'
-    get '/narrative/_search', to: 'narrative#search'
-    get '/narrative/:id', to: 'narrative#show', id: /[^\/]+/
-    match '/narrative/:id', to: 'narrative#update', id: /[^\/]+/, via: [:patch, :put]
-    delete '/narrative/:id', to: 'narrative#delete', id: /[^\/]+/
+    get '/note', to: 'notes#index'
+    post '/note', to: 'notes#create'
+    # get '/note/_search', to: 'note#search'
+    get '/note/:id', to: 'notes#show', id: /[^\/]+/
+    match '/note/:id', to: 'notes#update', id: /[^\/]+/, via: [:patch, :put]
+    delete '/note/:id', to: 'notes#destroy', id: /[^\/]+/
 
     get '/autocomplete/reserved-item-names', to: 'script_autocomplete#get_reserved_item_names'
     get '/autocomplete/keywords/:type', to: 'script_autocomplete#get_keywords', type: /[^\/]+/

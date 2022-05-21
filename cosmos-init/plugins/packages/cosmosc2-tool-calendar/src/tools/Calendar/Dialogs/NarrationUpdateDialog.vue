@@ -255,7 +255,7 @@ export default {
       )
       const color = this.color
       const description = this.description
-      Api.put(`/cosmos-api/narrative/${this.narrative.start}`, {
+      Api.put(`/cosmos-api/note/${this.narrative.start}`, {
         data: { start, stop, color, description },
       }).then((response) => {
         const desc =

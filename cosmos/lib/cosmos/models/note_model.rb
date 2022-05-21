@@ -47,52 +47,60 @@ module Cosmos
       updated_at: 0
     )
       super(start: start, scope: scope, updated_at: updated_at)
-      @type = type # For the as_json, from_json round trip
-      # Start is validated by super so don't bother again
-      validate(stop: stop, color: color, description: description)
-    end
-
-    # Set the values of the instance, @start, @stop, @color, @description
-    def validate(start: nil, stop:, color:, description:, update: false)
-      @start = validate_start(start, update: update) if start
-      @stop = validate_stop(stop)
-      @color = validate_color(color)
-      # Not much to validate here since it's just a string
+      @start = start
+      @stop = stop
+      @color = color
       @description = description
+      @type = type # For the as_json, from_json round trip
     end
 
-    def validate_stop(stop)
-      unless stop.is_a?(Integer)
-        raise SortedInputError.new "stop must be integer: #{stop}"
-      end
-      if stop.to_i < @start
-        raise SortedInputError.new "stop: #{stop} must be >= start: #{start}"
-      end
-      stop.to_i
+    # Validates the instance variables: @start, @stop, @color, @description
+    def validate(update: false)
+      validate_start(update: update)
+      validate_stop()
+      validate_color()
     end
 
-    def validate_color(color)
-      if color.nil?
-        color = '#%06x' % (rand * 0xffffff)
+    def validate_stop()
+      unless @stop.is_a?(Integer)
+        raise SortedInputError.new "stop must be integer: #{@stop}"
       end
-      valid_color = color =~ /(#*)([0-9,a-f,A-f]{6})/
-      if valid_color.nil?
+      if @stop.to_i < @start
+        raise SortedInputError.new "stop: #{@stop} must be >= start: #{@start}"
+      end
+      @stop = @stop.to_i
+    end
+
+    def validate_color()
+      if @color.nil?
+        @color = '#%06x' % (rand * 0xffffff)
+      end
+      unless @color =~ /(#*)([0-9,a-f,A-f]{6})/
         raise SortedInputError.new "invalid color, must be in hex format, e.g. #FF0000"
       end
-      color = "##{color}" unless color.start_with?('#')
-      color
+      @color = "##{@color}" unless @color.start_with?('#')
     end
 
-    # Update the Redis hash at primary_key and remove the current activity at the current score
-    # and update the score to the new score equal to the start Epoch time this uses a multi
-    # to execute both the remove and create. The member via the JSON generated via calling as_json
-    def update(start:, stop:, color:, description:)
-      old_start = @start
+    # Update the Redis hash at primary_key based on the initial passed start
+    # The member is set to the JSON generated via calling as_json
+    def create(update: false)
+      validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
-      validate(start: start, stop: stop, color: color, description: description, update: true)
-      self.class.destroy(scope: @scope, start: old_start)
-      create()
-      notify(kind: 'updated', extra: old_start)
+      Store.zadd(@primary_key, @start, JSON.generate(as_json()))
+      if update
+        notify(kind: 'updated')
+      else
+        notify(kind: 'created')
+      end
+    end
+
+    # Update the Redis hash at primary_key
+    def update(start:, stop:, color:, description:)
+      @start = start
+      @stop = stop
+      @color = color
+      @description = description
+      create(update: true)
     end
 
     # @return [Hash] generated from the NoteModel

@@ -131,7 +131,7 @@ export default {
           }
         )
         .then((dialog) => {
-          return Api.delete(`/cosmos-api/narrative/${narrationStart}`)
+          return Api.delete(`/cosmos-api/note/${narrationStart}`)
         })
         .then((response) => {
           this.$notify.normal({

@@ -251,7 +251,7 @@ export default {
       )
       const color = this.color
       const description = this.description
-      Api.post('/cosmos-api/narrative', {
+      Api.post('/cosmos-api/note', {
         data: { start, stop, color, description },
       }).then((response) => {
         const desc =

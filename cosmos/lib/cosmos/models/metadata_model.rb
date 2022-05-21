@@ -45,46 +45,54 @@ module Cosmos
       updated_at: 0
     )
       super(start: start, scope: scope, updated_at: updated_at)
-      @type = type # For the as_json, from_json round trip3
-      # Start is validated by super so don't bother again
-      validate(color: color, metadata: metadata)
+      @start = start
+      @color = color
+      @metadata = metadata
+      @type = type # For the as_json, from_json round trip
     end
 
-    # Set the values of the instance, @start, @color, @metadata
-    def validate(start: nil, color:, metadata:, update: false)
-      @start = validate_start(start, update: update) if start
-      @color = validate_color(color)
-      @metadata = validate_metadata(metadata)
+    # Validates the instance variables: @start, @color, @metadata
+    def validate(update: false)
+      validate_start(update: update)
+      validate_color()
+      validate_metadata()
     end
 
-    def validate_color(color)
-      if color.nil?
-        color = '#%06x' % (rand * 0xffffff)
+    def validate_color()
+      if @color.nil?
+        @color = '#%06x' % (rand * 0xffffff)
       end
-      valid_color = color =~ /(#*)([0-9,a-f,A-f]{6})/
-      if valid_color.nil?
+      unless @color =~ /(#*)([0-9,a-f,A-f]{6})/
         raise SortedInputError.new "invalid color, must be in hex format, e.g. #FF0000"
       end
-      color = "##{color}" unless color.start_with?('#')
-      color
+      @color = "##{@color}" unless @color.start_with?('#')
     end
 
-    def validate_metadata(metadata)
-      unless metadata.is_a?(Hash)
-        raise SortedInputError.new "Metadata must be a hash/object: #{metadata}"
+    def validate_metadata()
+      unless @metadata.is_a?(Hash)
+        raise SortedInputError.new "Metadata must be a hash/object: #{@metadata}"
       end
-      metadata
     end
 
-    # Update the Redis hash at primary_key by removing the current item
-    # and creating a new item
-    def update(start:, color:, metadata:)
-      old_start = @start
+    # Update the Redis hash at primary_key based on the initial passed start
+    # The member is set to the JSON generated via calling as_json
+    def create(update: false)
+      validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
-      validate(start: start, color: color, metadata: metadata, update: true)
-      self.class.destroy(scope: @scope, start: old_start)
-      create()
-      notify(kind: 'updated', extra: old_start)
+      Store.zadd(@primary_key, @start, JSON.generate(as_json()))
+      if update
+        notify(kind: 'updated')
+      else
+        notify(kind: 'created')
+      end
+    end
+
+    # Update the Redis hash at primary_key
+    def update(start:, color:, metadata:)
+      @start = start
+      @color = color
+      @metadata = metadata
+      create(update: true)
     end
 
     # @return [Hash] generated from the MetadataModel

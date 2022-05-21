@@ -238,7 +238,7 @@ export default {
       //   "narrative": [event1, event2, etc],
       //   "metadata": etc
       // }
-      Api.get(`/cosmos-api/narrative`).then((response) => {
+      Api.get(`/cosmos-api/note`).then((response) => {
         this.chronicles = {
           ...this.chronicles,
           narrative: response.data,

@@ -45,7 +45,7 @@ module Cosmos
       end
     end
 
-    describe "initialize" do
+    describe "create" do
       it "raises error due to invalid start time" do
         expect { create_model(start: 'foo') }.to raise_error(SortedInputError)
         expect { create_model(start: 5.5) }.to raise_error(SortedInputError)
@@ -121,8 +121,6 @@ module Cosmos
         model = create_model()
         hash = model.as_json
         json = JSON.generate(hash)
-        # We have to delete the existing first to allow the new one to be created
-        model.destroy
         new_model = NoteModel.from_json(json, scope: 'DEFAULT')
         expect(new_model.start).to eql(hash['start'])
         expect(new_model.stop).to eql(hash['stop'])

@@ -45,7 +45,7 @@ module Cosmos
       end
     end
 
-    describe "initialize" do
+    describe "create" do
       it "raises error due to invalid start" do
         expect { create_model(start: 'foo') }.to raise_error(SortedInputError)
         expect { create_model(start: 5.5) }.to raise_error(SortedInputError)
@@ -117,9 +117,8 @@ module Cosmos
         model = create_model()
         hash = model.as_json
         json = JSON.generate(hash)
-        # We have to delete the existing first to allow the new one to be created
-        model.destroy
         new_model = MetadataModel.from_json(json, scope: 'DEFAULT')
+        expect(new_model).to be_a MetadataModel
         expect(new_model.start).to eql(hash['start'])
         expect(new_model.color).to eql(hash['color'])
         expect(new_model.metadata).to eql(hash['metadata'])

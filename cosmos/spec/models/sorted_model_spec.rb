@@ -79,16 +79,30 @@ module Cosmos
 
     describe "self.all" do
       it "returns all entries" do
-        model = SortedModel.new(scope: 'DEFAULT', start: 100)
-        model.create()
-        model = SortedModel.new(scope: 'DEFAULT', start: 200)
-        model.create()
+        create_model(start: 100)
+        create_model(start: 200)
+        create_model(start: 300)
+        create_model(start: 400)
         all = SortedModel.all(scope: 'DEFAULT')
-        expect(all.empty?).to eql(false)
-        expect(all.length).to eql(2)
+        expect(all.length).to eql(4)
         expect(all[0]["start"]).to eql 100
         expect(all[1]["start"]).to eql 200
+        expect(all[2]["start"]).to eql 300
+        expect(all[3]["start"]).to eql 400
       end
+
+      # TODO: mock_redis currently doesn't implement limit
+      # it "limits the results" do
+      #   now = Time.now.to_i
+      #   create_model(start: 100)
+      #   create_model(start: 200)
+      #   create_model(start: 300)
+      #   create_model(start: 400)
+      #   all = SortedModel.all(scope: 'DEFAULT', limit: 2)
+      #   expect(all.length).to eql(2)
+      #   expect(all[0]["start"]).to eql 100
+      #   expect(all[1]["start"]).to eql 200
+      # end
     end
 
     describe "self.range" do
@@ -224,10 +238,9 @@ module Cosmos
         model = create_model()
         hash = model.as_json
         json = JSON.generate(hash)
-        # We have to delete the existing first to allow the new one to be created
-        model.destroy
         new_model = SortedModel.from_json(json, scope: 'DEFAULT')
-        expect(model.start).to eql(hash['start'])
+        expect(new_model).to be_a SortedModel
+        expect(new_model.start).to eql(hash['start'])
       end
     end
   end
