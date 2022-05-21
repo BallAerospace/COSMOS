@@ -73,7 +73,7 @@ class Script
           bucket: DEFAULT_BUCKET_NAME,
           key: "#{scope}/targets_modified/#{name}",
         )
-    rescue StandardError
+    rescue Aws::S3::Errors::NoSuchKey
       # Now try the original
       resp =
         rubys3_client.get_object(

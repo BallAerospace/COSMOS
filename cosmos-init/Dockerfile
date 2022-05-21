@@ -103,6 +103,7 @@ COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 FROM ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}
 
 COPY --from=cosmos-frontend-base-tmp --chown=${IMAGE_USER}:${IMAGE_GROUP} /cosmos/plugins/gems/* /cosmos/plugins/gems/
+COPY --from=cosmos-frontend-base-tmp --chown=${IMAGE_USER}:${IMAGE_GROUP} /cosmos/plugins/yarn.lock /cosmos/plugins/yarn.lock
 COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./init.sh /cosmos/
 
 CMD [ "/cosmos/init.sh" ]
