@@ -44,7 +44,7 @@
                         </v-icon>
                       </div>
                     </template>
-                    <span> New Metadata </span>
+                    <span>New Metadata</span>
                   </v-tooltip>
                 </th>
               </tr>
@@ -78,7 +78,7 @@
                           </v-icon>
                         </div>
                       </template>
-                      <span> Delete Metadata </span>
+                      <span>Delete Metadata</span>
                     </v-tooltip>
                   </td>
                 </tr>
@@ -87,7 +87,7 @@
           </v-simple-table>
           <v-row v-show="lastUpdated">
             <v-col>
-              <span class="pt-3"> Last update: {{ lastUpdated }} </span>
+              <span class="pt-3">Last update: {{ lastUpdated }}</span>
             </v-col>
           </v-row>
           <v-row>
@@ -132,10 +132,6 @@ export default {
       type: Boolean,
       required: true,
     },
-    target: {
-      type: String,
-      required: true,
-    },
   },
   data() {
     return {
@@ -148,9 +144,7 @@ export default {
   },
   computed: {
     inputError: function () {
-      if (this.metadata.length < 1) {
-        return 'Please enter a value in the metadata table.'
-      }
+      // Don't check for this.metadata.length < 1 because we have to allow for deletes
       const emptyKeyValue = this.metadata.find(
         (meta) => meta.key === '' || meta.value === ''
       )
@@ -174,22 +168,27 @@ export default {
         result[element.key] = element.value
         return result
       }, {})
-      const target = this.target
       const color = '#003784'
       Api.post('/cosmos-api/metadata', {
-        data: { color, target, metadata },
+        data: { color: color, metadata: metadata },
       }).then((response) => {
-        this.$emit('response', metadata)
+        this.$notify.normal({
+          title: 'Created Metadata',
+          body: `Metadata created at ${response.data.start}`,
+        })
       })
+      this.$emit('response', metadata)
+      this.show = !this.show
     },
     cancel: function () {
+      this.$emit('response', 'Cancel')
       this.show = !this.show
     },
     getMetadata: function () {
-      Api.get(`/cosmos-api/metadata/_get/${this.target}`).then((response) => {
+      Api.get('/cosmos-api/metadata/latest').then((response) => {
         if (response.status !== 200) {
-          this.lastUpdated = null
           this.metadata = []
+          this.lastUpdated = null
         } else {
           this.lastUpdated = new Date(response.data.updated_at / 1000000)
           this.updateValues(response.data.metadata)
@@ -197,10 +196,9 @@ export default {
       })
     },
     updateValues: function (metaValues) {
-      const targetMetadata = Object.keys(metaValues).map((k) => {
+      this.metadata = Object.keys(metaValues).map((k) => {
         return { key: k, value: metaValues[k] }
       })
-      this.metadata = targetMetadata
     },
     newMetadata: function () {
       this.metadata.push({

@@ -51,7 +51,7 @@ module Cosmos
       Logger.info("Starting: #{@process_definition.join(' ')}", scope: @scope)
       @process = ChildProcess.build(*@process_definition)
       # This lets the ChildProcess use the parent IO ... but it breaks unit tests
-      # @process.io.inherit!
+      @process.io.inherit!
       @process.cwd = @work_dir
       # Spawned process should not be controlled by same Bundler constraints as spawning process
       ENV.each do |key, value|
@@ -64,8 +64,8 @@ module Cosmos
         @process.environment[key] = value
       end
       @process.environment['COSMOS_SCOPE'] = @scope
-      @process.io.stdout = Tempfile.new("child-output")
-      @process.io.stderr = Tempfile.new("child-output")
+      # @process.io.stdout = Tempfile.new("child-output")
+      # @process.io.stderr = Tempfile.new("child-output")
       @process.start
     end
 
@@ -110,19 +110,19 @@ module Cosmos
     end
 
     def extract_output(max_length_stdout = 65536, max_length_stderr = 65536)
-      if @process
-        @process.io.stdout.rewind
-        output = @process.io.stdout.read
-        @process.io.stdout.close
-        @process.io.stdout.unlink
-        @process.io.stderr.rewind
-        err_output = @process.io.stderr.read
-        @process.io.stderr.close
-        @process.io.stderr.unlink
-        return "Stdout:\n#{output[-max_length_stdout..-1] || output}\n\nStderr:\n#{err_output[-max_length_stderr..-1] || err_output}\n"
-      else
+      # if @process
+      #   @process.io.stdout.rewind
+      #   output = @process.io.stdout.read
+      #   @process.io.stdout.close
+      #   @process.io.stdout.unlink
+      #   @process.io.stderr.rewind
+      #   err_output = @process.io.stderr.read
+      #   @process.io.stderr.close
+      #   @process.io.stderr.unlink
+      #   return "Stdout:\n#{output[-max_length_stdout..-1] || output}\n\nStderr:\n#{err_output[-max_length_stderr..-1] || err_output}\n"
+      # else
         return ""
-      end
+      # end
     end
   end
 
@@ -203,16 +203,16 @@ module Cosmos
 
           unless p.alive?
             # Respawn process
-            p.stdout.rewind
-            output = p.stdout.read
-            p.stdout.close
-            p.stdout.unlink
-            p.stderr.rewind
-            err_output = p.stderr.read
-            p.stderr.close
-            p.stderr.unlink
-            Logger.error("Unexpected process died... respawning! #{p.process_definition.join(' ')}\nStdout:\n#{output}\nStderr:\n#{err_output}\n", scope: p.scope)
-            p.start
+            # p.stdout.rewind
+            # output = p.stdout.read
+            # p.stdout.close
+            # p.stdout.unlink
+            # p.stderr.rewind
+            # err_output = p.stderr.read
+            # p.stderr.close
+            # p.stderr.unlink
+            Logger.error("Unexpected process died... respawning!") #{p.process_definition.join(' ')}\nStdout:\n#{output}\nStderr:\n#{err_output}\n", scope: p.scope)
+            # p.start
           end
         end
       end

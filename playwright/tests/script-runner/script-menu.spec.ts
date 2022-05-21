@@ -101,31 +101,48 @@ test('sets environment variables', async ({ page }) => {
   await expect(page.locator('[data-test=output-messages]')).toContainText('ENV:VALUE')
 })
 
-// TODO: Awaiting further metadata api development
-// test("sets metadata", async ({ page }) => {
-//   await page.locator("textarea").fill(`puts get_metadata('DEFAULT')
-// set_metadata('DEFAULT', { 'metakey' => 'newmetaval' }, color: 'red')
-// puts get_metadata('DEFAULT')
-// # input_metadata()
-// `);
-//   await page.locator('[data-test=script-runner-script]').click();
-//   await page.locator("text=Show Metadata").click();
-//   await page.locator('div[role="button"]:has-text("TargetDEFAULT")').click();
-//   await page.locator('text="DEFAULT"').click();
-//   await page.locator('[data-test=new-metadata-icon]').click();
-//   await page.keyboard.press('Tab')
-//   await page.keyboard.type('metakey')
-//   await page.keyboard.press('Tab')
-//   await page.keyboard.type('metaval')
-//   await page.locator('[data-test=metadata-dialog-save]').click();
-//   await page.locator('text=Dismiss >> button').click();
+test('sets metadata', async ({ page }) => {
+  await page.locator('textarea').fill(`
+  puts get_metadata()
+  set_metadata({ 'setkey' => 1 })
+  result = get_metadata()
+  puts result
+  update_metadata(result['start'], { 'setkey' => 2, 'updatekey' => 3 })
+  puts get_metadata()
+  input_metadata()
+  puts get_metadata()
+  `)
+  await page.locator('[data-test=script-runner-script]').click()
+  await page.locator('text=Show Metadata').click()
+  await page.locator('[data-test=new-metadata-icon]').click()
+  await page.keyboard.press('Tab')
+  await page.keyboard.type('metakey')
+  await page.keyboard.press('Tab')
+  await page.keyboard.type('metaval')
+  await page.locator('[data-test=metadata-dialog-save]').click()
 
-//   await page
-//   .locator("#cosmos-menu >> text=Script Runner")
-//   .click({ force: true });
-//   await page.locator('[data-test=start-button]').click();
-//   await expect(page.locator('[data-test=state]')).toHaveValue("stopped");
-// });
+  await page.locator('[data-test=start-button]').click()
+  await expect(page.locator('.v-dialog')).toBeVisible({
+    timeout: 20000,
+  })
+  await page.locator('[data-test=new-metadata-icon]').click()
+  // key is 0 based and we should already have 2 entries
+  await page.locator('[data-test=key-2]').click()
+  await page.keyboard.type('inputkey')
+  await page.keyboard.press('Tab')
+  await page.keyboard.type('inputvalue')
+  await page.locator('[data-test=metadata-dialog-save]').click()
+
+  await expect(page.locator('[data-test=state]')).toHaveValue('stopped', {
+    timeout: 20000,
+  })
+  await expect(page.locator('[data-test=output-messages]')).toContainText('"setkey"=>1')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('"setkey"=>2')
+  await expect(page.locator('[data-test=output-messages]')).toContainText('"updatekey"=>3')
+  await expect(page.locator('[data-test=output-messages]')).toContainText(
+    '"inputkey"=>"inputvalue"'
+  )
+})
 
 test('ruby syntax check', async ({ page }) => {
   await page.locator('textarea').fill('puts "TEST"')
