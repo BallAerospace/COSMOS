@@ -125,7 +125,7 @@ module Cosmos
         gem_file_path = Cosmos::GemModel.get(temp_dir, name)
 
         # Actually install the gem now (slow)
-        Cosmos::GemModel.install(gem_file_path)
+        Cosmos::GemModel.install(gem_file_path, scope: scope)
 
         # Extract gem contents
         gem_path = File.join(temp_dir, "gem")

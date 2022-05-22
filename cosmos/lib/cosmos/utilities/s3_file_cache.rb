@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'fileutils'
+require 'tmpdir'
 require 'cosmos'
 require 'cosmos/utilities/s3'
 
@@ -48,7 +49,7 @@ class S3File
 
   def retrieve
     local_path = "#{S3FileCache.instance.cache_dir}/#{File.basename(@s3_path)}"
-    Cosmos::Logger.info "Retrieving #{@s3_path} from logs bucket"
+    Cosmos::Logger.debug "Retrieving #{@s3_path} from logs bucket"
     @rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
     if File.exist?(local_path)
       @size = File.size(local_path)
@@ -57,6 +58,7 @@ class S3File
   rescue => err
     @error = err
     Cosmos::Logger.error "Failed to retrieve #{@s3_path}\n#{err.formatted}"
+    raise err
   end
 
   def reserve
@@ -165,8 +167,11 @@ class S3FileCache
     end
 
     # Create local file cache location
-    @cache_dir = File.join(Dir.tmpdir, 'cosmos', 'file_cache', name)
+    @cache_dir = Dir.mktmpdir
     FileUtils.mkdir_p(@cache_dir)
+    at_exit do
+      FileUtils.remove_dir(@cache_dir, true)
+    end
 
     # Clear out local file cache
     FileUtils.rm_f Dir.glob("#{@cache_dir}/*")
@@ -178,7 +183,11 @@ class S3FileCache
         file = @cached_files.get_next_to_retrieve
         # Cosmos::Logger.debug "Next file: #{file}"
         if file and (file.size + @cached_files.current_disk_usage()) <= @max_disk_usage
-          file.retrieve
+          begin
+            file.retrieve
+          rescue
+            # Will be automatically retried
+          end
         else
           sleep(1)
         end

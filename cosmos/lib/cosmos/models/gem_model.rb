@@ -73,7 +73,7 @@ module Cosmos
       return nil
     end
 
-    def self.install(name_or_path)
+    def self.install(name_or_path, scope:)
       temp_dir = Dir.mktmpdir
       begin
         if File.exist?(name_or_path)
@@ -81,7 +81,7 @@ module Cosmos
         else
           gem_file_path = get(temp_dir, name_or_path)
         end
-        rubygems_url = get_setting('rubygems_url')
+        rubygems_url = get_setting('rubygems_url', scope: scope)
         Gem.sources = [rubygems_url] if rubygems_url
         Gem.done_installing_hooks.clear
         Gem.install(gem_file_path, "> 0.pre", :build_args => ['--no-document'], :prerelease => true)
