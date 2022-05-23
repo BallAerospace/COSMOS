@@ -85,10 +85,10 @@ module Cosmos
         create_model(start: 400)
         all = SortedModel.all(scope: 'DEFAULT')
         expect(all.length).to eql(4)
-        expect(all[0]["start"]).to eql 100
-        expect(all[1]["start"]).to eql 200
-        expect(all[2]["start"]).to eql 300
-        expect(all[3]["start"]).to eql 400
+        expect(all[3]["start"]).to eql 100
+        expect(all[2]["start"]).to eql 200
+        expect(all[1]["start"]).to eql 300
+        expect(all[0]["start"]).to eql 400
       end
 
       # TODO: mock_redis currently doesn't implement limit

@@ -81,7 +81,7 @@ export default {
       selectedCalendars: [],
       activities: {},
       calendarEvents: [],
-      chronicles: { metadata: [], narrative: [] },
+      chronicles: { metadata: [], note: [] },
       calendarConfiguration: {
         utc: false,
         focus: '',
@@ -139,7 +139,7 @@ export default {
     this.subscribe()
     this.getTimelines()
     this.updateMetadata()
-    this.updateNarrative()
+    this.updateNotes()
   },
   destroyed: function () {
     this.subscriptions.forEach((subscription) => {
@@ -172,7 +172,7 @@ export default {
     refresh: function () {
       this.updateActivities()
       this.updateMetadata()
-      this.updateNarrative()
+      this.updateNotes()
     },
     getTimelines: function () {
       Api.get('/cosmos-api/timeline').then((response) => {
@@ -224,7 +224,7 @@ export default {
     updateMetadata: function () {
       // this.chronicles = {
       //   "metadata": [event1, event2, etc],
-      //   "narrative": etc
+      //   "note": etc
       // }
       Api.get(`/cosmos-api/metadata`).then((response) => {
         this.chronicles = {
@@ -233,15 +233,15 @@ export default {
         }
       })
     },
-    updateNarrative: function () {
+    updateNotes: function () {
       // this.chronicles = {
-      //   "narrative": [event1, event2, etc],
+      //   "note": [event1, event2, etc],
       //   "metadata": etc
       // }
-      Api.get(`/cosmos-api/note`).then((response) => {
+      Api.get(`/cosmos-api/notes`).then((response) => {
         this.chronicles = {
           ...this.chronicles,
-          narrative: response.data,
+          note: response.data,
         }
       })
     },
@@ -260,7 +260,6 @@ export default {
       const parsed = JSON.parse(data)
       parsed.forEach((event) => {
         event.data = JSON.parse(event.data)
-        // console.log(event)
         this.eventHandlerFunctions[event.type][event.kind](event)
       })
     },

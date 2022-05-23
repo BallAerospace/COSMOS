@@ -43,6 +43,7 @@ class NotesController < ApplicationController
       else
         json = @model_class.all(scope: params[:scope])
       end
+      render json: json, status: 200
     end
   end
 

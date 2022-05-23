@@ -78,32 +78,32 @@ test('test top bar functionality', async ({ page }) => {
   })
 })
 
-test('test create narration functionality', async ({ page }) => {
+test('test create note functionality', async ({ page }) => {
   //
   const stopDateTime = add(new Date(), { minutes: 30 })
   const stopDate = await formatDate(stopDateTime)
   const stopTime = await formatTime(stopDateTime)
   // Click create dropdown
   await page.locator('[data-test=create-event]').click()
-  await page.locator('[data-test=narrative]').click()
+  await page.locator('[data-test=note]').click()
   // Fill
-  await page.locator('[data-test=narrative-stop-date]').fill(stopDate)
-  await page.locator('[data-test=narrative-stop-time]').fill(stopTime)
+  await page.locator('[data-test=note-stop-date]').fill(stopDate)
+  await page.locator('[data-test=note-stop-time]').fill(stopTime)
   // step two
-  await page.locator('[data-test=create-narrative-step-two-btn]').click()
-  await page.locator('[data-test=create-narrative-description]').fill('Cancel this test')
-  await page.locator('[data-test=create-narrative-cancel-btn]').click()
+  await page.locator('[data-test=create-note-step-two-btn]').click()
+  await page.locator('[data-test=create-note-description]').fill('Cancel this test')
+  await page.locator('[data-test=create-note-cancel-btn]').click()
   // Click create dropdown
   await page.locator('[data-test=create-event]').click()
-  await page.locator('[data-test=narrative]').click()
+  await page.locator('[data-test=note]').click()
   // Fill
-  await page.locator('[data-test=narrative-stop-date]').fill(stopDate)
-  await page.locator('[data-test=narrative-stop-time]').fill(stopTime)
+  await page.locator('[data-test=note-stop-date]').fill(stopDate)
+  await page.locator('[data-test=note-stop-time]').fill(stopTime)
   // step two
-  await page.locator('[data-test=create-narrative-step-two-btn]').click()
-  await page.locator('[data-test=create-narrative-description]').click()
-  await page.locator('[data-test=create-narrative-description]').fill('Another test')
-  await page.locator('[data-test=create-narrative-submit-btn]').click()
+  await page.locator('[data-test=create-note-step-two-btn]').click()
+  await page.locator('[data-test=create-note-description]').click()
+  await page.locator('[data-test=create-note-description]').fill('Another test')
+  await page.locator('[data-test=create-note-submit-btn]').click()
 })
 
 test('test create metadata functionality', async ({ page }) => {
@@ -209,16 +209,16 @@ test('test create activity functionality', async ({ page }) => {
 })
 
 test('test timeline select and activity delete functionality', async ({ page }) => {
-  //
-  await page.locator('text=DEFAULT metadata').click()
+  // Delete the metadata, it shows something like 'Metadata, HH:MM AM - HH:MM AM'
+  // So we use the comma to avoid selecting the other Metadata text on page
+  await page.locator('text=Metadata,').click()
   await page.locator('[data-test=delete-metadata]').click()
   await page.locator('button:has-text("Delete")').click()
-  //
+  // Delete the note
   await page.locator('text=Another test').click()
-  await page.locator('[data-test=delete-narration]').click()
+  await page.locator('[data-test=delete-note]').click()
   await page.locator('button:has-text("Delete")').click()
-  //
-
+  // Delete the timeline
   await page.locator('[data-test=select-timeline-Alpha]').click()
   await page.locator('text=Alpha command').click()
   await page.locator('[data-test=delete-activity]').click()

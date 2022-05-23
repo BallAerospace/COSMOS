@@ -54,7 +54,7 @@
     </v-toolbar>
     <!--- SHOW TIMELINES --->
     <v-list flat>
-      <v-subheader style="height: 25px">Chronicles</v-subheader>
+      <v-subheader style="height: 25px">Calendar Events</v-subheader>
       <v-list-item-group multiple v-model="selectedChronicles" @change="select">
         <v-list-item data-test="select-metadata">
           <template v-slot:default="{ active }">
@@ -63,18 +63,18 @@
             </v-list-item-action>
 
             <v-list-item-content>
-              <v-list-item-title> Metadata </v-list-item-title>
+              <v-list-item-title>Metadata</v-list-item-title>
             </v-list-item-content>
           </template>
         </v-list-item>
-        <v-list-item data-test="select-narrative">
+        <v-list-item data-test="select-note">
           <template v-slot:default="{ active }">
             <v-list-item-action>
               <v-checkbox :input-value="active" color="white accent-4" />
             </v-list-item-action>
 
             <v-list-item-content>
-              <v-list-item-title> Narrative </v-list-item-title>
+              <v-list-item-title>Notes</v-list-item-title>
             </v-list-item-content>
           </template>
         </v-list-item>
@@ -176,7 +176,7 @@ export default {
         t.push({ type: 'chronicle', name: 'metadata', messages: 0 })
       }
       if (this.selectedChronicles.indexOf(1) > -1) {
-        t.push({ type: 'chronicle', name: 'narrative', messages: 0 })
+        t.push({ type: 'chronicle', name: 'note', messages: 0 })
       }
       this.selectedCalendars = t
     },

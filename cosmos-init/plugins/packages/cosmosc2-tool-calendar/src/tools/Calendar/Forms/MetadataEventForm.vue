@@ -127,7 +127,7 @@ export default {
       return new Date(v)
     },
     title: function () {
-      return `${this.metadataEvent.metadata.target}, ${this.metadataEvent.metadata.type}`
+      return `${this.metadataEvent.metadata.type}`
     },
   },
   methods: {

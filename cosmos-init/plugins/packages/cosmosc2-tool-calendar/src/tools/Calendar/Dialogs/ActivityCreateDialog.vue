@@ -53,7 +53,7 @@
                     <template v-slot:item="{ item, attrs, on }">
                       <v-list-item
                         v-on="on"
-                        v-bind="attrs" 
+                        v-bind="attrs"
                         :data-test="`activity-select-timeline-${item}`"
                       >
                         <v-list-item-content>
@@ -147,7 +147,7 @@
                     <template v-slot:item="{ item, attrs, on }">
                       <v-list-item
                         v-on="on"
-                        v-bind="attrs" 
+                        v-bind="attrs"
                         :data-test="`activity-select-type-${item}`"
                       >
                         <v-list-item-content>

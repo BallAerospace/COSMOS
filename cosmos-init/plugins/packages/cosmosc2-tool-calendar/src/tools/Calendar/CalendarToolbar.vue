@@ -24,33 +24,30 @@
         <template v-slot:activator="{ on, attrs }">
           <div v-bind="attrs" v-on="on">
             <v-btn data-test="create-event" outlined>
-              <v-icon left> mdi-plus-box </v-icon>
-              <span> Create </span>
-              <v-icon right> mdi-menu-down </v-icon>
+              <v-icon left>mdi-plus-box</v-icon>
+              <span>Create</span>
+              <v-icon right>mdi-menu-down</v-icon>
             </v-btn>
           </div>
         </template>
         <v-list>
-          <v-list-item
-            data-test="narrative"
-            @click="showNarrationCreateDialog = true"
-          >
-            <v-icon left> mdi-calendar-clock </v-icon>
-            <v-list-item-title> Chronicle Narration </v-list-item-title>
+          <v-list-item data-test="note" @click="showNoteCreateDialog = true">
+            <v-icon left>mdi-calendar-clock</v-icon>
+            <v-list-item-title>Note</v-list-item-title>
           </v-list-item>
           <v-list-item
             data-test="metadata"
             @click="showMetadataCreateDialog = true"
           >
-            <v-icon left> mdi-calendar-check </v-icon>
-            <v-list-item-title> Chronicle Metadata </v-list-item-title>
+            <v-icon left>mdi-calendar-check</v-icon>
+            <v-list-item-title>Metadata</v-list-item-title>
           </v-list-item>
           <v-list-item
             data-test="activity"
             @click="showActivityCreateDialog = true"
           >
-            <v-icon left> mdi-calendar-question </v-icon>
-            <v-list-item-title> Timeline Activity </v-list-item-title>
+            <v-icon left>mdi-calendar-question</v-icon>
+            <v-list-item-title>Timeline Activity</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -128,9 +125,9 @@
       v-if="showMetadataCreateDialog"
       v-model="showMetadataCreateDialog"
     />
-    <narration-create-dialog
-      v-if="showNarrationCreateDialog"
-      v-model="showNarrationCreateDialog"
+    <note-create-dialog
+      v-if="showNoteCreateDialog"
+      v-model="showNoteCreateDialog"
     />
     <activity-create-dialog
       v-if="showActivityCreateDialog"
@@ -147,14 +144,14 @@ import { format } from 'date-fns'
 import EventListDialog from '@/tools/Calendar/Dialogs/EventListDialog'
 import ActivityCreateDialog from '@/tools/Calendar/Dialogs/ActivityCreateDialog'
 import MetadataCreateDialog from '@/tools/Calendar/Dialogs/MetadataCreateDialog'
-import NarrationCreateDialog from '@/tools/Calendar/Dialogs/NarrationCreateDialog'
+import NoteCreateDialog from '@/tools/Calendar/Dialogs/NoteCreateDialog'
 
 export default {
   components: {
     EventListDialog,
     ActivityCreateDialog,
     MetadataCreateDialog,
-    NarrationCreateDialog,
+    NoteCreateDialog,
   },
   props: {
     timelines: {
@@ -180,7 +177,7 @@ export default {
       showEventTableDialog: false,
       showActivityCreateDialog: false,
       showMetadataCreateDialog: false,
-      showNarrationCreateDialog: false,
+      showNoteCreateDialog: false,
     }
   },
   computed: {

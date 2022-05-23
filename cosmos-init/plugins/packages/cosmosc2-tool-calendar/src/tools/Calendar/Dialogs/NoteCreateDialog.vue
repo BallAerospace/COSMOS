@@ -21,18 +21,15 @@
   <div>
     <v-dialog persistent v-model="show" width="600">
       <v-card>
-        <form @submit.prevent="createNarrative">
+        <form @submit.prevent="createNote">
           <v-system-bar>
             <v-spacer />
-            <span>Create Chronicle Narrative</span>
+            <span>Create Note</span>
             <v-spacer />
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <div v-on="on" v-bind="attrs">
-                  <v-icon
-                    data-test="close-narrative-icon"
-                    @click="show = !show"
-                  >
+                  <v-icon data-test="close-note-icon" @click="show = !show">
                     mdi-close-box
                   </v-icon>
                 </div>
@@ -54,7 +51,7 @@
                       label="Start Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="narrative-start-date"
+                      data-test="note-start-date"
                     />
                     <v-text-field
                       v-model="startTime"
@@ -63,7 +60,7 @@
                       label="Start Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="narrative-start-time"
+                      data-test="note-start-time"
                     />
                   </v-row>
                   <v-row dense>
@@ -73,7 +70,7 @@
                       label="End Date"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="narrative-stop-date"
+                      data-test="note-stop-date"
                     />
                     <v-text-field
                       v-model="stopTime"
@@ -82,7 +79,7 @@
                       label="End Time"
                       class="mx-1"
                       :rules="[rules.required]"
-                      data-test="narrative-stop-time"
+                      data-test="note-stop-time"
                     />
                   </v-row>
                   <v-row class="mx-2 mb-2">
@@ -107,7 +104,7 @@
                     <v-spacer />
                     <v-btn
                       @click="dialogStep = 2"
-                      data-test="create-narrative-step-two-btn"
+                      data-test="create-note-step-two-btn"
                       color="success"
                       :disabled="!!timeError"
                     >
@@ -130,8 +127,8 @@
                     <v-text-field
                       v-model="description"
                       type="text"
-                      label="Narrative Description"
-                      data-test="create-narrative-description"
+                      label="Note Description"
+                      data-test="create-note-description"
                     />
                   </div>
                   <v-row v-show="typeError">
@@ -143,16 +140,16 @@
                       @click="show = !show"
                       outlined
                       class="mx-2"
-                      data-test="create-narrative-cancel-btn"
+                      data-test="create-note-cancel-btn"
                     >
                       Cancel
                     </v-btn>
                     <v-btn
-                      @click.prevent="createNarrative"
+                      @click.prevent="createNote"
                       class="mx-2"
                       color="primary"
                       type="submit"
-                      data-test="create-narrative-submit-btn"
+                      data-test="create-note-submit-btn"
                       :disabled="!!timeError || !!typeError"
                     >
                       Ok
@@ -206,10 +203,10 @@ export default {
       const start = Date.parse(`${this.startDate}T${this.startTime}`)
       const stop = Date.parse(`${this.stopDate}T${this.stopTime}`)
       if (start === stop) {
-        return 'Invalid start, stop time. Narrations must have different start and stop times.'
+        return 'Invalid start, stop time. Notes must have different start and stop times.'
       }
       if (start > stop) {
-        return 'Invalid start time. Narrations start before stop.'
+        return 'Invalid start time. Notes start before stop.'
       }
       return null
     },
@@ -218,7 +215,7 @@ export default {
         return 'A color is required.'
       }
       if (!this.description) {
-        return 'A description is required for a valid narrative.'
+        return 'A description is required for a valid note.'
       }
       return null
     },
@@ -242,7 +239,7 @@ export default {
       this.color = '#8F3400'
       this.description = ''
     },
-    createNarrative: function () {
+    createNote: function () {
       const start = this.toIsoString(
         Date.parse(`${this.startDate}T${this.startTime}`)
       )
@@ -251,7 +248,7 @@ export default {
       )
       const color = this.color
       const description = this.description
-      Api.post('/cosmos-api/note', {
+      Api.post('/cosmos-api/notes', {
         data: { start, stop, color, description },
       }).then((response) => {
         const desc =
@@ -259,8 +256,8 @@ export default {
             ? `${response.data.description.substring(0, 16)}...`
             : response.data.description
         this.$notify.normal({
-          title: 'Created new Chronicle Narrative',
-          body: `Narrative: (${response.data.start}) created: "${desc}"`,
+          title: 'Created new Note',
+          body: `Note: (${response.data.start}) created: "${desc}"`,
         })
       })
       this.show = !this.show

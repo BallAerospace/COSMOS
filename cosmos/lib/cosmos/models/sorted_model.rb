@@ -41,14 +41,14 @@ module Cosmos
 
     # @return [String|nil] String of the saved json or nil if start not found
     def self.get(start:, scope:)
-      result = Store.zrangebyscore(self.pk(scope), start, start, limit: [0, 1])
+      result = Store.zrangebyscore(self.pk(scope), start, start)
       return JSON.parse(result[0]) unless result.empty?
       nil
     end
 
     # @return [Array<Hash>] Array up to the limit of the models (as Hash objects) stored under the primary key
     def self.all(scope:, limit: 100)
-      result = Store.zrange(self.pk(scope), 0, -1, limit: [0, limit])
+      result = Store.zrevrangebyscore(self.pk(scope), '+inf', '-inf', limit: [0, limit])
       result.map { |item| JSON.parse(item) }
     end
 

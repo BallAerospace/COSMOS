@@ -26,7 +26,7 @@ const makeCalendar = function (calendar, chronicles) {
   }
 }
 
-const makeNarrationEvent = function (_calendar, event) {
+const makeNoteEvent = function (_calendar, event) {
   const name =
     event.description.length > 16
       ? `${event.description.substring(0, 16)}...`
@@ -38,15 +38,15 @@ const makeNarrationEvent = function (_calendar, event) {
     color: event.color,
     type: event.type,
     timed: true,
-    narrative: event,
+    note: event,
   }
 }
 
-const makeMetadataEvent = function (calendar, event) {
+const makeMetadataEvent = function (_calendar, event) {
   return {
-    name: `${event.target} ${calendar.name}`,
-    start: new Date(event.start),
-    end: new Date(event.start),
+    name: 'Metadata',
+    start: new Date(event.start * 1000),
+    end: new Date(event.start * 1000),
     color: event.color,
     type: event.type,
     timed: true,
@@ -63,7 +63,7 @@ const getChronicleEvents = function (selectedCalendars, chronicles) {
         if (calendar.name === 'metadata') {
           return makeMetadataEvent(calendar, event)
         } else {
-          return makeNarrationEvent(calendar, event)
+          return makeNoteEvent(calendar, event)
         }
       })
     })

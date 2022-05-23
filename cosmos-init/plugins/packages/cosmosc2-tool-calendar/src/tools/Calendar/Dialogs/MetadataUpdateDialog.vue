@@ -24,7 +24,7 @@
         <form @submit.prevent="updateMetadata">
           <v-system-bar>
             <v-spacer />
-            <span>Update Chronicle Metadata</span>
+            <span>Update Metadata</span>
             <v-spacer />
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -250,7 +250,7 @@ export default {
         data: { start, color, target, metadata },
       }).then((response) => {
         this.$notify.normal({
-          title: 'Updated Chronicle Metadata',
+          title: 'Updated Metadata',
           body: `Metadata updated: (${response.data.start})`,
         })
       })

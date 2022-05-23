@@ -131,12 +131,12 @@ Rails.application.routes.draw do
     match '/metadata/:id', to: 'metadata#update', id: /[^\/]+/, via: [:patch, :put]
     delete '/metadata/:id', to: 'metadata#destroy', id: /[^\/]+/
 
-    get '/note', to: 'notes#index'
-    post '/note', to: 'notes#create'
+    get '/notes', to: 'notes#index'
+    post '/notes', to: 'notes#create'
     # get '/note/_search', to: 'note#search'
-    get '/note/:id', to: 'notes#show', id: /[^\/]+/
-    match '/note/:id', to: 'notes#update', id: /[^\/]+/, via: [:patch, :put]
-    delete '/note/:id', to: 'notes#destroy', id: /[^\/]+/
+    get '/notes/:id', to: 'notes#show', id: /[^\/]+/
+    match '/notes/:id', to: 'notes#update', id: /[^\/]+/, via: [:patch, :put]
+    delete '/notes/:id', to: 'notes#destroy', id: /[^\/]+/
 
     get '/autocomplete/reserved-item-names', to: 'script_autocomplete#get_reserved_item_names'
     get '/autocomplete/keywords/:type', to: 'script_autocomplete#get_keywords', type: /[^\/]+/
