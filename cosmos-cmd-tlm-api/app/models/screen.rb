@@ -62,7 +62,7 @@ class Screen
     begin
       # First try opening a potentially modified version by looking for the modified target
       resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{target}/screens/#{screen}.txt")
-    rescue
+    rescue Aws::S3::Errors::NoSuchKey
       # Now try the original
       resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{screen}.txt")
     end
