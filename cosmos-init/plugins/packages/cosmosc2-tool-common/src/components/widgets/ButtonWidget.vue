@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     onClick() {
-      const lines = this.eval.split(';')
+      const lines = this.eval.split('\n')
       // Create local references to variables so users don't need to use 'this'
       const self = this // needed for $emit
       const screen = this.screen
@@ -77,8 +77,9 @@ export default {
           result
             .then((success) => {})
             .catch((err) => {
-              if (err.message.includes('HazardousError')) {
-                this.lastCmd = err.message.split('\n')[2]
+              // This text is in top_level.rb HazardousError.to_s
+              if (err.message.includes('is Hazardous')) {
+                this.lastCmd = err.message.split('\n').pop()
                 this.displaySendHazardous = true
               }
             })
