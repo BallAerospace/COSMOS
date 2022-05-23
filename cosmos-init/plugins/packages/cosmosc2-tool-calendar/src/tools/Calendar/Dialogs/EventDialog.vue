@@ -27,12 +27,8 @@
           @close="close"
         />
       </div>
-      <div v-if="type === 'narrative'">
-        <narration-event-form
-          :narrative-event="event"
-          :utc="utc"
-          @close="close"
-        />
+      <div v-if="type === 'note'">
+        <note-event-form :note-event="event" :utc="utc" @close="close" />
       </div>
       <div v-if="type === 'metadata'">
         <metadata-event-form
@@ -48,13 +44,13 @@
 <script>
 import ActivityEventForm from '@/tools/Calendar/Forms/ActivityEventForm'
 import MetadataEventForm from '@/tools/Calendar/Forms/MetadataEventForm'
-import NarrationEventForm from '@/tools/Calendar/Forms/NarrationEventForm'
+import NoteEventForm from '@/tools/Calendar/Forms/NoteEventForm'
 
 export default {
   components: {
     ActivityEventForm,
     MetadataEventForm,
-    NarrationEventForm,
+    NoteEventForm,
   },
   props: {
     event: {

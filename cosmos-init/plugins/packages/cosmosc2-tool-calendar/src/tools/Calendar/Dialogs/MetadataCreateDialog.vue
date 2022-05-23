@@ -24,7 +24,7 @@
         <form @submit.prevent="createMetadata">
           <v-system-bar>
             <v-spacer />
-            <span>Create Chronicle Metadata</span>
+            <span>Create Metadata</span>
             <v-spacer />
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -34,7 +34,7 @@
                   </v-icon>
                 </div>
               </template>
-              <span> Close </span>
+              <span>Close</span>
             </v-tooltip>
           </v-system-bar>
           <v-stepper v-model="dialogStep" vertical non-linear>
@@ -44,7 +44,6 @@
             <v-stepper-content step="1">
               <v-card-text>
                 <div class="pa-2">
-                  <v-select v-model="target" :items="targets" label="Target" />
                   <color-select-form v-model="color" />
                   <v-row dense>
                     <v-checkbox
@@ -113,7 +112,7 @@
                 </div>
               </v-card-text>
             </v-stepper-content>
-            <v-stepper-step editable step="2"> Metadata input </v-stepper-step>
+            <v-stepper-step editable step="2">Metadata Input</v-stepper-step>
             <v-stepper-content step="2">
               <v-card-text>
                 <div class="pa-2">
@@ -176,8 +175,6 @@ export default {
     return {
       scope: localStorage.scope,
       dialogStep: 1,
-      target: '',
-      targets: [],
       startDate: '',
       startTime: '',
       utcOrLocal: 'loc',
@@ -191,13 +188,9 @@ export default {
   },
   mounted: function () {
     this.updateValues()
-    this.updateTargets()
   },
   computed: {
     timeError: function () {
-      if (!this.target) {
-        return 'Metadata must be associated with a target.'
-      }
       if (!this.color) {
         return 'A color is required.'
       }
@@ -240,21 +233,13 @@ export default {
       this.metadata = []
       this.color = '#003784'
     },
-    updateTargets: function () {
-      new CosmosApi().get_target_list().then((data) => {
-        this.targets = data
-        this.targets.unshift(localStorage.scope)
-        this.target = this.targets[0]
-      })
-    },
     createMetadata: function () {
       const color = this.color
       const metadata = this.metadata.reduce((result, element) => {
         result[element.key] = element.value
         return result
       }, {})
-      const target = this.target
-      const data = { color, target, metadata }
+      const data = { color, metadata }
       if (this.userProvidedTime) {
         data.start = this.toIsoString(
           Date.parse(`${this.startDate}T${this.startTime}`)

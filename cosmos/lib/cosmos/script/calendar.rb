@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/script/extract'
+require 'time'
 
 module Cosmos
   module Script
@@ -25,38 +26,48 @@ module Cosmos
 
     private
 
-    # Sets the metadata value for a target
+    # Gets the current metadata
     #
-    # @param target [String] Target to set metadata on
     # @return The result of the method call.
-    def get_metadata(target)
-      endpoint = "/cosmos-api/metadata/_get/#{target}"
-      response = $api_server.request('get', endpoint)
+    def get_metadata()
+      response = $api_server.request('get', "/cosmos-api/metadata/latest")
       return nil if response.nil? || response.code != 200
       return JSON.parse(response.body)
     end
 
-    # Sets the metadata value for a target
+    # Sets the metadata
     #
-    # @param target [String] Target to set metadata on
     # @param metadata [Hash<Symbol, Variable>] A hash of metadata
-    # @param color [String] Events color to show on Calendar tool
-    # @param start (optional) [String] Metadata time value if nil will default to current time
+    # @param color [String] Events color to show on Calendar tool, if nil will be blue
+    # @param start [Time] Metadata time value, if nil will be current time
     # @return The result of the method call.
-    def set_metadata(target, metadata, color: nil, start: nil)
+    def set_metadata(metadata, color: nil, start: nil)
       color = color.nil? ? '#003784' : color
-      data = {:color => color, :metadata => metadata, :target => target}
-      data[:start] = start unless start.nil?
+      data = { color: color, metadata: metadata }
+      data[:start] = start.iso8601 unless start.nil?
       response = $api_server.request('post', '/cosmos-api/metadata', data: data, json: true)
       return nil if response.nil? || response.code != 201
       return JSON.parse(response.body)
     end
 
-    # Requests the metadata from the user for a target
+    # Updates the metadata
     #
-    def input_metadata(*args, **kwargs)
-      rasie StandardError "can only be used in script-runner"
+    # @param start [Integer] Metadata time value as integer seconds from epoch
+    # @param metadata [Hash<Symbol, Variable>] A hash of metadata
+    # @param color [String] Events color to show on Calendar tool, if nil will be blue
+    # @return The result of the method call.
+    def update_metadata(start, metadata, color: nil)
+      color = color.nil? ? '#003784' : color
+      data = { :color => color, :metadata => metadata }
+      data[:start] = Time.at(start).iso8601
+      response = $api_server.request('put', "/cosmos-api/metadata/#{start}", data: data, json: true)
+      return nil if response.nil? || response.code != 201
+      return JSON.parse(response.body)
     end
 
+    # Requests the metadata from the user for a target
+    def input_metadata(*args, **kwargs)
+      raise StandardError "can only be used in Script Runner"
+    end
   end
 end

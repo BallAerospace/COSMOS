@@ -19,14 +19,14 @@
 
 <template>
   <div>
-    <v-card-title v-text="narrativeEvent.name" />
+    <v-card-title v-text="noteEvent.name" />
     <v-card-subtitle>
       <span>
-        {{ narrativeEvent.start | dateTime(utc) }}
+        {{ noteEvent.start | dateTime(utc) }}
       </span>
       <br />
       <span>
-        {{ narrativeEvent.end | dateTime(utc) }}
+        {{ noteEvent.end | dateTime(utc) }}
       </span>
     </v-card-subtitle>
     <div class="ma-2">
@@ -46,7 +46,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="update-narration" @click="updateDialog">
+              <v-btn icon data-test="update-note" @click="updateDialog">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
             </div>
@@ -57,7 +57,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="delete-narration" @click="deleteDialog">
+              <v-btn icon data-test="delete-note" @click="deleteDialog">
                 <v-icon> mdi-delete </v-icon>
               </v-btn>
             </div>
@@ -67,9 +67,9 @@
       </v-card-actions>
     </div>
     <!--- Menus --->
-    <narration-update-dialog
+    <note-update-dialog
       v-model="showUpdateDialog"
-      :narrative="narrativeEvent.narrative"
+      :note="noteEvent.note"
       @close="close"
     />
   </div>
@@ -78,15 +78,15 @@
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
 import TimeFilters from '@/tools/Calendar/Filters/timeFilters.js'
-import NarrationUpdateDialog from '@/tools/Calendar/Dialogs/NarrationUpdateDialog'
+import NoteUpdateDialog from '@/tools/Calendar/Dialogs/NoteUpdateDialog'
 
 export default {
   components: {
-    NarrationUpdateDialog,
+    NoteUpdateDialog,
   },
   mixins: [TimeFilters],
   props: {
-    narrativeEvent: {
+    noteEvent: {
       type: Object,
       required: true,
     },
@@ -102,11 +102,11 @@ export default {
   },
   computed: {
     updated_at: function () {
-      const v = parseInt(this.narrativeEvent.narrative.updated_at / 1000000)
+      const v = parseInt(this.noteEvent.note.updated_at / 1000000)
       return new Date(v)
     },
     description: function () {
-      return this.narrativeEvent.narrative.description
+      return this.noteEvent.note.description
     },
   },
   methods: {
@@ -117,26 +117,23 @@ export default {
       this.showUpdateDialog = !this.showUpdateDialog
     },
     deleteDialog: function () {
-      const narrationStart = this.narrativeEvent.narrative.start
-      const eventStart = this.generateDateTime(
-        this.narrativeEvent.start,
-        this.utc
-      )
+      const noteStart = this.noteEvent.note.start
+      const eventStart = this.generateDateTime(this.noteEvent.start, this.utc)
       this.$dialog
         .confirm(
-          `Are you sure you want to remove narration: ${eventStart} (${narrationStart})`,
+          `Are you sure you want to remove note: ${eventStart} (${noteStart})`,
           {
             okText: 'Delete',
             cancelText: 'Cancel',
           }
         )
         .then((dialog) => {
-          return Api.delete(`/cosmos-api/narrative/${narrationStart}`)
+          return Api.delete(`/cosmos-api/notes/${noteStart}`)
         })
         .then((response) => {
           this.$notify.normal({
-            title: 'Deleted Narration',
-            body: `Deleted narration: ${eventStart} (${narrationStart})`,
+            title: 'Deleted Note',
+            body: `Deleted note: ${eventStart} (${noteStart})`,
           })
           this.$emit('close')
         })

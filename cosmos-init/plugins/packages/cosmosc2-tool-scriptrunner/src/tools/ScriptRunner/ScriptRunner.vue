@@ -308,10 +308,6 @@
       :input-environment="scriptEnvironment.env"
       @environment="environmentHandler"
     />
-    <update-metadata-dialog
-      v-if="showUpdateMetadata"
-      v-model="showUpdateMetadata"
-    />
     <simple-text-dialog
       v-model="showSuiteError"
       title="Suite Analysis Error"
@@ -356,7 +352,6 @@ import InputMetadataDialog from '@/tools/ScriptRunner/Dialogs/InputMetadataDialo
 import PromptDialog from '@/tools/ScriptRunner/Dialogs/PromptDialog'
 import ResultsDialog from '@/tools/ScriptRunner/Dialogs/ResultsDialog'
 import ScriptEnvironmentDialog from '@/tools/ScriptRunner/Dialogs/ScriptEnvironmentDialog'
-import UpdateMetadataDialog from '@/tools/ScriptRunner/Dialogs/UpdateMetadataDialog'
 import SuiteRunner from '@/tools/ScriptRunner/SuiteRunner'
 import ScriptLogMessages from '@/tools/ScriptRunner/ScriptLogMessages'
 import {
@@ -387,7 +382,6 @@ export default {
     PromptDialog,
     ResultsDialog,
     ScriptEnvironmentDialog,
-    UpdateMetadataDialog,
     SimpleTextDialog,
     SuiteRunner,
     RunningScripts,
@@ -427,7 +421,6 @@ export default {
       pauseOrRetryDisabled: false,
       stopDisabled: false,
       showEnvironment: false,
-      showUpdateMetadata: false,
       showDebug: false,
       debug: '',
       debugHistory: [],
@@ -630,7 +623,8 @@ export default {
               label: 'Show Metadata',
               icon: 'mdi-calendar',
               command: () => {
-                this.showUpdateMetadata = !this.showUpdateMetadata
+                ;(this.inputMetadata.callback = () => {}),
+                  (this.inputMetadata.show = !this.inputMetadata.show)
               },
             },
             {
@@ -1360,6 +1354,7 @@ export default {
               data: {
                 method: data.method,
                 answer: value,
+                prompt_id: this.activePromptId,
               },
             })
           }

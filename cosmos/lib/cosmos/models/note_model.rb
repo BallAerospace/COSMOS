@@ -22,40 +22,53 @@
 require 'cosmos/models/sorted_model'
 
 module Cosmos
-  class MetadataModel < SortedModel
-    METADATA_TYPE = 'metadata'.freeze
-    PRIMARY_KEY = '__METADATA'.freeze
+  class NoteModel < SortedModel
+    NOTE_TYPE = 'note'.freeze
+    PRIMARY_KEY = '__NOTE'.freeze
 
     def self.pk(scope)
       "#{scope}#{PRIMARY_KEY}"
     end
 
-    attr_reader :color, :metadata, :type
+    attr_reader :stop, :color, :description, :type
 
-    # @param [Integer] start - time metadata is active in seconds from Epoch
-    # @param [String] color - The event color
-    # @param [String] metadata - Key value pair object to link to name
     # @param [String] scope - Cosmos scope to track event to
+    # @param [Integer] start - start of the event in seconds from Epoch
+    # @param [Integer] stop - stop of the event in seconds from Epoch
+    # @param [String] color - The event color
+    # @param [String] description - What the event is about
     def initialize(
       scope:,
       start:,
+      stop:,
       color: nil,
-      metadata:,
-      type: METADATA_TYPE,
+      description:,
+      type: NOTE_TYPE,
       updated_at: 0
     )
       super(start: start, scope: scope, updated_at: updated_at)
       @start = start
+      @stop = stop
       @color = color
-      @metadata = metadata
+      @description = description
       @type = type # For the as_json, from_json round trip
     end
 
-    # Validates the instance variables: @start, @color, @metadata
+    # Validates the instance variables: @start, @stop, @color, @description
     def validate(update: false)
       validate_start(update: update)
+      validate_stop()
       validate_color()
-      validate_metadata()
+    end
+
+    def validate_stop()
+      unless @stop.is_a?(Integer)
+        raise SortedInputError.new "stop must be integer: #{@stop}"
+      end
+      if @stop.to_i < @start
+        raise SortedInputError.new "stop: #{@stop} must be >= start: #{@start}"
+      end
+      @stop = @stop.to_i
     end
 
     def validate_color()
@@ -66,12 +79,6 @@ module Cosmos
         raise SortedInputError.new "invalid color, must be in hex format, e.g. #FF0000"
       end
       @color = "##{@color}" unless @color.start_with?('#')
-    end
-
-    def validate_metadata()
-      unless @metadata.is_a?(Hash)
-        raise SortedInputError.new "Metadata must be a hash/object: #{@metadata}"
-      end
     end
 
     # Update the Redis hash at primary_key based on the initial passed start
@@ -88,28 +95,30 @@ module Cosmos
     end
 
     # Update the Redis hash at primary_key
-    def update(start:, color:, metadata:)
+    def update(start:, stop:, color:, description:)
       @start = start
+      @stop = stop
       @color = color
-      @metadata = metadata
+      @description = description
       create(update: true)
     end
 
-    # @return [Hash] generated from the MetadataModel
+    # @return [Hash] generated from the NoteModel
     def as_json
       return {
         'scope' => @scope,
         'start' => @start,
+        'stop' => @stop,
         'color' => @color,
-        'metadata' => @metadata,
-        'type' => METADATA_TYPE,
+        'description' => @description,
+        'type' => NOTE_TYPE,
         'updated_at' => @updated_at,
       }
     end
 
-    # @return [String] string view of metadata
+    # @return [String] string view of NoteModel
     def to_s
-      return "<MetadataModel s: #{@start}, c: #{@color}, m: #{@metadata}>"
+      return "<NoteModel s: #{@start}, x: #{@stop}, c: #{@color}, d: #{@description}>"
     end
   end
 end

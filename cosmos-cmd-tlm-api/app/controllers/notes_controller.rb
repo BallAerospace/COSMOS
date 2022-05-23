@@ -17,17 +17,17 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/models/metadata_model'
+require 'cosmos/models/note_model'
 require 'time'
 
-class MetadataController < ApplicationController
+class NotesController < ApplicationController
   def initialize
-    @model_class = Cosmos::MetadataModel
+    @model_class = Cosmos::NoteModel
   end
 
-  # Returns an array/list of metadata in json. With optional start and stop parameters
+  # Returns an array/list of notes in json. With optional start_time and end_time parameters
   #
-  # scope [String] the scope of the metadata, `DEFAULT`
+  # scope [String] the scope of the note, `DEFAULT`
   # start [String] (optional) The start time of the search window
   # stop [String] (optional) The stop time of the search window
   # limit [String] (optional) Maximum number of entries to return
@@ -47,11 +47,11 @@ class MetadataController < ApplicationController
     end
   end
 
-  # Record metadata and returns an object/hash of in json.
+  # Record note and returns an object/hash of in json.
   #
-  # scope [String] the scope of the metadata, `DEFAULT`
+  # scope [String] the scope of the note, `TEST`
   # json [String] The json of the activity (see below)
-  # @return [String] the metadata converted into json format
+  # @return [String] the activity converted into json format
   # Request Headers
   # ```json
   #  {
@@ -62,24 +62,26 @@ class MetadataController < ApplicationController
   # Request Post Body
   # ```json
   #  {
-  #    "start": "2031-04-16T01:02:00.001+00:00", # ISO8061
+  #    "start": "2031-04-16T01:02:00+00:00",
+  #    "stop": "2031-04-16T02:02:00+00:00",
   #    "color": "#FF0000",
-  #    "metadata": {"version"=>"v1234567"}
+  #    "description": "",
   #  }
   # ```
   def create
     return unless authorization
     action do
-      hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
-      if hash['start'].nil?
-        hash['start'] = Time.now.to_i
-      else
-        hash['start'] = Time.parse(hash['start']).to_i
+      hash = params.to_unsafe_h.slice(:start, :stop, :color, :description).to_h
+      if hash['start'].nil? || hash['stop'].nil?
+        raise ArgumentError.new 'post body must contain a time value'
       end
+
+      hash['start'] = Time.parse(hash['start']).to_i
+      hash['stop'] = Time.parse(hash['stop']).to_i
       model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
       model.create
       Cosmos::Logger.info(
-        "Metadata created: #{model}",
+        "Note created: #{model}",
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION']),
       )
@@ -87,11 +89,11 @@ class MetadataController < ApplicationController
     end
   end
 
-  # Returns an object/hash of a single metadata in json.
+  # Returns an object/hash of a single activity in json.
   #
-  # scope [String] the scope of the metadata, `DEFAULT`
-  # id [String] the start of the entry, `1620248449`
-  # @return [String] the metadata as a object/hash converted into json format
+  # scope [String] the scope of the note, `DEFAULT`
+  # id [String] the id of the entry, `1620248449`
+  # @return [String] the activity as a object/hash converted into json format
   # Request Headers
   # ```json
   #  {
@@ -111,12 +113,12 @@ class MetadataController < ApplicationController
     end
   end
 
-  # Update metadata and returns an object/hash of in json.
+  # Update and returns an object/hash of a single activity in json.
   #
-  # id [String] the id or start value, `12345667`
-  # scope [String] the scope of the metadata, `TEST`
-  # json [String] The json of the activity (see below)
-  # @return [String] the activity converted into json format
+  # id [String] the score or id of the activity, `1620248449`
+  # scope [String] the scope of the timeline, `TEST`
+  # json [String] The json of the event (see #activity_model)
+  # @return [String] the activity as a object/hash converted into json format
   # Request Headers
   # ```json
   #  {
@@ -127,9 +129,10 @@ class MetadataController < ApplicationController
   # Request Post Body
   # ```json
   #  {
-  #    "start": "2031-04-16T01:02:00.001+00:00",
-  #    "metadata": {"version"=>"v1234567"}
+  #    "start": "2031-04-16T01:02:00+00:00",
+  #    "stop": "2031-04-16T01:04:00+00:00",
   #    "color": "#FF0000",
+  #    "description": "",
   #  }
   # ```
   def update
@@ -142,15 +145,17 @@ class MetadataController < ApplicationController
       end
       model = @model_class.from_json(hash.symbolize_keys, scope: params[:scope])
 
-      hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
+      hash = params.to_unsafe_h.slice(:start, :stop, :color, :description).to_h
       hash['start'] = Time.parse(hash['start']).to_i
+      hash['stop'] = Time.parse(hash['stop']).to_i
       model.update(
         start: hash['start'],
+        stop: hash['stop'],
         color: hash['color'],
-        metadata: hash['metadata'],
+        description: hash['description'],
       )
       Cosmos::Logger.info(
-        "Metadata updated: #{model}",
+        "Note updated: #{model}",
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION']),
       )
@@ -158,7 +163,7 @@ class MetadataController < ApplicationController
     end
   end
 
-  # Removes metadata by score/id.
+  # Removes a note by score/id.
   #
   # scope [String] the scope of the timeline, `TEST`
   # id [String] the score or id of the activity, `1620248449`
@@ -179,7 +184,7 @@ class MetadataController < ApplicationController
         return
       end
       Cosmos::Logger.info(
-        "Metadata destroyed: #{params[:id]}",
+        "Note destroyed: #{params[:id]}",
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION']),
       )
@@ -187,51 +192,22 @@ class MetadataController < ApplicationController
     end
   end
 
-  # Returns the latest metadata in json
+  # Returns an array/list of notes in json. With optional start_time and end_time parameters
   #
-  # scope [String] the scope of the metadata, `DEFAULT`
-  # @return [String] the current metadata converted into json format.
-  def latest
-    return unless authorization
-    action do
-      json = @model_class.get_current_value(scope: params[:scope])
-      if json.nil?
-        render json: {
-                 status: 'error',
-                 message: 'no metadata entries',
-               },
-               status: 204
-        return
-      end
-      render json: json, status: 200
-    end
-  end
-
-  # Returns an array/list of metadata in json. With optional start_time and end_time parameters
-  #
-  # scope [String] the scope of the metadata, `DEFAULT`
+  # scope [String] the scope of the note, `DEFAULT`
   # start [String] (optional) The start time of the search window
   # stop [String] (optional) The stop time of the search window
-  # key [String] (required) The key in the metadata
-  # value [String] (required) The value equal to the value of the key in the metadata
+  # description [String] (required) The string to contain in the note description
   # @return [String] the array of entries converted into json format.
   # def search
   #   return unless authorization()
   #   action do
-  #     # TODO: This whole search operation needs a method in the model or we're
-  #     # basically just searching through the limited results returned
-  #     hash = params.to_unsafe_h.slice(:start, :stop, :limit, :key, :value)
-  #     if (hash['start'] && hash['stop'])
-  #       hash['start'] = Time.parse(hash['start']).to_i
-  #       hash['stop'] = Time.parse(hash['stop']).to_i
-  #       json = @model_class.range(**hash.symbolize_keys, scope: params[:scope])
-  #     else
-  #       json = @model_class.all(scope: params[:scope])
-  #     end
-  #     key, value = [hash['key'], hash['value']]
-  #     raise Cosmos::SortedInputError "Must include key, value in metadata search" if key.nil? || value.nil?
-  #     selected_array = json_array.select { | json_model | json_model['metadata'][key] == value }
-  #     render :json => selected_array, :status => 200
+  #     start, stop = parse_time_input(x_start: params[:start], x_stop: params[:stop])
+  #     description = params[:description]
+  #     raise SortedInputError "Must include description value" if description.nil?
+  #     model_array = @model_class.range(scope: params[:scope], start: start, stop: stop)
+  #     model_array.find { |model| model.description.include? description }
+  #     render :json => model_array, :status => 200
   #   end
   # end
 

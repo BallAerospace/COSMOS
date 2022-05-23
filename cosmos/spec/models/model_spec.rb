@@ -129,6 +129,18 @@ module Cosmos
       end
     end
 
+    describe "as_json, self.from_json" do
+      it "round trips the model with JSON" do
+        time = Time.now
+        model = TestModel.new(name: "TEST1", scope: "DEFAULT", plugin: "ONE", updated_at: time)
+        model.create
+        hash = model.as_json
+        json = JSON.generate(hash)
+        model2 = TestModel.from_json(json, scope: "DEFAULT")
+        expect(hash).to eql(model2.as_json)
+      end
+    end
+
     describe "self.get" do
       it "returns nil if the name can't be found" do
         expect(TestModel.get(name: "BLAH", scope: "DEFAULT")).to be_nil
