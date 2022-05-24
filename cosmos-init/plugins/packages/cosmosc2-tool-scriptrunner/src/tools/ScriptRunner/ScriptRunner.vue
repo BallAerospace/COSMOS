@@ -331,7 +331,7 @@
 
 <script>
 import axios from 'axios'
-import ActionCable from 'actioncable'
+import Cable from '@cosmosc2/tool-common/src/services/cable.js'
 import Api from '@cosmosc2/tool-common/src/services/api'
 import * as ace from 'ace-builds'
 import 'ace-builds/src-min-noconflict/mode-ruby'
@@ -744,7 +744,7 @@ export default {
     })
 
     window.addEventListener('keydown', this.keydown)
-    this.cable = ActionCable.createConsumer('/script-api/cable')
+    this.cable = new Cable('/script-api/cable')
     await this.tryLoadRunningScript(this.$route.params.id)
     this.autoSaveInterval = setInterval(() => {
       // Only save if modified and visible (e.g. not open in another tab)
@@ -1029,12 +1029,19 @@ export default {
       this.startOrGoButton = GO
       this.scriptId = id
       this.editor.setReadOnly(true)
-      this.subscription = this.cable.subscriptions.create(
-        { channel: 'RunningScriptChannel', id: this.scriptId },
+      this.cable.createSubscription(
+        'RunningScriptChannel',
+        localStorage.scope,
         {
-          received: (data) => this.received(data),
+          received: (data) => this.received(data)
+        },
+        {
+          id: this.scriptId,
         }
       )
+      .then((subscription) => {
+        this.subscription = subscription
+      })
     },
     scriptComplete() {
       this.disableSuiteButtons = false

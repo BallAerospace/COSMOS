@@ -117,6 +117,7 @@
       <v-row no-gutters>
         <v-toolbar>
           <v-progress-circular :value="progress" />
+          &nbsp; Received: {{ totalBytesReceived }} bytes
           <v-spacer />
           <v-toolbar-title> Items </v-toolbar-title>
           <v-spacer />
@@ -312,6 +313,8 @@ export default {
       openConfig: false,
       saveConfig: false,
       progress: 0,
+      bytesReceived: 0,
+      totalBytesReceived: 0,
       processButtonText: 'Process',
       oldestLogDate: new Date(),
       todaysDate: format(new Date(), 'yyyy-MM-dd'),
@@ -330,10 +333,10 @@ export default {
       reduced: 'DECOM',
       items: [],
       rawData: [],
-      outputFile: [],
       columnMap: {},
       delimiter: ',',
       columnMode: 'normal',
+      fileCount: 0,
       matlabHeader: false,
       skipIgnored: true,
       fillDown: false,
@@ -581,7 +584,7 @@ export default {
     processItems: function () {
       // Check for a process in progress
       if (this.processButtonText === 'Cancel') {
-        this.processReceived()
+        this.finished()
         return
       }
       // Check for an empty time period
@@ -637,12 +640,17 @@ export default {
           this.subscription = subscription
         })
     },
-    onConnected: function () {
+    resetVars: function () {
       this.foundKeys = []
       this.columnHeaders = []
       this.columnMap = {}
-      this.outputFile = []
       this.rawData = []
+      this.bytesReceived = 0
+    },
+    onConnected: function () {
+      this.fileCount = 0
+      this.totalBytesReceived = 0
+      this.resetVars()
       var items = []
       this.items.forEach((item, index) => {
         items.push(
@@ -699,6 +707,8 @@ export default {
         })
         return
       }
+      this.bytesReceived += json_data.length
+      this.totalBytesReceived += json_data.length
       const data = JSON.parse(json_data)
       // Initially we just build up the list of data
       if (data.length > 0) {
@@ -713,90 +723,108 @@ export default {
           (100 * (data[0]['time'] - this.startDateTime)) /
             (this.endDateTime - this.startDateTime)
         )
+
+        if (this.bytesReceived > 200000000) {
+          this.bytesReceived = 0
+          this.createFile()
+        }
       } else {
-        this.processReceived()
+        this.finished()
       }
     },
-    processReceived: function () {
+    createFile: function () {
+      let rawData = this.rawData
+      let foundKeys = this.foundKeys
+      let columnHeaders = this.columnHeaders
+      let columnMap = this.columnMap
+      let outputFile = []
+      this.resetVars()
+
+      let headers = ''
+      if (this.matlabHeader) {
+        headers += '% '
+      }
+      headers += columnHeaders.join(this.delimiter)
+      outputFile.push(headers)
+
+      // Sort everything by time so we can output in order
+      // rawData.sort((a, b) => a.time - b.time)
+      var currentValues = []
+      var row = []
+      var previousRow = null
+      rawData.forEach((packet) => {
+        var changed = false
+        if (this.fillDown && previousRow) {
+          row = [...previousRow] // Copy the previous
+        } else {
+          row = []
+        }
+        // This pulls out the attributes we requested
+        const keys = Object.keys(packet)
+        keys.forEach((key) => {
+          if (key === 'time' || key === 'packet') return // Skip time and packet fields
+          // Get the value and put it into the correct column
+          if (typeof packet[key] === 'object') {
+            row[columnMap[key]] = '"' + packet[key]['raw'] + '"'
+          } else {
+            row[columnMap[key]] = packet[key]
+          }
+          if (
+            this.uniqueOnly &&
+            currentValues[columnMap[key]] !== row[columnMap[key]]
+          ) {
+            changed = true
+          }
+          currentValues[columnMap[key]] = row[columnMap[key]]
+        })
+        // Copy row before pushing on target / packet names
+        previousRow = [...row]
+
+        if (!this.uniqueOnly || changed) {
+          // Normal column mode means each row has target / packet name
+          if (this.columnMode === 'normal') {
+            var [, tgt, pkt] = keys[0].split('__')
+            row.unshift(pkt)
+            row.unshift(tgt)
+          }
+          outputFile.push(row.join(this.delimiter))
+        }
+      })
+
+      let downloadFileExtension = '.csv'
+      let type = 'text/csv'
+      if (this.delimiter === '\t') {
+        downloadFileExtension = '.txt'
+        type = 'text/tab-separated-values'
+      }
+      const blob = new Blob([outputFile.join('\n')], {
+        type: type,
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute(
+        'download',
+        this.startDateTimeFilename + "." + this.fileCount + downloadFileExtension
+      )
+      link.click()
+
+      this.fileCount += 1
+    },
+    finished: function () {
       this.progress = 95 // Indicate we're almost done
       this.subscription.unsubscribe()
 
-      if (this.rawData.length === 0) {
+      if (this.rawData.length !== 0) {
+        this.createFile()
+      } else if (this.fileCount === 0) {
         let start = new Date(this.startDateTime / 1_000_000).toISOString()
         let end = new Date(this.endDateTime / 1_000_000).toISOString()
         this.$notify.caution({
           body: `No data found for the items in the requested time range of ${start} to ${end}`,
         })
-      } else {
-        let headers = ''
-        if (this.matlabHeader) {
-          headers += '% '
-        }
-        headers += this.columnHeaders.join(this.delimiter)
-        this.outputFile.push(headers)
-
-        // Sort everything by time so we can output in order
-        this.rawData.sort((a, b) => a.time - b.time)
-        var currentValues = []
-        var row = []
-        var previousRow = null
-        this.rawData.forEach((packet) => {
-          var changed = false
-          if (this.fillDown && previousRow) {
-            row = [...previousRow] // Copy the previous
-          } else {
-            row = []
-          }
-          // This pulls out the attributes we requested
-          const keys = Object.keys(packet)
-          keys.forEach((key) => {
-            if (key === 'time' || key === 'packet') return // Skip time and packet fields
-            // Get the value and put it into the correct column
-            if (typeof packet[key] === 'object') {
-              row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
-            } else {
-              row[this.columnMap[key]] = packet[key]
-            }
-            if (
-              this.uniqueOnly &&
-              currentValues[this.columnMap[key]] !== row[this.columnMap[key]]
-            ) {
-              changed = true
-            }
-            currentValues[this.columnMap[key]] = row[this.columnMap[key]]
-          })
-          // Copy row before pushing on target / packet names
-          previousRow = [...row]
-
-          if (!this.uniqueOnly || changed) {
-            // Normal column mode means each row has target / packet name
-            if (this.columnMode === 'normal') {
-              var [, tgt, pkt] = keys[0].split('__')
-              row.unshift(pkt)
-              row.unshift(tgt)
-            }
-            this.outputFile.push(row.join(this.delimiter))
-          }
-        })
-
-        let downloadFileExtension = '.csv'
-        let type = 'text/csv'
-        if (this.delimiter === '\t') {
-          downloadFileExtension = '.txt'
-          type = 'text/tab-separated-values'
-        }
-        const blob = new Blob([this.outputFile.join('\n')], {
-          type: type,
-        })
-        // Make a link and then 'click' on it to start the download
-        const link = document.createElement('a')
-        link.href = URL.createObjectURL(blob)
-        link.setAttribute(
-          'download',
-          this.startDateTimeFilename + downloadFileExtension
-        )
-        link.click()
       }
+
       this.progress = 100
       this.processButtonText = 'Process'
     },
