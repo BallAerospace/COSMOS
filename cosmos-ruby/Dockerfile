@@ -39,6 +39,9 @@ RUN cp /root/.gemrc /etc/.gemrc
 
 RUN apk update \
   && apk add ruby \
+  build-base \
+  ruby-dev \
+  libressl-dev \
   ruby-etc \
   ruby-bigdecimal \
   ruby-io-console \
@@ -52,7 +55,7 @@ RUN apk update \
   git \
   libxml2-dev \
   libxslt-dev \
-  && gem update --system 3.3.13 \
+  && gem update --system 3.3.14 \
   && gem install rake \
   && gem cleanup \
   && bundle config build.nokogiri --use-system-libraries \
