@@ -748,7 +748,7 @@ export default {
       outputFile.push(headers)
 
       // Sort everything by time so we can output in order
-      // rawData.sort((a, b) => a.time - b.time)
+      rawData.sort((a, b) => a.time - b.time)
       var currentValues = []
       var row = []
       var previousRow = null
