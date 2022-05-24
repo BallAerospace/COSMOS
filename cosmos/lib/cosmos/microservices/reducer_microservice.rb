@@ -250,7 +250,11 @@ module Cosmos
       )
       true
     rescue => e
-      Logger.error("Reducer Error #{e}\n#{e.backtrace}")
+      if File.exist(filename)
+        Logger.error("Reducer Error: #{filename}:#{File.size(filename)} bytes: \n#{e.formatted}")
+      else
+        Logger.error("Reducer Error: #{filename}:(Does Not Exist): \n#{e.formatted}")
+      end
     end
 
     def reduce(type, data_keys, reduced)
