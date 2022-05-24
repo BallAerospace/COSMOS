@@ -17,7 +17,9 @@
 # copyright holder
 */
 
-import * as ActionCable from 'actioncable'
+import * as ActionCable from '@rails/actioncable'
+//ActionCable.logger.enabled = true
+ActionCable.ConnectionMonitor.staleThreshold = 60
 
 export default class Cable {
   constructor(url = '/cosmos-api/cable') {

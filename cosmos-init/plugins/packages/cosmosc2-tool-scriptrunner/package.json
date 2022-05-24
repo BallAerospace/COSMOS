@@ -16,7 +16,6 @@
   "dependencies": {
     "@cosmosc2/tool-common": "5.0.4-beta0",
     "ace-builds": "1.4.14",
-    "actioncable": "5.2.7",
     "date-fns": "2.28.0",
     "lodash": "4.17.21",
     "axios": "0.22.0",

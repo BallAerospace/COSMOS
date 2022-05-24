@@ -96,9 +96,8 @@ module Cosmos
         ReducerModel
           .all_files(type: :DECOM, target: @target_name, scope: @scope)
           .each do |file|
-            if process_file(file, 'minute', MINUTE_ENTRY_SECS, MINUTE_FILE_SECS)
-              ReducerModel.rm_file(file)
-            end
+            process_file(file, 'minute', MINUTE_ENTRY_SECS, MINUTE_FILE_SECS)
+            ReducerModel.rm_file(file)
           end
       end
     end
@@ -108,9 +107,8 @@ module Cosmos
         ReducerModel
           .all_files(type: :MINUTE, target: @target_name, scope: @scope)
           .each do |file|
-            if process_file(file, 'hour', HOUR_ENTRY_SECS, HOUR_FILE_SECS)
-              ReducerModel.rm_file(file)
-            end
+            process_file(file, 'hour', HOUR_ENTRY_SECS, HOUR_FILE_SECS)
+            ReducerModel.rm_file(file)
           end
       end
     end
@@ -120,9 +118,8 @@ module Cosmos
         ReducerModel
           .all_files(type: :HOUR, target: @target_name, scope: @scope)
           .each do |file|
-            if process_file(file, 'day', DAY_ENTRY_SECS, DAY_FILE_SECS)
-              ReducerModel.rm_file(file)
-            end
+            process_file(file, 'day', DAY_ENTRY_SECS, DAY_FILE_SECS)
+            ReducerModel.rm_file(file)
           end
       end
     end
@@ -250,11 +247,12 @@ module Cosmos
       )
       true
     rescue => e
-      if File.exist(filename)
-        Logger.error("Reducer Error: #{filename}:#{File.size(filename)} bytes: \n#{e.formatted}")
+      if file.local_path and File.exist?(file.local_path)
+        Logger.error("Reducer Error: #{filename}:#{File.size(file.local_path)} bytes: \n#{e.formatted}")
       else
-        Logger.error("Reducer Error: #{filename}:(Does Not Exist): \n#{e.formatted}")
+        Logger.error("Reducer Error: #{filename}:(Not Retrieved): \n#{e.formatted}")
       end
+      false
     end
 
     def reduce(type, data_keys, reduced)
