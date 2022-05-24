@@ -173,9 +173,6 @@ class S3FileCache
       FileUtils.remove_dir(@cache_dir, true)
     end
 
-    # Clear out local file cache
-    FileUtils.rm_f Dir.glob("#{@cache_dir}/*")
-
     @cached_files = S3FileCollection.new
 
     @thread = Thread.new do
