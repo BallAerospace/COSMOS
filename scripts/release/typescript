@@ -1,116 +1,111 @@
-Script started on 2022-04-28 23:11:10+00:00 [<not executed on terminal>]
-+ docker create docker.io/ballaerospace/cosmosc2-base:5.0.2
-Unable to find image 'ballaerospace/cosmosc2-base:5.0.2' locally
-5.0.2: Pulling from ballaerospace/cosmosc2-base
-59bf1c3509f3: Already exists
-f9ed6638f371: Pulling fs layer
-8d3991911629: Pulling fs layer
-e0a2f36f0b3f: Pulling fs layer
-88a0333810a6: Pulling fs layer
-80ee0b14608d: Pulling fs layer
-e3d9c4dda5ad: Pulling fs layer
-d7dbbc8dcbb8: Pulling fs layer
-fb24e4a83bb6: Pulling fs layer
-989ab457611a: Pulling fs layer
-51f707e18b27: Pulling fs layer
-4ef2b1d0eb26: Pulling fs layer
-3b3cf4fde4a6: Pulling fs layer
-88a0333810a6: Waiting
-80ee0b14608d: Waiting
-e3d9c4dda5ad: Waiting
-d7dbbc8dcbb8: Waiting
-fb24e4a83bb6: Waiting
-989ab457611a: Waiting
-51f707e18b27: Waiting
-4ef2b1d0eb26: Waiting
-3b3cf4fde4a6: Waiting
-f9ed6638f371: Verifying Checksum
-f9ed6638f371: Download complete
-8d3991911629: Verifying Checksum
-8d3991911629: Download complete
-e0a2f36f0b3f: Verifying Checksum
-e0a2f36f0b3f: Download complete
-80ee0b14608d: Verifying Checksum
-80ee0b14608d: Download complete
-f9ed6638f371: Pull complete
-88a0333810a6: Verifying Checksum
-88a0333810a6: Download complete
-8d3991911629: Pull complete
-fb24e4a83bb6: Verifying Checksum
-fb24e4a83bb6: Download complete
-d7dbbc8dcbb8: Verifying Checksum
-d7dbbc8dcbb8: Download complete
-989ab457611a: Verifying Checksum
-989ab457611a: Download complete
-e0a2f36f0b3f: Pull complete
-e3d9c4dda5ad: Verifying Checksum
-e3d9c4dda5ad: Download complete
-51f707e18b27: Download complete
-88a0333810a6: Pull complete
-3b3cf4fde4a6: Verifying Checksum
-3b3cf4fde4a6: Download complete
-80ee0b14608d: Pull complete
-4ef2b1d0eb26: Verifying Checksum
-4ef2b1d0eb26: Download complete
-e3d9c4dda5ad: Pull complete
-d7dbbc8dcbb8: Pull complete
-fb24e4a83bb6: Pull complete
-989ab457611a: Pull complete
-51f707e18b27: Pull complete
-4ef2b1d0eb26: Pull complete
-3b3cf4fde4a6: Pull complete
-Digest: sha256:250cabaf328ae2db20ac0a1fb52fa137e311557f0e1d716d81b2ab390b77a155
-Status: Downloaded newer image for ballaerospace/cosmosc2-base:5.0.2
-+ id=f394f6b389d4bf2bdea0a0e4e8c210af134b29c478c3530e0d48804c46f842a3
-+ docker cp f394f6b389d4bf2bdea0a0e4e8c210af134b29c478c3530e0d48804c46f842a3:/cosmos/gems/. .
-+ docker rm -v f394f6b389d4bf2bdea0a0e4e8c210af134b29c478c3530e0d48804c46f842a3
-f394f6b389d4bf2bdea0a0e4e8c210af134b29c478c3530e0d48804c46f842a3
-+ docker create docker.io/ballaerospace/cosmosc2-init:5.0.2
-Unable to find image 'ballaerospace/cosmosc2-init:5.0.2' locally
-5.0.2: Pulling from ballaerospace/cosmosc2-init
-59bf1c3509f3: Already exists
-f9ed6638f371: Already exists
-8d3991911629: Already exists
-e0a2f36f0b3f: Already exists
-88a0333810a6: Already exists
-80ee0b14608d: Already exists
-e3d9c4dda5ad: Already exists
-d7dbbc8dcbb8: Already exists
-fb24e4a83bb6: Already exists
-989ab457611a: Already exists
-51f707e18b27: Already exists
-4ef2b1d0eb26: Already exists
-3b3cf4fde4a6: Already exists
-3620e6bd0fd9: Pulling fs layer
-0c0569eb3c34: Pulling fs layer
-0c0569eb3c34: Download complete
-3620e6bd0fd9: Verifying Checksum
-3620e6bd0fd9: Download complete
-3620e6bd0fd9: Pull complete
-0c0569eb3c34: Pull complete
-Digest: sha256:95f16deff9c870f42ef4325a3b6cf77436ba552e0dfa5afbcb1bed98fcd96be4
-Status: Downloaded newer image for ballaerospace/cosmosc2-init:5.0.2
-+ id=d22f029076804dfbf9ef5c843409698a38ffbed34b41e615df695522888994b1
-+ docker cp d22f029076804dfbf9ef5c843409698a38ffbed34b41e615df695522888994b1:/cosmos/plugins/gems/. .
-+ docker rm -v d22f029076804dfbf9ef5c843409698a38ffbed34b41e615df695522888994b1
-d22f029076804dfbf9ef5c843409698a38ffbed34b41e615df695522888994b1
-+ ls cosmos-5.0.2.gem cosmosc2-5.0.2.gem cosmosc2-demo-5.0.2.gem cosmosc2-tool-admin-5.0.2.gem cosmosc2-tool-autonomic-5.0.2.gem cosmosc2-tool-base-5.0.2.20220428211955.gem cosmosc2-tool-calendar-5.0.2.gem cosmosc2-tool-cmdsender-5.0.2.gem cosmosc2-tool-cmdtlmserver-5.0.2.gem cosmosc2-tool-dataextractor-5.0.2.gem cosmosc2-tool-dataviewer-5.0.2.gem cosmosc2-tool-limitsmonitor-5.0.2.gem cosmosc2-tool-packetviewer-5.0.2.gem cosmosc2-tool-scriptrunner-5.0.2.gem cosmosc2-tool-tablemanager-5.0.2.gem cosmosc2-tool-tlmgrapher-5.0.2.gem cosmosc2-tool-tlmviewer-5.0.2.gem
-cosmos-5.0.2.gem
-cosmosc2-5.0.2.gem
-cosmosc2-demo-5.0.2.gem
-cosmosc2-tool-admin-5.0.2.gem
-cosmosc2-tool-autonomic-5.0.2.gem
-cosmosc2-tool-base-5.0.2.20220428211955.gem
-cosmosc2-tool-calendar-5.0.2.gem
-cosmosc2-tool-cmdsender-5.0.2.gem
-cosmosc2-tool-cmdtlmserver-5.0.2.gem
-cosmosc2-tool-dataextractor-5.0.2.gem
-cosmosc2-tool-dataviewer-5.0.2.gem
-cosmosc2-tool-limitsmonitor-5.0.2.gem
-cosmosc2-tool-packetviewer-5.0.2.gem
-cosmosc2-tool-scriptrunner-5.0.2.gem
-cosmosc2-tool-tablemanager-5.0.2.gem
-cosmosc2-tool-tlmgrapher-5.0.2.gem
-cosmosc2-tool-tlmviewer-5.0.2.gem
+Script started on 2022-05-24 22:13:14+00:00 [<not executed on terminal>]
++ docker create docker.io/ballaerospace/cosmosc2-base:5.0.4
+Unable to find image 'ballaerospace/cosmosc2-base:5.0.4' locally
+5.0.4: Pulling from ballaerospace/cosmosc2-base
+df9b9388f04a: Already exists
+c050c23d70fc: Pulling fs layer
+4814d3859398: Pulling fs layer
+06790d9db9c2: Pulling fs layer
+3e149bdbe435: Pulling fs layer
+422ec05fa56d: Pulling fs layer
+11ad291fb167: Pulling fs layer
+e8b388780a6c: Pulling fs layer
+319d42cfc29d: Pulling fs layer
+ec5f76a24d43: Pulling fs layer
+838d7a3126fb: Pulling fs layer
+702ea98291b2: Pulling fs layer
+6d33538ea28f: Pulling fs layer
+422ec05fa56d: Waiting
+11ad291fb167: Waiting
+e8b388780a6c: Waiting
+319d42cfc29d: Waiting
+ec5f76a24d43: Waiting
+838d7a3126fb: Waiting
+702ea98291b2: Waiting
+6d33538ea28f: Waiting
+3e149bdbe435: Waiting
+06790d9db9c2: Download complete
+c050c23d70fc: Download complete
+4814d3859398: Verifying Checksum
+4814d3859398: Download complete
+c050c23d70fc: Pull complete
+4814d3859398: Pull complete
+3e149bdbe435: Download complete
+06790d9db9c2: Pull complete
+422ec05fa56d: Verifying Checksum
+422ec05fa56d: Download complete
+3e149bdbe435: Pull complete
+422ec05fa56d: Pull complete
+e8b388780a6c: Verifying Checksum
+e8b388780a6c: Download complete
+319d42cfc29d: Verifying Checksum
+319d42cfc29d: Download complete
+ec5f76a24d43: Verifying Checksum
+ec5f76a24d43: Download complete
+838d7a3126fb: Verifying Checksum
+838d7a3126fb: Download complete
+6d33538ea28f: Verifying Checksum
+6d33538ea28f: Download complete
+702ea98291b2: Verifying Checksum
+702ea98291b2: Download complete
+11ad291fb167: Verifying Checksum
+11ad291fb167: Download complete
+11ad291fb167: Pull complete
+e8b388780a6c: Pull complete
+319d42cfc29d: Pull complete
+ec5f76a24d43: Pull complete
+838d7a3126fb: Pull complete
+702ea98291b2: Pull complete
+6d33538ea28f: Pull complete
+Digest: sha256:3435ccb880a005a723b7e65c6da48c1462d218a4194e02f5c8e49cdcbfeb3a98
+Status: Downloaded newer image for ballaerospace/cosmosc2-base:5.0.4
++ id=fbb13f825fdfc819c714a5f29727d74ed7576184182bbebf4af11bd90bd5c80f
++ docker cp fbb13f825fdfc819c714a5f29727d74ed7576184182bbebf4af11bd90bd5c80f:/cosmos/gems/. .
++ docker rm -v fbb13f825fdfc819c714a5f29727d74ed7576184182bbebf4af11bd90bd5c80f
+fbb13f825fdfc819c714a5f29727d74ed7576184182bbebf4af11bd90bd5c80f
++ docker create docker.io/ballaerospace/cosmosc2-init:5.0.4
+Unable to find image 'ballaerospace/cosmosc2-init:5.0.4' locally
+5.0.4: Pulling from ballaerospace/cosmosc2-init
+df9b9388f04a: Already exists
+c050c23d70fc: Already exists
+4814d3859398: Already exists
+06790d9db9c2: Already exists
+3e149bdbe435: Already exists
+422ec05fa56d: Already exists
+11ad291fb167: Already exists
+e8b388780a6c: Already exists
+319d42cfc29d: Already exists
+ec5f76a24d43: Already exists
+838d7a3126fb: Already exists
+702ea98291b2: Already exists
+6d33538ea28f: Already exists
+92a775669171: Pulling fs layer
+745c4d1042d2: Pulling fs layer
+72d493fc262c: Pulling fs layer
+72d493fc262c: Verifying Checksum
+72d493fc262c: Download complete
+745c4d1042d2: Verifying Checksum
+745c4d1042d2: Download complete
+92a775669171: Verifying Checksum
+92a775669171: Download complete
+92a775669171: Pull complete
+745c4d1042d2: Pull complete
+72d493fc262c: Pull complete
+Digest: sha256:5a0f5bc34b9cfffb4f1d5e762d4db57610be4c36d3ba719ab7429519d8899404
+Status: Downloaded newer image for ballaerospace/cosmosc2-init:5.0.4
++ id=313ef7749ee9095422d6fe9b5c8200a9a95de7b42b2237292daa45d49d2652aa
++ docker cp 313ef7749ee9095422d6fe9b5c8200a9a95de7b42b2237292daa45d49d2652aa:/cosmos/plugins/gems/. .
++ docker rm -v 313ef7749ee9095422d6fe9b5c8200a9a95de7b42b2237292daa45d49d2652aa
+313ef7749ee9095422d6fe9b5c8200a9a95de7b42b2237292daa45d49d2652aa
++ ls cosmos-5.0.4.gem cosmosc2-5.0.4.gem cosmosc2-demo-5.0.4.gem cosmosc2-tool-admin-5.0.4.gem cosmosc2-tool-autonomic-5.0.4.gem cosmosc2-tool-base-5.0.4.gem cosmosc2-tool-calendar-5.0.4.gem cosmosc2-tool-cmdsender-5.0.4.gem cosmosc2-tool-cmdtlmserver-5.0.4.gem cosmosc2-tool-dataextractor-5.0.4.gem cosmosc2-tool-dataviewer-5.0.4.gem cosmosc2-tool-limitsmonitor-5.0.4.gem cosmosc2-tool-packetviewer-5.0.4.gem cosmosc2-tool-scriptrunner-5.0.4.gem cosmosc2-tool-tablemanager-5.0.4.gem cosmosc2-tool-tlmgrapher-5.0.4.gem cosmosc2-tool-tlmviewer-5.0.4.gem
+cosmos-5.0.4.gem		      cosmosc2-tool-dataextractor-5.0.4.gem
+cosmosc2-5.0.4.gem		      cosmosc2-tool-dataviewer-5.0.4.gem
+cosmosc2-demo-5.0.4.gem		      cosmosc2-tool-limitsmonitor-5.0.4.gem
+cosmosc2-tool-admin-5.0.4.gem	      cosmosc2-tool-packetviewer-5.0.4.gem
+cosmosc2-tool-autonomic-5.0.4.gem     cosmosc2-tool-scriptrunner-5.0.4.gem
+cosmosc2-tool-base-5.0.4.gem	      cosmosc2-tool-tablemanager-5.0.4.gem
+cosmosc2-tool-calendar-5.0.4.gem      cosmosc2-tool-tlmgrapher-5.0.4.gem
+cosmosc2-tool-cmdsender-5.0.4.gem     cosmosc2-tool-tlmviewer-5.0.4.gem
+cosmosc2-tool-cmdtlmserver-5.0.4.gem
 
-Script done on 2022-04-28 23:11:19+00:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2022-05-24 22:13:25+00:00 [COMMAND_EXIT_CODE="0"]

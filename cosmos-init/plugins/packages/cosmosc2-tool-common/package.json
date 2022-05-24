@@ -1,6 +1,6 @@
 {
   "name": "@cosmosc2/tool-common",
-  "version": "5.0.4",
+  "version": "5.0.5-beta0",
   "private": false,
   "dependencies": {
     "@rails/actioncable": "6.1.6",

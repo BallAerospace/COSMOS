@@ -1,6 +1,6 @@
 {
   "name": "@cosmosc2/tool-dataviewer",
-  "version": "5.0.4",
+  "version": "5.0.5-beta0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -14,7 +14,7 @@
     "acorn": "npm:acorn-with-stage3"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "5.0.4",
+    "@cosmosc2/tool-common": "5.0.5-beta0",
     "date-fns": "2.28.0",
     "lodash": "4.17.21",
     "axios": "0.22.0",
