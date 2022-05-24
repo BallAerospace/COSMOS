@@ -66,7 +66,7 @@ module Cosmos
     ###########################################################################
 
     def self.raise_hazardous_error(msg_hash, target_name, cmd_name, cmd_params)
-      _, description, _ = msg_hash["result"].split("\n")
+      _, description, formatted = msg_hash["result"].split("\n")
       # Create and populate a new HazardousError and raise it up
       # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
       error = HazardousError.new
@@ -74,6 +74,8 @@ module Cosmos
       error.cmd_name = cmd_name
       error.cmd_params = cmd_params
       error.hazardous_description = description
+      error.formatted = formatted
+
       # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
       raise error
     end

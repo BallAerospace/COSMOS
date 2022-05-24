@@ -18,13 +18,24 @@
 -->
 
 <template>
-  <v-radio hide-details dense :label="label" :style="computedStyle" />
+  <v-radio
+    hide-details
+    dense
+    :label="label"
+    :style="computedStyle"
+    :value="value"
+  />
 </template>
 
 <script>
 import Widget from './Widget'
 
 export default {
+  props: {
+    value: {
+      type: Number,
+    },
+  },
   mixins: [Widget],
   data() {
     return {

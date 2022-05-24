@@ -102,6 +102,7 @@ test('sets environment variables', async ({ page }) => {
 })
 
 test('sets metadata', async ({ page }) => {
+  const utils = new Utilities(page)
   await page.locator('textarea').fill(`
   puts get_metadata()
   set_metadata({ 'setkey' => 1 })
@@ -114,6 +115,16 @@ test('sets metadata', async ({ page }) => {
   `)
   await page.locator('[data-test=script-runner-script]').click()
   await page.locator('text=Show Metadata').click()
+  await expect(page.locator('.v-dialog')).toBeVisible()
+  // Delete any existing metadata so we start fresh
+  while (true) {
+    if (await page.$('[data-test=delete-metadata-icon]')) {
+      await page.locator('[data-test=delete-metadata-icon] >> nth=0').click()
+      await utils.sleep(300)
+    } else {
+      break
+    }
+  }
   await page.locator('[data-test=new-metadata-icon]').click()
   await page.keyboard.press('Tab')
   await page.keyboard.type('metakey')

@@ -110,7 +110,7 @@ test('warns with no data', async ({ page }) => {
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
   await page.locator('label:has-text("Command")').click()
   await utils.sleep(500) // Allow the command to switch
-  await utils.addTargetPacketItem('INST', 'ARYCMD', 'RECEIVED_TIMEFORMATTED')
+  await utils.addTargetPacketItem('EXAMPLE', 'START', 'RECEIVED_TIMEFORMATTED')
   await page.locator('text=Process').click()
   await expect(page.locator('text=No data found')).toBeVisible()
 })

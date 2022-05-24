@@ -37,9 +37,13 @@ class HazardousError < StandardError
   attr_accessor :cmd_name
   attr_accessor :cmd_params
   attr_accessor :hazardous_description
+  attr_accessor :formatted # formatted command for use in resending original
 
   def to_s
-    "#{target_name} #{cmd_name} with #{cmd_params} is Hazardous due to #{hazardous_description}"
+    string = "#{target_name} #{cmd_name} with #{cmd_params} is Hazardous"
+    string << "due to '#{hazardous_description}'" if hazardous_description
+    # Pass along the original formatted command so it can be resent
+    string << ".\n#{formatted}"
   end
 end
 

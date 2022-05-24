@@ -27,6 +27,7 @@
     <component
       v-for="(widget, index) in widgets"
       v-on="$listeners"
+      :value="index"
       :key="index"
       :is="widget.type"
       :target="widget.target"

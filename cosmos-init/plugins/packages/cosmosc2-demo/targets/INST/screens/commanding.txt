@@ -17,7 +17,9 @@ VERTICAL
       LABEL "  Duration: "
       NAMED_WIDGET DURATION TEXTFIELD 12 "10.0"
     END
-    BUTTON 'Start Collect' "api.cmd('<%= target_name %> COLLECT with TYPE '+screen.get_named_widget('COLLECT_TYPE').text()+', DURATION '+screen.get_named_widget('DURATION').text())"
+    # This is an example of using a varible named 'type'. You can operate on variables with Javascript code.
+    # All COSMOS commands (api.cmd) must be separated by newlines '\n'. All code separated by semicolons is evaluated together.
+    BUTTON 'Start Collect' "var type=screen.get_named_widget('COLLECT_TYPE').text(); api.cmd('<%= target_name %> COLLECT with TYPE '+type+', DURATION '+screen.get_named_widget('DURATION').text())"
   END
   SETTING BACKCOLOR 163 185 163
 
