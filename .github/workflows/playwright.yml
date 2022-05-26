@@ -13,28 +13,36 @@ on:
     branches: [master]
 
 jobs:
-  playwright-test:
+  cosmos-build:
     if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: cosmos-control.sh build
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh build
+  playwright:
+    needs: cosmos-build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '14'
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+          node-version: "14"
+          cache: "yarn"
+          cache-dependency-path: "**/yarn.lock"
       - name: Install playwright dependencies
         run: yarn; yarn playwright install --with-deps
         working-directory: playwright
       - name: Check for test.only
         run: yarn playwright test --list --forbid-only
         working-directory: playwright
-      - name: cosmos-control.sh start
+      - name: cosmos-control.sh run
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
-        run: ./cosmos-control.sh start
+        run: ./cosmos-control.sh run
         # Allow the containers to spin up
       - name: Sleep for 2min
         run: sleep 120s
@@ -56,3 +64,33 @@ jobs:
         with:
           name: playwright
           path: playwright/test-results
+  container-scan:
+    needs: cosmos-build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        container:
+          [
+            base,
+            ruby,
+            node,
+            traefik,
+            operator,
+            cmd-tlm-api,
+            script-runner-api,
+            redis,
+            minio-init,
+          ]
+    steps:
+      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+        uses: anchore/scan-action@b08527d5ae7f7dc76f9621edb6e49eaf47933ccd
+        with:
+          image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
+          acs-report-enable: true
+          severity-cutoff: critical # low, medium, high, critical
+          fail-build: false
+      - name: Upload Anchore Scan Report
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+          description: ${{ matrix.container }}
