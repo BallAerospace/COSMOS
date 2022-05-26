@@ -26,7 +26,10 @@ jobs:
         with:
           image: "docker.io/ballaerospace/cosmosc2-ruby:latest"
           acs-report-enable: true
+          severity-cutoff: high # low, medium, high, critical
           fail-build: false
+      - name: Inspect action SARIF report
+        run: cat results.sarif
       - name: Upload Anchore Scan Report
         uses: github/codeql-action/upload-sarif@v2
         with:
@@ -46,7 +49,10 @@ jobs:
         with:
           image: "docker.io/ballaerospace/cosmosc2-base:latest"
           acs-report-enable: true
+          severity-cutoff: high # low, medium, high, critical
           fail-build: false
+      - name: Inspect action SARIF report
+        run: cat results.sarif
       - name: Upload Anchore Scan Report
         uses: github/codeql-action/upload-sarif@v2
         with:
