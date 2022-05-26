@@ -12,24 +12,25 @@ on:
     branches: [master]
 
 jobs:
-  cosmos-ruby-scan:
+  cosmos-build:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build the Docker image
-        working-directory: cosmos-ruby
-        run: |
-          docker build \
-            --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
-            --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
-            --build-arg APK_URL=${APK_URL} \
-            --build-arg RUBYGEMS_URL=${RUBYGEMS_URL} \
-            --tag localbuild/cosmosc2-ruby:latest .
+      - name: cosmos-control.sh build
+        # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
+        shell: 'script -q -e -c "bash {0}"'
+        run: ./cosmos-control.sh build
+  cosmos-scan:
+    needs: cosmos-build
+    strategy:
+      matrix:
+        container: [base, ruby] # node, traefik, operator, cmd-tlm-api, script-runner-api, redis, minio-init
+    steps:
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@b08527d5ae7f7dc76f9621edb6e49eaf47933ccd
         with:
-          image: "localbuild/cosmosc2-ruby:latest"
+          image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
           acs-report-enable: true
           severity-cutoff: critical # low, medium, high, critical
           fail-build: false
@@ -37,13 +38,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-
-  # Can we potentially scan these as well?
-  # image: "ballaerospace/cosmosc2-base:latest"
-  # image: "ballaerospace/cosmosc2-traefik:latest"
-  # image: "ballaerospace/cosmosc2-operator:latest"
-  # image: "ballaerospace/cosmosc2-script-runner-api:latest"
-  # image: "ballaerospace/cosmosc2-cmd-tlm-api:latest"
-  # image: "ballaerospace/cosmosc2-redis:latest"
-  # image: "ballaerospace/cosmosc2-minio-init:latest"
-  # image: "ballaerospace/cosmosc2-node:latest"
