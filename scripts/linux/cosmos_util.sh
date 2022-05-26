@@ -19,29 +19,29 @@ saveTar() {
     tag='latest'
   else
     tag=$1
-    docker pull ballaerospace/cosmosc2-minio-init:$tag
-    docker pull ballaerospace/cosmosc2-redis:$tag
-    docker pull ballaerospace/cosmosc2-traefik:$tag
     docker pull ballaerospace/cosmosc2-ruby:$tag
-    docker pull ballaerospace/cosmosc2-node:$tag
     docker pull ballaerospace/cosmosc2-base:$tag
+    docker pull ballaerospace/cosmosc2-node:$tag
+    docker pull ballaerospace/cosmosc2-operator:$tag
     docker pull ballaerospace/cosmosc2-cmd-tlm-api:$tag
     docker pull ballaerospace/cosmosc2-script-runner-api:$tag
-    docker pull ballaerospace/cosmosc2-operator:$tag
+    docker pull ballaerospace/cosmosc2-traefik:$tag
+    docker pull ballaerospace/cosmosc2-redis:$tag
     docker pull ballaerospace/cosmosc2-init:$tag
+    docker pull ballaerospace/cosmosc2-minio-init:$tag
   fi
-  docker pull minio/minio
-  docker save minio/minio -o tmp/minio_minio.tar
-  docker save ballaerospace/cosmosc2-minio-init:$tag -o tmp/cosmosc2-minio-init-$tag.tar
-  docker save ballaerospace/cosmosc2-redis:$tag -o tmp/cosmosc2-redis-$tag.tar
-  docker save ballaerospace/cosmosc2-traefik:$tag -o tmp/cosmosc2-traefik-$tag.tar
+  docker pull minio/minio:RELEASE.2021-06-17T00-10-46Z
+  docker save minio/minio:RELEASE.2021-06-17T00-10-46Z -o tmp/minio-minio-2021-06-17T00-10-46Z.tar
   docker save ballaerospace/cosmosc2-ruby:$tag -o tmp/cosmosc2-ruby-$tag.tar
-  docker save ballaerospace/cosmosc2-node:$tag -o tmp/cosmosc2-node-$tag.tar
   docker save ballaerospace/cosmosc2-base:$tag -o tmp/cosmosc2-base-$tag.tar
+  docker save ballaerospace/cosmosc2-node:$tag -o tmp/cosmosc2-node-$tag.tar
+  docker save ballaerospace/cosmosc2-operator:$tag -o tmp/cosmosc2-operator-$tag.tar
   docker save ballaerospace/cosmosc2-cmd-tlm-api:$tag -o tmp/cosmosc2-cmd-tlm-api-$tag.tar
   docker save ballaerospace/cosmosc2-script-runner-api:$tag -o tmp/cosmosc2-script-runner-api-$tag.tar
-  docker save ballaerospace/cosmosc2-operator:$tag -o tmp/cosmosc2-operator-$tag.tar
+  docker save ballaerospace/cosmosc2-traefik:$tag -o tmp/cosmosc2-traefik-$tag.tar
+  docker save ballaerospace/cosmosc2-redis:$tag -o tmp/cosmosc2-redis-$tag.tar
   docker save ballaerospace/cosmosc2-init:$tag -o tmp/cosmosc2-init-$tag.tar
+  docker save ballaerospace/cosmosc2-minio-init:$tag -o tmp/cosmosc2-minio-init-$tag.tar
 }
 
 loadTar() {
@@ -50,17 +50,17 @@ loadTar() {
   else
     tag=$1
   fi
-  docker load -i tmp/minio_minio.tar
-  docker load -i tmp/cosmosc2-minio-init-$tag.tar
-  docker load -i tmp/cosmosc2-redis-$tag.tar
-  docker load -i tmp/cosmosc2-traefik-$tag.tar
+  docker load -i tmp/minio-minio-2021-06-17T00-10-46Z.tar
   docker load -i tmp/cosmosc2-ruby-$tag.tar
-  docker load -i tmp/cosmosc2-node-$tag.tar
   docker load -i tmp/cosmosc2-base-$tag.tar
+  docker load -i tmp/cosmosc2-node-$tag.tar
+  docker load -i tmp/cosmosc2-operator-$tag.tar
   docker load -i tmp/cosmosc2-cmd-tlm-api-$tag.tar
   docker load -i tmp/cosmosc2-script-runner-api-$tag.tar
-  docker load -i tmp/cosmosc2-operator-$tag.tar
+  docker load -i tmp/cosmosc2-traefik-$tag.tar
+  docker load -i tmp/cosmosc2-redis-$tag.tar
   docker load -i tmp/cosmosc2-init-$tag.tar
+  docker load -i tmp/cosmosc2-minio-init-$tag.tar
 }
 
 cleanFiles() {
