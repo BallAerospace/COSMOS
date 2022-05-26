@@ -1,0 +1,5 @@
+# Ignore all but the 'fixed' vulnerabilities
+ignore:
+  - fix-state: not-fixed
+  - fix-state: wont-fix
+  - fix-state: unknown

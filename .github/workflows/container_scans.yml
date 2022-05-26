@@ -18,47 +18,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build the Docker image
+        working-directory: cosmos-ruby
         run: |
-          scripts/linux/cosmos_setup.sh
-          docker-compose -f compose.yaml -f compose-build.yaml build cosmos-ruby
+          docker build \
+            --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
+            --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
+            --build-arg APK_URL=${APK_URL} \
+            --build-arg RUBYGEMS_URL=${RUBYGEMS_URL} \
+            --tag localbuild/cosmosc2-ruby:latest .
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
         uses: anchore/scan-action@b08527d5ae7f7dc76f9621edb6e49eaf47933ccd
         with:
-          image: "docker.io/ballaerospace/cosmosc2-ruby:latest"
+          image: "localbuild/cosmosc2-ruby:latest"
           acs-report-enable: true
-          severity-cutoff: high # low, medium, high, critical
+          severity-cutoff: critical # low, medium, high, critical
           fail-build: false
-      - name: Inspect action SARIF report
-        run: cat results.sarif
       - name: Upload Anchore Scan Report
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
 
-  cosmos-base-scan:
-    if: ${{ github.actor != 'dependabot[bot]' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build the Docker image
-        run: |
-          scripts/linux/cosmos_setup.sh
-          docker-compose -f compose.yaml -f compose-build.yaml build cosmos-base
-      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-        uses: anchore/scan-action@b08527d5ae7f7dc76f9621edb6e49eaf47933ccd
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-base:latest"
-          acs-report-enable: true
-          severity-cutoff: high # low, medium, high, critical
-          fail-build: false
-      - name: Inspect action SARIF report
-        run: cat results.sarif
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-
-  # Potentially scan these as well:
+  # Can we potentially scan these as well?
+  # image: "ballaerospace/cosmosc2-base:latest"
   # image: "ballaerospace/cosmosc2-traefik:latest"
   # image: "ballaerospace/cosmosc2-operator:latest"
   # image: "ballaerospace/cosmosc2-script-runner-api:latest"
