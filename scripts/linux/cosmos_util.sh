@@ -30,8 +30,6 @@ saveTar() {
     docker pull ballaerospace/cosmosc2-minio:$tag
     docker pull ballaerospace/cosmosc2-init:$tag
   fi
-  docker pull minio/minio:RELEASE.2021-06-17T00-10-46Z
-  docker save minio/minio:RELEASE.2021-06-17T00-10-46Z -o tmp/minio-minio-2021-06-17T00-10-46Z.tar
   docker save ballaerospace/cosmosc2-ruby:$tag -o tmp/cosmosc2-ruby-$tag.tar
   docker save ballaerospace/cosmosc2-base:$tag -o tmp/cosmosc2-base-$tag.tar
   docker save ballaerospace/cosmosc2-node:$tag -o tmp/cosmosc2-node-$tag.tar
@@ -50,7 +48,6 @@ loadTar() {
   else
     tag=$1
   fi
-  docker load -i tmp/minio-minio-2021-06-17T00-10-46Z.tar
   docker load -i tmp/cosmosc2-ruby-$tag.tar
   docker load -i tmp/cosmosc2-base-$tag.tar
   docker load -i tmp/cosmosc2-node-$tag.tar
