@@ -3,3 +3,16 @@ ignore:
   - fix-state: not-fixed
   - fix-state: wont-fix
   - fix-state: unknown
+
+  # redis-4.6.0 gem which is currently up to date
+  - vulnerability: CVE-2022-0543
+  # cgi-0.2.1.gem which is default package in Ruby we do not use
+  - vulnerability: CVE-2021-41816
+  # set-1.0.1.gem which we do not use
+  - vulnerability: CVE-2021-23497
+  # codecov-0.6.0.gem which is the latest
+  - vulnerability: CVE-2020-15123
+  # libssl1.1
+  - vulnerability: CVE-2022-1292
+  # libdb5.3
+  - vulnerability: CVE-2019-8457
