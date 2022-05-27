@@ -112,6 +112,8 @@ services:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
     volumes:
       - "${PWD}/cacert.pem:/devel/cacert.pem"
+      - "${PWD}/cosmos-traefik/traefik.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/traefik-allow-http.yaml:/etc/traefik/traefik.yaml"
     ports:
       - "127.0.0.1:2900:80"
     restart: "unless-stopped"
