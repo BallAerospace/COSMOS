@@ -1,3 +1,8 @@
-FROM traefik:2.4.13
+FROM traefik:2.6.6
+COPY cacert.pem /devel/cacert.pem
+ENV SSL_CERT_FILE=/devel/cacert.pem
+ENV CURL_CA_BUNDLE=/devel/cacert.pem
+ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
+ENV NODE_EXTRA_CA_CERTS=/devel/cacert.pem
 COPY ./traefik-dev.yaml /etc/traefik/traefik.yaml
 EXPOSE 80

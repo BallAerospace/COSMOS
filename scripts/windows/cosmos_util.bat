@@ -51,8 +51,8 @@ GOTO :EOF
     docker pull ballaerospace/cosmosc2-script-runner-api:!tag! || exit /b
     docker pull ballaerospace/cosmosc2-traefik:!tag! || exit /b
     docker pull ballaerospace/cosmosc2-redis:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-minio:!tag! || exit /b
     docker pull ballaerospace/cosmosc2-init:!tag! || exit /b
-    docker pull ballaerospace/cosmosc2-minio-init:!tag! || exit /b
   )
   echo on
   docker pull minio/minio:RELEASE.2021-06-17T00-10-46Z || exit /b
@@ -65,8 +65,8 @@ GOTO :EOF
   docker save ballaerospace/cosmosc2-script-runner-api:!tag! -o tmp/cosmosc2-script-runner-api-!tag!.tar || exit /b
   docker save ballaerospace/cosmosc2-traefik:!tag! -o tmp/cosmosc2-traefik-!tag!.tar || exit /b
   docker save ballaerospace/cosmosc2-redis:!tag! -o tmp/cosmosc2-redis-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-minio:!tag! -o tmp/cosmosc2-minio-!tag!.tar || exit /b
   docker save ballaerospace/cosmosc2-init:!tag! -o tmp/cosmosc2-init-!tag!.tar || exit /b
-  docker save ballaerospace/cosmosc2-minio-init:!tag! -o tmp/cosmosc2-minio-init-!tag!.tar || exit /b
   echo off
 GOTO :EOF
 
@@ -86,8 +86,8 @@ GOTO :EOF
   docker load -i tmp/cosmosc2-script-runner-api-!tag!.tar || exit /b
   docker load -i tmp/cosmosc2-traefik-!tag!.tar || exit /b
   docker load -i tmp/cosmosc2-redis-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-minio-!tag!.tar || exit /b
   docker load -i tmp/cosmosc2-init-!tag!.tar || exit /b
-  docker load -i tmp/cosmosc2-minio-init-!tag!.tar || exit /b
   echo off
 GOTO :EOF
 

@@ -22,6 +22,7 @@ docker tag ballaerospace/cosmosc2-script-runner-api ${1}/cosmosc2-script-runner-
 docker tag ballaerospace/cosmosc2-operator ${1}/cosmosc2-operator:latest
 docker tag ballaerospace/cosmosc2-init ${1}/cosmosc2-init:latest
 docker tag ballaerospace/cosmosc2-redis ${1}/cosmosc2-redis:latest
+docker tag ballaerospace/cosmosc2-minio ${1}/cosmosc2-minio:latest
 
 docker push ${1}/cosmosc2-ruby:latest
 docker push ${1}/cosmosc2-node:latest
@@ -31,3 +32,4 @@ docker push ${1}/cosmosc2-script-runner-api:latest
 docker push ${1}/cosmosc2-operator:latest
 docker push ${1}/cosmosc2-init:latest
 docker push ${1}/cosmosc2-redis:latest
+docker push ${1}/cosmosc2-minio:latest

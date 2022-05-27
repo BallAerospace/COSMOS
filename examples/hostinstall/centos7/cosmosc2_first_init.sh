@@ -9,7 +9,7 @@ source ./cosmosc2_env.sh
 mc alias set cosmosminio "${COSMOS_S3_URL}" ${COSMOS_MINIO_USERNAME} ${COSMOS_MINIO_PASSWORD} || exit 1
 
 # Create new canned policy by name script using script-runner.json policy file.
-mc admin policy add cosmosminio script $SCRIPT_DIR/../../../cosmos-minio-init/script-runner.json || exit 1
+mc admin policy add cosmosminio script $SCRIPT_DIR/../../../cosmos-init/script-runner.json || exit 1
 
 # Create a new user scriptrunner on MinIO use mc admin user.
 mc admin user add cosmosminio ${COSMOS_SR_MINIO_USERNAME} ${COSMOS_SR_MINIO_PASSWORD} || exit 1
