@@ -84,7 +84,7 @@ jobs:
           ]
     steps:
       - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
-        uses: anchore/scan-action@b08527d5ae7f7dc76f9621edb6e49eaf47933ccd
+        uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
           acs-report-enable: true
