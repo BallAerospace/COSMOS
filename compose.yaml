@@ -114,8 +114,15 @@ services:
       - "${PWD}/cacert.pem:/devel/cacert.pem"
       - "${PWD}/cosmos-traefik/traefik.yaml:/etc/traefik/traefik.yaml"
       # - "${PWD}/cosmos-traefik/traefik-allow-http.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/traefik-ssl.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/traefik-letsencrypt.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/cert.key:/etc/traefik/cert.key"
+      # - "${PWD}/cosmos-traefik/cert.crt:/etc/traefik/cert.crt"
     ports:
       - "127.0.0.1:2900:80"
+      - "127.0.0.1:2943:443"
+      # - "80:80"
+      # - "443:443"
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
