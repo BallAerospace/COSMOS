@@ -9,7 +9,7 @@ entrypoints:
     http:
       redirections:
         entryPoint:
-          to: ":2943"
+          to: ":2943" # This should match port forwarding in your compose.yaml
           scheme: https
   websecure:
     address: ":443"

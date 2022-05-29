@@ -40,6 +40,7 @@ services:
     volumes:
       - "cosmos-redis-v:/data"
       - "${PWD}/cacert.pem:/devel/cacert.pem"
+      - "${PWD}/cosmos-redis/users.acl:/config/users.acl"
     restart: "unless-stopped"
     environment:
       SSL_CERT_FILE: "/devel/cacert.pem"
@@ -51,6 +52,7 @@ services:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
     volumes:
       - "${PWD}/cacert.pem:/devel/cacert.pem"
+      - "${PWD}/cosmos-redis/users.acl:/config/users.acl"
     restart: "unless-stopped"
     command: ["redis-server", "/config/redis_ephemeral.conf"]
     environment:

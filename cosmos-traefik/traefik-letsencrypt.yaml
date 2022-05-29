@@ -16,7 +16,7 @@ entrypoints:
 certificatesResolvers:
   myresolver:
     acme:
-      email: ryan@narf.com
+      email: me@mydomain.com
       storage: "/etc/traefik/acme.json"
       tlsChallenge: {}
 http:
@@ -143,9 +143,9 @@ accessLog: {}
 # api:
 #   dashboard: true
 #   insecure: trues
-log:
-  filePath: '/etc/traefik/traefik.log'
-  level: 'DEBUG'
+#log:
+#  filePath: "/etc/traefik/traefik.log"
+#  level: "DEBUG"
 # accessLog:
 #   filePath: '/etc/traefik/access.log'
 #   fields:
