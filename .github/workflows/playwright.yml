@@ -83,15 +83,15 @@ jobs:
             minio-init,
           ]
     steps:
-      - name: Run the Anchore scan action itself with GitHub Advanced Security code scanning integration enabled
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
-          acs-report-enable: true
-          severity-cutoff: critical # low, medium, high, critical
           fail-build: false
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: ${{ matrix.container }}
+          # severity-cutoff: critical # low, medium, high, critical
+          # acs-report-enable: true
+      # - name: Upload Anchore Scan Report
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: results.sarif
+      #     category: ${{ matrix.container }}
