@@ -1029,19 +1029,20 @@ export default {
       this.startOrGoButton = GO
       this.scriptId = id
       this.editor.setReadOnly(true)
-      this.cable.createSubscription(
-        'RunningScriptChannel',
-        localStorage.scope,
-        {
-          received: (data) => this.received(data)
-        },
-        {
-          id: this.scriptId,
-        }
-      )
-      .then((subscription) => {
-        this.subscription = subscription
-      })
+      this.cable
+        .createSubscription(
+          'RunningScriptChannel',
+          localStorage.scope,
+          {
+            received: (data) => this.received(data),
+          },
+          {
+            id: this.scriptId,
+          }
+        )
+        .then((subscription) => {
+          this.subscription = subscription
+        })
     },
     scriptComplete() {
       this.disableSuiteButtons = false
