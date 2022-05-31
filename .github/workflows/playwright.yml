@@ -88,10 +88,10 @@ jobs:
         with:
           image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
           fail-build: false
-          # severity-cutoff: critical # low, medium, high, critical
-          # acs-report-enable: true
-      # - name: Upload Anchore Scan Report
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: results.sarif
-      #     category: ${{ matrix.container }}
+          severity-cutoff: critical # low, medium, high, critical
+          acs-report-enable: true
+      - name: Upload Anchore Scan Report
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
+          category: ${{ matrix.container }}
