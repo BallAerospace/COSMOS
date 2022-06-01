@@ -1,0 +1,8 @@
+# Ignore all but the 'fixed' vulnerabilities
+ignore:
+  - fix-state: not-fixed
+  - fix-state: wont-fix
+  - fix-state: unknown
+
+  # cgi-0.2.1.gem which is default package in Ruby we do not use
+  - vulnerability: GHSA-4vf4-qmvg-mh7h
