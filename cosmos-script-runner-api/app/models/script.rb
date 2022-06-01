@@ -165,7 +165,7 @@ class Script
       success = process.exit_code == 0
     else
       require temp.path
-      Cosmos::SuiteRunner.build_suites
+      stdout_results = Cosmos::SuiteRunner.build_suites.to_json
     end
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
