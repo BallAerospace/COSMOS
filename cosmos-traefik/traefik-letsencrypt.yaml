@@ -7,6 +7,7 @@ entrypoints:
         entryPoint:
           to: websecure
           scheme: https
+          permanent: false
   websecure:
     address: ":443"
     http:

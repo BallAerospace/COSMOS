@@ -11,6 +11,7 @@ entrypoints:
         entryPoint:
           to: ":2943" # This should match port forwarding in your compose.yaml
           scheme: https
+          permanent: false
   websecure:
     address: ":443"
     http:
