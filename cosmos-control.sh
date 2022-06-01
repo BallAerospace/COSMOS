@@ -34,12 +34,16 @@ fi
 
 case $1 in
   cosmos )
+    # Source the .env file to setup environment variables
+    set -a
+    . ./.env
     # Start (and remove when done --rm) the cosmos-base container with the current working directory
     # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
     # This allows tools running in the container to have a consistent path to the current working directory.
     # Run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
     args=`echo $@ | { read _ args; echo $args; }`
-    docker run --rm -v `pwd`:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos $args
+    docker run --rm -v `pwd`:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base:$COSMOS_TAG ruby /cosmos/bin/cosmos $args
+    set +a
     ;;
   start )
     ./cosmos-control.sh build
