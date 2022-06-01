@@ -5,13 +5,14 @@ if "%1" == "" (
   GOTO usage
 )
 if "%1" == "cosmos" (
+  FOR /F "tokens=*" %%i in (%~dp0.env) do SET %%i
   set params=%*
   call set params=%%params:*%1=%%
   REM Start (and remove when done --rm) the cosmos-base container with the current working directory
   REM mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
   REM This allows tools running in the container to have a consistent path to the current working directory.
   REM Run the command "ruby /cosmos/bin/cosmos" with all parameters ignoring the first.
-  docker run --rm -v %cd%:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos !params!
+  docker run --rm -v %cd%:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base:!COSMOS_TAG! ruby /cosmos/bin/cosmos !params!
   GOTO :EOF
 )
 if "%1" == "restart" (

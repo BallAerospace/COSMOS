@@ -41,32 +41,32 @@ GOTO :EOF
     REM If tag is not given don't pull and use locally built latest
     set tag=latest
   ) else (
-    set tag=%2
-    REM Explictly pull the tag when given
-    docker pull ballaerospace/cosmosc2-traefik:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-redis:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-minio-init:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-ruby:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-node:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-base:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-cmd-tlm-api:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-script-runner-api:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-operator:%tag% || exit /b
-    docker pull ballaerospace/cosmosc2-init:%tag% || exit /b
+    set tag=%~2
+    echo on
+    docker pull ballaerospace/cosmosc2-ruby:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-base:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-node:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-operator:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-cmd-tlm-api:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-script-runner-api:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-traefik:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-redis:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-init:!tag! || exit /b
+    docker pull ballaerospace/cosmosc2-minio-init:!tag! || exit /b
   )
   echo on
-  docker pull minio/minio  || exit /b
-  docker save minio/minio -o tmp/minio_minio.tar || exit /b
-  docker save ballaerospace/cosmosc2-redis:%tag% -o tmp/cosmosc2-redis-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-minio-init:%tag% -o tmp/cosmosc2-minio-init-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-traefik:%tag% -o tmp/cosmosc2-traefik-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-ruby:%tag% -o tmp/cosmosc2-ruby-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-node:%tag% -o tmp/cosmosc2-node-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-base:%tag% -o tmp/cosmosc2-base-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-cmd-tlm-api:%tag% -o tmp/cosmosc2-cmd-tlm-api-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-script-runner-api:%tag% -o tmp/cosmosc2-script-runner-api-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-operator:%tag% -o tmp/cosmosc2-operator-%tag%.tar || exit /b
-  docker save ballaerospace/cosmosc2-init:%tag% -o tmp/cosmosc2-init-%tag%.tar || exit /b
+  docker pull minio/minio:RELEASE.2021-06-17T00-10-46Z || exit /b
+  docker save minio/minio:RELEASE.2021-06-17T00-10-46Z -o tmp/minio-minio-2021-06-17T00-10-46Z.tar || exit /b
+  docker save ballaerospace/cosmosc2-ruby:!tag! -o tmp/cosmosc2-ruby-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-base:!tag! -o tmp/cosmosc2-base-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-node:!tag! -o tmp/cosmosc2-node-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-operator:!tag! -o tmp/cosmosc2-operator-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-cmd-tlm-api:!tag! -o tmp/cosmosc2-cmd-tlm-api-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-script-runner-api:!tag! -o tmp/cosmosc2-script-runner-api-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-traefik:!tag! -o tmp/cosmosc2-traefik-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-redis:!tag! -o tmp/cosmosc2-redis-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-init:!tag! -o tmp/cosmosc2-init-!tag!.tar || exit /b
+  docker save ballaerospace/cosmosc2-minio-init:!tag! -o tmp/cosmosc2-minio-init-!tag!.tar || exit /b
   echo off
 GOTO :EOF
 
@@ -74,20 +74,20 @@ GOTO :EOF
   if "%2" == "" (
     set tag=latest
   ) else (
-    set tag=%2
+    set tag=%~2
   )
   echo on
-  docker load -i tmp/minio_minio.tar || exit /b
-  docker load -i tmp/cosmosc2-redis-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-minio-init-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-traefik-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-ruby-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-node-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-base-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-cmd-tlm-api-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-script-runner-api-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-operator-%tag%.tar || exit /b
-  docker load -i tmp/cosmosc2-init-%tag%.tar || exit /b
+  docker load -i tmp/minio-minio-2021-06-17T00-10-46Z.tar || exit /b
+  docker load -i tmp/cosmosc2-ruby-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-base-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-node-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-operator-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-cmd-tlm-api-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-script-runner-api-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-traefik-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-redis-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-init-!tag!.tar || exit /b
+  docker load -i tmp/cosmosc2-minio-init-!tag!.tar || exit /b
   echo off
 GOTO :EOF
 

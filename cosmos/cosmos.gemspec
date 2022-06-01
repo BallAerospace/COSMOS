@@ -41,7 +41,7 @@ spec = Gem::Specification.new do |s|
   else
     s.platform = Gem::Platform::CURRENT
   end
- 
+
   s.version = '5.0.5.pre.beta0'
   s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
@@ -81,9 +81,9 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp',      '~> 1.3'
   s.add_runtime_dependency 'rubyzip',   '~> 2.3'
-  s.add_runtime_dependency 'nokogiri',  '~> 1.12'
+  s.add_runtime_dependency 'nokogiri',  '~> 1.13'
   s.add_runtime_dependency 'puma',      '~> 5.5'
-  s.add_runtime_dependency 'rack',      '~> 2.2'
+  s.add_runtime_dependency 'rack',      '~> 2.2.3.1'
   s.add_runtime_dependency 'redis',     '~> 4.5'
   s.add_runtime_dependency 'psych',     '~> 3.0'
   s.add_runtime_dependency 'matrix',    '~> 0.4' # bundled gem in Ruby 3.1
