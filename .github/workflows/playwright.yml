@@ -95,8 +95,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: node          
-                - name: Run the Anchore scan action
+          category: node
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-init:latest"
@@ -107,8 +107,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: init  
-                - name: Run the Anchore scan action
+          category: init
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-redis:latest"
@@ -119,8 +119,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: redis  
-                - name: Run the Anchore scan action
+          category: redis
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-minio:latest"
@@ -131,8 +131,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: minio  
-                - name: Run the Anchore scan action
+          category: minio
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-operator:latest"
@@ -143,8 +143,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: operator  
-                - name: Run the Anchore scan action
+          category: operator
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest"
@@ -155,8 +155,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: cmd-tlm-api  
-                - name: Run the Anchore scan action
+          category: cmd-tlm-api
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-script-runner-api:latest"
@@ -167,8 +167,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results.sarif
-          category: script-runner-api  
-                - name: Run the Anchore scan action
+          category: script-runner-api
+      - name: Run the Anchore scan action
         uses: anchore/scan-action@v3
         with:
           image: "docker.io/ballaerospace/cosmosc2-traefik:latest"
@@ -180,4 +180,3 @@ jobs:
         with:
           sarif_file: results.sarif
           category: traefik
-            
