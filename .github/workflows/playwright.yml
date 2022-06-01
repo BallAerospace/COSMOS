@@ -83,15 +83,19 @@ jobs:
             minio-init,
           ]
     steps:
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: ${{ matrix.container }}
+      - uses: anchore/scan-action/download-grype@v3
+        id: grype
+      - name: Run grype on the image
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest
+      # - name: Run the Anchore scan action
+      #   uses: anchore/scan-action@v3
+      #   with:
+      #     image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
+      #     fail-build: false
+      #     severity-cutoff: critical # low, medium, high, critical
+      #     acs-report-enable: true
+      # - name: Upload Anchore Scan Report
+      #   uses: github/codeql-action/upload-sarif@v2
+      #   with:
+      #     sarif_file: results.sarif
+      #     category: ${{ matrix.container }}
