@@ -105,10 +105,11 @@ test('sets metadata', async ({ page }) => {
   const utils = new Utilities(page)
   await page.locator('textarea').fill(`
   puts get_metadata()
-  set_metadata({ 'setkey' => 1 })
-  result = get_metadata()
-  puts result
-  update_metadata(result['start'], { 'setkey' => 2, 'updatekey' => 3 })
+  puts set_metadata({ 'setkey' => 1 })
+  puts get_metadata()
+  puts update_metadata({ 'setkey' => 2, 'updatekey' => 3 })
+  puts get_metadata()
+  puts update_metadata({ 'setkey' => 4 }) # Ensure updatekey stays
   puts get_metadata()
   input_metadata()
   puts get_metadata()

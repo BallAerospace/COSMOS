@@ -240,9 +240,21 @@ RSpec.describe MetadataController, :type => :controller do
 
     it "successfully updates a metadata object and status code 200" do
       start = create_metadata()
-      put :update, params: { scope: 'DEFAULT', id: start.to_i, start: start, metadata: {'version'=> '2'} }
+      put :update, params: { scope: 'DEFAULT', id: start.to_i, start: start.iso8601, metadata: {'version'=> '2'} }
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
+      expect(json['start']).to eql(start.to_i)
+      expect(json['metadata']).to eql({'version' => '2'})
+
+      get :show, params: { scope: 'DEFAULT', id: start.to_i }
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['start']).to eql(start.to_i)
+      expect(json['metadata']['version']).to eql('2')
+
+      get :latest,  params: { scope: 'DEFAULT' }
+      expect(response).to have_http_status(:ok)
+      ret = JSON.parse(response.body)
       expect(json['start']).to eql(start.to_i)
       expect(json['metadata']['version']).to eql('2')
     end
