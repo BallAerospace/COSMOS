@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'json'
+
 class ScriptsController < ApplicationController
   def index
     begin
@@ -49,9 +51,9 @@ class ScriptsController < ApplicationController
       end
       breakpoints = Script.get_breakpoints(params[:scope], params[:name])
       results = {
-        "contents" => file,
-        "breakpoints" => breakpoints,
-        "locked" => locked
+        contents: file,
+        breakpoints: breakpoints,
+        locked: locked
       }
       if params[:name].include?('suite')
         results_suites, results_error, success = Script.process_suite(params[:name], file, scope: params[:scope])
@@ -59,7 +61,9 @@ class ScriptsController < ApplicationController
         results['error'] = results_error
         results['success'] = success
       end
-      render :json => results
+      # Using 'render :json => results' results in a raw json string like:
+      # {"contents":"{\"json_class\":\"String\",\"raw\":[35,226,128...]}","breakpoints":[],"locked":false}
+      render plain: JSON.generate(results)
     else
       head :not_found
     end
