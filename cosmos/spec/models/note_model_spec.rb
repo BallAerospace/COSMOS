@@ -88,7 +88,9 @@ module Cosmos
       it "updates all the attributes" do
         now = Time.now.to_i
         model = create_model(start: now)
+        expect(NoteModel.count(scope: 'DEFAULT')).to eql(1)
         model.update(start: now - 100, stop: now - 50, color: "#FFFFFF", description: "update")
+        expect(NoteModel.count(scope: 'DEFAULT')).to eql(1)
         expect(model.start).to eql(now - 100)
         expect(model.stop).to eql(now - 50)
         expect(model.color).to eql('#FFFFFF')
