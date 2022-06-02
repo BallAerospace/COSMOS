@@ -102,7 +102,9 @@ module Cosmos
       it "updates start and color" do
         now = Time.now.to_i
         model = create_model(start: now, metadata: {val: 1})
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
         model.update(start: now + 100, color: '#00AA00')
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
         expect(model.start).to eql(now + 100)
         expect(model.color).to eql('#00AA00')
         expect(model.metadata).to eql({'val' => 1})
@@ -116,21 +118,20 @@ module Cosmos
 
       it "updates metadata and constraints" do
         now = Time.now.to_i
-        puts "now:#{now}"
         model = create_model(start: now, metadata: {val: 1}, constraints: {val: [1,2,3]})
-        puts "update!"
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
         model.update(metadata: {val: 4}, constraints: {val: (1..5)})
+        expect(MetadataModel.count(scope: 'DEFAULT')).to eql(1)
         expect(model.start).to eql(now)
         expect(model.metadata).to eql({'val' => 4})
-        expect(model.constraints).to eql({'val' => (1..5)})
+        expect(model.constraints).to eql({'val' => 1..5})
 
         hash = MetadataModel.get(scope: 'DEFAULT', start: now)
-        pp hash
         # Test that the hash returned by get is updated
         expect(model.start).to eql(hash['start'])
         expect(model.color).to eql(hash['color'])
         expect(model.metadata).to eql(hash['metadata'])
-        expect(model.constraints).to eql(hash['constraints'])
+        expect({'val' => '1..5'}).to eql(hash['constraints'])
       end
 
       it "rejects update if constraints violated" do
@@ -145,14 +146,15 @@ module Cosmos
       end
     end
 
-    describe "as_json" do
+    describe "as_json, to_s" do
       it "encodes all the input parameters" do
         now = Time.now.to_i
         model = create_model(start: now, color: '#123456', metadata: {'test' => 'one', 'foo' => 'bar'})
         json = model.as_json
+        expect(json).to eql(model.to_s)
         expect(json["start"]).to eql(now)
         expect(json["color"]).to eql('#123456')
-        expect(json["metadata"]).to eql({test: 'one', foo: 'bar'})
+        expect(json["metadata"]).to eql({'test' => 'one', 'foo' => 'bar'})
         expect(json['type']).to eql("metadata")
       end
     end

@@ -86,6 +86,7 @@ module Cosmos
     def create(update: false)
       validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
+      NoteModel.destroy(scope: @scope, start: update) if update
       Store.zadd(@primary_key, @start, JSON.generate(as_json()))
       if update
         notify(kind: 'updated')
@@ -96,11 +97,12 @@ module Cosmos
 
     # Update the Redis hash at primary_key
     def update(start:, stop:, color:, description:)
+      orig_start = @start
       @start = start
       @stop = stop
       @color = color
       @description = description
-      create(update: true)
+      create(update: orig_start)
     end
 
     # @return [Hash] generated from the NoteModel
@@ -115,10 +117,6 @@ module Cosmos
         'updated_at' => @updated_at,
       }
     end
-
-    # @return [String] string view of NoteModel
-    def to_s
-      return "<NoteModel s: #{@start}, x: #{@stop}, c: #{@color}, d: #{@description}>"
-    end
+    alias to_s as_json
   end
 end

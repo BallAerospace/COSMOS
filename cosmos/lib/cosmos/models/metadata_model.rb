@@ -82,7 +82,6 @@ module Cosmos
     end
 
     def validate_constraints()
-      puts "meta:#{@metadata} constraints:#{@constraints}"
       unless @constraints.is_a?(Hash)
         raise SortedInputError.new "Constraints must be a hash/object: #{@constraints}"
       end
@@ -104,8 +103,7 @@ module Cosmos
     def create(update: false)
       validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
-      puts "create:"
-      pp JSON.generate(as_json())
+      MetadataModel.destroy(scope: @scope, start: update) if update
       Store.zadd(@primary_key, @start, JSON.generate(as_json()))
       if update
         notify(kind: 'updated')
@@ -116,11 +114,12 @@ module Cosmos
 
     # Update the model. All arguments are optional, only those set will be updated.
     def update(start: nil, color: nil, metadata: nil, constraints: nil)
+      orig_start = @start
       @start = start if start
       @color = color if color
       @metadata = metadata if metadata
       @constraints = constraints if constraints
-      create(update: true)
+      create(update: orig_start)
     end
 
     # @return [Hash] generated from the MetadataModel
@@ -135,10 +134,6 @@ module Cosmos
         'updated_at' => @updated_at,
       }
     end
-
-    # @return [String] string view of metadata
-    def to_s
-      as_json
-    end
+    alias to_s as_json
   end
 end
