@@ -42,6 +42,9 @@ module Cosmos
     # @param start [Time] Metadata time value, if nil will be current time
     # @return The result of the method call.
     def set_metadata(metadata, color: nil, start: nil)
+      unless metadata.is_a?(Hash)
+        raise "metadata must be a Hash: #{metadata} is a #{metadata.class}"
+      end
       color = color.nil? ? '#003784' : color
       data = { color: color, metadata: metadata }
       data[:start] = start.iso8601 unless start.nil?
@@ -52,12 +55,20 @@ module Cosmos
 
     # Updates the metadata
     #
-    # @param start [Integer] Metadata time value as integer seconds from epoch
     # @param metadata [Hash<Symbol, Variable>] A hash of metadata
     # @param color [String] Events color to show on Calendar tool, if nil will be blue
+    # @param start [Integer] Metadata time value as integer seconds from epoch
     # @return The result of the method call.
-    def update_metadata(start, metadata, color: nil)
+    def update_metadata(metadata, color: nil, start: nil)
+      unless metadata.is_a?(Hash)
+        raise "metadata must be a Hash: #{metadata} is a #{metadata.class}"
+      end
       color = color.nil? ? '#003784' : color
+      if start == nil
+        existing = get_metadata()
+        start = existing['start']
+        metadata = existing['metadata'].merge(metadata)
+      end
       data = { :color => color, :metadata => metadata }
       data[:start] = Time.at(start).iso8601
       response = $api_server.request('put', "/cosmos-api/metadata/#{start}", data: data, json: true)

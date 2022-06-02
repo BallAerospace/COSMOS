@@ -24,42 +24,46 @@ const vueInstance = new Vue()
 
 const axiosInstance = axios.create({
   baseURL: location.origin,
-  timeout: 10000,
+  timeout: 60000,
   params: {},
 })
 
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response.status === 401) {
-      delete localStorage.cosmosToken
-      CosmosAuth.login(location.href)
-    } else {
-      let body = `HTTP ${error.response.status} - `
-      if (error.response?.statusText) {
-        body += `${error.response.statusText} `
-      }
-      if (error.response?.config?.data) {
-        body += `${error.response.config.data} `
-      }
-      if (error.response?.data?.message) {
-        body += `${error.response.data.message}`
-      } else if (error.response?.data?.exception) {
-        body += `${error.response.data.exception}`
-      } else if (error.response?.data?.error?.message) {
-        if (error.response.data.error.class) {
-          body += `${error.response.data.error.class} `
-        }
-        body += `${error.response.data.error.message}`
+    if (error.response) {
+      if (error.response.status === 401) {
+        delete localStorage.cosmosToken
+        CosmosAuth.login(location.href)
       } else {
-        body += `${error.response?.data}`
+        let body = `HTTP ${error.response.status} - `
+        if (error.response?.statusText) {
+          body += `${error.response.statusText} `
+        }
+        if (error.response?.config?.data) {
+          body += `${error.response.config.data} `
+        }
+        if (error.response?.data?.message) {
+          body += `${error.response.data.message}`
+        } else if (error.response?.data?.exception) {
+          body += `${error.response.data.exception}`
+        } else if (error.response?.data?.error?.message) {
+          if (error.response.data.error.class) {
+            body += `${error.response.data.error.class} `
+          }
+          body += `${error.response.data.error.message}`
+        } else {
+          body += `${error.response?.data}`
+        }
+        vueInstance.$notify.serious({
+          title: 'Network error',
+          body,
+        })
       }
-      vueInstance.$notify.serious({
-        title: 'Network error',
-        body,
-      })
+      throw error
+    } else {
+      throw error
     }
-    throw error
   }
 )
 

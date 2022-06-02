@@ -77,7 +77,7 @@ test('adds multiple graphs', async ({ page }) => {
 })
 
 test('minimizes a graph', async ({ page }) => {
-  await utils.sleep(100) // Ensure chart is stable
+  await utils.sleep(500) // Ensure chart is stable
   // Get ElementHandle to the chart
   const chart = await page.$('#chart0')
   await chart.waitForElementState('stable')
@@ -94,7 +94,7 @@ test('minimizes a graph', async ({ page }) => {
 })
 
 test('shrinks and expands a graph width', async ({ page }) => {
-  await utils.sleep(100) // Ensure chart is stable
+  await utils.sleep(500) // Ensure chart is stable
   // Get ElementHandle to the chart
   const chart = await page.$('#chart0')
   await chart.waitForElementState('stable')
@@ -114,7 +114,7 @@ test('shrinks and expands a graph width', async ({ page }) => {
 })
 
 test('shrinks and expands a graph height', async ({ page }) => {
-  await utils.sleep(100) // Ensure chart is stable
+  await utils.sleep(500) // Ensure chart is stable
   // Get ElementHandle to the chart
   const chart = await page.$('#chart0')
   await chart.waitForElementState('stable')
@@ -133,18 +133,16 @@ test('shrinks and expands a graph height', async ({ page }) => {
 })
 
 test('shrinks and expands both width and height', async ({ page }) => {
-  await utils.sleep(100) // Ensure chart is stable
+  await utils.sleep(500) // Ensure chart is stable
   // Get ElementHandle to the chart
   const chart = await page.$('#chart0')
   await chart.waitForElementState('stable')
   const origBox = await chart.boundingBox()
 
   await page.locator('[data-test=collapse-all]').click()
-  // await utils.sleep(100)
   await chart.waitForElementState('stable')
   const minBox = await chart.boundingBox()
   await page.locator('[data-test=expand-all]').click()
-  // await utils.sleep(100)
   await chart.waitForElementState('stable')
   const maxBox = await chart.boundingBox()
   // Check that width is double with only 1 digit of precision
@@ -152,7 +150,6 @@ test('shrinks and expands both width and height', async ({ page }) => {
   // Height is simply larger
   expect(maxBox.height).toBeGreaterThan(minBox.height)
   await page.locator('[data-test=collapse-all]').click()
-  // await utils.sleep(100)
   await chart.waitForElementState('stable')
   const minBox2 = await chart.boundingBox()
   expect(minBox2.width).toBe(minBox.width)
