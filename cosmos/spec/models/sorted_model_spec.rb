@@ -206,9 +206,11 @@ module Cosmos
       it "updates the sorted item" do
         now = Time.now.to_i
         model = create_model(start: now)
+        expect(SortedModel.count(scope: 'DEFAULT')).to eql(1)
         model.update(
           start: now + 10,
         )
+        expect(SortedModel.count(scope: 'DEFAULT')).to eql(1)
         hash = SortedModel.get(scope: 'DEFAULT', start: now + 10)
         expect(hash['start']).to eql(now + 10)
       end

@@ -119,6 +119,7 @@ module Cosmos
     def create(update: false)
       validate_start(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
+      SortedModel.destroy(scope: @scope, start: update) if update
       Store.zadd(@primary_key, @start, JSON.generate(as_json()))
       if update
         notify(kind: 'updated')
@@ -129,8 +130,9 @@ module Cosmos
 
     # Update the Redis hash at primary_key
     def update(start:)
+      orig_start = @start
       @start = start
-      create(update: true)
+      create(update: orig_start)
     end
 
     # destroy the activity from the redis database
