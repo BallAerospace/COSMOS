@@ -227,28 +227,31 @@ def load_plugin(plugin_file_path, scope:, variables_file: nil)
 
   begin
     # Try to find an existing plugin with this file to upgrade
-    gem_filename = File.basename(plugin_file_path, ".gem")
-    gem_filename = gem_filename.split('-')[0..-2].join('-')
+    file_full_name = File.basename(plugin_file_path, ".gem")
+    file_gem_name = file_full_name.split('-')[0..-2].join('-')
     plugin_names = Cosmos::PluginModel.names(scope: scope)
     found = false
     plugin_names.each do |plugin_name|
       gem_name = plugin_name.split("__")[0]
-      gem_name = File.basename(plugin_name, ".gem")
-      gem_name = gem_name.split('-')[0..-2].join('-')
-      if gem_filename == gem_name
-        puts "Upgrading existing plugin: #{plugin_name} with #{plugin_file_path}"
-        plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
-        variables = plugin_model.variables
-        plugin_model.destroy
-        if variables_file
-          # Assume phase1 is already done
-          variables = JSON.parse(File.read(variables_file))
-          plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
-        else
-          plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
-        end
-        Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+      full_name = File.basename(gem_name, ".gem")
+      gem_name = full_name.split('-')[0..-2].join('-')
+      if file_gem_name == gem_name
         found = true
+        # Only upgrade if changed
+        if file_full_name != full_name
+          puts "Upgrading existing plugin: #{plugin_name} with #{plugin_file_path}"
+          plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
+          variables = plugin_model.variables
+          plugin_model.destroy
+          if variables_file
+            # Assume phase1 is already done
+            variables = JSON.parse(File.read(variables_file))
+            plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
+          else
+            plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+          end
+          Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+        end
       end
     end
     unless found

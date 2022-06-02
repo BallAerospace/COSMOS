@@ -44,6 +44,15 @@ module.exports = (webpackConfigEnv, argv) => {
           orgName,
         },
       }),
+      new HtmlWebpackPlugin({
+        inject: false,
+        template: 'src/index-allow-http.ejs',
+        filename: 'index-allow-http.html',
+        templateParameters: {
+          isLocal: webpackConfigEnv && webpackConfigEnv.isLocal,
+          orgName,
+        },
+      }),
       new VueLoaderPlugin(),
       new CopyWebpackPlugin({ patterns: [{ from: 'public', to: '.' }] }),
       new webpack.DefinePlugin({

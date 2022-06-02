@@ -12,6 +12,7 @@ docker tag ballaerospace/cosmosc2-script-runner-api %1/cosmosc2-script-runner-ap
 docker tag ballaerospace/cosmosc2-operator %1/cosmosc2-operator:latest || exit /b
 docker tag ballaerospace/cosmosc2-init %1/cosmosc2-init:latest || exit /b
 docker tag ballaerospace/cosmosc2-redis %1/cosmosc2-redis:latest || exit /b
+docker tag ballaerospace/cosmosc2-minio %1/cosmosc2-minio:latest || exit /b
 
 docker push %1/cosmosc2-ruby:latest || exit /b
 docker push %1/cosmosc2-node:latest || exit /b
@@ -21,6 +22,7 @@ docker push %1/cosmosc2-script-runner-api:latest || exit /b
 docker push %1/cosmosc2-operator:latest || exit /b
 docker push %1/cosmosc2-init:latest || exit /b
 docker push %1/cosmosc2-redis:latest || exit /b
+docker push %1/cosmosc2-minio:latest || exit /b
 
 @echo off
 GOTO :EOF

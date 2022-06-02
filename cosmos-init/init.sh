@@ -54,6 +54,17 @@ else
     done
 fi
 
+mc alias set cosmosminio "${COSMOS_S3_URL}" ${COSMOS_MINIO_USERNAME} ${COSMOS_MINIO_PASSWORD} || exit 1
+
+# Create new canned policy by name script using script-runner.json policy file.
+mc admin policy add cosmosminio script /cosmos/minio/script-runner.json || exit 1
+
+# Create a new user scriptrunner on MinIO use mc admin user.
+mc admin user add cosmosminio ${COSMOS_SR_MINIO_USERNAME} ${COSMOS_SR_MINIO_PASSWORD} || exit 1
+
+# Once the user is successfully created you can now apply the getonly policy for this user.
+mc admin policy set cosmosminio script user=${COSMOS_SR_MINIO_USERNAME} || exit 1
+
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-base-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-cmdtlmserver-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-limitsmonitor-*.gem || exit 1
