@@ -62,23 +62,23 @@ jobs:
           path: playwright/test-results
       - uses: anchore/scan-action/download-grype@v3
         id: grype
-      - name: Run grype on the image: ruby
+      - name: Run grype on the image ruby
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-ruby:latest
-      - name: Run grype on the image: node
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest        
-      - name: Run grype on the image: base
+      - name: Run grype on the image node
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest
+      - name: Run grype on the image base
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-base:latest
-      - name: Run grype on the image: init
+      - name: Run grype on the image init
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-init:latest
-      - name: Run grype on the image: redis
+      - name: Run grype on the image redis
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-redis:latest
-      - name: Run grype on the image: minio
+      - name: Run grype on the image minio
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-minio:latest
-      - name: Run grype on the image: operator
+      - name: Run grype on the image operator
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-operator:latest
-      - name: Run grype on the image: cmd-tlm-api
+      - name: Run grype on the image cmd-tlm-api
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest
-      - name: Run grype on the image: script-runner-api
+      - name: Run grype on the image script-runner-api
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-script-runner-api:latest
-      - name: Run grype on the image: traefik
+      - name: Run grype on the image traefik
         run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-traefik:latest
