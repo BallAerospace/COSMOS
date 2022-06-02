@@ -60,123 +60,25 @@ jobs:
         with:
           name: playwright
           path: playwright/test-results
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-base:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: base
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-ruby:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: ruby
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-node:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: node
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-init:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: init
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-redis:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: redis
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-minio:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: minio
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-operator:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: operator
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: cmd-tlm-api
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-script-runner-api:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: script-runner-api
-      - name: Run the Anchore scan action
-        uses: anchore/scan-action@v3
-        with:
-          image: "docker.io/ballaerospace/cosmosc2-traefik:latest"
-          fail-build: false
-          severity-cutoff: critical # low, medium, high, critical
-          acs-report-enable: true
-      - name: Upload Anchore Scan Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: results.sarif
-          category: traefik
+      - uses: anchore/scan-action/download-grype@v3
+        id: grype
+      - name: Run grype on the image: ruby
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-ruby:latest
+      - name: Run grype on the image: node
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest        
+      - name: Run grype on the image: base
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-base:latest
+      - name: Run grype on the image: init
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-init:latest
+      - name: Run grype on the image: redis
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-redis:latest
+      - name: Run grype on the image: minio
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-minio:latest
+      - name: Run grype on the image: operator
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-operator:latest
+      - name: Run grype on the image: cmd-tlm-api
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest
+      - name: Run grype on the image: script-runner-api
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-script-runner-api:latest
+      - name: Run grype on the image: traefik
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-traefik:latest

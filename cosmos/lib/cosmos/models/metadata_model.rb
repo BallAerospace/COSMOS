@@ -30,17 +30,19 @@ module Cosmos
       "#{scope}#{PRIMARY_KEY}"
     end
 
-    attr_reader :color, :metadata, :type
+    attr_reader :color, :metadata, :constraints, :type
 
-    # @param [Integer] start - time metadata is active in seconds from Epoch
+    # @param [Integer] start - Time metadata is active in seconds from Epoch
     # @param [String] color - The event color
-    # @param [String] metadata - Key value pair object to link to name
+    # @param [Hash] metadata - Hash of metadata values
+    # @param [Hash] constraints - Constraints to apply to the metadata
     # @param [String] scope - Cosmos scope to track event to
     def initialize(
       scope:,
       start:,
       color: nil,
       metadata:,
+      constraints: nil,
       type: METADATA_TYPE,
       updated_at: 0
     )
@@ -48,6 +50,7 @@ module Cosmos
       @start = start
       @color = color
       @metadata = metadata
+      @constraints = constraints if constraints
       @type = type # For the as_json, from_json round trip
     end
 
@@ -56,6 +59,7 @@ module Cosmos
       validate_start(update: update)
       validate_color()
       validate_metadata()
+      validate_constraints() if @constraints
     end
 
     def validate_color()
@@ -72,6 +76,26 @@ module Cosmos
       unless @metadata.is_a?(Hash)
         raise SortedInputError.new "Metadata must be a hash/object: #{@metadata}"
       end
+      # Convert keys to strings. This isn't quite as efficient as symbols
+      # but we store as JSON which is all strings and it makes comparisons easier.
+      @metadata = @metadata.transform_keys(&:to_s)
+    end
+
+    def validate_constraints()
+      unless @constraints.is_a?(Hash)
+        raise SortedInputError.new "Constraints must be a hash/object: #{@constraints}"
+      end
+      # Convert keys to strings. This isn't quite as efficient as symbols
+      # but we store as JSON which is all strings and it makes comparisons easier.
+      @constraints = @constraints.transform_keys(&:to_s)
+      unless (@constraints.keys - @metadata.keys).empty?
+        raise SortedInputError.new "Constraints keys must be subset of metadata: #{@constraints.keys} subset #{@metadata.keys}"
+      end
+      @constraints.each do |key, constraint|
+        unless constraint.include?(@metadata[key])
+          raise SortedInputError.new "Constraint violation! key:#{key} value:#{@metadata[key]} constraint:#{constraint}"
+        end
+      end
     end
 
     # Update the Redis hash at primary_key based on the initial passed start
@@ -79,6 +103,7 @@ module Cosmos
     def create(update: false)
       validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
+      MetadataModel.destroy(scope: @scope, start: update) if update
       Store.zadd(@primary_key, @start, JSON.generate(as_json()))
       if update
         notify(kind: 'updated')
@@ -87,29 +112,28 @@ module Cosmos
       end
     end
 
-    # Update the Redis hash at primary_key
-    def update(start:, color:, metadata:)
-      @start = start
-      @color = color
-      @metadata = metadata
-      create(update: true)
+    # Update the model. All arguments are optional, only those set will be updated.
+    def update(start: nil, color: nil, metadata: nil, constraints: nil)
+      orig_start = @start
+      @start = start if start
+      @color = color if color
+      @metadata = metadata if metadata
+      @constraints = constraints if constraints
+      create(update: orig_start)
     end
 
     # @return [Hash] generated from the MetadataModel
     def as_json
-      return {
+      {
         'scope' => @scope,
         'start' => @start,
         'color' => @color,
         'metadata' => @metadata,
+        'constraints' => @constraints,
         'type' => METADATA_TYPE,
         'updated_at' => @updated_at,
       }
     end
-
-    # @return [String] string view of metadata
-    def to_s
-      return "<MetadataModel s: #{@start}, c: #{@color}, m: #{@metadata}>"
-    end
+    alias to_s as_json
   end
 end
