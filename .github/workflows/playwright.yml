@@ -13,22 +13,17 @@ on:
     branches: [master]
 
 jobs:
-  cosmos-build:
+  cosmos-build-test-scan:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
     steps:
       - uses: actions/checkout@v3
       - name: cosmos-control.sh build
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./cosmos-control.sh build
-  playwright:
-    needs: cosmos-build
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
           node-version: "14"
@@ -65,37 +60,25 @@ jobs:
         with:
           name: playwright
           path: playwright/test-results
-  container-scan:
-    needs: cosmos-build
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        container:
-          [
-            base,
-            ruby,
-            node,
-            traefik,
-            operator,
-            cmd-tlm-api,
-            script-runner-api,
-            redis,
-            minio-init,
-          ]
-    steps:
       - uses: anchore/scan-action/download-grype@v3
         id: grype
-      - name: Run grype on the image
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest
-      # - name: Run the Anchore scan action
-      #   uses: anchore/scan-action@v3
-      #   with:
-      #     image: "docker.io/ballaerospace/cosmosc2-${{ matrix.container }}:latest"
-      #     fail-build: false
-      #     severity-cutoff: critical # low, medium, high, critical
-      #     acs-report-enable: true
-      # - name: Upload Anchore Scan Report
-      #   uses: github/codeql-action/upload-sarif@v2
-      #   with:
-      #     sarif_file: results.sarif
-      #     category: ${{ matrix.container }}
+      - name: Run grype on the image ruby
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-ruby:latest
+      - name: Run grype on the image node
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest
+      - name: Run grype on the image base
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-base:latest
+      - name: Run grype on the image init
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-init:latest
+      - name: Run grype on the image redis
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-redis:latest
+      - name: Run grype on the image minio
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-minio:latest
+      - name: Run grype on the image operator
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-operator:latest
+      - name: Run grype on the image cmd-tlm-api
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest
+      - name: Run grype on the image script-runner-api
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-script-runner-api:latest
+      - name: Run grype on the image traefik
+        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-traefik:latest

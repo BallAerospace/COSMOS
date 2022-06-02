@@ -81,21 +81,6 @@ docker buildx build \
 fi
 
 # Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
-cd ../cosmos-minio-init
-docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
-  --progress plain \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio-init:${COSMOS_RELEASE_VERSION} .
-
-if [ $COSMOS_UPDATE_LATEST = true ]
-then
-docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
-  --progress plain \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio-init:latest .
-fi
-
-# Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
 cd ../cosmos-redis
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
@@ -108,6 +93,21 @@ docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:latest .
+fi
+
+# Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
+cd ../cosmos-minio
+docker buildx build \
+  --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
+  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:${COSMOS_RELEASE_VERSION} .
+
+if [ $COSMOS_UPDATE_LATEST = true ]
+then
+docker buildx build \
+  --platform ${COSMOS_PLATFORMS} \
+  --progress plain \
+  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:latest .
 fi
 
 cd ../cosmos-cmd-tlm-api

@@ -21,33 +21,45 @@ version: "3.5"
 
 services:
   cosmos-minio:
-    image: "${COSMOS_REGISTRY}/minio/minio:RELEASE.2021-06-17T00-10-46Z"
+    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:${COSMOS_TAG}"
     volumes:
       - "cosmos-minio-v:/data"
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
     command: ["server", "/data"]
     restart: "unless-stopped"
     environment:
       MINIO_ROOT_USER: "${COSMOS_MINIO_USERNAME}"
       MINIO_ROOT_PASSWORD: "${COSMOS_MINIO_PASSWORD}"
-
-  cosmos-minio-init:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio-init:${COSMOS_TAG}"
-    restart: on-failure
-    depends_on:
-      - "cosmos-minio"
-    env_file:
-      - ".env"
+      SSL_CERT_FILE: "/devel/cacert.pem"
+      CURL_CA_BUNDLE: "/devel/cacert.pem"
+      REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
+      NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
   cosmos-redis:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
     volumes:
       - "cosmos-redis-v:/data"
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
+      - "${PWD}/cosmos-redis/users.acl:/config/users.acl"
     restart: "unless-stopped"
+    environment:
+      SSL_CERT_FILE: "/devel/cacert.pem"
+      CURL_CA_BUNDLE: "/devel/cacert.pem"
+      REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
+      NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
   cosmos-redis-ephemeral:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+    volumes:
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
+      - "${PWD}/cosmos-redis/users.acl:/config/users.acl"
     restart: "unless-stopped"
-    command: [ "redis-server", "/config/redis_ephemeral.conf" ]
+    command: ["redis-server", "/config/redis_ephemeral.conf"]
+    environment:
+      SSL_CERT_FILE: "/devel/cacert.pem"
+      CURL_CA_BUNDLE: "/devel/cacert.pem"
+      REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
+      NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
   cosmos-cmd-tlm-api:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
@@ -58,6 +70,7 @@ services:
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems"
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
     environment:
       - "RAILS_ENV=production"
       - "GEM_HOME=/gems"
@@ -73,6 +86,7 @@ services:
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems:ro"
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
     environment:
       - "RAILS_ENV=production"
       - "GEM_HOME=/gems"
@@ -88,6 +102,7 @@ services:
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems:ro"
+      #- ${PWD}/cacert.pem:/devel/cacert.pem
     environment:
       - "GEM_HOME=/gems"
     env_file:
@@ -97,13 +112,29 @@ services:
 
   cosmos-traefik:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
+    volumes:
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
+      - "${PWD}/cosmos-traefik/traefik.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/traefik-allow-http.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/traefik-ssl.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/traefik-letsencrypt.yaml:/etc/traefik/traefik.yaml"
+      # - "${PWD}/cosmos-traefik/cert.key:/etc/traefik/cert.key"
+      # - "${PWD}/cosmos-traefik/cert.crt:/etc/traefik/cert.crt"
     ports:
-      - "2900:80"
+      - "127.0.0.1:2900:80"
+      - "127.0.0.1:2943:443"
+      # - "80:80"
+      # - "443:443"
     restart: "unless-stopped"
     depends_on:
       - "cosmos-redis"
       - "cosmos-redis-ephemeral"
       - "cosmos-minio"
+    environment:
+      SSL_CERT_FILE: "/devel/cacert.pem"
+      CURL_CA_BUNDLE: "/devel/cacert.pem"
+      REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
+      NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
   cosmos-init:
     image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:${COSMOS_TAG}"
@@ -115,6 +146,7 @@ services:
       - "cosmos-minio"
     volumes:
       - "cosmos-gems-v:/gems"
+      - "${PWD}/cacert.pem:/devel/cacert.pem"
     environment:
       - "GEM_HOME=/gems"
     env_file:

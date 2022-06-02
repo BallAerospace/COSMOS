@@ -54,9 +54,9 @@ services:
     depends_on:
       - "cosmos-ruby"
 
-  cosmos-minio-init:
+  cosmos-minio:
     build:
-      context: "cosmos-minio-init"
+      context: "cosmos-minio"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
