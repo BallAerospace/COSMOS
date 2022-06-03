@@ -29,11 +29,11 @@
       <template v-slot:item="{ item, on, attrs }">
         <v-list-item
           v-on="on"
-          v-bind="attrs" 
+          v-bind="attrs"
           :data-test="`trigger-operand-${order}-type-${item}`"
         >
           <v-list-item-content>
-            <v-list-item-title v-text="item" />
+            <v-list-item-title>{{ item }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </template>
@@ -90,11 +90,11 @@
         <template v-slot:item="{ item, on, attrs }">
           <v-list-item
             v-on="on"
-            v-bind="attrs" 
+            v-bind="attrs"
             :data-test="`trigger-operand-${order}-color-${item}`"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="item" />
+              <v-list-item-title>{{ item }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -110,11 +110,11 @@
         <template v-slot:item="{ item, on, attrs }">
           <v-list-item
             v-on="on"
-            v-bind="attrs" 
+            v-bind="attrs"
             :data-test="`trigger-operand-${order}-limit-${item.text}`"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="item.text" />
+              <v-list-item-title>{{ item.text }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -131,11 +131,11 @@
         <template v-slot:item="{ item, on, attrs }">
           <v-list-item
             v-on="on"
-            v-bind="attrs" 
+            v-bind="attrs"
             :data-test="`trigger-operand-${order}-trigger-${item}`"
           >
             <v-list-item-content>
-              <v-list-item-title v-text="item" />
+              <v-list-item-title>{{ item }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </template>
@@ -261,7 +261,7 @@ export default {
       handler: function (newVal, oldVal) {
         this.$emit('set', newVal)
       },
-    }
+    },
   },
   methods: {
     itemValueSelected: function (event) {

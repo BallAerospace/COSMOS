@@ -29,7 +29,7 @@
           :disabled="!name || !url || !icon"
         >
           Add
-          <v-icon right dark v-text="icon" />
+          <v-icon right dark>{{ icon }}</v-icon>
         </v-btn>
       </v-col>
       <v-col cols="3">
@@ -57,7 +57,7 @@
             <v-icon> mdi-drag-horizontal </v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title v-text="tool" />
+            <v-list-item-title>{{ tool }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-tooltip bottom>

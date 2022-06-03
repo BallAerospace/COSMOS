@@ -23,7 +23,7 @@
       <v-card>
         <v-system-bar>
           <v-spacer />
-          <span> Create New Reaction </span>
+          <span>Create New Reaction</span>
           <v-spacer />
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
@@ -36,12 +36,12 @@
                 </v-icon>
               </div>
             </template>
-            <span> Close </span>
+            <span>Close</span>
           </v-tooltip>
         </v-system-bar>
 
         <v-stepper v-model="dialogStep" vertical non-linear>
-          <v-stepper-step editable step="1"> Input Triggers </v-stepper-step>
+          <v-stepper-step editable step="1">Input Triggers</v-stepper-step>
           <v-stepper-content step="1">
             <v-row class="ma-0">
               <v-switch
@@ -67,7 +67,7 @@
                     :data-test="`reaction-select-trigger-${item.count}`"
                   >
                     <v-list-item-content>
-                      <v-list-item-title v-text="item.text" />
+                      <v-list-item-title>{{ item.text }}</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </template>
@@ -77,7 +77,7 @@
               <div v-for="(trigger, i) in reactionTriggers" :key="trigger.name">
                 <v-card outlined class="mt-1 px-0">
                   <v-card-title>
-                    <span v-text="trigger.name" />
+                    <span>{{ trigger.name }}</span>
                     <v-spacer />
                     <v-tooltip top>
                       <template v-slot:activator="{ on, attrs }">
@@ -109,7 +109,7 @@
             </v-row>
           </v-stepper-content>
 
-          <v-stepper-step editable step="2"> Input Actions </v-stepper-step>
+          <v-stepper-step editable step="2">Input Actions</v-stepper-step>
           <v-stepper-content step="2">
             <v-row class="ma-0">
               <v-radio-group v-model="reactionActionKind" row class="px-2">
@@ -226,7 +226,7 @@
               />
             </v-row>
             <v-row class="ma-0">
-              <span class="ma-2 red--text" v-show="error" v-text="error" />
+              <span class="ma-2 red--text" v-show="error">{{ error }}</span>
             </v-row>
             <v-row class="ma-2">
               <v-spacer />

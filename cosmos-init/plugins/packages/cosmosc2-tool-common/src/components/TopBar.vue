@@ -50,18 +50,14 @@
                 :disabled="option.disabled"
                 :data-test="formatDT(`${title} ${menu.label} ${option.label}`)"
               >
-                <v-list-item-action
-                  v-if="option.radio"
-                >
+                <v-list-item-action v-if="option.radio">
                   <v-radio
                     color="secondary"
                     :label="option.label"
                     :value="option.label"
                   />
                 </v-list-item-action>
-                <v-list-item-action
-                  v-if="option.checkbox"
-                >
+                <v-list-item-action v-if="option.checkbox">
                   <v-checkbox
                     v-model="checked"
                     color="secondary"
@@ -70,22 +66,22 @@
                   />
                 </v-list-item-action>
                 <v-list-item-icon v-if="option.icon">
-                  <v-icon v-text="option.icon" :disabled="option.disabled" />
+                  <v-icon :disabled="option.disabled">{{ option.icon }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-title
                   v-if="!option.radio && !option.checkbox"
                   :style="
                     'cursor: pointer;' + (option.disabled ? 'opacity: 0.2' : '')
                   "
-                  v-text="option.label"
-                />
+                  >{{ option.label }}</v-list-item-title
+                >
               </v-list-item>
             </template>
           </v-radio-group>
         </v-list>
       </v-menu>
       <v-spacer />
-      <v-toolbar-title v-text="title" />
+      <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer />
     </div>
   </mounting-portal>
@@ -107,10 +103,10 @@ export default {
   },
   methods: {
     // Convert the string to a standard data-test format
-    formatDT: function(string) {
+    formatDT: function (string) {
       return string.replaceAll(' ', '-').toLowerCase()
     },
-  }
+  },
 }
 </script>
 

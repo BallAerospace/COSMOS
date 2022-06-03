@@ -143,11 +143,11 @@
                 <template v-slot:item="{ item, attrs, on }">
                   <v-list-item
                     v-on="on"
-                    v-bind="attrs" 
+                    v-bind="attrs"
                     :data-test="`trigger-create-select-operator-${item}`"
                   >
                     <v-list-item-content>
-                      <v-list-item-title v-text="item" />
+                      <v-list-item-title>{{ item }}</v-list-item-title>
                     </v-list-item-content>
                   </v-list-item>
                 </template>

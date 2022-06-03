@@ -102,7 +102,7 @@
                   :color="timeline.color"
                   :value="timeline.messages"
                 >
-                  <v-list-item-title v-text="timeline.name" />
+                  <v-list-item-title>{{ timeline.name }}</v-list-item-title>
                 </v-badge>
               </v-list-item-content>
 

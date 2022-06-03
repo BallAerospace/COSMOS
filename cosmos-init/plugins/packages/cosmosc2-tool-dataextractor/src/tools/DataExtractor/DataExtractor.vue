@@ -125,8 +125,8 @@
             class="primary mr-4"
             @click="processItems"
             :disabled="items.length < 1"
-            v-text="processButtonText"
-          />
+            >{{ processButtonText }}</v-btn
+          >
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -187,7 +187,7 @@
                       <span> DataExtractor: Edit Item Mode </span>
                       <v-spacer />
                     </v-system-bar>
-                    <v-card-title v-text="getItemLabel(item)" />
+                    <v-card-title>{{ getItemLabel(item) }}</v-card-title>
                     <v-card-text>
                       <v-col>
                         <v-select
@@ -217,7 +217,7 @@
                 </v-dialog>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title v-text="getItemLabel(item)" />
+                <v-list-item-title>{{ getItemLabel(item) }}</v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon>
                 <v-tooltip bottom>
@@ -293,7 +293,7 @@ import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDia
 import SaveConfigDialog from '@cosmosc2/tool-common/src/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@cosmosc2/tool-common/src/components/TargetPacketItemChooser'
 import Cable from '@cosmosc2/tool-common/src/services/cable.js'
-import { isValid, parse, format, getTime } from 'date-fns'
+import { format, getTime } from 'date-fns'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import TimeFilters from '@/tools/DataExtractor/Filters/timeFilters.js'
 
@@ -805,7 +805,10 @@ export default {
       link.href = URL.createObjectURL(blob)
       link.setAttribute(
         'download',
-        this.startDateTimeFilename + "." + this.fileCount + downloadFileExtension
+        this.startDateTimeFilename +
+          '.' +
+          this.fileCount +
+          downloadFileExtension
       )
       link.click()
 

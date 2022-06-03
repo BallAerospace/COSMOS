@@ -64,18 +64,20 @@
       transition="scale-transition"
       :type="alertType"
       v-model="showAlert"
-      v-text="alert"
-    />
+      >{{ alert }}</v-alert
+    >
     <v-list v-if="Object.keys(processes).length > 0" data-test="processList">
       <div v-for="process in processes" :key="process.name">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title
-              v-text="`Installing: ${process.detail} - ${process.state}`"
-            />
-            <v-list-item-subtitle
-              v-text="' Updated At: ' + formatDate(process.updated_at)"
-            ></v-list-item-subtitle>
+            <v-list-item-title>
+              <span
+                v-text="`Installing: ${process.detail} - ${process.state}`"
+              />
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              <span v-text="' Updated At: ' + formatDate(process.updated_at)"
+            /></v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-icon>
             <div v-if="process.state === 'Running'">
@@ -98,7 +100,7 @@
       <div v-for="(plugin, index) in plugins" :key="index">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="plugin" />
+            <v-list-item-title>{{ plugin }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <div class="mx-3">

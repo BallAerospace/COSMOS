@@ -72,7 +72,7 @@
             <div v-for="(data, index) in listData" :key="index">
               <v-list-item>
                 <v-list-item-content>
-                  <v-list-item-title v-text="data.name" />
+                  <v-list-item-title>{{ data.name }}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-icon>
                   <div v-if="activeDownload">

@@ -13,20 +13,20 @@
       <v-card-actions>
         <v-spacer />
         <v-btn
-          v-text="params.okText"
           class="mx-2"
           color="primary"
           :data-test="dataTestOk"
           @click="ok"
-        />
+          >{{ params.okText }}</v-btn
+        >
         <v-btn
           v-if="params.cancelText"
-          v-text="params.cancelText"
           class="mx-2"
           outlined
           :data-test="dataTestCancel"
           @click="cancel"
-        />
+          >{{ params.cancelText }}</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -66,17 +66,16 @@ export default {
       this.resolve = resolve
       this.reject = reject
     },
-    ok: function() {
+    ok: function () {
       this.show = false
       this.resolve(true)
     },
-    cancel: function() {
+    cancel: function () {
       this.show = false
       this.reject(true)
-    }
+    },
   },
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

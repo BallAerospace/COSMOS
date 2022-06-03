@@ -31,7 +31,7 @@
       <div v-for="(router, index) in routers" :key="index">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="router" />
+            <v-list-item-title>{{ router }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-tooltip bottom>

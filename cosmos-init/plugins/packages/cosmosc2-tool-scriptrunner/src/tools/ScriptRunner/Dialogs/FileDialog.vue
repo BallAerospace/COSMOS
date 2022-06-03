@@ -29,7 +29,7 @@
         <div class="pa-2">
           <v-card-text>
             <v-row>
-              <v-card-title v-text="title" />
+              <v-card-title>{{ title }}</v-card-title>
             </v-row>
             <v-row v-if="message">
               <span class="ma-3" v-text="message" />

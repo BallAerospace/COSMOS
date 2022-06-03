@@ -31,7 +31,7 @@
       <div v-for="(microservice, index) in microservices" :key="microservice">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="microservice" />
+            <v-list-item-title>{{ microservice }}</v-list-item-title>
             <v-list-item-subtitle v-if="microservice_status[microservice]">
               Updated: {{ microservice_status[microservice].updated_at }},
               State: {{ microservice_status[microservice].state }}, Count:
