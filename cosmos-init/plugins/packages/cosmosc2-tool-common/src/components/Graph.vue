@@ -28,12 +28,12 @@
           <v-tooltip top>
             <template v-slot:activator="{ on, attrs }">
               <div v-on="on" v-bind="attrs">
-                <v-icon data-test="error-graph-icon" @click="errorDialog = true">
-                  mdi-alert
-                </v-icon>
+                <v-icon data-test="error-graph-icon" @click="errorDialog = true"
+                  >mdi-alert</v-icon
+                >
               </div>
             </template>
-            <span> Errors </span>
+            <span>Errors</span>
           </v-tooltip>
         </div>
 
@@ -153,7 +153,10 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-icon data-test="close-graph-icon" @click="$emit('close-graph')">
+              <v-icon
+                data-test="close-graph-icon"
+                @click="$emit('close-graph')"
+              >
                 mdi-close-box
               </v-icon>
             </div>
@@ -165,10 +168,8 @@
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
           <div :id="`chart${id}`"></div>
-          <div
-            :id="`overview${id}`"
-            v-show="!hideOverview"
-          ></div>
+          <div id="betweenCharts" />
+          <div :id="`overview${id}`" v-show="!hideOverview"></div>
         </div>
       </v-expand-transition>
     </v-card>
@@ -253,11 +254,11 @@
                     :data-test="`delete-item-icon${item.itemId}`"
                     @click="() => removeItems([item])"
                   >
-                    <v-icon> mdi-delete </v-icon>
+                    <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </div>
               </template>
-              <span> Remove </span>
+              <span>Remove</span>
             </v-tooltip>
           </template>
           <template v-slot:no-data>
@@ -358,6 +359,39 @@
         </v-list-item>
       </v-list>
     </v-menu>
+
+    <!-- Edit Legend right click context menu -->
+    <v-menu
+      v-if="legendMenu"
+      v-model="legendMenu"
+      :position-x="legendMenuX"
+      :position-y="legendMenuY"
+      absolute
+      offset-y
+    >
+      <v-list>
+        <v-list-item @click="moveLegend('top')">
+          <v-list-item-title style="cursor: pointer"
+            >Legend Top</v-list-item-title
+          >
+        </v-list-item>
+        <v-list-item @click="moveLegend('bottom')">
+          <v-list-item-title style="cursor: pointer"
+            >Legend Bottom</v-list-item-title
+          >
+        </v-list-item>
+        <!-- <v-list-item @click="moveLegend('left')">
+          <v-list-item-title style="cursor: pointer"
+            >Legend Left</v-list-item-title
+          >
+        </v-list-item>
+        <v-list-item @click="moveLegend('right')">
+          <v-list-item-title style="cursor: pointer"
+            >Legend RIght</v-list-item-title
+          >
+        </v-list-item> -->
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
@@ -422,6 +456,10 @@ export default {
     width: {
       type: Number,
     },
+    legendPosition: {
+      type: String,
+      default: 'bottom',
+    },
   },
   data() {
     return {
@@ -445,6 +483,9 @@ export default {
       itemMenu: false,
       itemMenuX: 0,
       itemMenuY: 0,
+      legendMenu: false,
+      legendMenuX: 0,
+      legendMenuY: 0,
       selectedItem: null,
       currentType: null,
       title: '',
@@ -572,7 +613,7 @@ export default {
             } else {
               return rawValue == null ? '--' : rawValue.toFixed(2)
             }
-          }
+          },
         })
         seriesObj.overviewSeries.push({
           ...commonProps,
@@ -626,12 +667,11 @@ export default {
         ],
         ready: [
           (u) => {
-            let clientX
-            let clientY
             let canvas = u.root.querySelector('.u-over')
             canvas.addEventListener('contextmenu', (e) => {
               e.preventDefault()
               this.itemMenu = false
+              this.legendMenu = false
               this.editGraphMenuX = e.clientX
               this.editGraphMenuY = e.clientY
               this.editGraphMenu = true
@@ -648,6 +688,7 @@ export default {
             legend.addEventListener('contextmenu', (e) => {
               e.preventDefault()
               this.editGraphMenu = false
+              this.legendMenu = false
               this.itemMenuX = e.clientX
               this.itemMenuY = e.clientY
               // Grab the closest series and then figure out which index it is
@@ -659,8 +700,12 @@ export default {
               if (series.item) {
                 this.selectedItem = series.item
                 this.itemMenu = true
+              } else {
+                this.itemMenu = false
+                this.legendMenuX = e.clientX
+                this.legendMenuY = e.clientY
+                this.legendMenu = true
               }
-              return false
             })
           },
         ],
@@ -672,6 +717,7 @@ export default {
       this.data,
       document.getElementById(`chart${this.id}`)
     )
+    this.moveLegend(this.legendPosition)
 
     const overviewOpts = {
       ...this.getSize('overview'),
@@ -796,6 +842,31 @@ export default {
     },
   },
   methods: {
+    moveLegend: function (desired) {
+      if (desired === this.legendPosition) {
+        return
+      }
+      let legendEl = this.graph.root.querySelector('.u-legend')
+      let wrapEl = this.graph.root.querySelector('.u-wrap')
+      switch (desired) {
+        case 'bottom':
+          wrapEl.parentNode.insertBefore(legendEl, wrapEl.nextSibling)
+          this.legendPosition = 'bottom'
+          break
+        case 'top':
+          this.graph.root.insertBefore(legendEl, wrapEl)
+          this.legendPosition = 'top'
+          break
+        case 'left':
+          // https://github.com/leeoniya/uPlot/issues/704
+          this.legendPosition = 'left'
+          break
+        case 'right':
+          // https://github.com/leeoniya/uPlot/issues/704
+          this.legendPosition = 'right'
+          break
+      }
+    },
     clearErrors: function () {
       this.errors = []
     },
@@ -1024,7 +1095,7 @@ export default {
               } else {
                 return rawValue === null ? '--' : rawValue.toFixed(2)
               }
-            }
+            },
           },
           index
         )
