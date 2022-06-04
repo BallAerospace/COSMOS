@@ -169,10 +169,10 @@ test('ignores entire packets', async ({ page }) => {
 //
 test('displays the limits log', async ({ page }) => {
   await page.locator('div[role="tab"]:has-text("Log")').click()
-  await expect(page.locator('table')).toContainText(format(new Date(), 'yyyy-MM-dd'))
-  // Just verify we see dates and the various red, yellow, green states
   await expect(page.locator('#app')).toContainText('Limits Events')
-  await expect(page.locator('table')).toContainText('RED')
-  await expect(page.locator('table')).toContainText('YELLOW')
-  await expect(page.locator('table')).toContainText('GREEN')
+  // Just verify we see dates and the various red, yellow, green states
+  await expect(page.locator('[data-test=limits-events]')).toContainText(
+    format(new Date(), 'yyyy-MM-dd')
+  )
+  await expect(page.locator('[data-test=limits-events]')).toContainText(['RED', 'YELLOW', 'GREEN'])
 })

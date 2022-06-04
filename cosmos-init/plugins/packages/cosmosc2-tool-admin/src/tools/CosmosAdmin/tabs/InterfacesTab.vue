@@ -34,7 +34,7 @@
       >
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="cosmos_interface" />
+            <v-list-item-title>{{ cosmos_interface }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-tooltip bottom>

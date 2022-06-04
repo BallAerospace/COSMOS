@@ -19,12 +19,8 @@
 
 <template>
   <div>
-    <v-card-title v-text="title" />
-    <v-card-subtitle>
-      <span>
-        {{ metadataEvent.start | dateTime(utc) }}
-      </span>
-    </v-card-subtitle>
+    <v-card-title>{{ title }}</v-card-title>
+    <v-card-subtitle>{{ metadataEvent.start | dateTime(utc) }}</v-card-subtitle>
     <div class="ma-2">
       <v-card-text>
         <v-row>

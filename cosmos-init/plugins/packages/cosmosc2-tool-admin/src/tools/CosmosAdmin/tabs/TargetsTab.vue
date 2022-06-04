@@ -31,7 +31,7 @@
       <div v-for="(target, index) in targets" :key="target">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="target" />
+            <v-list-item-title>{{ target }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-tooltip bottom>

@@ -59,7 +59,7 @@
       <div v-for="(group, index) in groups" :key="group.name">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="group.name" />
+            <v-list-item-title>{{ group.name }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-tooltip bottom>

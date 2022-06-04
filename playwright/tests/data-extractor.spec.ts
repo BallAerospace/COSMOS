@@ -118,7 +118,10 @@ test('warns with no data', async ({ page }) => {
 test('cancels a process', async ({ page }) => {
   const start = sub(new Date(), { minutes: 2 })
   await page.locator('[data-test=start-time]').fill(format(start, 'HH:mm:ss'))
-  await page.locator('[data-test=end-time]').fill(format(add(start, { hours: 1 }), 'HH:mm:ss'))
+  let endTime = add(start, { hours: 1 })
+  await page.locator('[data-test=end-time]').fill(format(endTime, 'HH:mm:ss'))
+  // Set the end-date in case the day wrapped by adding a hour
+  await page.locator('[data-test=end-date]').fill(format(endTime, 'yyyy-MM-dd'))
   await utils.addTargetPacketItem('INST', 'ADCS', 'CCSDSVER')
   await page.locator('text=Process').click()
   await expect(page.locator('text=End date/time is greater than current date/time')).toBeVisible()

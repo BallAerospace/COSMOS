@@ -20,7 +20,7 @@
 <template>
   <div>
     <v-row dense class="px-2 pb-2">
-      <v-toolbar-title v-text="title" />
+      <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer />
       <v-btn small icon data-test="mini-prev" @click="prev">
         <v-icon small> mdi-chevron-left </v-icon>
