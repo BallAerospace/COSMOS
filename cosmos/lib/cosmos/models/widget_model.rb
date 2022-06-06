@@ -108,25 +108,25 @@ module Cosmos
       raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Widget: #{keyword} #{parameters.join(" ")}")
     end
 
-    def deploy(gem_path, variables)
-      rubys3_client = Aws::S3::Client.new
-
+    def deploy(gem_path, variables, validate_only: false)
       # Ensure tools bucket exists
-      Cosmos::S3Utilities.ensure_public_bucket('tools')
+      Cosmos::S3Utilities.ensure_public_bucket('tools') unless validate_only
 
       filename = gem_path + "/tools/widgets/" + @full_name + '/' + @filename
-
-      cache_control = Cosmos::S3Utilities.get_cache_control(@filename)
 
       # Load widget file
       data = File.read(filename, mode: "rb")
       Cosmos.set_working_dir(File.dirname(filename)) do
         data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
       end
-      # TODO: support widgets that aren't just a single js file (and its associated map file)
-      rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: cache_control, key: @s3_key, body: data)
-      data = File.read(filename + '.map', mode: "rb")
-      rubys3_client.put_object(bucket: 'tools', content_type: 'application/json', cache_control: cache_control, key: @s3_key + '.map', body: data)
+      unless validate_only
+        cache_control = Cosmos::S3Utilities.get_cache_control(@filename)
+        # TODO: support widgets that aren't just a single js file (and its associated map file)
+        rubys3_client = Aws::S3::Client.new
+        rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: cache_control, key: @s3_key, body: data)
+        data = File.read(filename + '.map', mode: "rb")
+        rubys3_client.put_object(bucket: 'tools', content_type: 'application/json', cache_control: cache_control, key: @s3_key + '.map', body: data)
+      end
     end
 
     def undeploy
