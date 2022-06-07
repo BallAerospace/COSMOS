@@ -360,7 +360,7 @@ module Cosmos
       return nil
     end
 
-    def deploy(gem_path, variables)
+    def deploy(gem_path, variables, validate_only: false)
       rubys3_client = Aws::S3::Client.new
       variables["target_name"] = @name
       start_path = "/targets/#{@folder_name}/"
@@ -389,14 +389,18 @@ module Cosmos
           FileUtils.mkdir_p(File.dirname(local_path))
           File.open(local_path, 'wb') { |file| file.write(data) }
           found = true
-          rubys3_client.put_object(bucket: 'config', key: key, body: data)
+          rubys3_client.put_object(bucket: 'config', key: key, body: data) unless validate_only
         end
         raise "No target files found at #{target_path}" unless found
 
         target_folder = File.join(temp_dir, @name)
-        build_target_archive(rubys3_client, temp_dir, target_folder)
-        system = update_store(temp_dir)
-        deploy_microservices(gem_path, variables, system)
+        # Build a System for just this target
+        system = System.new([@name], temp_dir)
+        unless validate_only
+          build_target_archive(rubys3_client, temp_dir, target_folder)
+          system = update_store(system)
+          deploy_microservices(gem_path, variables, system)
+        end
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
@@ -497,9 +501,7 @@ module Cosmos
       end
     end
 
-    def update_store(temp_dir)
-      # Build a System for just this target
-      system = System.new([@name], temp_dir)
+    def update_store(system)
       target = system.targets[@name]
 
       # Add in the information from the target and update

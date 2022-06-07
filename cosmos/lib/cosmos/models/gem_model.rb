@@ -81,7 +81,13 @@ module Cosmos
         else
           gem_file_path = get(temp_dir, name_or_path)
         end
-        rubygems_url = get_setting('rubygems_url', scope: scope)
+        begin
+          rubygems_url = get_setting('rubygems_url', scope: scope)
+        rescue
+          # If Redis isn't running try the ENV, then simply rubygems.org
+          rubygems_url = ENV['RUBYGEMS_URL']
+          rubygems_url ||= 'https://rubygems.org'
+        end
         Gem.sources = [rubygems_url] if rubygems_url
         Gem.done_installing_hooks.clear
         Gem.install(gem_file_path, "> 0.pre", :build_args => ['--no-document'], :prerelease => true)

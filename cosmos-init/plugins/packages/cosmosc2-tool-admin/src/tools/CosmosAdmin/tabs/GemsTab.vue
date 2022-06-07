@@ -60,21 +60,23 @@
     </v-row>
     <v-alert
       v-model="showAlert"
-      v-text="alert"
       dismissible
       transition="scale-transition"
       :type="alertType"
-    />
+      >{{ alert }}</v-alert
+    >
     <v-list v-if="Object.keys(processes).length > 0" data-test="processList">
       <div v-for="process in processes" :key="process.name">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title
-              v-text="'Installing: ' + process.detail + ' - ' + process.state"
-            />
-            <v-list-item-subtitle
-              v-text="' Updated At: ' + formatDate(process.updated_at)"
-            ></v-list-item-subtitle>
+            <v-list-item-title>
+              <span
+                v-text="'Installing: ' + process.detail + ' - ' + process.state"
+              />
+            </v-list-item-title>
+            <v-list-item-subtitle>
+              <span v-text="' Updated At: ' + formatDate(process.updated_at)" />
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-icon v-if="process.state !== 'Running'">
             <v-tooltip bottom>
@@ -94,7 +96,7 @@
       <div v-for="(gem, index) in gems" :key="index">
         <v-list-item>
           <v-list-item-content>
-            <v-list-item-title v-text="gem" />
+            <v-list-item-title>{{ gem }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-tooltip bottom>

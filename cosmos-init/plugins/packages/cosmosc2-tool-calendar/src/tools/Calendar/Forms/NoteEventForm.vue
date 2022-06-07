@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <v-card-title v-text="noteEvent.name" />
+    <v-card-title>{{ noteEvent.name }}</v-card-title>
     <v-card-subtitle>
       <span>
         {{ noteEvent.start | dateTime(utc) }}

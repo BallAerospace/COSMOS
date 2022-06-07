@@ -72,10 +72,10 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
         model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['EMPTY'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -132,10 +132,10 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
         model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['EMPTY'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "returns only the packet_name and description" do
@@ -155,7 +155,7 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -188,7 +188,7 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -225,7 +225,7 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do

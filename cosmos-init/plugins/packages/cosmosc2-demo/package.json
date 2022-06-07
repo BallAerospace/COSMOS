@@ -33,6 +33,7 @@
     "webpack": "5.71.0"
   },
   "resolutions": {
-    "acorn": "npm:acorn-with-stage3"
+    "acorn": "npm:acorn-with-stage3",
+    "error-stack-parser": "2.0.6"
   }
 }

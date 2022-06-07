@@ -56,7 +56,7 @@
                 />
               </v-row>
               <v-row class="my-3">
-                <span class="red--text" v-show="error" v-text="error" />
+                <span class="red--text" v-show="error">{{ error }}</span>
               </v-row>
               <v-row>
                 <v-spacer />

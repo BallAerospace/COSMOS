@@ -28,7 +28,7 @@
       <div class="pa-2">
         <v-card-text>
           <v-row v-if="subtitle">
-            <v-card-subtitle v-text="subtitle" />
+            <v-card-subtitle>{{ subtitle }}</v-card-subtitle>
           </v-row>
           <v-row class="mt-1">
             <span v-text="message" />

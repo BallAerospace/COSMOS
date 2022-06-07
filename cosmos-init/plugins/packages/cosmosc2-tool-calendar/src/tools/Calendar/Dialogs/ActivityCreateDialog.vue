@@ -57,7 +57,7 @@
                         :data-test="`activity-select-timeline-${item}`"
                       >
                         <v-list-item-content>
-                          <v-list-item-title v-text="item" />
+                          <v-list-item-title>{{ item }}</v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
                     </template>
@@ -151,7 +151,7 @@
                         :data-test="`activity-select-type-${item}`"
                       >
                         <v-list-item-content>
-                          <v-list-item-title v-text="item" />
+                          <v-list-item-title>{{ item }}</v-list-item-title>
                         </v-list-item-content>
                       </v-list-item>
                     </template>

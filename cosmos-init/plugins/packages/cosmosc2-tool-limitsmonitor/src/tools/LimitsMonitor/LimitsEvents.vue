@@ -40,6 +40,7 @@
       multi-sort
       dense
       :height="calcTableHeight()"
+      data-test="limits-events"
     >
       <template v-slot:item.time_nsec="{ item }">
         <span>{{ formatDate(item.time_nsec) }}</span>

@@ -29,7 +29,7 @@
         <div class="pa-2">
           <v-card-text>
             <v-row>
-              <v-card-title v-text="question" />
+              <v-card-title>{{ question }}</v-card-title>
             </v-row>
             <v-row class="my-1">
               <v-text-field

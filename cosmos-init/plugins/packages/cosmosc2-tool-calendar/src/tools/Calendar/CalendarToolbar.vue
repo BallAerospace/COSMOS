@@ -62,7 +62,7 @@
       </v-btn>
       <!--- SPACER --->
       <v-spacer />
-      <v-toolbar-title v-text="title" />
+      <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer />
       <!--- SPACER --->
       <v-menu bottom right>
