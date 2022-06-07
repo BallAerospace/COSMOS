@@ -237,7 +237,7 @@ module Cosmos
     end
 
     # Creates a MicroserviceModel to deploy the Interface/Router
-    def deploy(gem_path, variables)
+    def deploy(gem_path, variables, validate_only: false)
       type = self.class._get_type
       microservice_name = "#{@scope}__#{type}__#{@name}"
       microservice = MicroserviceModel.new(
@@ -249,9 +249,11 @@ module Cosmos
         needs_dependencies: @needs_dependencies,
         scope: @scope
       )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured #{type.downcase} microservice #{microservice_name}"
+      unless validate_only
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        Logger.info "Configured #{type.downcase} microservice #{microservice_name}"
+      end
       microservice
     end
 

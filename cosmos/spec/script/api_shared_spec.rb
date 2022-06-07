@@ -78,7 +78,7 @@ module Cosmos
 
       model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
       model.create
-      model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       # model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
       # model.create
       # model = InterfaceStatusModel.new(name: "INST_INT", scope: "DEFAULT", state: "ACTIVE")
