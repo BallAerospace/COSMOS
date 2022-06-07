@@ -214,6 +214,14 @@
           time-label="End Time"
           @date-time="graphEndDateTime = $event"
         />
+        <v-row dense>
+          <v-select
+            label="Legend Position"
+            :items="legendPositions"
+            v-model="legendPosition"
+            data-test="edit-legend-position"
+          />
+        </v-row>
         <v-card-text class="pa-0"> Optional Y axis settings. </v-card-text>
         <v-row dense>
           <v-col class="px-2">
@@ -380,7 +388,7 @@
             >Legend Bottom</v-list-item-title
           >
         </v-list-item>
-        <!-- <v-list-item @click="moveLegend('left')">
+        <v-list-item @click="moveLegend('left')">
           <v-list-item-title style="cursor: pointer"
             >Legend Left</v-list-item-title
           >
@@ -389,7 +397,7 @@
           <v-list-item-title style="cursor: pointer"
             >Legend RIght</v-list-item-title
           >
-        </v-list-item> -->
+        </v-list-item>
       </v-list>
     </v-menu>
   </div>
@@ -456,10 +464,6 @@ export default {
     width: {
       type: Number,
     },
-    legendPosition: {
-      type: String,
-      default: 'bottom',
-    },
   },
   data() {
     return {
@@ -486,6 +490,8 @@ export default {
       legendMenu: false,
       legendMenuX: 0,
       legendMenuY: 0,
+      legendPosition: 'bottom',
+      legendPositions: ['top', 'bottom', 'left', 'right'],
       selectedItem: null,
       currentType: null,
       title: '',
@@ -717,7 +723,6 @@ export default {
       this.data,
       document.getElementById(`chart${this.id}`)
     )
-    this.moveLegend(this.legendPosition)
 
     const overviewOpts = {
       ...this.getSize('overview'),
@@ -762,6 +767,7 @@ export default {
       document.getElementById(`overview${this.id}`)
     )
     //console.timeEnd('chart')
+    this.moveLegend(this.legendPosition)
 
     // Allow the charts to dynamically resize when the window resizes
     window.addEventListener('resize', this.handleResize)
@@ -843,29 +849,30 @@ export default {
   },
   methods: {
     moveLegend: function (desired) {
-      if (desired === this.legendPosition) {
-        return
-      }
-      let legendEl = this.graph.root.querySelector('.u-legend')
-      let wrapEl = this.graph.root.querySelector('.u-wrap')
       switch (desired) {
         case 'bottom':
-          wrapEl.parentNode.insertBefore(legendEl, wrapEl.nextSibling)
-          this.legendPosition = 'bottom'
+          this.graph.root.classList.remove('side-legend')
+          this.graph.root.classList.remove('left-legend')
+          this.graph.root.classList.remove('top-legend')
           break
         case 'top':
-          this.graph.root.insertBefore(legendEl, wrapEl)
-          this.legendPosition = 'top'
+          this.graph.root.classList.remove('side-legend')
+          this.graph.root.classList.remove('left-legend')
+          this.graph.root.classList.add('top-legend')
           break
         case 'left':
-          // https://github.com/leeoniya/uPlot/issues/704
-          this.legendPosition = 'left'
+          this.graph.root.classList.remove('top-legend')
+          this.graph.root.classList.add('side-legend')
+          this.graph.root.classList.add('left-legend')
           break
         case 'right':
-          // https://github.com/leeoniya/uPlot/issues/704
-          this.legendPosition = 'right'
+          this.graph.root.classList.remove('top-legend')
+          this.graph.root.classList.remove('left-legend')
+          this.graph.root.classList.add('side-legend')
           break
       }
+      this.legendPosition = desired
+      this.resize()
     },
     clearErrors: function () {
       this.errors = []
@@ -877,6 +884,7 @@ export default {
         this.addItemsToSubscription()
         this.needToUpdate = false
       }
+      this.moveLegend(this.legendPosition)
     },
     handleResize: function () {
       // TODO: Should this method be throttled?
@@ -985,9 +993,16 @@ export default {
       )
         ? navDrawer.clientWidth
         : 0
+
+      let legendWidth = 0
+      if (this.legendPosition === 'right' || this.legendPosition === 'left') {
+        const legend = document.getElementsByClassName('u-legend')[0]
+        legendWidth = legend.clientWidth
+      }
       const viewWidth =
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0) -
-        navDrawerWidth
+        navDrawerWidth -
+        legendWidth
       const viewHeight = Math.max(
         document.documentElement.clientHeight,
         window.innerHeight || 0
@@ -1237,15 +1252,43 @@ export default {
 }
 </script>
 
+<style>
+/* left right stacked legend */
+.uplot.side-legend {
+  display: flex;
+  width: auto;
+}
+.uplot.side-legend .u-wrap {
+  flex: none;
+}
+.uplot.side-legend .u-legend {
+  text-align: left;
+  margin-left: 0;
+  width: 220px;
+}
+.uplot.side-legend .u-legend,
+.uplot.side-legend .u-legend tr,
+.uplot.side-legend .u-legend th,
+.uplot.side-legend .u-legend td {
+  display: revert;
+}
+/* left side we need to order the legend before the plot */
+.uplot.left-legend .u-legend {
+  order: -1;
+}
+/* top legend */
+.uplot.top-legend {
+  display: flex;
+  flex-direction: column;
+}
+.uplot.top-legend .u-legend {
+  order: -1;
+}
+</style>
+
 <style scoped>
 #chart {
   background-color: var(--v-tertiary-darken2);
-}
-#chart >>> .u-legend {
-  text-align: left;
-}
-#chart >>> .u-inline {
-  max-width: fit-content;
 }
 /* TODO: Get this to work with white theme, values would be 0 in white */
 #chart >>> .u-select {

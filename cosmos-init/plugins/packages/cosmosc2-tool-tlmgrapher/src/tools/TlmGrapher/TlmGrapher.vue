@@ -390,6 +390,7 @@ export default {
           fullHeight: vueGraph.fullHeight,
           graphMinX: vueGraph.graphMinX,
           graphMaxX: vueGraph.graphMaxX,
+          legendPosition: vueGraph.legendPosition,
         }
       })
       new CosmosApi()
@@ -445,7 +446,7 @@ export default {
         vueGraph.fullHeight = graph.fullHeight
         vueGraph.graphMinX = graph.graphMinX
         vueGraph.graphMaxX = graph.graphMaxX
-        vueGraph.resize()
+        vueGraph.moveLegend(graph.legendPosition)
         vueGraph.addItems([...graph.items])
       })
       this.state = 'start'
