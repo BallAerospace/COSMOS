@@ -1,30 +1,7 @@
-# A pipeline is composed of independent jobs that run scripts, grouped into stages.
-# Stages run in sequential order, but jobs within stages run in parallel.
-#
-# For more information, see: https://docs.gitlab.com/ee/ci/yaml/index.html#stages
-image: nexus.aero.ball.com:5001/ballaerospace/cosmosc2-base
-
-stages:          # List of stages for jobs, and their order of execution
-  - run
-  # - build
-  # - test
-
-run-job:
-  stage: run
+run:
+  tags:
+    - k8s
+  image: docker/compose
   script:
-    - pwd; ls; cosmos --version
-
-# build-job:       # This job runs in the build stage, which runs first.
-#   stage: build
-#   script:
-#     - cd cosmos; bundle install; rake build
-
-# unit-test-job:   # This job runs in the test stage.
-#   stage: test    # It only starts when the job in the build stage completes successfully.
-#   script:
-#     - cd cosmos; rake spec
-
-# lint-test-job:   # This job also runs in the test stage.
-#   stage: test    # It can run at the same time as unit-test-job (in parallel).
-#   script:
-#     - cd cosmos; rubocop
+    - cosmos-control.sh run
+    
