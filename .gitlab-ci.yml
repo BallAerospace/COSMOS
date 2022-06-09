@@ -3,5 +3,5 @@ run:
     - k8s
   image: docker/compose
   script:
-    - cosmos-control.sh run
+    - ls; ./cosmos-control.sh run
     
