@@ -188,6 +188,7 @@ module Cosmos
           data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
         end
         Aws::S3::Client.new.put_object(bucket: 'config', key: key, body: data) unless validate_only
+        ConfigTopic.write({ kind: 'created', type: 'microservice', name: @name, plugin: @plugin }, scope: @scope)
       end
     end
 
@@ -197,6 +198,7 @@ module Cosmos
       rubys3_client.list_objects(bucket: 'config', prefix: prefix).contents.each do |object|
         rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
+      ConfigTopic.write({ kind: 'deleted', type: 'microservice', name: @name, plugin: @plugin }, scope: @scope)
     end
   end
 end
