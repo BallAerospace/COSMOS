@@ -230,6 +230,7 @@ module Cosmos
         unless validate_only
           cache_control = Cosmos::S3Utilities.get_cache_control(filename)
           Aws::S3::Client.new.put_object(bucket: 'tools', content_type: content_type, cache_control: cache_control, key: key, body: data)
+          ConfigTopic.write({ kind: 'created', type: 'tool', name: @folder_name, plugin: @plugin }, scope: @scope)
         end
       end
     end
@@ -240,6 +241,7 @@ module Cosmos
         prefix = "#{@folder_name}/"
         rubys3_client.list_objects(bucket: 'tools', prefix: prefix).contents.each do |object|
           rubys3_client.delete_object(bucket: 'tools', key: object.key)
+          ConfigTopic.write({ kind: 'deleted', type: 'tool', name: @folder_name, plugin: @plugin }, scope: @scope)
         end
       end
     end
