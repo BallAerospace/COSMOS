@@ -237,25 +237,6 @@ class MetadataController < ApplicationController
 
   private
 
-  # Authorize and rescue the possible execeptions
-  # @return [Boolean] true if authorize successful
-  def authorization
-    begin
-      authorize(
-        permission: 'scripts',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return false
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return false
-    end
-    true
-  end
-
   # Yield and rescue all the possible exceptions
   def action
     begin

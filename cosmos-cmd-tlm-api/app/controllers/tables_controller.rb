@@ -21,36 +21,12 @@ require 'base64'
 
 class TablesController < ModelController
   def index
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     render json: Table.all(params[:scope])
   end
 
   def body
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     file = Table.body(params[:scope], params[:name])
     if file
       results = {}
@@ -76,19 +52,7 @@ class TablesController < ModelController
   end
 
   def load
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     table = Table.load(params[:scope], params[:binary], params[:definition])
     if table
       render json: table
@@ -98,19 +62,7 @@ class TablesController < ModelController
   end
 
   def save
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     begin
       Table.save(params[:scope], params[:binary], params[:definition], params[:tables])
       head :ok
@@ -123,19 +75,7 @@ class TablesController < ModelController
   end
 
   def generate
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     begin
       filename = Table.generate(params[:scope], params[:name], params[:contents])
       if filename
@@ -150,43 +90,18 @@ class TablesController < ModelController
     end
   end
 
-  def download
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
-    begin
-      puts params
-      # Cosmos::TableModel.get(params[])
-    rescue Exception => e
-      render(json: { status: 'error', message: e.message }, status: 500) and
-        return
+  def report
+    return unless authorization('system')
+    table = Table.report(params[:scope], params[:binary], params[:definition])
+    if table
+      render json: table
+    else
+      head :not_found
     end
   end
 
   def lock
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     user = user_info(request.headers['HTTP_AUTHORIZATION'])
     username = user['name']
 
@@ -197,19 +112,7 @@ class TablesController < ModelController
   end
 
   def unlock
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     user = user_info(request.headers['HTTP_AUTHORIZATION'])
     username = user['name']
     username ||= 'Someone else'
@@ -219,19 +122,7 @@ class TablesController < ModelController
   end
 
   def destroy
-    begin
-      authorize(
-        permission: 'system',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return
-    end
+    return unless authorization('system')
     destroyed = Table.destroy(params[:scope], params[:name])
     if destroyed
       Cosmos::Logger.info(

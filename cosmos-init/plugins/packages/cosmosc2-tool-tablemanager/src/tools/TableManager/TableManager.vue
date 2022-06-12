@@ -59,21 +59,53 @@
       dense
       readonly
       hide-details
-      label="Definition"
-      v-model="definitionFilename"
-      id="definition-filename"
-      data-test="definition-filename"
+      label="Filename"
+      v-model="fullFilename"
+      id="filename"
+      data-test="filename"
     />
     <v-text-field
       outlined
       dense
       readonly
       hide-details
-      label="Filename"
-      v-model="fullFilename"
-      id="filename"
-      data-test="filename"
+      label="Definition"
+      v-model="definitionFilename"
+      id="definition-filename"
+      data-test="definition-filename"
     />
+    <div class="ma-3">
+      <span class="text-body-1 mr-3">Download:</span>
+      <v-btn
+        dense
+        color="primary"
+        class="mr-3"
+        @click="downloadBinary"
+        :disabled="filename == ''"
+      >
+        Binary
+        <v-icon right dark> mdi-file-document </v-icon>
+      </v-btn>
+      <v-btn
+        dense
+        color="primary"
+        class="mr-3"
+        @click="downloadDefinition"
+        :disabled="filename == ''"
+      >
+        Definition
+        <v-icon right dark> mdi-file-document-edit </v-icon>
+      </v-btn>
+      <v-btn
+        dense
+        color="primary"
+        @click="downloadReport"
+        :disabled="filename == ''"
+      >
+        Report
+        <v-icon right dark> mdi-file-document </v-icon>
+      </v-btn>
+    </div>
     <v-card>
       <v-card-title>
         Items
@@ -100,9 +132,11 @@
             :headers="table.headers"
             :items="table.rows"
             :search="search"
+            :items-per-page="20"
+            :footer-props="{
+              itemsPerPageOptions: [10, 20, 50, 100, -1],
+            }"
             calculate-widths
-            disable-pagination
-            hide-default-footer
             multi-sort
             dense
           >
@@ -113,6 +147,28 @@
                 @change="onChange(item, $event)"
               />
             </template>
+            <!-- Future download individual table tabs -->
+            <!-- template v-slot:footer>
+              <div style="position: absolute" class="ma-3">
+                <v-btn color="primary" dense @click="downloadBinary" class="mr-3">
+                  Binary
+                  <v-icon right dark> mdi-cloud-download </v-icon>
+                </v-btn>
+                <v-btn
+                  dense
+                  color="primary"
+                  class="mr-3"
+                  @click="downloadDefinition"
+                >
+                  Definition
+                  <v-icon right dark> mdi-file-document-edit </v-icon>
+                </v-btn>
+                <v-btn color="primary" dense @click="downloadReport">
+                  Report
+                  <v-icon right dark> mdi-file-document </v-icon>
+                </v-btn>
+              </div>
+            </template -->
           </v-data-table>
         </v-tab-item>
       </v-tabs-items>
@@ -234,13 +290,6 @@ export default {
               },
             },
             {
-              label: 'Download',
-              icon: 'mdi-cloud-download',
-              command: () => {
-                this.download()
-              },
-            },
-            {
               divider: true,
             },
             {
@@ -352,7 +401,7 @@ export default {
           })
       }
     },
-    download: function () {
+    downloadBinary: function () {
       if (this.filename !== '') {
         Api.get(`/cosmos-api/tables/${this.filename}`).then((response) => {
           // Decode Base64 string
@@ -373,6 +422,53 @@ export default {
           link.setAttribute(
             'download',
             this.filename.substring(this.filename.lastIndexOf('/') + 1)
+          )
+          link.click()
+        })
+      }
+    },
+    downloadDefinition: function () {
+      if (this.definitionFilename !== '') {
+        Api.get(`/cosmos-api/tables/${this.definitionFilename}`).then(
+          (response) => {
+            const blob = new Blob([response.data.contents], {
+              type: 'text/plain',
+            })
+            // Make a link and then 'click' on it to start the download
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+            link.setAttribute(
+              'download',
+              this.definitionFilename.substring(
+                this.definitionFilename.lastIndexOf('/') + 1
+              )
+            )
+            link.click()
+          }
+        )
+      }
+    },
+    downloadReport: function () {
+      if (this.filename !== '') {
+        const formData = new FormData()
+        formData.append('binary', this.filename)
+        formData.append('definition', this.definitionFilename)
+        Api.post(`/cosmos-api/tables/${this.filename}/report`, {
+          data: formData,
+        }).then((response) => {
+          console.log(response)
+          const blob = new Blob([response.data], {
+            type: 'text/plain',
+          })
+          // Make a link and then 'click' on it to start the download
+          const link = document.createElement('a')
+          link.href = URL.createObjectURL(blob)
+          link.setAttribute(
+            'download',
+            `${this.filename.substring(
+              this.filename.lastIndexOf('/') + 1,
+              this.filename.length - 4
+            )}.csv`
           )
           link.click()
         })

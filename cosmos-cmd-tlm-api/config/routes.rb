@@ -146,16 +146,16 @@ Rails.application.routes.draw do
     get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /.*/
     delete '/storage/delete/:object_id', to: 'storage#delete', object_id: /.*/
 
-    get  "/tables" => "tables#index"
-    get  "/tables/*name" => "tables#body", format: false, defaults: { format: 'html' }
+    get  "/tables", to: "tables#index"
+    get  "/tables/*name", to: "tables#body", format: false, defaults: { format: 'html' }
     post '/tables/load', to: 'tables#load'
-    post '/tables/*name/download', to: 'tables#download'
-    post '/tables/*name/lock' => 'tables#lock'
-    post '/tables/*name/unlock' => 'tables#unlock'
-    post '/tables/*name/generate' => 'tables#generate'
+    post '/tables/*name/report', to: 'tables#report'
+    post '/tables/*name/lock', to: 'tables#lock'
+    post '/tables/*name/unlock', to: 'tables#unlock'
+    post '/tables/*name/generate', to: 'tables#generate'
     # Must be last post /tables/*name so others will match first
-    post '/tables/*name' => 'tables#save'
-    delete '/tables/*name' => 'tables#destroy'
+    post '/tables/*name', to: 'tables#save'
+    delete '/tables/*name', to: 'tables#destroy'
 
     get "/screen/:target" => "api#screens"
     get "/screen/:target/:screen" => "api#screen"
