@@ -16,16 +16,14 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-require 'cosmos'
+
 require 'cosmos/models/info_model'
 require 'cosmos/models/ping_model'
 
-
+# InternalStatusController is designed to check the status of Cosmos. Status will
+# check that Redis is up but that does not equal that everything is
+# working just that Cosmos can talk to Redis.
 class InternalStatusController < ActionController::Base
-  # InternalStatusController is designed to check the status of Cosmos. Status will
-  # check that Redis is up but that does not equal that everything is
-  # working just that Cosmos can talk to Redis.
-
   def status
     begin
       render :json => { :status => Cosmos::PingModel.get() }, :status => 200

@@ -56,25 +56,4 @@ class ModelController < ApplicationController
     @model_class.new(name: params[:id], scope: params[:scope]).destroy
     Cosmos::Logger.info("#{@model_class.name} destroyed: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
   end
-
-  private
-
-  # Authorize and rescue the possible execeptions
-  # @return [Boolean] true if authorize successful
-  def authorization(permission)
-    begin
-      authorize(
-        permission: permission,
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return false
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return false
-    end
-    true
-  end
 end

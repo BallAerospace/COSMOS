@@ -33,7 +33,7 @@ class NotesController < ApplicationController
   # limit [String] (optional) Maximum number of entries to return
   # @return [String] the array of entries converted into json format.
   def index
-    return unless authorization
+    return unless authorization('scripts')
     action do
       hash = params.to_unsafe_h.slice(:start, :stop, :limit)
       if (hash['start'] && hash['stop'])
@@ -69,7 +69,7 @@ class NotesController < ApplicationController
   #  }
   # ```
   def create
-    return unless authorization
+    return unless authorization('scripts')
     action do
       hash = params.to_unsafe_h.slice(:start, :stop, :color, :description).to_h
       if hash['start'].nil? || hash['stop'].nil?
@@ -102,7 +102,7 @@ class NotesController < ApplicationController
   #  }
   # ```
   def show
-    return unless authorization
+    return unless authorization('scripts')
     action do
       model_hash = @model_class.get(start: params[:id], scope: params[:scope])
       if model_hash
@@ -136,7 +136,7 @@ class NotesController < ApplicationController
   #  }
   # ```
   def update
-    return unless authorization
+    return unless authorization('scripts')
     action do
       hash = @model_class.get(start: params[:id], scope: params[:scope])
       if hash.nil?
@@ -176,7 +176,7 @@ class NotesController < ApplicationController
   #  }
   # ```
   def destroy
-    return unless authorization
+    return unless authorization('scripts')
     action do
       count = @model_class.destroy(start: params[:id], scope: params[:scope])
       if count == 0
@@ -212,25 +212,6 @@ class NotesController < ApplicationController
   # end
 
   private
-
-  # Authorize and rescue the possible execeptions
-  # @return [Boolean] true if authorize successful
-  def authorization
-    begin
-      authorize(
-        permission: 'scripts',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return false
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return false
-    end
-    true
-  end
 
   # Yield and rescue all the possible exceptions
   def action

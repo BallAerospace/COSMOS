@@ -16,29 +16,19 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-require 'cosmos'
+
 require 'cosmos/models/info_model'
-require 'cosmos/models/ping_model'
 
-
+# InternalHealthController is designed to check the health of Cosmos. Health
+# will return the Redis info method and can be expanded on. From here the
+# user can see how Redis is and determine health.
 class InternalHealthController < ApplicationController
-  # InternalHealthController is designed to check the health of Cosmos. Health
-  # will return the Redis info method and can be expanded on. From here the
-  # user can see how Redis is and determain health.
-
   def health
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       render :json => { :redis => Cosmos::InfoModel.get() }, :status => 200
     rescue => e
       render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 500
     end
   end
-
 end

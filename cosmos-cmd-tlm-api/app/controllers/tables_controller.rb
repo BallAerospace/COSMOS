@@ -19,7 +19,7 @@
 
 require 'base64'
 
-class TablesController < ModelController
+class TablesController < ApplicationController
   def index
     return unless authorization('system')
     render json: Table.all(params[:scope])

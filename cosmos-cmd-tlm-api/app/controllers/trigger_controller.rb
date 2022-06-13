@@ -31,13 +31,7 @@ class TriggerController < ApplicationController
   # scope [String] the scope of the trigger, `TEST`
   # @return [String] the array of triggers converted into json format
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       ret = Array.new
       triggers = @model_class.all(group: params[:group], scope: params[:scope])
@@ -57,13 +51,7 @@ class TriggerController < ApplicationController
   # scope [String] the scope of the trigger, `TEST`
   # @return [String] the array of triggers converted into json format.
   def show
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       model = @model_class.get(name: params[:name], group: params[:group], scope: params[:scope])
       if model.nil?
@@ -109,13 +97,7 @@ class TriggerController < ApplicationController
   #  }
   #```
   def create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     hash = nil
     begin
       hash = params.to_unsafe_h.slice(:group, :left, :operator, :right).to_h
@@ -150,13 +132,7 @@ class TriggerController < ApplicationController
   #  {}
   #```
   def activate
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.get(name: params[:name], group: params[:group], scope: params[:scope])
       if model.nil?
@@ -188,13 +164,7 @@ class TriggerController < ApplicationController
   #  {}
   #```
   def deactivate
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.get(name: params[:name], group: params[:group], scope: params[:scope])
       if model.nil?
@@ -222,13 +192,7 @@ class TriggerController < ApplicationController
   #  }
   #```
   def destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       @model_class.delete(name: params[:name], group: params[:group], scope: params[:scope])
       render :json => {}, :status => 204
@@ -240,5 +204,4 @@ class TriggerController < ApplicationController
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end
   end
-
 end

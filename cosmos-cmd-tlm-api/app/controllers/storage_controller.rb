@@ -21,50 +21,29 @@ class StorageController < ApplicationController
   BUCKET_NAME = 'userdata'
 
   def get_download_presigned_request
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
-
+    return unless authorization('system')
     @rubys3_client = Aws::S3::Client.new
     @rubys3_client.head_object(bucket: params[:bucket], key: params[:object_id])
     render :json => get_presigned_request(:get_object), :status => 201
   end
 
   def get_upload_presigned_request
-    begin
-      authorize(permission: 'system_set', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
-
+    return unless authorization('system_set')
     result = get_presigned_request(:put_object)
     Cosmos::Logger.info("S3 upload presigned request generated: #{params[:bucket] || BUCKET_NAME}/#{params[:object_id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     render :json => result, :status => 201
   end
 
   def delete
-    begin
-      authorize(permission: 'system_set', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
-
+    return unless authorization('system_set')
     @rubys3_client = Aws::S3::Client.new
     result = @rubys3_client.delete_object(bucket: params[:bucket], key: params[:object_id])
-
     Cosmos::Logger.info("Deleted: #{params[:bucket] || BUCKET_NAME}/#{params[:object_id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     head :ok
   end
 
-  # private
+  private
+
   def get_presigned_request(method)
     bucket = params[:bucket]
     bucket ||= BUCKET_NAME

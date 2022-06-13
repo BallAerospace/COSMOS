@@ -19,24 +19,12 @@
 
 class ApiController < ApplicationController
   def screens
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     render :json => Screen.all(params[:scope].upcase, params[:target].upcase)
   end
 
   def screen
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     screen = Screen.find(params[:scope].upcase, params[:target].upcase, params[:screen].downcase)
     if screen
       render :json => screen
@@ -46,13 +34,7 @@ class ApiController < ApplicationController
   end
 
   def screen_save
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     screen = Screen.create(params[:scope].upcase, params[:target].upcase, params[:screen].downcase, params[:text])
     Cosmos::Logger.info("Screen saved: #{params[:target]} #{params[:screen]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     if screen
