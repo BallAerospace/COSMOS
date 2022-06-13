@@ -214,8 +214,8 @@ test('test timeline select and activity delete functionality', async ({ page }) 
   await page.locator('text=Metadata,').click()
   await page.locator('[data-test=delete-metadata]').click()
   await page.locator('button:has-text("Delete")').click()
-  // Delete the note
-  await page.locator('text=Another test').click()
+  // Delete the note (use nth=0 in case it spans a day)
+  await page.locator('text=Another test >> nth=0').click()
   await page.locator('[data-test=delete-note]').click()
   await page.locator('button:has-text("Delete")').click()
   // Delete the timeline

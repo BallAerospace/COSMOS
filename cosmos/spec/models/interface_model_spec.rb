@@ -233,7 +233,18 @@ module Cosmos
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", plugin: "PLUG")
         model.create
         model.deploy(dir, variables)
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'created'
+        expect(config[0][1]['type']).to eql 'interface'
+        expect(config[0][1]['name']).to eql 'TEST_INT'
+        expect(config[0][1]['plugin']).to eql 'PLUG'
+
         model.undeploy
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'deleted'
+        expect(config[0][1]['type']).to eql 'interface'
+        expect(config[0][1]['name']).to eql 'TEST_INT'
+        expect(config[0][1]['plugin']).to eql 'PLUG'
       end
     end
   end

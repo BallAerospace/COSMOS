@@ -190,9 +190,15 @@ module Cosmos
         dir = File.join(SPEC_DIR, "install")
         expect(s3).to receive(:put_object).with(bucket: 'config', key: "#{scope}/microservices/#{name}/example_target.rb", body: anything)
 
-        model = MicroserviceModel.new(folder_name: folder, name: name, scope: scope)
+        model = MicroserviceModel.new(folder_name: folder, name: name, scope: scope, plugin: 'PLUGIN')
         model.create
         model.deploy(dir, {})
+
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'created'
+        expect(config[0][1]['type']).to eql 'microservice'
+        expect(config[0][1]['name']).to eql name
+        expect(config[0][1]['plugin']).to eql 'PLUGIN'
       end
     end
 
@@ -210,8 +216,14 @@ module Cosmos
         expect(s3).to receive(:list_objects).with(bucket: 'config', prefix: "#{scope}/microservices/#{name}/").and_return(objs)
         expect(s3).to receive(:delete_object).with(bucket: 'config', key: "blah")
 
-        model = MicroserviceModel.new(folder_name: folder, name: name, scope: scope)
+        model = MicroserviceModel.new(folder_name: folder, name: name, scope: scope, plugin: 'PLUGIN')
         model.undeploy
+
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'deleted'
+        expect(config[0][1]['type']).to eql 'microservice'
+        expect(config[0][1]['name']).to eql name
+        expect(config[0][1]['plugin']).to eql 'PLUGIN'
       end
     end
   end

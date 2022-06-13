@@ -22,6 +22,7 @@ require 'cosmos/models/model'
 require 'cosmos/models/cvt_model'
 require 'cosmos/models/microservice_model'
 require 'cosmos/topics/limits_event_topic'
+require 'cosmos/topics/config_topic'
 require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'cosmos/utilities/zip'
@@ -400,6 +401,7 @@ module Cosmos
           build_target_archive(rubys3_client, temp_dir, target_folder)
           system = update_store(system)
           deploy_microservices(gem_path, variables, system)
+          ConfigTopic.write({ kind: 'created', type: 'target', name: @name, plugin: @plugin }, scope: @scope)
         end
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
@@ -434,6 +436,7 @@ module Cosmos
         model = MicroserviceModel.get_model(name: "#{@scope}__#{type}__#{@name}", scope: @scope)
         model.destroy if model
       end
+      ConfigTopic.write({ kind: 'deleted', type: 'target', name: @name, plugin: @plugin }, scope: @scope)
     end
 
     ##################################################
@@ -608,7 +611,7 @@ module Cosmos
           ],
           topics: command_topic_list,
           target_names: [@name],
-          plugin: plugin,
+          plugin: @plugin,
           needs_dependencies: @needs_dependencies,
           scope: @scope
         )
@@ -631,7 +634,7 @@ module Cosmos
           ],
           topics: decom_command_topic_list,
           target_names: [@name],
-          plugin: plugin,
+          plugin: @plugin,
           needs_dependencies: @needs_dependencies,
           scope: @scope
         )
@@ -656,7 +659,7 @@ module Cosmos
           ],
           topics: packet_topic_list,
           target_names: [@name],
-          plugin: plugin,
+          plugin: @plugin,
           needs_dependencies: @needs_dependencies,
           scope: @scope
         )
@@ -679,7 +682,7 @@ module Cosmos
           ],
           topics: decom_topic_list,
           target_names: [@name],
-          plugin: plugin,
+          plugin: @plugin,
           needs_dependencies: @needs_dependencies,
           scope: @scope
         )
@@ -696,7 +699,7 @@ module Cosmos
           work_dir: '/cosmos/lib/cosmos/microservices',
           topics: packet_topic_list,
           target_names: [@name],
-          plugin: plugin,
+          plugin: @plugin,
           needs_dependencies: @needs_dependencies,
           scope: @scope
         )
@@ -712,7 +715,7 @@ module Cosmos
           cmd: ["ruby", "reducer_microservice.rb", microservice_name],
           work_dir: '/cosmos/lib/cosmos/microservices',
           topics: decom_topic_list,
-          plugin: plugin,
+          plugin: @plugin,
           needs_dependencies: @needs_dependencies,
           scope: @scope
         )
@@ -729,7 +732,7 @@ module Cosmos
           name: microservice_name,
           cmd: ["ruby", "cleanup_microservice.rb", microservice_name],
           work_dir: '/cosmos/lib/cosmos/microservices',
-          plugin: plugin,
+          plugin: @plugin,
           scope: @scope
         )
         microservice.create

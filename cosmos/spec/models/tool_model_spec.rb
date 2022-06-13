@@ -172,9 +172,15 @@ module Cosmos
         expect(s3).to receive(:head_bucket)
         expect(s3).to receive(:put_object).with(bucket: 'tools', key: "#{name}/index.html", body: anything, cache_control: "no-cache", content_type: "text/html")
 
-        model = ToolModel.new(folder_name: folder, name: name, scope: scope)
+        model = ToolModel.new(folder_name: folder, name: name, scope: scope, plugin: 'PLUGIN')
         model.create
         model.deploy(dir, {})
+
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'created'
+        expect(config[0][1]['type']).to eql 'tool'
+        expect(config[0][1]['name']).to eql name
+        expect(config[0][1]['plugin']).to eql 'PLUGIN'
       end
     end
 
@@ -192,8 +198,14 @@ module Cosmos
         expect(s3).to receive(:list_objects).with(bucket: 'tools', prefix: "#{name}/").and_return(objs)
         expect(s3).to receive(:delete_object).with(bucket: 'tools', key: "blah")
 
-        model = ToolModel.new(folder_name: folder, name: name, scope: scope)
+        model = ToolModel.new(folder_name: folder, name: name, scope: scope, plugin: 'PLUGIN')
         model.undeploy
+
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'deleted'
+        expect(config[0][1]['type']).to eql 'tool'
+        expect(config[0][1]['name']).to eql name
+        expect(config[0][1]['plugin']).to eql 'PLUGIN'
       end
     end
   end
