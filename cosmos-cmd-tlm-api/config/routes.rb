@@ -153,6 +153,8 @@ Rails.application.routes.draw do
     post '/tables/*name/lock', to: 'tables#lock'
     post '/tables/*name/unlock', to: 'tables#unlock'
     post '/tables/*name/generate', to: 'tables#generate'
+    # Allow new_name to contain anything (including a dot '.')
+    put '/tables/*name/save-as/*new_name', to: 'tables#save_as', new_name: /.*/
     # Must be last post /tables/*name so others will match first
     post '/tables/*name', to: 'tables#save'
     delete '/tables/*name', to: 'tables#destroy'

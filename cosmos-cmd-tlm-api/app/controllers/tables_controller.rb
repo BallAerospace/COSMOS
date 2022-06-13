@@ -66,11 +66,18 @@ class TablesController < ApplicationController
     begin
       Table.save(params[:scope], params[:binary], params[:definition], params[:tables])
       head :ok
-    rescue Cosmos::TableManagerCore::CoreError => e
-      render(json: { status: 'error', message: e.message }, status: 400)
     rescue => e
-      puts e
-      head :internal_server_error
+      render(json: { status: 'error', message: e.message }, status: 400)
+    end
+  end
+
+  def save_as
+    return unless authorization('system')
+    begin
+      Table.save_as(params[:scope], params[:name], params[:new_name])
+      head :ok
+    rescue => e
+      render(json: { status: 'error', message: e.message }, status: 400)
     end
   end
 

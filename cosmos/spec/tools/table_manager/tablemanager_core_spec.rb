@@ -13,8 +13,11 @@ require 'cosmos'
 require 'cosmos/tools/table_manager/table_manager_core'
 
 module Cosmos
-
   describe TableManagerCore do
+    before(:all) do
+      Logger.stdout = false
+      Logger.level = Logger::ERROR
+    end
     let(:core) { TableManagerCore.new }
 
     describe "process_definition" do
@@ -355,45 +358,38 @@ module Cosmos
     end
 
     describe "file_report" do
-      it "complains if there is no configuration" do
-        expect { core.file_report('file.bin', 'file_def.txt') }.to raise_error(TableManagerCore::NoConfigError)
-      end
-
       it "creates a CSV file with the configuration for KEY_VALUE" do
         bin_filename = File.join(Dir.pwd, 'testfile.bin')
-        File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
+        File.open(bin_filename,'w') {|file| file.write "\x00\x01" } # value 1
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
           file.puts 'TABLE table1 BIG_ENDIAN KEY_VALUE'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        report_filename = core.file_report(bin_filename, def_filename)
-        expect(File.basename(report_filename)).to eql "testfile.csv"
-        report = File.read(report_filename)
-        expect(report).to match(/#{bin_filename}/)
-        expect(report).to match(/#{def_filename}/)
-        FileUtils.rm report_filename
+        report = core.file_report(bin_filename, def_filename)
+        expect(report).to include('TABLE1')
+        expect(report).to include('Label, Value')
+        expect(report).to include('ITEM1, 1')
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
 
       it "creates a CSV file with the configuration for ROW_COLUMN" do
         bin_filename = File.join(Dir.pwd, 'testfile.bin')
-        File.open(bin_filename,'w') {|file| file.write "\x00\x01\x02\x03\x00\x01\x02\x03" }
+        File.open(bin_filename,'w') {|file| file.write "\x00\x01\x00\x02\x00\x03\x00\x04" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
-          file.puts 'TABLE table1 BIG_ENDIAN ROW_COLUMN 2'
+          file.puts 'TABLE table2 BIG_ENDIAN ROW_COLUMN 2'
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        report_filename = core.file_report(bin_filename, def_filename)
-        expect(File.basename(report_filename)).to eql "testfile.csv"
-        report = File.read(report_filename)
-        expect(report).to match(/#{bin_filename}/)
-        expect(report).to match(/#{def_filename}/)
-        FileUtils.rm report_filename
+        report = core.file_report(bin_filename, def_filename)
+        expect(report).to include('TABLE2')
+        expect(report).to include('Item, ITEM1, ITEM2')
+        expect(report).to include('1, 1, 2')
+        expect(report).to include('2, 3, 4')
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end

@@ -200,7 +200,7 @@ module Cosmos
     # @param def_path [String] Definition filename currently open
     # @return [String] Generated report
     def file_report(bin_path, def_path)
-      process_definition(def_path)
+      file_open(bin_path, def_path)
 
       report = StringIO.new
       @config.tables.values.each do |table|

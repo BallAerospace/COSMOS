@@ -82,6 +82,7 @@
         class="mr-3"
         @click="downloadBinary"
         :disabled="filename == ''"
+        data-test="download-binary"
       >
         Binary
         <v-icon right dark> mdi-file-document </v-icon>
@@ -92,6 +93,7 @@
         class="mr-3"
         @click="downloadDefinition"
         :disabled="filename == ''"
+        data-test="download-definition"
       >
         Definition
         <v-icon right dark> mdi-file-document-edit </v-icon>
@@ -101,6 +103,7 @@
         color="primary"
         @click="downloadReport"
         :disabled="filename == ''"
+        data-test="download-report"
       >
         Report
         <v-icon right dark> mdi-file-document </v-icon>
@@ -139,18 +142,19 @@
             calculate-widths
             multi-sort
             dense
+            :data-test="table.name"
           >
             <template v-slot:item="{ item }">
               <table-row
                 :items="item"
-                :key="JSON.stringify(item[0])"
+                :key="item[0].name"
                 @change="onChange(item, $event)"
               />
             </template>
             <!-- Future download individual table tabs -->
             <!-- template v-slot:footer>
               <div style="position: absolute" class="ma-3">
-                <v-btn color="primary" dense @click="downloadBinary" class="mr-3">
+                <v-btn color="primary" dense @click="downloadBinary(table.name)" class="mr-3">
                   Binary
                   <v-icon right dark> mdi-cloud-download </v-icon>
                 </v-btn>
@@ -158,12 +162,12 @@
                   dense
                   color="primary"
                   class="mr-3"
-                  @click="downloadDefinition"
+                  @click="downloadDefinition(table.name)"
                 >
                   Definition
                   <v-icon right dark> mdi-file-document-edit </v-icon>
                 </v-btn>
-                <v-btn color="primary" dense @click="downloadReport">
+                <v-btn color="primary" dense @click="downloadReport(table.name)">
                   Report
                   <v-icon right dark> mdi-file-document </v-icon>
                 </v-btn>
@@ -373,8 +377,9 @@ export default {
       this.showSaveAs = true
     },
     saveAsFilename: function (filename) {
+      Api.put(`/cosmos-api/tables/${this.filename}/save-as/${filename}`)
       this.filename = filename
-      this.saveFile()
+      this.getDefinition(this.definitionFilename)
     },
     delete: function () {
       if (this.filename !== '') {
@@ -456,7 +461,6 @@ export default {
         Api.post(`/cosmos-api/tables/${this.filename}/report`, {
           data: formData,
         }).then((response) => {
-          console.log(response)
           const blob = new Blob([response.data], {
             type: 'text/plain',
           })
@@ -512,6 +516,7 @@ export default {
           .replace('/bin/', '/config/')
           .replace('.bin', '_def.txt')
       }
+      this.tables = [] // Clear so table is re-rendered
       const formData = new FormData()
       formData.append('binary', this.filename)
       formData.append('definition', definitionFilename)
