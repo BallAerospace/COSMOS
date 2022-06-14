@@ -33,13 +33,7 @@ class ActivityController < ApplicationController
   # stop [String] (optional) The stop time of the search window for timeline to return. Recommend in ISO format, `2031-04-16T01:02:00+00:00`. If not provided end_time is equal to 2 days after the request is made.
   # @return [String] the array of activities converted into json format.
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     now = DateTime.now.new_offset(0)
     begin
       start = params[:start].nil? ? (now - 7) : DateTime.parse(params[:start]) # minus 7 days
@@ -80,13 +74,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       hash = params.to_unsafe_h.slice(:start, :stop, :kind, :data).to_h
       if hash['start'].nil? || hash['stop'].nil?
@@ -130,13 +118,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def count
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       count = @model_class.count(name: params[:name], scope: params[:scope])
       render :json => { :name => params[:name], :count => count }, :status => 200
@@ -159,13 +141,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def show
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
       if model.nil?
@@ -200,13 +176,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def event
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
     if model.nil?
       render :json => { :status => 'error', :message => 'not found' }, :status => 404
@@ -254,13 +224,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def update
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
     if model.nil?
       render :json => { :status => 'error', :message => 'not found' }, :status => 404
@@ -305,13 +269,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
       if model.nil?
@@ -359,13 +317,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def multi_create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     input_activities = params.to_unsafe_h.slice(:multi).to_h['multi']
     unless input_activities.is_a?(Array)
       render(:json => { :status => 'error', :message => 'invalid input, must be json list/array' }, :status => 400) and return
@@ -427,13 +379,7 @@ class ActivityController < ApplicationController
   #  }
   # ```
   def multi_destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     input_activities = params.to_unsafe_h.slice(:multi).to_h['multi']
     unless input_activities.is_a?(Array)
       render(:json => { :status => 'error', :message => 'invalid input' }, :status => 400) and return

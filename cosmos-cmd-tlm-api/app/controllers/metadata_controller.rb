@@ -33,7 +33,7 @@ class MetadataController < ApplicationController
   # limit [String] (optional) Maximum number of entries to return
   # @return [String] the array of entries converted into json format.
   def index
-    return unless authorization
+    return unless authorization('scripts')
     action do
       hash = params.to_unsafe_h.slice(:start, :stop, :limit)
       if (hash['start'] && hash['stop'])
@@ -68,7 +68,7 @@ class MetadataController < ApplicationController
   #  }
   # ```
   def create
-    return unless authorization
+    return unless authorization('scripts')
     action do
       hash = params.to_unsafe_h.slice(:start, :color, :metadata).to_h
       if hash['start'].nil?
@@ -100,7 +100,7 @@ class MetadataController < ApplicationController
   #  }
   # ```
   def show
-    return unless authorization
+    return unless authorization('scripts')
     action do
       model_hash = @model_class.get(start: params[:id], scope: params[:scope])
       if model_hash
@@ -133,7 +133,7 @@ class MetadataController < ApplicationController
   #  }
   # ```
   def update
-    return unless authorization
+    return unless authorization('scripts')
     action do
       hash = @model_class.get(start: params[:id], scope: params[:scope])
       if hash.nil?
@@ -171,7 +171,7 @@ class MetadataController < ApplicationController
   #  }
   # ```
   def destroy
-    return unless authorization
+    return unless authorization('scripts')
     action do
       count = @model_class.destroy(start: params[:id], scope: params[:scope])
       if count == 0
@@ -192,7 +192,7 @@ class MetadataController < ApplicationController
   # scope [String] the scope of the metadata, `DEFAULT`
   # @return [String] the current metadata converted into json format.
   def latest
-    return unless authorization
+    return unless authorization('scripts')
     action do
       json = @model_class.get_current_value(scope: params[:scope])
       if json.nil?
@@ -236,25 +236,6 @@ class MetadataController < ApplicationController
   # end
 
   private
-
-  # Authorize and rescue the possible execeptions
-  # @return [Boolean] true if authorize successful
-  def authorization
-    begin
-      authorize(
-        permission: 'scripts',
-        scope: params[:scope],
-        token: request.headers['HTTP_AUTHORIZATION'],
-      )
-    rescue Cosmos::AuthError => e
-      render(json: { status: 'error', message: e.message }, status: 401) and
-        return false
-    rescue Cosmos::ForbiddenError => e
-      render(json: { status: 'error', message: e.message }, status: 403) and
-        return false
-    end
-    true
-  end
 
   # Yield and rescue all the possible exceptions
   def action

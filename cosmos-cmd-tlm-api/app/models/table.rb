@@ -87,12 +87,11 @@ class Table
   end
 
   def self.save(scope, binary_filename, definition_filename, tables = nil)
-    return false unless tables
-
+    raise "Tables parameter empty!" unless tables
     binary = Table.body(scope, binary_filename)
-    return nil unless binary
+    raise "Binary file '#{binary_filename}' not found" unless binary
     definition = Table.body(scope, definition_filename)
-    return nil unless definition
+    raise "Definition file '#{definition_filename}' not found" unless definition
     temp_dir = Dir.mktmpdir
     definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
     begin
@@ -114,6 +113,14 @@ class Table
     ensure
       FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
     end
+    true
+  end
+
+  def self.save_as(scope, filename, new_filename)
+    file = Table.body(scope, filename)
+    raise "File '#{filename}' not found" unless file
+    s3_path = "#{scope}/targets_modified/#{new_filename}"
+    Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: s3_path, body: file)
     true
   end
 
@@ -167,6 +174,34 @@ class Table
       FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
     end
     json
+  end
+
+  def self.report(scope, binary_filename, definition_filename)
+    binary = Table.body(scope, binary_filename)
+    return nil unless binary
+    definition = Table.body(scope, definition_filename)
+    return nil unless definition
+
+    report = "File Binary, #{binary_filename}\n"
+    report += "File Definition, #{definition_filename}\n\n"
+    temp_dir = Dir.mktmpdir
+    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
+    begin
+      binary_path = temp_dir + '/data.bin'
+      File.open(binary_path, 'wb') do |file|
+        file.write(binary)
+      end
+      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
+        path = "#{temp_dir}/#{File.basename(name)}"
+        File.open(path, 'w') do |file|
+          file.write(contents)
+        end
+      end
+      report += Cosmos::TableManagerCore.new.file_report(binary_path, definition_path)
+    ensure
+      FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+    end
+    report
   end
 
   def self.destroy(scope, name)

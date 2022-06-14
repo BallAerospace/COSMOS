@@ -171,7 +171,7 @@ module Cosmos
     # @param filename [String] Filename to write, overwritten if it exists.
     def file_save(filename)
       raise NoConfigError unless @config
-      file_check
+      file_check()
       File.open(filename, 'wb') do |file|
         @config.tables.each { |table_name, table| file.write(table.buffer) }
       end
@@ -198,57 +198,51 @@ module Cosmos
     # @param bin_path [String] Binary filename currently open. Used to generate the
     #   report name such that it matches the binary filename.
     # @param def_path [String] Definition filename currently open
-    # @return [String] Report filename path
+    # @return [String] Generated report
     def file_report(bin_path, def_path)
-      raise NoConfigError unless @config
-      file_check
+      file_open(bin_path, def_path)
 
-      basename = File.basename(bin_path, '.bin')
-      report_path = File.join(File.dirname(bin_path), "#{basename}.csv")
-      File.open(report_path, 'w+') do |file|
-        file.write("File Definition, #{def_path}\n")
-        file.write("File Binary, #{bin_path}\n\n")
-        @config.tables.values.each do |table|
-          items = table.sorted_items
-          file.puts(table.table_name)
+      report = StringIO.new
+      @config.tables.values.each do |table|
+        items = table.sorted_items
+        report.puts(table.table_name)
 
-          # Write the column headers
-          if table.type == :ROW_COLUMN
-            columns = ['Item']
+        # Write the column headers
+        if table.type == :ROW_COLUMN
+          columns = ['Item']
 
-            # Remove the '0' from the 'itemname0'
-            table.num_columns.times.each do |x|
-              columns << items[x].name[0...-1]
-            end
-            file.puts columns.join(', ')
-          else
-            file.puts 'Label, Value'
+          # Remove the '0' from the 'itemname0'
+          table.num_columns.times.each do |x|
+            columns << items[x].name[0...-1]
           end
-
-          # Write the table item values
-          (0...table.num_rows).each do |r|
-            if table.type == :ROW_COLUMN
-              rowtext = "#{r + 1}"
-            else
-              rowtext = items[r].name
-            end
-
-            file.write "#{rowtext}, "
-            (0...table.num_columns).each do |c|
-              if table.type == :ROW_COLUMN
-                table_item = items[c + r * table.num_columns]
-              else
-                table_item = items[r]
-              end
-
-              file.write "#{table.read(table_item.name, :FORMATTED).to_s}, "
-            end
-            file.write("\n") # newline after each row
-          end
-          file.write("\n") # newline after each table
+          report.puts columns.join(', ')
+        else
+          report.puts 'Label, Value'
         end
+
+        # Write the table item values
+        (0...table.num_rows).each do |r|
+          if table.type == :ROW_COLUMN
+            rowtext = "#{r + 1}"
+          else
+            rowtext = items[r].name
+          end
+
+          report.write "#{rowtext}, "
+          (0...table.num_columns).each do |c|
+            if table.type == :ROW_COLUMN
+              table_item = items[c + r * table.num_columns]
+            else
+              table_item = items[r]
+            end
+
+            report.write "#{table.read(table_item.name, :FORMATTED).to_s}, "
+          end
+          report.write("\n") # newline after each row
+        end
+        report.write("\n") # newline after each table
       end
-      report_path
+      report.string
     end
 
     # Create a hex formatted string of all the file data

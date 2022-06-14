@@ -17,25 +17,22 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/metric_model'
 
+# This Controller is designed to output metrics from the cosmos/utilities/metric.rb
+# Find all scopes currently active in the cosmos system, we use the cosmos/models/scope_model
+# then seach redis for the #{scope}__cosmos__metrics key. This key uses subkeys that are the name
+# the metrics. The value of the metric is a list of prometheus labels these are hashes with key
+# value pairs. The value for the metric is contained in this hash in the metric__value key. These
+# hashes are converted into a string with key="value" and wraped in {} to make up the labels.
+# examples:
+#    TYPE foobar histogram",
+#    HELP foobar internal metric generated from cosmos/utilities/metric.rb."
+#    foobar{code="200",method="get",path="/metrics"} 5.0
+# items = {"name|labels" => [value_array], ...}
+# items = {"http_server_requests_total|code=200,method=get,path=/metrics" => [1,2,3,4,5], ...}
 class InternalMetricsController < ActionController::Base
-  # This Controller is designed to output metrics from the cosmos/utilities/metric.rb
-  # Find all scopes currently active in the cosmos system, we use the cosmos/models/scope_model
-  # then seach redis for the #{scope}__cosmos__metrics key. This key uses subkeys that are the name
-  # the metrics. The value of the metric is a list of prometheus labels these are hashes with key
-  # value pairs. The value for the metric is contained in this hash in the metric__value key. These
-  # hashes are converted into a string with key="value" and wraped in {} to make up the labels.
-  # examples:
-  #    TYPE foobar histogram",
-  #    HELP foobar internal metric generated from cosmos/utilities/metric.rb."
-  #    foobar{code="200",method="get",path="/metrics"} 5.0
-
-  # items = {"name|labels" => [value_array], ...}
-  # items = {"http_server_requests_total|code=200,method=get,path=/metrics" => [1,2,3,4,5], ...}
-
   def index
     Cosmos::Logger.debug("request for aggregator metrics")
     begin
@@ -72,5 +69,4 @@ class InternalMetricsController < ActionController::Base
     end
     render plain: data_hash.values.join("\n")
   end
-
 end
