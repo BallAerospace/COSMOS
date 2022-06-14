@@ -84,16 +84,6 @@ test('saves and opens the configuration', async ({ page }) => {
 test('temporarily hides items', async ({ page }) => {
   // Since we're checking count() which is instant we need to poll
   await expect
-    .poll(() => page.locator('[data-test=limits-row]:has-text("VALUE1")').count(), {
-      timeout: 60000,
-    })
-    .toBe(1)
-  // Hide VALUE1 which will not come back
-  await page.locator('[data-test=limits-row]:has-text("VALUE1") button >> nth=2').click()
-  await expect(page.locator('[data-test=limits-row]:has-text("VALUE1")')).not.toBeVisible()
-
-  // Since we're checking count() which is instant we need to poll
-  await expect
     .poll(() => page.locator('[data-test=limits-row]:has-text("TEMP2")').count(), {
       timeout: 60000,
     })

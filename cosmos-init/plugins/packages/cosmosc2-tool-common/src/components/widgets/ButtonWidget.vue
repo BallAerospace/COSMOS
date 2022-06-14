@@ -35,6 +35,7 @@
 
 <script>
 import { CosmosApi } from '../../services/cosmos-api'
+import Api from '../../services/api'
 import Widget from './Widget'
 
 export default {
@@ -71,6 +72,7 @@ export default {
       const self = this // needed for $emit
       const screen = this.screen
       const api = this.api
+      const run_script = this.runScript
       lines.forEach((line) => {
         const result = eval(line.trim())
         if (result instanceof Promise) {
@@ -97,6 +99,13 @@ export default {
     },
     cancelHazardousCmd() {
       this.displaySendHazardous = false
+    },
+    runScript(scriptName, openScript = true) {
+      Api.post(`/script-api/scripts/${scriptName}/run`).then((response) => {
+        if (openScript) {
+          window.open(`/tools/scriptrunner/${response.data}`, '_blank')
+        }
+      })
     },
   },
 }

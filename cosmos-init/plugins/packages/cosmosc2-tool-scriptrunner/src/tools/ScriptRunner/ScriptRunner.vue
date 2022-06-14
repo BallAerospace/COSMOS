@@ -1179,6 +1179,13 @@ export default {
             case 'breakpoint':
             case 'waiting':
             case 'paused':
+              if (this.state == 'fatal') {
+                this.startOrGoDisabled = true
+                this.pauseOrRetryDisabled = true
+              } else {
+                this.startOrGoDisabled = false
+                this.pauseOrRetryDisabled = false
+              }
               this.stopDisabled = false
               let existing = Object.keys(markers).filter(
                 (key) => markers[key].clazz === `${this.state}Marker`
