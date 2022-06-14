@@ -280,9 +280,13 @@ def load_plugin(plugin_file_path, scope:, variables_file: nil)
     end
     unless found
       puts "Loading new plugin: #{plugin_file_path}"
-      variables = nil
-      variables = JSON.parse(File.read(variables_file)) if variables_file
-      plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+      if variables_file
+        # Assume phase1 is already done
+        variables = JSON.parse(File.read(variables_file))
+        plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
+      else
+        plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      end
       Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
     end
   rescue => err
