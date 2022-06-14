@@ -33,4 +33,12 @@ VERTICAL
     BUTTON 'Send' "screen.get_named_widget('GROUP').selected() === 0 ? api.cmd('<%= target_name %> ABORT') : (screen.get_named_widget('CHECK').checked() ? api.cmd_no_hazardous_check('<%= target_name %> CLEAR') : api.cmd('<%= target_name %> CLEAR'))"
   END
   SETTING BACKCOLOR 163 185 163
+
+  VERTICALBOX
+    SECTIONHEADER "Run Script:"
+    NAMED_WIDGET SCRIPTNAME COMBOBOX collect.rb checks.rb
+    NAMED_WIDGET BG CHECKBUTTON 'Background'
+    BUTTON 'Run Script' "var script=screen.get_named_widget('SCRIPTNAME').text(); run_script('INST/procedures/'+script, !screen.get_named_widget('BG').checked())"
+  END
+  SETTING BACKCOLOR 163 185 163
 END
