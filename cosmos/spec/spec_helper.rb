@@ -156,6 +156,7 @@ end
 def capture_io(output = false)
   # Set the logger level to DEBUG so we see all output
   Cosmos::Logger.instance.level = Logger::DEBUG
+  Cosmos::Logger.stdout = true
 
   # Create a StringIO object to capture the output
   stdout = StringIO.new('', 'r+')
