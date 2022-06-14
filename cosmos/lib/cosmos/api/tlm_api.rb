@@ -111,11 +111,11 @@ module Cosmos
 
     # Injects a packet into the system as if it was received from an interface
     #
-    # @param target_name[String] Target name of the packet
-    # @param packet_name[String] Packet name of the packet
-    # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
+    # @param target_name [String] Target name of the packet
+    # @param packet_name [String] Packet name of the packet
+    # @param item_hash [Hash] Hash of item_name and value for each item you want to change from the current value table
     # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
-    def inject_tlm(target_name, packet_name, item_hash = nil, log: true, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+    def inject_tlm(target_name, packet_name, item_hash = nil, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       unless CvtModel::VALUE_TYPES.include?(type.intern)
         raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
