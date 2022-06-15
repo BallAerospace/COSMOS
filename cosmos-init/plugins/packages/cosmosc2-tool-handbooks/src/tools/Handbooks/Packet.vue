@@ -18,14 +18,24 @@
 -->
 
 <template>
-  <v-container :id="packet.target_name + '_' + packet.packet_name">
-    <div class="text-h5">{{ packet.target_name }} {{ packet.packet_name }}</div>
-    <div>{{ packet.description }}</div>
-    <div>{{ packet.endianness }}</div>
-    <v-row v-for="item in packet.items" :key="item.name">
-      <item :item="item"></item>
-    </v-row>
-  </v-container>
+  <v-card>
+    <v-card-title
+      >{{ packet.target_name }} {{ packet.packet_name }}</v-card-title
+    >
+    <v-card-subtitle
+      >{{ packet.description }}
+      <div class="float-right">{{ packet.endianness }}</div>
+    </v-card-subtitle>
+    <v-card-text>
+      <v-container fluid>
+        <v-row dense>
+          <v-col v-for="item in items" :key="item.name" :cols="columns">
+            <item :item="item"></item>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -39,6 +49,33 @@ export default {
     packet: {
       type: Object,
       required: true,
+    },
+    columns: {
+      type: Number,
+      required: true,
+    },
+    hideIgnored: {
+      type: Boolean,
+      required: true,
+    },
+    hideDerived: {
+      type: Boolean,
+      required: true,
+    },
+    ignored: {
+      type: Object,
+    },
+  },
+  computed: {
+    items() {
+      let items = this.packet.items
+      if (this.hideIgnored) {
+        items = items.filter((item) => !this.ignored.includes(item.name))
+      }
+      if (this.hideDerived) {
+        items = items.filter((item) => item.data_type !== 'DERIVED')
+      }
+      return items
     },
   },
 }

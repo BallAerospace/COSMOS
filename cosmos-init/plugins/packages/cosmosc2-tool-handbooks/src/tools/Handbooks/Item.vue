@@ -18,17 +18,19 @@
 -->
 
 <template>
-  <v-container :id="item.name">
-    <div class="text-h6">
+  <v-card class="mx-auto" outlined>
+    <v-card-title>
       {{ item.name }}
-    </div>
-    <div>{{ item.description }}</div>
-    <div>Bit Offset: {{ item.bit_offset }}</div>
-    <div>Bit Size: {{ item.bit_size }}</div>
-    <div>Data Type: {{ item.data_type }}</div>
-    <div>Endianness: {{ item.endianness }}</div>
-    <div>Overflow: {{ item.overflow }}</div>
-  </v-container>
+    </v-card-title>
+    <v-card-subtitle>{{ item.description }}</v-card-subtitle>
+    <v-card-text>
+      <div>Bit Offset: {{ item.bit_offset }}</div>
+      <div>Bit Size: {{ item.bit_size }}</div>
+      <div>Data Type: {{ item.data_type }}</div>
+      <div>Endianness: {{ item.endianness }}</div>
+      <div>Overflow: {{ item.overflow }}</div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -38,6 +40,17 @@ export default {
       type: Object,
       required: true,
     },
+    hideIgnored: {
+      type: Boolean,
+      required: true,
+    },
+    hideDerived: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  created() {
+    console.log(this.item)
   },
 }
 </script>

@@ -54,10 +54,23 @@
             Display
           </v-btn>
         </v-col>
+        <v-col>
+          <v-select
+            label="Item Columns"
+            v-model="columns"
+            :items="columnItems"
+            dense
+          ></v-select>
+        </v-col>
       </v-row>
     </v-container>
     <div v-for="target in renderedTargetNames" :key="target">
-      <target :target="target"></target>
+      <target
+        :target="target"
+        :columns="columns"
+        :hideIgnored="hideIgnored"
+        :hideDerived="hideDerived"
+      ></target>
     </div>
   </div>
 </template>
@@ -79,6 +92,38 @@ export default {
       selectedTargetNames: [],
       renderedTargetNames: [],
       api: null,
+      columns: 3,
+      columnItems: [
+        { text: '1', value: 12 },
+        { text: '2', value: 6 },
+        { text: '3', value: 4 },
+        { text: '4', value: 3 },
+        { text: '6', value: 2 },
+        { text: '12', value: 1 },
+      ],
+      hideIgnored: false,
+      hideDerived: false,
+      menus: [
+        {
+          label: 'View',
+          items: [
+            {
+              label: 'Hide Ignored Items',
+              checkbox: true,
+              command: () => {
+                this.hideIgnored = !this.hideIgnored
+              },
+            },
+            {
+              label: 'Hide Derived Items',
+              checkbox: true,
+              command: () => {
+                this.hideDerived = !this.hideDerived
+              },
+            },
+          ],
+        },
+      ],
     }
   },
   computed: {
