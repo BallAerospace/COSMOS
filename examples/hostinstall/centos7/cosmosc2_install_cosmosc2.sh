@@ -23,16 +23,16 @@ sudo -E bundle exec rake build
 cd $SCRIPT_DIR/../../../cosmos-cmd-tlm-api
 
 sudo -E bundle config set --local without 'development'
-sudo -E bundle install --quiet 
+sudo -E bundle install --quiet
 
 cd $SCRIPT_DIR/../../../cosmos-script-runner-api
 
 sudo -E bundle config set --local without 'development'
-sudo -E bundle install --quiet 
+sudo -E bundle install --quiet
 
 if [ -f "/etc/centos-release" ]; then
   sudo yum install epel-release -y || true
-else 
+else
   sudo subscription-manager repos --enable rhel-*-optional-rpms \
                            --enable rhel-*-extras-rpms \
                            --enable rhel-ha-for-rhel-*-server-rpms
@@ -58,6 +58,7 @@ cd ${PLUGINS}packages/cosmosc2-tool-cmdsender && yarn run build && rake build VE
 cd ${PLUGINS}packages/cosmosc2-tool-cmdtlmserver && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
 cd ${PLUGINS}packages/cosmosc2-tool-dataextractor && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
 cd ${PLUGINS}packages/cosmosc2-tool-dataviewer && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
+cd ${PLUGINS}packages/cosmosc2-tool-handbooks && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
 cd ${PLUGINS}packages/cosmosc2-tool-limitsmonitor && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
 cd ${PLUGINS}packages/cosmosc2-tool-packetviewer && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}
 cd ${PLUGINS}packages/cosmosc2-tool-scriptrunner && yarn run build && rake build VERSION=${COSMOS_RELEASE_VERSION} && mv *.gem ${GEMS}

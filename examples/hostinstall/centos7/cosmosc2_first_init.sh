@@ -29,6 +29,7 @@ sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosm
 sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-tlmgrapher-*.gem || exit 1
 sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-dataextractor-*.gem || exit 1
 sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-dataviewer-*.gem || exit 1
+sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-handbooks-*.gem || exit 1
 sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-tablemanager-*.gem || exit 1
 sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-admin-*.gem || exit 1
 sudo -E --preserve-env=RUBYLIB /cosmos/bin/cosmos load $SCRIPT_DIR/../../../cosmos-init/plugins/gems/cosmosc2-tool-calendar-*.gem || exit 1
