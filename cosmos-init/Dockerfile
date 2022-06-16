@@ -17,6 +17,7 @@ COPY ./plugins/packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cm
 COPY ./plugins/packages/cosmosc2-tool-cmdtlmserver/*.json packages/cosmosc2-tool-cmdtlmserver/
 COPY ./plugins/packages/cosmosc2-tool-dataextractor/*.json packages/cosmosc2-tool-dataextractor/
 COPY ./plugins/packages/cosmosc2-tool-dataviewer/*.json packages/cosmosc2-tool-dataviewer/
+COPY ./plugins/packages/cosmosc2-tool-handbooks/*.json packages/cosmosc2-tool-handbooks/
 COPY ./plugins/packages/cosmosc2-tool-limitsmonitor/*.json packages/cosmosc2-tool-limitsmonitor/
 COPY ./plugins/packages/cosmosc2-tool-packetviewer/*.json packages/cosmosc2-tool-packetviewer/
 COPY ./plugins/packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptrunner/
@@ -55,6 +56,10 @@ RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-dataextractor"]
 # Build dataviewer tool
 COPY ./plugins/packages/cosmosc2-tool-dataviewer/ packages/cosmosc2-tool-dataviewer/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-dataviewer"]
+
+# Build handbooks tool
+COPY ./plugins/packages/cosmosc2-tool-handbooks/ packages/cosmosc2-tool-handbooks/
+RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-handbooks"]
 
 # Build limitsmonitor tool
 COPY ./plugins/packages/cosmosc2-tool-limitsmonitor/ packages/cosmosc2-tool-limitsmonitor/

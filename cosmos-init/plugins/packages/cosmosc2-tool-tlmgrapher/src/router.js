@@ -30,7 +30,6 @@ export default new Router({
       path: '/:target?/:packet?/:item?',
       name: 'TlmGrapher',
       component: () => import('./tools/TlmGrapher/TlmGrapher.vue'),
-      meta: { title: 'Telemetry Grapher', icon: 'mdi-chart-line' },
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode
     // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations

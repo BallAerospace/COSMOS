@@ -1,0 +1,16 @@
+> 0.2%
+# Chome 80 is circa Feb 2020
+# See https://en.wikipedia.org/wiki/Google_Chrome_version_history
+chrome >= 80
+# Edge 80 is circa Jan 2020
+# See https://docs.microsoft.com/en-us/deployedge/microsoft-edge-relnote-archive-stable-channel
+edge >= 80
+# Firefox ESR is extended support release
+firefox ESR
+# Safari 13.1 released Mar 24, 2020
+# See https://en.wikipedia.org/wiki/Safari_version_history
+safari >= 13.1
+not dead
+not ie 11
+# Opera mini doesn't have built-in support for ES6
+not op_mini all

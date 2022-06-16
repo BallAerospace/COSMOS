@@ -30,7 +30,6 @@ export default new Router({
       path: '/',
       name: 'Calendar',
       component: () => import('@/tools/Calendar/Calendar'),
-      meta: { title: 'Cosmos Calendar', icon: 'mdi-calendar' },
     },
   ],
 })
