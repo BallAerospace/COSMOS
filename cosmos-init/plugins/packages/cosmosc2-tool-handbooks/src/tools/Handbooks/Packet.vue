@@ -19,7 +19,7 @@
 
 <template>
   <v-card>
-    <v-card-title
+    <v-card-title class="text-h4 justify-center"
       >{{ packet.target_name }} {{ packet.packet_name }}</v-card-title
     >
     <v-card-subtitle

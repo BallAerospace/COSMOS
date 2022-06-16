@@ -30,7 +30,6 @@ export default new Router({
       path: '/:target?/:packet?',
       name: 'Handbooks',
       component: () => import('./tools/Handbooks/Handbooks.vue'),
-      meta: { title: 'Handbooks', icon: 'mdi-file-document-multiple' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

@@ -20,7 +20,7 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <v-container>
+    <v-container class="d-print-none">
       <v-row dense>
         <v-col>
           <v-select

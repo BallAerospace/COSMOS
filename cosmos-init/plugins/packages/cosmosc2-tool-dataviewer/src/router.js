@@ -30,7 +30,6 @@ export default new Router({
       path: '/',
       name: 'DataViewer',
       component: () => import('./tools/DataViewer/DataViewer.vue'),
-      meta: { title: 'Data Viewer', icon: 'mdi-hexadecimal' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode
