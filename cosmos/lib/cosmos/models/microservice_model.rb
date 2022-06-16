@@ -187,8 +187,10 @@ module Cosmos
         Cosmos.set_working_dir(File.dirname(filename)) do
           data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
         end
-        Aws::S3::Client.new.put_object(bucket: 'config', key: key, body: data) unless validate_only
-        ConfigTopic.write({ kind: 'created', type: 'microservice', name: @name, plugin: @plugin }, scope: @scope)
+        unless validate_only
+          Aws::S3::Client.new.put_object(bucket: 'config', key: key, body: data)
+          ConfigTopic.write({ kind: 'created', type: 'microservice', name: @name, plugin: @plugin }, scope: @scope)
+        end
       end
     end
 

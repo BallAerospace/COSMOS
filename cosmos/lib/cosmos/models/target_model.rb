@@ -398,8 +398,8 @@ module Cosmos
         # Build a System for just this target
         system = System.new([@name], temp_dir)
         if variables["xtce_output"]
-          puts "Converting configuration to .xtce files in #{variables["xtce_output"]}"
-          system.instance_variable_get(:@config).to_xtce(variables["xtce_output"])
+          puts "Converting target #{@name} to .xtce files in #{variables["xtce_output"]}/#{@name}"
+          system.packet_config.to_xtce(variables["xtce_output"])
         end
         unless validate_only
           build_target_archive(rubys3_client, temp_dir, target_folder)

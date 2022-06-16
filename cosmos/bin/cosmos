@@ -24,6 +24,7 @@ require 'cosmos'
 require 'cosmos/utilities/s3'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/plugin_model'
+require 'cosmos/packets/packet_config'
 require 'cosmos/bridge/bridge'
 require 'ostruct'
 require 'optparse'
@@ -199,7 +200,7 @@ def xtce_converter(args)
       exit
     end
     option_parser.on("-i VALUE", "--import VALUE", "Import the specified .xtce file") do |arg|
-      options[:input] = arg
+      options[:import] = arg
     end
     option_parser.on("-o", "--output DIRECTORY", "Create files in the directory") do |arg|
       options[:output] = arg
@@ -218,24 +219,29 @@ def xtce_converter(args)
     abort(option_parser.to_s)
   end
 
-  if options[:input] && options[:output]
+  if options[:import] && options[:plugin]
+    puts "xtce_converter options --import and --plugin are mutually exclusive"
+    abort(option_parser.to_s)
+  end
+
+  ENV['COSMOS_NO_STORE'] = '1' # it can be anything
+  Cosmos::Logger.stdout = false
+  Cosmos::Logger.level = Cosmos::Logger::DEBUG
+
+  if options[:import] && options[:output]
     packet_config = Cosmos::PacketConfig.new
-    puts "Processing #{input_filename}..."
-    packet_config.process_file(input_filename, nil)
-    puts "Converting to COSMOS config files in #{output_dir}"
-    packet_config.to_config(output_dir)
-    puts "Success"
+    puts "Processing #{options[:import]}..."
+    packet_config.process_file(options[:import], nil)
+    puts "Writing COSMOS config files to #{options[:output]}/"
+    packet_config.to_config(options[:output])
+    exit(0)
   elsif options[:plugin] && options[:output]
     begin
-      ENV['COSMOS_NO_STORE'] = '1' # it can be anything
-      Cosmos::Logger.stdout = false
-      Cosmos::Logger.level = Cosmos::Logger::DEBUG
       variables = nil
       variables = JSON.parse(File.read(options[:variables])) if options[:variables]
-      puts "phase1"
+      puts "Installing #{File.basename(options[:plugin])}"
       plugin_hash = Cosmos::PluginModel.install_phase1(options[:plugin], variables, scope: 'DEFAULT', validate_only: true)
-      plugin_hash['xtce_output'] = options[:output]
-      puts "phase2"
+      plugin_hash['variables']['xtce_output'] = options[:output]
       Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: 'DEFAULT', validate_only: true,
         gem_file_path: options[:plugin])
       result = 0 # bash and Windows consider 0 success
@@ -286,6 +292,7 @@ def validate_plugin(plugin_file_path, scope: 'DEFAULT', variables_file: nil)
   Cosmos::Logger.level = Cosmos::Logger::DEBUG
   variables = nil
   variables = JSON.parse(File.read(variables_file)) if variables_file
+  puts "Installing #{File.basename(plugin_file_path)}"
   plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope, validate_only: true)
   Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope, validate_only: true,
     gem_file_path: plugin_file_path)
@@ -301,8 +308,7 @@ ensure
   exit(result)
 end
 
-def load_plugin(plugin_file_path, scope:, variables_file: nil)
-  scope ||= 'DEFAULT'
+def load_plugin(plugin_file_path, scope: 'DEFAULT', variables_file: nil)
   # Only create the scope if it doesn't already exist
   unless Cosmos::ScopeModel.names.include?(scope)
     begin
