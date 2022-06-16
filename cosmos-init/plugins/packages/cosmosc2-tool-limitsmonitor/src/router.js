@@ -30,7 +30,6 @@ export default new Router({
       path: '/',
       name: 'LimitsMonitor',
       component: () => import('./tools/LimitsMonitor/LimitsMonitor.vue'),
-      meta: { title: 'Limits Monitor', icon: 'mdi-alert' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

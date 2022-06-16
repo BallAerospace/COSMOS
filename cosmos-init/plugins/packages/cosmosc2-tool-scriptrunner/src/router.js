@@ -30,7 +30,6 @@ export default new Router({
       path: '/:id?',
       name: 'ScriptRunner',
       component: () => import('./tools/ScriptRunner/ScriptRunner.vue'),
-      meta: { title: 'Script Runner', icon: 'mdi-run-fast' },
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode
     // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations

@@ -27,9 +27,9 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
-      name: 'TlmViewer',
-      component: () => import('./tools/TlmViewer/TlmViewer.vue'),
+      path: '/:target?/:packet?',
+      name: 'Handbooks',
+      component: () => import('./tools/Handbooks/Handbooks.vue'),
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

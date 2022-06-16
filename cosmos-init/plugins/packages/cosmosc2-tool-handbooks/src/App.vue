@@ -1,4 +1,4 @@
-/*
+<!--
 # Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,28 +15,12 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-*/
+-->
 
-import Vue from 'vue'
-import Router from 'vue-router'
-
-Vue.use(Router)
-
-export default new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/',
-      name: 'TlmViewer',
-      component: () => import('./tools/TlmViewer/TlmViewer.vue'),
-    },
-
-    // TODO: Create NotFoundComponent since we're doing history browser mode
-    // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations
-    // {
-    //   path: '*',
-    //   component: NotFoundComponent
-    // }
-  ],
-})
+<template>
+  <div>
+    <v-app id="innerapp">
+      <router-view />
+    </v-app>
+  </div>
+</template>
