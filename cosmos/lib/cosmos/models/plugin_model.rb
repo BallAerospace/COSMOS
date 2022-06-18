@@ -41,6 +41,7 @@ module Cosmos
     PRIMARY_KEY = 'cosmos_plugins'
 
     attr_accessor :variables
+    attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -134,6 +135,11 @@ module Cosmos
         pkg = Gem::Package.new(gem_file_path)
         needs_dependencies = pkg.spec.runtime_dependencies.length > 0
         pkg.extract_files(gem_path)
+        needs_dependencies = true if Dir.exist?(File.join(gem_path, 'lib'))
+        if needs_dependencies
+          plugin_model.needs_dependencies = true
+          plugin_model.update
+        end
 
         # Temporarily add all lib folders from the gem to the end of the load path
         load_dirs = []
@@ -188,16 +194,20 @@ module Cosmos
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
+
+      return plugin_model.as_json
     end
 
     def initialize(
       name:,
       variables: {},
+      needs_dependencies: false,
       updated_at: nil,
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, scope: scope)
       @variables = variables
+      @needs_dependencies = ConfigParser.handle_true_false(needs_dependencies)
     end
 
     def create(update: false, force: false)
@@ -209,6 +219,7 @@ module Cosmos
       {
         'name' => @name,
         'variables' => @variables,
+        'needs_dependencies' => @needs_dependencies,
         'updated_at' => @updated_at
       }
     end
