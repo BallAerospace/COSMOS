@@ -24,6 +24,7 @@ require 'cosmos'
 require 'cosmos/utilities/s3'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/plugin_model'
+require 'cosmos/packets/packet_config'
 require 'cosmos/bridge/bridge'
 require 'ostruct'
 require 'optparse'
@@ -32,6 +33,7 @@ require 'fileutils'
 require 'find'
 require 'json'
 require 'redis'
+require 'psych'
 require 'erb'
 
 $redis_url = "redis://#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}"
@@ -60,7 +62,7 @@ def print_usage
   puts "  cosmos bridgesetup CONFIG_FILENAME   # Create a default config file"
   puts "  cosmos geminstall GEMFILENAME        # Install loaded gem to /gems"
   puts "  cosmos rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
-  # puts "  cosmos xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
+  puts "  cosmos xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
   puts "  cosmos cstol_converter               # Converts CSTOL files (.prc) to COSMOS. Run with --help for more info."
   puts ""
 end
@@ -187,6 +189,76 @@ def migrate(args)
   puts "Plugin complete: #{File.expand_path('.')}" # Remember we're inside the plugin dir
 end
 
+def xtce_converter(args)
+  options = {}
+  option_parser = OptionParser.new do |option_parser|
+    option_parser.banner = "Usage: xtce_converter [options] --import input_xtce_filename --output output_dir\n"+
+      "       xtce_converter [options] --plugin /PATH/FILENAME.gem --output output_dir --variables variables.txt"
+    option_parser.separator("")
+    option_parser.on("-h", "--help", "Show this message") do
+      puts option_parser
+      exit
+    end
+    option_parser.on("-i VALUE", "--import VALUE", "Import the specified .xtce file") do |arg|
+      options[:import] = arg
+    end
+    option_parser.on("-o", "--output DIRECTORY", "Create files in the directory") do |arg|
+      options[:output] = arg
+    end
+    option_parser.on("-p", "--plugin PLUGIN", "Export .xtce file(s) from the plugin") do |arg|
+      options[:plugin] = arg
+    end
+    option_parser.on("-v", "--variables", "Optional variables file to pass to the plugin") do |arg|
+      options[:variables] = arg
+    end
+  end
+
+  begin
+    option_parser.parse!(args)
+  rescue => err
+    abort(option_parser.to_s)
+  end
+
+  if options[:import] && options[:plugin]
+    puts "xtce_converter options --import and --plugin are mutually exclusive"
+    abort(option_parser.to_s)
+  end
+
+  ENV['COSMOS_NO_STORE'] = '1' # it can be anything
+  Cosmos::Logger.stdout = false
+  Cosmos::Logger.level = Cosmos::Logger::DEBUG
+
+  if options[:import] && options[:output]
+    packet_config = Cosmos::PacketConfig.new
+    puts "Processing #{options[:import]}..."
+    packet_config.process_file(options[:import], nil)
+    puts "Writing COSMOS config files to #{options[:output]}/"
+    packet_config.to_config(options[:output])
+    exit(0)
+  elsif options[:plugin] && options[:output]
+    begin
+      variables = nil
+      variables = JSON.parse(File.read(options[:variables])) if options[:variables]
+      puts "Installing #{File.basename(options[:plugin])}"
+      plugin_hash = Cosmos::PluginModel.install_phase1(options[:plugin], variables, scope: 'DEFAULT', validate_only: true)
+      plugin_hash['variables']['xtce_output'] = options[:output]
+      Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: 'DEFAULT', validate_only: true,
+        gem_file_path: options[:plugin])
+      result = 0 # bash and Windows consider 0 success
+    rescue => e
+      puts "Error: #{e.message}"
+      result = ERROR_CODE
+    ensure
+      name = Psych.safe_load(`gem spec #{options[:plugin]} name`).to_s
+      version = Psych.safe_load(`gem spec #{options[:plugin]} version`, permitted_classes: [Gem::Version]).to_s
+      Gem::Uninstaller.new(name, {:version => version, :force => true}).uninstall
+      exit(result)
+    end
+  else
+    abort(option_parser.to_s)
+  end
+end
+
 # A helper method to make the zip writing recursion work
 def write_zip_entries(base_dir, entries, zip_path, io)
   io.add(zip_path, base_dir) # Add the directory whether it has entries or not
@@ -221,6 +293,7 @@ def validate_plugin(plugin_file_path, scope:, variables_file: nil)
   scope ||= 'DEFAULT'
   variables = nil
   variables = JSON.parse(File.read(variables_file)) if variables_file
+  puts "Installing #{File.basename(plugin_file_path)}"
   plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope, validate_only: true)
   Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope, validate_only: true,
     gem_file_path: plugin_file_path)
@@ -363,9 +436,8 @@ if not ARGV[0].nil? # argument(s) given
   when 'cstol_converter'
     puts `ruby /cosmos/bin/cstol_converter #{ARGV[1..-1].join(' ')}`
 
-  # TODO: This still needs work in COSMOS 5
-  # when 'xtce_converter'
-  #   puts `ruby /cosmos/bin/xtce_converter #{ARGV[1..-1].join(' ')}`
+  when 'xtce_converter'
+    xtce_converter(ARGV[1..-1])
 
   when 'bridge'
     ENV['COSMOS_NO_STORE'] = '1'

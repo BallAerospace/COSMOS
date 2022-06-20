@@ -397,6 +397,10 @@ module Cosmos
         target_folder = File.join(temp_dir, @name)
         # Build a System for just this target
         system = System.new([@name], temp_dir)
+        if variables["xtce_output"]
+          puts "Converting target #{@name} to .xtce files in #{variables["xtce_output"]}/#{@name}"
+          system.packet_config.to_xtce(variables["xtce_output"])
+        end
         unless validate_only
           build_target_archive(rubys3_client, temp_dir, target_folder)
           system = update_store(system)
