@@ -329,7 +329,7 @@ export default {
     this.api = new CosmosApi()
     this.configParser = new ConfigParserService()
     this.parseDefinition()
-    this.screenKey = this.hashString(this.currentDefinition)
+    this.screenKey = Math.floor(Math.random() * 1000000)
   },
   mounted() {
     let refreshInterval = this.pollingPeriod * 1000
@@ -344,17 +344,6 @@ export default {
     }
   },
   methods: {
-    hashString: function (string) {
-      var hash = 0,
-        i,
-        chr
-      for (i = 0; i < string.length; i++) {
-        chr = string.charCodeAt(i)
-        hash = (hash << 5) - hash + chr
-        hash |= 0 // Convert to 32bit integer
-      }
-      return hash
-    },
     clearErrors: function () {
       this.errors = []
     },
@@ -451,7 +440,6 @@ export default {
       this.editDialog = false
       // Restore the backup since we cancelled
       this.currentDefinition = this.backup
-      this.parseDefinition()
     },
     loadFile: function () {
       const fileReader = new FileReader()
@@ -478,7 +466,7 @@ export default {
           },
         })
         this.editDialog = false
-        this.screenKey = this.hashString(this.currentDefinition)
+        this.screenKey = Math.floor(Math.random() * 1000000)
       })
     },
     downloadScreen: function () {
