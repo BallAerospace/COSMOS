@@ -286,10 +286,11 @@ def put_into_archive(disk_file_path, io, zip_file_path)
   end
 end
 
-def validate_plugin(plugin_file_path, scope: 'DEFAULT', variables_file: nil)
+def validate_plugin(plugin_file_path, scope:, variables_file: nil)
   ENV['COSMOS_NO_STORE'] = '1' # it can be anything
   Cosmos::Logger.stdout = false
   Cosmos::Logger.level = Cosmos::Logger::DEBUG
+  scope ||= 'DEFAULT'
   variables = nil
   variables = JSON.parse(File.read(variables_file)) if variables_file
   puts "Installing #{File.basename(plugin_file_path)}"
@@ -308,7 +309,8 @@ ensure
   exit(result)
 end
 
-def load_plugin(plugin_file_path, scope: 'DEFAULT', variables_file: nil)
+def load_plugin(plugin_file_path, scope:, variables_file: nil)
+  scope ||= 'DEFAULT'
   # Only create the scope if it doesn't already exist
   unless Cosmos::ScopeModel.names.include?(scope)
     begin
