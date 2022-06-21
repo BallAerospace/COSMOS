@@ -32,17 +32,29 @@ module Cosmos
     # @return [String] Table configuration filename
     attr_reader :filename
 
+    def self.process_file(filename)
+      instance = self.new()
+      instance.process_file(filename)
+      instance
+    end
+
     # Create the table configuration
     def initialize
       super
-
       # Override commands with the Table::TARGET name to store tables
       @commands[Table::TARGET] = {}
+      @definitions = {}
+      @last_config = ''
     end
 
     # @return [Array<Table>] All tables defined in the configuration file
     def tables
       @commands[Table::TARGET]
+    end
+
+    # @return [String] Table definition for the specific table
+    def definition(table_name)
+      @definitions[table_name.upcase]
     end
 
     # @return [Array<String>] All the table names
@@ -64,6 +76,7 @@ module Cosmos
       # Partial files are included into another file and thus aren't directly processed
       return if File.basename(filename)[0] == '_' # Partials start with underscore
       @filename = filename
+      @last_config = File.read(filename)
       @converted_type = nil
       @converted_bit_size = nil
       @proc_text = ''
@@ -111,10 +124,12 @@ module Cosmos
                     )
             end
             process_file(table_filename)
+
           when 'TABLE'
             finish_packet
             @current_packet =
               TableParser.parse_table(parser, @commands, @warnings)
+            @definitions[@current_packet.packet_name] = @last_config
             @current_cmd_or_tlm = COMMAND
             @default_index = 0
 

@@ -146,10 +146,11 @@ Rails.application.routes.draw do
     get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /.*/
     delete '/storage/delete/:object_id', to: 'storage#delete', object_id: /.*/
 
-    get  "/tables", to: "tables#index"
-    get  "/tables/*name", to: "tables#body", format: false, defaults: { format: 'html' }
+    get  '/tables', to: 'tables#index'
+    post '/tables/binary', to: 'tables#binary'
+    post '/tables/definition', to: 'tables#definition'
+    post '/tables/report', to: 'tables#report'
     post '/tables/load', to: 'tables#load'
-    post '/tables/*name/report', to: 'tables#report'
     post '/tables/*name/lock', to: 'tables#lock'
     post '/tables/*name/unlock', to: 'tables#unlock'
     post '/tables/*name/generate', to: 'tables#generate'

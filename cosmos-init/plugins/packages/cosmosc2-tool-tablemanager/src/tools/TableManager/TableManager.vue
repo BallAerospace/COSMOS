@@ -54,38 +54,44 @@
       data-test="file-input"
       style="position: fixed; top: -100%"
     />
-    <v-text-field
-      outlined
-      dense
-      readonly
-      hide-details
-      label="Filename"
-      v-model="fullFilename"
-      id="filename"
-      data-test="filename"
-    />
-    <v-text-field
-      outlined
-      dense
-      readonly
-      hide-details
-      label="Definition"
-      v-model="definitionFilename"
-      id="definition-filename"
-      data-test="definition-filename"
-    />
+    <v-row dense>
+      <v-col cols="6">
+        <v-text-field
+          outlined
+          dense
+          readonly
+          hide-details
+          label="Filename"
+          v-model="fullFilename"
+          id="filename"
+          data-test="filename"
+        />
+      </v-col>
+      <v-col cols="6">
+        <v-text-field
+          outlined
+          dense
+          readonly
+          hide-details
+          label="Definition"
+          v-model="definitionFilename"
+          id="definition-filename"
+          data-test="definition-filename"
+        />
+      </v-col>
+    </v-row>
     <div class="ma-3">
-      <span class="text-body-1 mr-3">Download:</span>
+      <span class="text-body-1 mr-3">File Download:</span>
       <v-btn
         dense
         color="primary"
         class="mr-3"
         @click="downloadBinary"
         :disabled="filename == ''"
-        data-test="download-binary"
+        data-test="download-file-binary"
       >
         Binary
-        <v-icon right dark> mdi-file-document </v-icon>
+        <v-icon right dark> mdi-file-code </v-icon>
       </v-btn>
       <v-btn
         dense
@@ -93,7 +99,7 @@
         class="mr-3"
         @click="downloadDefinition"
         :disabled="filename == ''"
-        data-test="download-definition"
+        data-test="download-file-definition"
       >
         Definition
         <v-icon right dark> mdi-file-document-edit </v-icon>
@@ -103,7 +109,7 @@
         color="primary"
         @click="downloadReport"
         :disabled="filename == ''"
-        data-test="download-report"
+        data-test="download-file-report"
       >
         Report
         <v-icon right dark> mdi-file-document </v-icon>
@@ -151,28 +157,43 @@
                 @change="onChange(item, $event)"
               />
             </template>
-            <!-- Future download individual table tabs -->
-            <!-- template v-slot:footer>
+            <template v-slot:footer>
               <div style="position: absolute" class="ma-3">
-                <v-btn color="primary" dense @click="downloadBinary(table.name)" class="mr-3">
+                <span class="text-body-1 mr-3">Table Download:</span>
+                <v-btn
+                  dense
+                  color="primary"
+                  class="mr-3"
+                  @click="downloadBinary(table.name)"
+                  :disabled="filename == ''"
+                  data-test="download-table-binary"
+                >
                   Binary
-                  <v-icon right dark> mdi-cloud-download </v-icon>
+                  <v-icon right dark> mdi-file-code </v-icon>
                 </v-btn>
                 <v-btn
                   dense
                   color="primary"
                   class="mr-3"
                   @click="downloadDefinition(table.name)"
+                  :disabled="filename == ''"
+                  data-test="download-table-definition"
                 >
                   Definition
                   <v-icon right dark> mdi-file-document-edit </v-icon>
                 </v-btn>
-                <v-btn color="primary" dense @click="downloadReport(table.name)">
+                <v-btn
+                  dense
+                  color="primary"
+                  @click="downloadReport(table.name)"
+                  :disabled="filename == ''"
+                  data-test="download-table-report"
+                >
                   Report
                   <v-icon right dark> mdi-file-document </v-icon>
                 </v-btn>
               </div>
-            </template -->
+            </template>
           </v-data-table>
         </v-tab-item>
       </v-tabs-items>
@@ -406,31 +427,34 @@ export default {
           })
       }
     },
-    downloadBinary: function () {
-      if (this.filename !== '') {
-        Api.get(`/cosmos-api/tables/${this.filename}`).then((response) => {
-          // Decode Base64 string
-          const decodedData = window.atob(response.data.contents)
-          // Create UNIT8ARRAY of size same as row data length
-          const uInt8Array = new Uint8Array(decodedData.length)
-          // Insert all character code into uInt8Array
-          for (let i = 0; i < decodedData.length; ++i) {
-            uInt8Array[i] = decodedData.charCodeAt(i)
-          }
-          // Return BLOB image after conversion
-          const blob = new Blob([uInt8Array], {
-            type: 'application/octet-stream',
-          })
-          // Make a link and then 'click' on it to start the download
-          const link = document.createElement('a')
-          link.href = URL.createObjectURL(blob)
-          link.setAttribute(
-            'download',
-            this.filename.substring(this.filename.lastIndexOf('/') + 1)
-          )
-          link.click()
-        })
+    downloadBinary: function (tableName = null) {
+      let url = `/cosmos-api/tables/${this.filename}`
+      if (tableName) {
+        url += `/${tableName}`
       }
+      console.log(`tableName:${tableName} url:${url}`)
+      Api.get(url).then((response) => {
+        // Decode Base64 string
+        const decodedData = window.atob(response.data.contents)
+        // Create UNIT8ARRAY of size same as row data length
+        const uInt8Array = new Uint8Array(decodedData.length)
+        // Insert all character code into uInt8Array
+        for (let i = 0; i < decodedData.length; ++i) {
+          uInt8Array[i] = decodedData.charCodeAt(i)
+        }
+        // Return BLOB image after conversion
+        const blob = new Blob([uInt8Array], {
+          type: 'application/octet-stream',
+        })
+        // Make a link and then 'click' on it to start the download
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.setAttribute(
+          'download',
+          this.filename.substring(this.filename.lastIndexOf('/') + 1)
+        )
+        link.click()
+      })
     },
     downloadDefinition: function () {
       if (this.definitionFilename !== '') {
