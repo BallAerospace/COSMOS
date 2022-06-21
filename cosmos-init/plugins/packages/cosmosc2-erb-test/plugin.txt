@@ -1,1 +1,3 @@
-TARGET ERBTEST ERBTEST
+VARIABLE erbtest_target_name ERBTEST
+
+TARGET ERBTEST <%= erbtest_target_name %>

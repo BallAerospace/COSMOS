@@ -212,7 +212,36 @@ def put_into_archive(disk_file_path, io, zip_file_path)
   end
 end
 
-def load_plugin(plugin_file_path, scope:, variables_file: nil)
+def update_plugin(plugin_file_path, plugin_name, variables: nil, plugin_txt_lines: nil, scope:)
+  puts "Updating existing plugin: #{plugin_name} with #{File.basename(plugin_file_path)}"
+  plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
+  begin
+    variables = plugin_model.variables unless variables
+    plugin_model.destroy
+    plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, existing_plugin_txt_lines: plugin_txt_lines, process_existing: true, scope: scope)
+    Cosmos::PluginModel.install_phase2(plugin_hash, scope: scope)
+  rescue => error
+    puts error.formatted
+    plugin_model.restore if plugin_model.destroyed?
+    raise error
+  end
+end
+
+# Loads a plugin into the COSMOS system
+# This code is used from the command line and is the same code that gets called if you
+# edit/upgrade or install a new plugin from the Admin interface
+#
+# Usage: cosmos load gemfile_path [scope] [plugin_hash_file_path]
+#
+# With just gemfile_path and/or scope: Will do nothing if any plugin
+# with the same gem file already exists
+#
+# Otherwise will do what the plugin_hash_file says to do
+# Plugin hash file must have the exact name of an existing plugin for upgrades and edits
+# Otherwise, it will be assumed that the plugin is intentionally being installed for a second
+# time
+#
+def load_plugin(plugin_file_path, scope:, plugin_hash_file: nil)
   scope ||= 'DEFAULT'
   # Only create the scope if it doesn't already exist
   unless Cosmos::ScopeModel.names.include?(scope)
@@ -226,44 +255,47 @@ def load_plugin(plugin_file_path, scope:, variables_file: nil)
   end
 
   begin
-    # Try to find an existing plugin with this file to upgrade
-    file_full_name = File.basename(plugin_file_path, ".gem")
-    file_gem_name = file_full_name.split('-')[0..-2].join('-')
-    plugin_names = Cosmos::PluginModel.names(scope: scope)
-    found = false
-    plugin_names.each do |plugin_name|
-      gem_name = plugin_name.split("__")[0]
-      full_name = File.basename(gem_name, ".gem")
-      gem_name = full_name.split('-')[0..-2].join('-')
-      if file_gem_name == gem_name
-        found = true
-        # Only upgrade if changed
-        if file_full_name != full_name
-          puts "Upgrading existing plugin: #{plugin_name} with #{plugin_file_path}"
-          plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
-          variables = plugin_model.variables
-          plugin_model.destroy
-          if variables_file
-            # Assume phase1 is already done
-            variables = JSON.parse(File.read(variables_file))
-            plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
-          else
-            plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+    if plugin_hash_file
+      # Admin Create / Edit / or Upgrade Plugin
+      Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      plugin_hash = JSON.parse(File.read(plugin_hash_file))
+    else
+      # Init or Command Line cosmos load with no plugin_hash_file
+      file_full_name = File.basename(plugin_file_path, ".gem")
+      file_gem_name = file_full_name.split('-')[0..-2].join('-')
+      found = false
+      plugin_names = Cosmos::PluginModel.names(scope: scope)
+      plugin_names.each do |plugin_name|
+        gem_name = plugin_name.split("__")[0]
+        full_name = File.basename(gem_name, ".gem")
+        gem_name = full_name.split('-')[0..-2].join('-')
+        if file_gem_name == gem_name
+          found = true
+          # Upgrade if version changed else do nothing
+          if file_full_name != full_name
+            update_plugin(plugin_file_path, plugin_name, scope: scope)
           end
-          Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
         end
       end
+      return if found
+
+      plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
     end
-    unless found
-      puts "Loading new plugin: #{plugin_file_path}"
-      if variables_file
-        # Assume phase1 is already done
-        variables = JSON.parse(File.read(variables_file))
-        plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
-      else
-        plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
-      end
-      Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+
+    # Determine if plugin named in plugin_hash exists
+    existing_plugin_hash = Cosmos::PluginModel.get(name: plugin_hash['name'], scope: scope)
+
+    # Existing plugin hash will be present if plugin is being edited or upgraded
+    # If editing, gem name will match existing hash name
+    # If upgrading, gem name will not match the existing hash name
+
+    if existing_plugin_hash
+      # Upgrade or Edit
+      update_plugin(plugin_file_path, plugin_hash['name'], variables: plugin_hash['variables'], plugin_txt_lines: plugin_hash['plugin_txt_lines'], scope: scope)
+    else
+      # New Install
+      puts "Loading new plugin: #{plugin_file_path}\n#{plugin_hash}"
+      Cosmos::PluginModel.install_phase2(plugin_hash, scope: scope)
     end
   rescue => err
     abort("Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}")
@@ -309,7 +341,7 @@ if not ARGV[0].nil? # argument(s) given
     puts `rake #{ARGV[1..-1].join(' ')}`
 
   when 'load'
-    load_plugin(ARGV[1], scope: ARGV[2], variables_file: ARGV[3])
+    load_plugin(ARGV[1], scope: ARGV[2], plugin_hash_file: ARGV[3])
 
   when 'geminstall'
     gem_install(ARGV[1])
