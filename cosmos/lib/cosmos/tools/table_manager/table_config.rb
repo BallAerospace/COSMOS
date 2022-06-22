@@ -44,7 +44,7 @@ module Cosmos
       # Override commands with the Table::TARGET name to store tables
       @commands[Table::TARGET] = {}
       @definitions = {}
-      @last_config = ''
+      @last_config = [] # Stores array of [filename, contents]
     end
 
     # @return [Array<Table>] All tables defined in the configuration file
@@ -76,7 +76,7 @@ module Cosmos
       # Partial files are included into another file and thus aren't directly processed
       return if File.basename(filename)[0] == '_' # Partials start with underscore
       @filename = filename
-      @last_config = File.read(filename)
+      @last_config = [File.basename(filename), File.read(filename)]
       @converted_type = nil
       @converted_bit_size = nil
       @proc_text = ''

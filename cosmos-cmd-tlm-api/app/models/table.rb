@@ -61,31 +61,59 @@ class Table
     result.sort
   end
 
+  def self.body(scope, name)
+    get_file(scope, name)
+  end
+
   def self.binary(scope, binary_filename, definition_filename = nil, table_name = nil)
-    binary = get_file(scope, binary_filename)
+    binary = OpenStruct.new
+    binary.filename = File.basename(binary_filename)
+    binary.contents = get_file(scope, binary_filename)
     if definition_filename && table_name
       root_definition = get_definitions(scope, definition_filename)
-      Cosmos::TableManagerCore.binary(binary, root_definition, table_name)
-    else
-      binary
+      # Convert the typical table naming convention of all caps with underscores
+      # to the typical binary convention of camelcase, e.g. MC_CONFIG => McConfig.bin
+      filename = table_name.split('_').map { |part| part.capitalize }.join()
+      binary.filename = "#{filename}.bin"
+      binary.contents = Cosmos::TableManagerCore.binary(binary.contents, root_definition, table_name)
     end
+    return binary
   end
 
   def self.definition(scope, definition_filename, table_name = nil)
+    definition = OpenStruct.new
     if table_name
       root_definition = get_definitions(scope, definition_filename)
-      Cosmos::TableManagerCore.definition(root_definition, table_name)
+      definition.filename, definition.contents =
+        Cosmos::TableManagerCore.definition(root_definition, table_name)
     else
-      get_file(scope, definition_filename)
+      definition.filename = File.basename(definition_filename)
+      definition.contents = get_file(scope, definition_filename)
     end
+    return definition
   end
 
   def self.report(scope, binary_filename, definition_filename, table_name = nil)
+    report = OpenStruct.new
     binary = get_file(scope, binary_filename)
     root_definition = get_definitions(scope, definition_filename)
-    report = Cosmos::TableManagerCore.report(binary, root_definition, table_name)
-    report_filename = "#{File.dirname(binary_filename)}/#{File.basename(binary_filename)}.txt"
-    put_file(scope, report_filename, report)
+    if table_name
+      # Convert the typical table naming convention of all caps with underscores
+      # to the typical binary convention of camelcase, e.g. MC_CONFIG => McConfig.bin
+      filename = table_name.split('_').map { |part| part.capitalize }.join()
+      report.filename = "#{filename}.bin"
+    else
+      report.filename = File.basename(binary_filename).sub('.bin', '.csv')
+    end
+    report.contents = Cosmos::TableManagerCore.report(binary, root_definition, table_name)
+    put_file(scope, binary_filename.sub('.bin', '.csv'), report.contents)
+    return report
+  end
+
+  def self.load(scope, binary_filename, definition_filename)
+    binary = get_file(scope, binary_filename)
+    root_definition = get_definitions(scope, definition_filename)
+    return Cosmos::TableManagerCore.build_json(binary, root_definition)
   end
 
   def self.save(scope, binary_filename, definition_filename, tables)
@@ -109,19 +137,12 @@ class Table
     binary_filename.sub!('_def', '') # Strip off _def from the definition filename
     binary_filename.sub!('.txt', '.bin')
     put_file(scope, binary_filename, binary)
-  end
-
-  def self.load(scope, binary_filename, definition_filename)
-    binary = get_file(scope, binary_filename)
-    root_definition = get_definitions(scope, definition_filename)
-    Cosmos::TableManagerCore.build_json(binary, root_definition)
+    return binary_filename
   end
 
   def self.destroy(scope, name)
-    rubys3_client = Aws::S3::Client.new
-
     # Only delete file from the modified target directory
-    rubys3_client.delete_object(
+    Aws::S3::Client.new.delete_object(
       key: "#{scope}/targets_modified/#{name}",
       bucket: DEFAULT_BUCKET_NAME,
     )
@@ -187,6 +208,9 @@ class Table
       rescue Aws::S3::Errors::NoSuchKey
         return nil
       end
+    end
+    if name.include?(".bin")
+      resp.body.binmode
     end
     resp.body.read
   end

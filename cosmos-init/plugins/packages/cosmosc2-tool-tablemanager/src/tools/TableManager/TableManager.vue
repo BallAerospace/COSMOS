@@ -80,41 +80,55 @@
         />
       </v-col>
     </v-row>
-    <div class="ma-3">
-      <span class="text-body-1 mr-3">File Download:</span>
-      <v-btn
-        dense
-        color="primary"
-        class="mr-3"
-        @click="downloadBinary"
-        :disabled="filename == ''"
-        data-test="download-file-binary"
-      >
-        Binary
-        <v-icon right dark> mdi-file-code </v-icon>
-      </v-btn>
-      <v-btn
-        dense
-        color="primary"
-        class="mr-3"
-        @click="downloadDefinition"
-        :disabled="filename == ''"
-        data-test="download-file-definition"
-      >
-        Definition
-        <v-icon right dark> mdi-file-document-edit </v-icon>
-      </v-btn>
-      <v-btn
-        dense
-        color="primary"
-        @click="downloadReport"
-        :disabled="filename == ''"
-        data-test="download-file-report"
-      >
-        Report
-        <v-icon right dark> mdi-file-document </v-icon>
-      </v-btn>
-    </div>
+    <v-row dense class="mb-1">
+      <v-col cols="auto" class="mr-auto">
+        <span class="text-body-1 ma-2">File Download:</span>
+        <v-btn
+          dense
+          color="primary"
+          class="mr-3"
+          @click="downloadBinary(null)"
+          :disabled="filename == ''"
+          data-test="download-file-binary"
+        >
+          Binary
+          <v-icon right dark> mdi-file-code </v-icon>
+        </v-btn>
+        <v-btn
+          dense
+          color="primary"
+          class="mr-3"
+          @click="downloadDefinition(null)"
+          :disabled="filename == ''"
+          data-test="download-file-definition"
+        >
+          Definition
+          <v-icon right dark> mdi-file-document-edit </v-icon>
+        </v-btn>
+        <v-btn
+          dense
+          color="primary"
+          @click="downloadReport(null)"
+          :disabled="filename == ''"
+          data-test="download-file-report"
+        >
+          Report
+          <v-icon right dark> mdi-file-document </v-icon>
+        </v-btn>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn
+          dense
+          color="primary"
+          @click="upload"
+          :disabled="!uploadScript"
+          data-test="upload-file"
+        >
+          Upload
+          <v-icon right dark> mdi-file-upload </v-icon>
+        </v-btn>
+      </v-col>
+    </v-row>
     <v-card>
       <v-card-title>
         Items
@@ -157,7 +171,7 @@
                 @change="onChange(item, $event)"
               />
             </template>
-            <template v-slot:footer>
+            <template v-slot:footer v-if="tables.length > 1">
               <div style="position: absolute" class="ma-3">
                 <span class="text-body-1 mr-3">Table Download:</span>
                 <v-btn
@@ -259,6 +273,7 @@ export default {
       showError: false,
       errorTitle: '',
       errorText: '',
+      uploadScript: false,
     }
   },
   computed: {
@@ -307,13 +322,13 @@ export default {
             {
               divider: true,
             },
-            {
-              label: 'Upload',
-              icon: 'mdi-cloud-upload',
-              command: () => {
-                this.upload()
-              },
-            },
+            // {
+            //   label: 'Upload',
+            //   icon: 'mdi-cloud-upload',
+            //   command: () => {
+            //     this.upload()
+            //   },
+            // },
             {
               divider: true,
             },
@@ -327,6 +342,20 @@ export default {
           ],
         },
       ]
+    },
+  },
+  watch: {
+    filename: function (val) {
+      let upload =
+        this.filename.split('/').slice(0, 2).join('/') + '/procedures/upload.rb'
+      console.log(`watch filename:${upload}`)
+      Api.get(`/cosmos-api/tables/${upload}`)
+        .then((response) => {
+          this.uploadScript = true
+        })
+        .catch((error) => {
+          this.uploadScript = false
+        })
     },
   },
   created() {
@@ -347,7 +376,7 @@ export default {
       // They opened a definition file so create a new binary
       if (file.name.includes('.txt')) {
         if (this.fileNew) {
-          this.buildNewBinary(file)
+          this.buildNewBinary(file.name)
           this.fileNew = false
         } else {
           this.getDefinition(file.name)
@@ -358,7 +387,6 @@ export default {
         this.filename = file.name.split('*')[0]
         this.fileModified = ''
         this.lockedBy = locked
-
         this.getDefinition()
       }
     },
@@ -428,12 +456,15 @@ export default {
       }
     },
     downloadBinary: function (tableName = null) {
-      let url = `/cosmos-api/tables/${this.filename}`
-      if (tableName) {
-        url += `/${tableName}`
+      const formData = new FormData()
+      formData.append('binary', this.filename)
+      formData.append('definition', this.definitionFilename)
+      if (tableName !== null) {
+        formData.append('table', tableName)
       }
-      console.log(`tableName:${tableName} url:${url}`)
-      Api.get(url).then((response) => {
+      Api.post(`/cosmos-api/tables/binary`, {
+        data: formData,
+      }).then((response) => {
         // Decode Base64 string
         const decodedData = window.atob(response.data.contents)
         // Create UNIT8ARRAY of size same as row data length
@@ -449,60 +480,61 @@ export default {
         // Make a link and then 'click' on it to start the download
         const link = document.createElement('a')
         link.href = URL.createObjectURL(blob)
-        link.setAttribute(
-          'download',
-          this.filename.substring(this.filename.lastIndexOf('/') + 1)
-        )
+        link.setAttribute('download', response.data.filename)
         link.click()
       })
     },
-    downloadDefinition: function () {
-      if (this.definitionFilename !== '') {
-        Api.get(`/cosmos-api/tables/${this.definitionFilename}`).then(
-          (response) => {
-            const blob = new Blob([response.data.contents], {
-              type: 'text/plain',
-            })
-            // Make a link and then 'click' on it to start the download
-            const link = document.createElement('a')
-            link.href = URL.createObjectURL(blob)
-            link.setAttribute(
-              'download',
-              this.definitionFilename.substring(
-                this.definitionFilename.lastIndexOf('/') + 1
-              )
-            )
-            link.click()
-          }
-        )
+    downloadDefinition: function (tableName = null) {
+      const formData = new FormData()
+      formData.append('definition', this.definitionFilename)
+      if (tableName !== null) {
+        formData.append('table', tableName)
       }
-    },
-    downloadReport: function () {
-      if (this.filename !== '') {
-        const formData = new FormData()
-        formData.append('binary', this.filename)
-        formData.append('definition', this.definitionFilename)
-        Api.post(`/cosmos-api/tables/${this.filename}/report`, {
-          data: formData,
-        }).then((response) => {
-          const blob = new Blob([response.data], {
-            type: 'text/plain',
-          })
-          // Make a link and then 'click' on it to start the download
-          const link = document.createElement('a')
-          link.href = URL.createObjectURL(blob)
-          link.setAttribute(
-            'download',
-            `${this.filename.substring(
-              this.filename.lastIndexOf('/') + 1,
-              this.filename.length - 4
-            )}.csv`
-          )
-          link.click()
+      Api.post(`/cosmos-api/tables/definition`, {
+        data: formData,
+      }).then((response) => {
+        const blob = new Blob([response.data.contents], {
+          type: 'text/plain',
         })
-      }
+        // Make a link and then 'click' on it to start the download
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.setAttribute('download', response.data.filename)
+        link.click()
+      })
     },
-    async upload() {
+    downloadReport: function (tableName = null) {
+      const formData = new FormData()
+      formData.append('binary', this.filename)
+      formData.append('definition', this.definitionFilename)
+      if (tableName !== null) {
+        formData.append('table', tableName)
+      }
+      Api.post(`/cosmos-api/tables/report`, {
+        data: formData,
+      }).then((response) => {
+        const blob = new Blob([response.data.contents], {
+          type: 'text/plain',
+        })
+        // Make a link and then 'click' on it to start the download
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.setAttribute('download', response.data.filename)
+        link.click()
+      })
+    },
+    upload() {
+      let openScript = true
+      let upload =
+        this.filename.split('/').slice(0, 2).join('/') + '/procedures/upload.rb'
+      // TODO: Pass parameter to script with filename
+      Api.post(`/script-api/scripts/${upload}/run`).then((response) => {
+        if (openScript) {
+          window.open(`/tools/scriptrunner/${response.data}`, '_blank')
+        }
+      })
+    },
+    async loadBinary() {
       this.fileInput = ''
       this.$refs.fileInput.$refs.input.click()
       // Wait for the file to be set by the dialog so upload works
@@ -599,14 +631,14 @@ export default {
           }
         })
     },
-    buildNewBinary: function (file) {
+    buildNewBinary: function (filename) {
       const formData = new FormData()
-      formData.append('contents', file.contents)
-      Api.post(`/cosmos-api/tables/${file.name}/generate`, {
+      formData.append('definition', filename)
+      Api.post(`/cosmos-api/tables/generate`, {
         data: formData,
       }).then((response) => {
         this.filename = response.data.filename
-        this.getDefinition(file.name)
+        this.getDefinition(filename)
       })
     },
     onChange: function (item, { index, event }) {

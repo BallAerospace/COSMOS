@@ -30,7 +30,7 @@ class TablesController < ApplicationController
     begin
       file = Table.binary(params[:scope], params[:binary], params[:definition], params[:table])
       if file
-        results = { 'contents' => Base64.encode64(file) }
+        results = { 'filename' => file.filename, 'contents' => Base64.encode64(file.contents) }
         render json: results
       else
         head :not_found
@@ -46,7 +46,7 @@ class TablesController < ApplicationController
     begin
       file = Table.definition(params[:scope], params[:definition], params[:table])
       if file
-        results = { 'contents' => file }
+        results = { 'filename' => file.filename, 'contents' => file.contents }
         render json: results
       else
         head :not_found
@@ -62,7 +62,7 @@ class TablesController < ApplicationController
     begin
       file = Table.report(params[:scope], params[:binary], params[:definition], params[:table])
       if file
-        results = { 'contents' => file }
+        results = { 'filename' => file.filename, 'contents' => file.contents }
         render json: results
       else
         head :not_found
@@ -132,7 +132,7 @@ class TablesController < ApplicationController
   def generate
     return unless authorization('system')
     begin
-      filename = Table.generate(params[:scope], params[:name], params[:contents])
+      filename = Table.generate(params[:scope], params[:definition])
       if filename
         results = { 'filename' => filename }
         render json: results
@@ -142,16 +142,6 @@ class TablesController < ApplicationController
     rescue Exception => e
       render(json: { status: 'error', message: e.message }, status: 500) and
         return
-    end
-  end
-
-  def report
-    return unless authorization('system')
-    table = Table.report(params[:scope], params[:binary], params[:definition])
-    if table
-      render json: table
-    else
-      head :not_found
     end
   end
 

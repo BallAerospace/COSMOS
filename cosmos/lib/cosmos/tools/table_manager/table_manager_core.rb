@@ -31,44 +31,28 @@ module Cosmos
     class MismatchError < CoreError
     end
 
-    # # Raised when there is no current table configuration
-    # class NoConfigError < CoreError
-    #   # @return [String] Error message
-    #   def message
-    #     'No current table configuration'
-    #   end
-    # end
-
-    # # Raised when there is no table in the current configuration
-    # class NoTableError < CoreError
-    #   # @return [String] Error message
-    #   def message
-    #     'Table does not exist in current configuration'
-    #   end
-    # end
-
-    # @return [TableConfig] Configuration instance
-    # attr_reader :config
-
     def self.binary(binary, definition_filename, table_name)
       config = TableConfig.process_file(definition_filename)
       load_binary(config, binary)
-      config.table(table_name).buffer
+      return config.table(table_name).buffer
     end
 
     def self.definition(definition_filename, table_name)
       config = TableConfig.process_file(definition_filename)
-      config.definition(table_name)
+      return config.definition(table_name) # This returns an array: [filename, contents]
     end
 
     def self.report(binary, definition_filename, requested_table_name = nil)
-      config = TableConfig.process_file(definition_filename)
-      load_binary(config, binary)
-
       report = StringIO.new
+      config = TableConfig.process_file(definition_filename)
+      begin
+        load_binary(config, binary)
+      rescue CoreError => err
+        report.puts "Error: #{err.message}\n"
+      end
+
       config.tables.each do |table_name, table|
         next if requested_table_name && table_name != requested_table_name
-
         items = table.sorted_items
         report.puts(table.table_name)
 
@@ -140,9 +124,13 @@ module Cosmos
 
     def self.build_json(binary, definition_filename)
       config = TableConfig.process_file(definition_filename)
-      load_binary(config, binary)
       tables = []
       json = { tables: tables }
+      begin
+        load_binary(config, binary)
+      rescue CoreError => err
+        json['errors'] = err.message
+      end
       config.tables.each do |table_name, table|
         tables << {
           name: table_name,
@@ -208,17 +196,20 @@ module Cosmos
         if binary_data_index + table.length > data.length
           table.buffer = data[binary_data_index..-1]
           raise MismatchError,
-                "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
+            "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. "+
+            "The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
         end
         table.buffer = data[binary_data_index...binary_data_index + table.length]
         binary_data_index += table.length
       end
       if binary_data_index < data.length
         raise MismatchError,
-              "Binary size of #{data.length} larger than table definition of length #{total_table_length}. Discarding the remaing #{data.length - binary_data_index} bytes."
+          "Binary size of #{data.length} larger than table definition of length #{total_table_length}. "+
+          "Discarding the remaing #{data.length - binary_data_index} bytes."
       end
     end
 
+    # TODO: Potentially useful methods?
     # # @return [String] Success string if parameters all check. Raises
     # #   a CoreError if errors are found.
     # def file_check
@@ -333,39 +324,6 @@ module Cosmos
     #   table.buffer = save_table.buffer[0...table.length]
     #   file_save(bin_file)
     #   @config = saved_config
-    # end
-
-    # # Opens the given binary file and populates the table definition.
-    # # The filename parameter should be a properly formatted file path.
-    # def open_and_load_binary_file(filename)
-    #   begin
-    #     data = nil
-
-    #     # read the binary file and store it into an array
-    #     File.open(filename, 'rb') { |file| data = file.read }
-    #   rescue => err
-    #     raise "Unable to open and load #{filename} due to #{err}."
-    #   end
-
-    #   binary_data_index = 0
-    #   total_table_length = 0
-    #   @config.tables.each do |table_name, table|
-    #     total_table_length += table.length
-    #   end
-    #   @config.tables.each do |table_name, table|
-    #     if binary_data_index + table.length > data.length
-    #       table.buffer = data[binary_data_index..-1]
-    #       raise MismatchError,
-    #             "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
-    #     end
-    #     table.buffer =
-    #       data[binary_data_index...binary_data_index + table.length]
-    #     binary_data_index += table.length
-    #   end
-    #   if binary_data_index < data.length
-    #     raise MismatchError,
-    #           "Binary size of #{data.length} larger than table definition of length #{total_table_length}. Discarding the remaing #{data.length - binary_data_index} bytes."
-    #   end
     # end
   end
 end

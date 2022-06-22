@@ -147,13 +147,15 @@ Rails.application.routes.draw do
     delete '/storage/delete/:object_id', to: 'storage#delete', object_id: /.*/
 
     get  '/tables', to: 'tables#index'
+    # format: false to ensure the file extension (.bin, .txt) remains and is passed to 'name'
+    get  '/tables/*name', to: 'tables#body', format: false, defaults: { format: 'html' }
+    post '/tables/*name/lock', to: 'tables#lock'
+    post '/tables/*name/unlock', to: 'tables#unlock'
     post '/tables/binary', to: 'tables#binary'
     post '/tables/definition', to: 'tables#definition'
     post '/tables/report', to: 'tables#report'
     post '/tables/load', to: 'tables#load'
-    post '/tables/*name/lock', to: 'tables#lock'
-    post '/tables/*name/unlock', to: 'tables#unlock'
-    post '/tables/*name/generate', to: 'tables#generate'
+    post '/tables/generate', to: 'tables#generate'
     # Allow new_name to contain anything (including a dot '.')
     put '/tables/*name/save-as/*new_name', to: 'tables#save_as', new_name: /.*/
     # Must be last post /tables/*name so others will match first

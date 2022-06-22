@@ -65,11 +65,14 @@ module Cosmos
         File.write("#{tmp}/TestTable3_def.txt", def3)
 
         definition = TableManagerCore.definition(def_path, 'TEST1')
-        expect(definition).to eql def1
+        expect(definition[0]).to eql 'TestTable1_def.txt'
+        expect(definition[1]).to eql def1
         definition = TableManagerCore.definition(def_path, 'TEST2')
-        expect(definition).to eql def2
+        expect(definition[0]).to eql 'TestTable2_def.txt'
+        expect(definition[1]).to eql def2
         definition = TableManagerCore.definition(def_path, 'TEST3')
-        expect(definition).to eql def3
+        expect(definition[0]).to eql 'TestTable3_def.txt'
+        expect(definition[1]).to eql def3
         FileUtils.rm_rf(tmp)
       end
     end
@@ -130,6 +133,33 @@ module Cosmos
 
         binary = TableManagerCore.generate(def_path)
         expect(binary).to eql("\x01\xAB\xCD\xDE\xAD\xBE\xEF")
+        FileUtils.rm_rf(tmp)
+      end
+
+      it "generates a binary with all the fields" do
+        tmp = File.join(SPEC_DIR, 'tmp')
+        Dir.mkdir(tmp) unless File.exist?(tmp)
+        def_path = "#{tmp}/tabledef.txt"
+        File.open(def_path, 'w') do |file|
+          file.puts('TABLE "MC_Configuration" BIG_ENDIAN KEY_VALUE "Memory Control Configuration Table"')
+          file.puts('APPEND_PARAMETER "UINT" 32 UINT 0 0x3FFFFF 0x3FFFFF')
+          file.puts('  FORMAT_STRING "0x%0X"')
+          file.puts('APPEND_PARAMETER "FLOAT" 32 FLOAT MIN MAX 1.234')
+          file.puts('APPEND_PARAMETER "STATE" 8 UINT 0 1 1')
+          file.puts('  STATE DISABLE 0')
+          file.puts('  STATE ENABLE 1')
+          file.puts('APPEND_PARAMETER "Convert" 8 UINT 1 3 3')
+          file.puts('GENERIC_WRITE_CONVERSION_START')
+          file.puts('  value * 2')
+          file.puts('GENERIC_WRITE_CONVERSION_END')
+          file.puts('APPEND_PARAMETER "UNEDITABLE" 16 UINT MIN MAX 0 "Uneditable field"')
+          file.puts('  UNEDITABLE')
+          file.puts('APPEND_PARAMETER "BINARY" 32 STRING 0xBA5EBA11 "Binary string"')
+          file.puts('APPEND_PARAMETER "Pad" 16 UINT 0 0 0')
+          file.puts('  HIDDEN')
+        end
+        binary = TableManagerCore.generate(def_path)
+        expect(binary).to eql("\x00\x3F\xFF\xFF\x3f\x9d\xf3\xb6\x01\x06\x00\x00\xBA\x5E\xBA\x11\x00\x00")
         FileUtils.rm_rf(tmp)
       end
     end

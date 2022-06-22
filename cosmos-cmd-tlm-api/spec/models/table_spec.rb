@@ -84,7 +84,8 @@ RSpec.describe Table, :type => :model do
       @get_object.body = OpenStruct.new
       @get_object.body.read = 'the file'
       file = Table.binary('DEFAULT', 'INST/tables/bin/table.bin')
-      expect(file).to eql 'the file'
+      expect(file.filename).to eql 'table.bin'
+      expect(file.contents).to eql 'the file'
     end
 
     it "returns all table definition files if parsing a table" do
@@ -97,7 +98,8 @@ RSpec.describe Table, :type => :model do
       Dir.mkdir(tmp_dir) unless File.exist?(tmp_dir)
       allow(Dir).to receive(:mktmpdir).and_return(tmp_dir)
       file = Table.binary('DEFAULT', 'INST/tables/bin/table.bin', 'INST/tables/config/table_def.txt', 'MY_TABLE')
-      expect(file).to eql 'data' # Check the simple stub
+      expect(file.filename).to eql 'MyTable.bin'
+      expect(file.contents).to eql 'data' # Check the simple stub
       # Real test is did we create the definition files
       files = Dir.glob("#{tmp_dir}/**/*").map {|file| File.basename(file) }
       expect(files).to include('table_def.txt')
@@ -129,7 +131,8 @@ RSpec.describe Table, :type => :model do
       @get_object.body = OpenStruct.new
       @get_object.body.read = 'the file'
       file = Table.definition('DEFAULT', 'INST/tables/config/table_def.txt')
-      expect(file).to eql 'the file'
+      expect(file.filename).to eql 'table_def.txt'
+      expect(file.contents).to eql 'the file'
     end
 
     it "calls table manager to parse a definition" do
@@ -137,12 +140,13 @@ RSpec.describe Table, :type => :model do
       @get_object.body = OpenStruct.new
       # Create an additional TABLEFILE that we have to retrieve
       @get_object.body.read = 'TABLEFILE "tablefile.txt"'
-      allow(Cosmos::TableManagerCore).to receive(:definition).and_return('data')
+      allow(Cosmos::TableManagerCore).to receive(:definition).and_return(['tablefile.txt', 'data'])
       tmp_dir = File.join(SPEC_DIR, 'tmp3')
       Dir.mkdir(tmp_dir) unless File.exist?(tmp_dir)
       allow(Dir).to receive(:mktmpdir).and_return(tmp_dir)
       file = Table.definition('DEFAULT', 'INST/tables/config/table_def.txt', 'MY_TABLE')
-      expect(file).to eql 'data' # Check the simple stub
+      expect(file.filename).to eql 'tablefile.txt' # Ensure we get the right name
+      expect(file.contents).to eql 'data' # Check the simple stub
       # Real test is did we create the definition files
       files = Dir.glob("#{tmp_dir}/**/*").map {|file| File.basename(file) }
       expect(files).to include('table_def.txt')
@@ -158,7 +162,9 @@ RSpec.describe Table, :type => :model do
       @get_object.body.read = 'definition'
       allow(Cosmos::TableManagerCore).to receive(:report).and_return('report')
       file = Table.report('DEFAULT', 'INST/tables/bin/table.bin', 'INST/tables/config/table_def.txt')
-      expect(file).to eql 'report'
+      expect(file.filename).to eql 'table.csv'
+      expect(file.contents).to eql 'report'
+      expect(@put_object['DEFAULT/targets_modified/INST/tables/bin/table.csv']).to eql "report"
     end
 
     it "calls table manager to parse a definition" do
@@ -171,7 +177,9 @@ RSpec.describe Table, :type => :model do
       Dir.mkdir(tmp_dir) unless File.exist?(tmp_dir)
       allow(Dir).to receive(:mktmpdir).and_return(tmp_dir)
       file = Table.report('DEFAULT', 'INST/tables/bin/table.bin', 'INST/tables/config/table_def.txt', 'MY_TABLE')
-      expect(file).to eql 'report' # Check the simple stub
+      expect(file.filename).to eql 'table.csv' # Check the simple stub
+      expect(file.contents).to eql 'report' # Check the simple stub
+      expect(@put_object['DEFAULT/targets_modified/INST/tables/bin/table.csv']).to eql "report"
       # Real test is did we create the definition files
       files = Dir.glob("#{tmp_dir}/**/*").map {|file| File.basename(file) }
       expect(files).to include('table_def.txt')
@@ -207,7 +215,8 @@ RSpec.describe Table, :type => :model do
       @get_object.body = OpenStruct.new
       @get_object.body.read = 'definition'
       allow(Cosmos::TableManagerCore).to receive(:generate).and_return("\x01\x02\x03\x04")
-      Table.generate('DEFAULT', 'INST/tables/config/table_def.txt')
+      filename = Table.generate('DEFAULT', 'INST/tables/config/table_def.txt')
+      expect(filename).to eql 'INST/tables/bin/table.bin'
       expect(@put_object['DEFAULT/targets_modified/INST/tables/bin/table.bin']).to eql "\x01\x02\x03\x04"
     end
   end
