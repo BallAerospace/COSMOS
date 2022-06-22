@@ -18,13 +18,27 @@
 -->
 
 <template>
-  <v-dialog v-model="show" width="600">
+  <v-dialog persistent v-model="show" width="600">
     <v-card>
       <v-card-text>
       <v-row class="mt-3">
         <v-col cols="12">
           <h3>{{ plugin_name }}</h3>
         </v-col>
+        <v-radio-group
+          v-if="existing_plugin_txt !== null"
+          v-model="radioGroup"
+          mandatory
+        >
+          <v-radio
+            label="Use existing plugin.txt"
+            :value="1"
+          ></v-radio>
+          <v-radio
+            label="Use new plugin.txt"
+            :value="0"
+          ></v-radio>
+        </v-radio-group>
       </v-row>
       <v-tabs
         v-model="tab"
@@ -63,6 +77,7 @@
             </v-card-text>
           </v-tab-item>
           <v-tab-item :key="1">
+
             <v-textarea
               v-model="localPluginTxt"
               rows="15"
@@ -70,6 +85,7 @@
             />
           </v-tab-item>
           <v-tab-item v-if="existing_plugin_txt !== null" :key="2">
+
             <v-textarea
               v-model="localExistingPluginTxt"
               rows="15"
@@ -94,7 +110,7 @@
             type="submit"
             data-test="variables-dialog-ok"
           >
-            Ok
+            Install
           </v-btn>
         </v-row>
       </form>
@@ -129,7 +145,8 @@ export default {
       tab: 0,
       localVariables: [],
       localPluginTxt: "",
-      localExistingPluginTxt: null
+      localExistingPluginTxt: null,
+      radioGroup: 1,
     }
   },
   computed: {
@@ -148,15 +165,22 @@ export default {
       handler: function () {
         this.localVariables = JSON.parse(JSON.stringify(this.variables)) // deep copy
         this.localPluginTxt = this.plugin_txt.slice()
-        if (this.existing_plugin_txt != null) {
-          this.ExistingPluginTxt = this.existing_plugin_txt.slice()
+        if (this.existing_plugin_txt !== null) {
+          this.localExistingPluginTxt = this.existing_plugin_txt.slice()
+          this.radioGroup = 1
         }
       },
     },
   },
   methods: {
     submit: function () {
-      let lines = this.localPluginTxt.split("\n")
+      let lines = ""
+      if ((this.existing_plugin_txt !== null) && (this.radioGroup === 1)) {
+        lines = this.localExistingPluginTxt.split("\n")
+      } else {
+        lines = this.localPluginTxt.split("\n")
+      }
+
       let plugin_hash = {
         name: this.plugin_name,
         variables: this.localVariables,

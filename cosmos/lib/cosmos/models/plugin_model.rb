@@ -119,8 +119,8 @@ module Cosmos
 
         model = PluginModel.new(name: gem_name, variables: variables, plugin_txt_lines: plugin_txt_lines, scope: scope)
         result = model.as_json
-        result['existing_plugin_txt_lines'] = existing_plugin_txt_lines if existing_plugin_txt_lines and not process_existing
-        return model.as_json
+        result['existing_plugin_txt_lines'] = existing_plugin_txt_lines if existing_plugin_txt_lines and not process_existing and existing_plugin_txt_lines != result['plugin_txt_lines']
+        return result
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
         tf.unlink if tf
@@ -147,6 +147,8 @@ module Cosmos
 
       temp_dir = Dir.mktmpdir
       begin
+        tf = nil
+
         # Get the gem from local gem server
         gem_name = plugin_hash['name'].split("__")[0]
         gem_file_path = Cosmos::GemModel.get(temp_dir, gem_name)
@@ -172,7 +174,11 @@ module Cosmos
           end
 
           # Process plugin.txt file
-          plugin_txt_path = File.join(gem_path, 'plugin.txt')
+          file_data = plugin_hash['plugin_txt_lines'].join("\n")
+          tf = Tempfile.new("plugin.txt")
+          tf.write(file_data)
+          tf.close
+          plugin_txt_path = tf.path
           variables = plugin_hash['variables']
           if File.exist?(plugin_txt_path)
             parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
@@ -214,6 +220,7 @@ module Cosmos
         raise err
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+        tf.unlink if tf
       end
     end
 
@@ -255,6 +262,7 @@ module Cosmos
     # Reinstall
     def restore
       plugin_hash = self.as_json
+      plugin_hash['name'] = plugin_hash['name'].split("__")[0]
       Cosmos::PluginModel.install_phase2(plugin_hash, scope: @scope)
       @destroyed = false
     end

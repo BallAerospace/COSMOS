@@ -26,26 +26,14 @@
           show-size
           accept=".gem"
           class="mx-2"
-          label="Click to select plugin .gem file"
+          label="Click to select plugin .gem file to install"
           ref="fileInput"
+          @change="fileChange()"
+          @mousedown="fileMousedown()"
         />
       </v-col>
     </v-row>
     <v-row no-gutters class="px-2 pb-2">
-      <v-btn
-        @click="upload()"
-        class="mx-2"
-        color="primary"
-        data-test="pluginUpload"
-        :disabled="file === null"
-        :loading="loadingPlugin"
-      >
-        <v-icon left dark>mdi-cloud-upload</v-icon>
-        <span> Upload </span>
-        <template v-slot:loader>
-          <span>Loading...</span>
-        </template>
-      </v-btn>
       <v-spacer />
       <v-btn
         @click="showDownloadDialog = true"
@@ -187,7 +175,7 @@ export default {
   data() {
     return {
       file: null,
-      loadingPlugin: false,
+      pluginToUpgrade: null,
       plugins: [],
       processes: {},
       alert: '',
@@ -271,7 +259,6 @@ export default {
       const path = existing
         ? `/cosmos-api/plugins/${existing}`
         : '/cosmos-api/plugins'
-      this.loadingPlugin = true
       const formData = new FormData()
       formData.append('plugin', this.file, this.file.name)
       const promise = Api[method](path, { data: formData })
@@ -293,26 +280,29 @@ export default {
           this.plugin_txt = plugin_txt,
           this.existing_plugin_txt = existing_plugin_txt
           this.showPluginDialog = true
-          this.loadingPlugin = false
+          this.file = undefined
         })
         .catch((error) => {
-          this.loadingPlugin = false
-          this.file = null
+          this.pluginToUpgrade = null
+          this.file = undefined
         })
     },
     pluginCallback: function (plugin_hash) {
       this.showPluginDialog = false
+      if (this.pluginToUpgrade !== null) {
+        plugin_hash['name'] = this.pluginToUpgrade
+      }
       const promise = Api.post(`/cosmos-api/plugins/install/${this.plugin_name}`, {
           data: {
             plugin_hash: JSON.stringify(plugin_hash),
           },
         })
       promise.then((response) => {
-          this.loadingPlugin = false
           this.alert = "Started installing plugin"
           this.alertType = 'success'
           this.showAlert = true
-          this.file = null
+          this.pluginToUpgrade = null
+          this.file = undefined
           this.variables = {}
           this.plugin_txt = ""
           this.existing_plugin_txt = null
@@ -321,9 +311,6 @@ export default {
             this.updateProcesses()
           }, 5000)
           this.update()
-        })
-        .catch((error) => {
-          this.loadingPlugin = false
         })
     },
     editPlugin: function (name) {
@@ -359,15 +346,23 @@ export default {
           this.update()
         })
     },
-    async upgradePlugin(plugin) {
-      this.file = null
+    upgradePlugin(plugin) {
+      this.file = undefined
+      this.pluginToUpgrade = plugin
       this.$refs.fileInput.$refs.input.click()
-      // Wait for the file to be set by the dialog so upload works
-      while (this.file === null) {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-      }
-      this.upload(plugin)
     },
+    fileMousedown() {
+      this.pluginToUpgrade = null
+    },
+    fileChange() {
+      if (this.file !== undefined) {
+        if (this.pluginToUpgrade !== null) {
+          this.upload(this.pluginToUpgrade)
+        } else {
+          this.upload()
+        }
+      }
+    }
   },
 }
 </script>

@@ -42,17 +42,19 @@ class PluginsController < ModelController
         gem_file_path = temp_dir + '/' + file.original_filename
         FileUtils.cp(file.tempfile.path, gem_file_path)
         if @existing_model
-          result = Cosmos::PluginModel.install_phase1(gem_file_path, variables: @existing_model['variables'], plugin_txt_lines: @existing_model['plugin_txt_lines'], scope: params[:scope])
+          result = Cosmos::PluginModel.install_phase1(gem_file_path, existing_variables: @existing_model['variables'], existing_plugin_txt_lines: @existing_model['plugin_txt_lines'], scope: params[:scope])
         else
           result = Cosmos::PluginModel.install_phase1(gem_file_path, scope: params[:scope])
         end
         render :json => result
-      rescue
+      rescue => err
+        logger.error(err.formatted)
         head :internal_server_error
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     else
+      logger.error("No file received")
       head :internal_server_error
     end
   end

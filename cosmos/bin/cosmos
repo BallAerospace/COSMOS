@@ -213,13 +213,20 @@ def put_into_archive(disk_file_path, io, zip_file_path)
 end
 
 def update_plugin(plugin_file_path, plugin_name, variables: nil, plugin_txt_lines: nil, scope:)
+  new_gem = File.basename(plugin_file_path)
+  old_gem = plugin_name.split("__")[0]
   puts "Updating existing plugin: #{plugin_name} with #{File.basename(plugin_file_path)}"
   plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
   begin
-    variables = plugin_model.variables unless variables
-    plugin_model.destroy
-    plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, existing_plugin_txt_lines: plugin_txt_lines, process_existing: true, scope: scope)
-    Cosmos::PluginModel.install_phase2(plugin_hash, scope: scope)
+    # Only update if something has changed
+    if (new_gem != old_gem) or (variables != plugin_model.variables) or (plugin_txt_lines != plugin_model.plugin_txt_lines)
+      variables = plugin_model.variables unless variables
+      plugin_model.destroy
+      plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, existing_plugin_txt_lines: plugin_txt_lines, process_existing: true, scope: scope)
+      Cosmos::PluginModel.install_phase2(plugin_hash, scope: scope)
+    else
+      puts "No changes detected - Exiting without change"
+    end
   rescue => error
     puts error.formatted
     plugin_model.restore if plugin_model.destroyed?
