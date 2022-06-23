@@ -30,13 +30,7 @@ class ReactionController < ApplicationController
   # scope [String] the scope of the reaction, `TEST`
   # @return [String] the array of triggers converted into json format
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       triggers = @model_class.all(scope: params[:scope])
       ret = Array.new
@@ -55,13 +49,7 @@ class ReactionController < ApplicationController
   # scope [String] the scope of the reaction, `TEST`
   # @return [String] the array of reactions converted into json format.
   def show
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       model = @model_class.get(name: params[:name], scope: params[:scope])
       render :json => model.as_json(), :status => 200
@@ -108,13 +96,7 @@ class ReactionController < ApplicationController
   #  }
   #```
   def create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       hash = params.to_unsafe_h.slice(:description, :review, :snooze, :triggers, :actions).to_h
       name = @model_class.create_mini_id()
@@ -149,13 +131,7 @@ class ReactionController < ApplicationController
   #  {}
   #```
   def update
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
       render :json => { :status => 'error', :message => 'not found' }, :status => 404
@@ -191,13 +167,7 @@ class ReactionController < ApplicationController
   #  {}
   #```
   def activate
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.get(name: params[:name], scope: params[:scope])
       if model.nil?
@@ -228,13 +198,7 @@ class ReactionController < ApplicationController
   #  {}
   #```
   def deactivate
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.get(name: params[:name], scope: params[:scope])
       if model.nil?
@@ -261,13 +225,7 @@ class ReactionController < ApplicationController
   #  }
   #```
   def destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       @model_class.delete(name: params[:name], scope: params[:scope])
       render :json => {"status" => true}, :status => 204
@@ -279,5 +237,4 @@ class ReactionController < ApplicationController
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end
   end
-
 end

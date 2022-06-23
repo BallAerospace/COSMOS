@@ -38,16 +38,8 @@ class ScriptAutocompleteController < ApplicationController
   end
 
   def get_ace_autocomplete_data
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
-    end
-
+    return unless authorization('system')
     autocomplete_data = build_autocomplete_data(params[:type], params[:scope])
-
     response.headers['Cache-Control'] = 'must-revalidate' # TODO: Browser is ignoring this and not caching anything for some reason. Future enhancement
     render :json => autocomplete_data, :status => 200
   end

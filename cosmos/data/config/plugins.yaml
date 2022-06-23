@@ -68,3 +68,13 @@ ROUTER:
 <%= MetaConfigParser.load('target.yaml').to_meta_config_yaml() %>
 <%= MetaConfigParser.load('microservice.yaml').to_meta_config_yaml() %>
 <%= MetaConfigParser.load('tool.yaml').to_meta_config_yaml() %>
+WIDGET:
+  summary: Define a custom widget
+  example: WIDGET HELLOWORLD
+  description: Defines a custom widget that can be used in Telemetry Viewer screens.
+  parameters:
+    - name: Widget Name
+      description: The name of the widget wil be used to build a path to the widget implementation. For example, `WIDGET HELLOWORLD` will find the as-built file tools/widgets/HelloworldWidget/HelloworldWidget.umd.min.js. See the [Custom Widgets](/docs/v5/custom-widgets)
+        guide for more details.
+      required: true
+      values: .+

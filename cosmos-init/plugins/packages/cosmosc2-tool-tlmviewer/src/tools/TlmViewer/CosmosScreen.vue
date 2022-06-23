@@ -88,6 +88,7 @@
       <v-expand-transition>
         <div class="pa-1" ref="screen" v-show="expand">
           <vertical-widget
+            :key="screenKey"
             :widgets="layoutStack[0].widgets"
             v-on="$listeners"
           />
@@ -285,6 +286,7 @@ export default {
       pollingPeriod: 1,
       errors: [],
       errorDialog: false,
+      screenKey: null,
     }
   },
   computed: {
@@ -327,6 +329,7 @@ export default {
     this.api = new CosmosApi()
     this.configParser = new ConfigParserService()
     this.parseDefinition()
+    this.screenKey = Math.floor(Math.random() * 1000000)
   },
   mounted() {
     let refreshInterval = this.pollingPeriod * 1000
@@ -437,7 +440,6 @@ export default {
       this.editDialog = false
       // Restore the backup since we cancelled
       this.currentDefinition = this.backup
-      this.parseDefinition()
     },
     loadFile: function () {
       const fileReader = new FileReader()
@@ -464,6 +466,7 @@ export default {
           },
         })
         this.editDialog = false
+        this.screenKey = Math.floor(Math.random() * 1000000)
       })
     },
     downloadScreen: function () {

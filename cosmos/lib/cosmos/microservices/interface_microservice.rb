@@ -83,11 +83,6 @@ module Cosmos
             @interface.write_raw(msg_hash['raw'])
             next 'SUCCESS'
           end
-          if msg_hash['inject_tlm']
-            Logger.info "#{@interface.name}: Inject telemetry" if msg_hash['log']
-            @tlm.inject_tlm(msg_hash)
-            next 'SUCCESS'
-          end
           if msg_hash.key?('log_raw')
             if msg_hash['log_raw'] == 'true'
               Logger.info "#{@interface.name}: Enable raw logging"
@@ -410,16 +405,6 @@ module Cosmos
       # Write to stream
       packet.received_count += 1
       TelemetryTopic.write_packet(packet, scope: @scope)
-    end
-
-    def inject_tlm(hash)
-      packet = System.telemetry.packet(hash['target_name'], hash['packet_name']).clone
-      if hash['item_hash']
-        JSON.parse(hash['item_hash']).each do |item, value|
-          packet.write(item.to_s, value, hash['type'].to_sym)
-        end
-      end
-      handle_packet(packet)
     end
 
     def handle_connection_failed(connect_error)

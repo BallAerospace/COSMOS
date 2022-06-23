@@ -40,7 +40,7 @@ module Cosmos
       %w(INST SYSTEM).each do |target|
         model = TargetModel.new(folder_name: target, name: target, scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new([target], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       # Mock out some stuff in Microservice initialize()

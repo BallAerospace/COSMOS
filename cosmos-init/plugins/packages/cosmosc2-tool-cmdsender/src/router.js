@@ -30,7 +30,6 @@ export default new Router({
       path: '/:target?/:packet?',
       name: 'CommandSender',
       component: () => import('./tools/CommandSender/CommandSender.vue'),
-      meta: { title: 'Command Sender', icon: 'mdi-satellite-uplink' },
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode
     // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations

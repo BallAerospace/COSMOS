@@ -72,10 +72,10 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
         model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['EMPTY'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -132,10 +132,10 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
         model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['EMPTY'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "returns only the packet_name and description" do
@@ -155,7 +155,7 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -188,7 +188,7 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -225,7 +225,7 @@ module Cosmos
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
       end
 
       it "raises for an unknown type" do
@@ -370,7 +370,7 @@ module Cosmos
       it "raises if the target can't be found" do
         @target_dir = Dir.pwd
         variables = { "test" => "example" }
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         expect { model.deploy(@target_dir, variables) }.to raise_error(/No target files found/)
       end
@@ -384,7 +384,7 @@ module Cosmos
           filename = "#{@scope}#{filename.split("config")[-1]}"
           expect(@s3).to receive(:put_object).with(bucket: 'config', key: filename, body: anything)
         end
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         model.deploy(@target_dir, {})
       end
@@ -392,7 +392,7 @@ module Cosmos
       it "creates target_id.txt as a hash" do
         file = "DEFAULT/targets/INST/target_id.txt"
         expect(@s3).to receive(:put_object).with(bucket: 'config', key: file, body: anything)
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         model.deploy(@target_dir, {})
       end
@@ -400,13 +400,13 @@ module Cosmos
       it "archives the target to S3" do
         file = "DEFAULT/target_archives/INST/INST_current.zip"
         expect(@s3).to receive(:put_object).with(bucket: 'config', key: file, body: anything)
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         model.deploy(@target_dir, {})
       end
 
       it "puts the packets in Redis" do
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: "PLUGIN")
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         model.deploy(@target_dir, {})
         expect(Store.hkeys("DEFAULT__cosmostlm__INST")).to include("HEALTH_STATUS", "ADCS", "PARAMS", "IMAGE", "MECH")
@@ -430,24 +430,35 @@ module Cosmos
         expect(umodel).to receive(:deploy).with(@target_dir, variables).exactly(6).times
         # Verify the microservices that are started
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__COMMANDLOG__#{@target}"
+          name: "#{@scope}__COMMANDLOG__#{@target}",
+          plugin: 'PLUGIN'
+          )).and_return(umodel)
+        expect(MicroserviceModel).to receive(:new).with(hash_including(
+                                                          name: "#{@scope}__DECOMCMDLOG__#{@target}",
+                                                          plugin: 'PLUGIN',
+                                                          scope: @scope
                                                         )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOMCMDLOG__#{@target}"
+                                                          name: "#{@scope}__PACKETLOG__#{@target}",
+                                                          plugin: 'PLUGIN',
+                                                          scope: @scope
                                                         )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__PACKETLOG__#{@target}"
+                                                          name: "#{@scope}__DECOMLOG__#{@target}",
+                                                          plugin: 'PLUGIN',
+                                                          scope: @scope
                                                         )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOMLOG__#{@target}"
+                                                          name: "#{@scope}__DECOM__#{@target}",
+                                                          plugin: 'PLUGIN',
+                                                          scope: @scope
                                                         )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOM__#{@target}"
+                                                          name: "#{@scope}__REDUCER__#{@target}",
+                                                          plugin: 'PLUGIN',
+                                                          scope: @scope
                                                         )).and_return(umodel)
-        expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__REDUCER__#{@target}"
-                                                        )).and_return(umodel)
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         output = ''
         capture_io do |stdout|
@@ -463,7 +474,7 @@ module Cosmos
 
       it "deploys no microservices if no commands or telemetry" do
         @target = "EMPTY"
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         capture_io do |stdout|
           model.deploy(@target_dir, {})
@@ -484,7 +495,7 @@ module Cosmos
           file.puts 'COMMAND INST CMD LITTLE_ENDIAN "Command"'
           file.puts '  APPEND_ID_PARAMETER ID 8 UINT 1 1 1 "ID"'
         end
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         capture_io do |stdout|
           model.deploy(@target_dir, {})
@@ -508,7 +519,7 @@ module Cosmos
           file.puts 'TELEMETRY INST TLM LITTLE_ENDIAN "Telemetry"'
           file.puts '  APPEND_ID_ITEM ID 8 UINT 1 "ID"'
         end
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
+        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: 'PLUGIN')
         model.create
         capture_io do |stdout|
           model.deploy(@target_dir, {})
@@ -536,6 +547,7 @@ module Cosmos
         allow(@s3).to receive(:list_objects).and_return(objs)
         allow(Aws::S3::Client).to receive(:new).and_return(@s3)
         @target_dir = File.join(SPEC_DIR, "install", "config")
+        ConfigTopic.initialize_stream("DEFAULT")
       end
 
       it "destroys any deployed Target microservices" do
@@ -550,12 +562,25 @@ module Cosmos
         umodel = double(MicroserviceModel)
         expect(umodel).to receive(:destroy).exactly(14).times
         expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(14).times
-        inst_model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT", plugin: "INST")
+        inst_model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT", plugin: "INST_PLUGIN")
         inst_model.create
         inst_model.deploy(@target_dir, {})
-        sys_model = TargetModel.new(folder_name: "SYSTEM", name: "SYSTEM", scope: "DEFAULT", plugin: "SYSTEM")
+
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'created'
+        expect(config[0][1]['type']).to eql 'target'
+        expect(config[0][1]['name']).to eql 'INST'
+        expect(config[0][1]['plugin']).to eql 'INST_PLUGIN'
+
+        sys_model = TargetModel.new(folder_name: "SYSTEM", name: "SYSTEM", scope: "DEFAULT", plugin: "SYSTEM_PLUGIN")
         sys_model.create
         sys_model.deploy(@target_dir, {})
+
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'created'
+        expect(config[0][1]['type']).to eql 'target'
+        expect(config[0][1]['name']).to eql 'SYSTEM'
+        expect(config[0][1]['plugin']).to eql 'SYSTEM_PLUGIN'
 
         keys = get_all_redis_keys()
         # Spot check some keys
@@ -569,7 +594,18 @@ module Cosmos
         expect(targets.keys).to include("INST")
 
         inst_model.destroy
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'deleted'
+        expect(config[0][1]['type']).to eql 'target'
+        expect(config[0][1]['name']).to eql 'INST'
+        expect(config[0][1]['plugin']).to eql 'INST_PLUGIN'
+
         sys_model.destroy
+        config = ConfigTopic.read(scope: 'DEFAULT')
+        expect(config[0][1]['kind']).to eql 'deleted'
+        expect(config[0][1]['type']).to eql 'target'
+        expect(config[0][1]['name']).to eql 'SYSTEM'
+        expect(config[0][1]['plugin']).to eql 'SYSTEM_PLUGIN'
 
         targets = Store.hgetall("DEFAULT__cosmos_targets")
         expect(targets.keys).to_not include("INST")

@@ -49,7 +49,6 @@ spec = Gem::Specification.new do |s|
   s.executables << 'cosmos'
   s.executables << 'rubysloc'
   s.executables << 'cstol_converter'
-  s.executables << 'xtce_converter'
 
   if RUBY_ENGINE == 'ruby'
     # Ruby C Extensions - MRI Only

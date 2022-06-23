@@ -30,7 +30,6 @@ export default new Router({
       path: '/',
       name: 'TlmViewer',
       component: () => import('./tools/TlmViewer/TlmViewer.vue'),
-      meta: { title: 'Telemetry Viewer', icon: 'mdi-monitor-dashboard' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

@@ -78,6 +78,7 @@ ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmviewer-*.gem 
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmgrapher-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataextractor-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataviewer-*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-handbooks-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tablemanager-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-admin-*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-calendar-*.gem || exit 1

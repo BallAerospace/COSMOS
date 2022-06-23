@@ -209,13 +209,11 @@ module Cosmos
       return nil
     end
 
-    def deploy(gem_path, variables)
+    def deploy(gem_path, variables, validate_only: false)
       return unless @folder_name
 
-      rubys3_client = Aws::S3::Client.new
-
       # Ensure tools bucket exists
-      Cosmos::S3Utilities.ensure_public_bucket('tools')
+      Cosmos::S3Utilities.ensure_public_bucket('tools') unless validate_only
 
       variables["tool_name"] = @name
       start_path = "/tools/#{@folder_name}/"
@@ -223,16 +221,17 @@ module Cosmos
         next if filename == '.' or filename == '..' or File.directory?(filename)
 
         key = filename.split(gem_path + '/tools/')[-1]
-
         extension = filename.split('.')[-1]
         content_type = Rack::Mime.mime_type(".#{extension}")
-
-        cache_control = Cosmos::S3Utilities.get_cache_control(filename)
 
         # Load tool files
         data = File.read(filename, mode: "rb")
         data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
-        rubys3_client.put_object(bucket: 'tools', content_type: content_type, cache_control: cache_control, key: key, body: data)
+        unless validate_only
+          cache_control = Cosmos::S3Utilities.get_cache_control(filename)
+          Aws::S3::Client.new.put_object(bucket: 'tools', content_type: content_type, cache_control: cache_control, key: key, body: data)
+          ConfigTopic.write({ kind: 'created', type: 'tool', name: @folder_name, plugin: @plugin }, scope: @scope)
+        end
       end
     end
 
@@ -242,6 +241,7 @@ module Cosmos
         prefix = "#{@folder_name}/"
         rubys3_client.list_objects(bucket: 'tools', prefix: prefix).contents.each do |object|
           rubys3_client.delete_object(bucket: 'tools', key: object.key)
+          ConfigTopic.write({ kind: 'deleted', type: 'tool', name: @folder_name, plugin: @plugin }, scope: @scope)
         end
       end
     end

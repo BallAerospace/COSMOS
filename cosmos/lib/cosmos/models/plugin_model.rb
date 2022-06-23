@@ -60,7 +60,8 @@ module Cosmos
 
     # Called by the PluginsController to parse the plugin variables
     # Doesn't actaully create the plugin during the phase
-    def self.install_phase1(gem_file_path, existing_variables: nil, existing_plugin_txt_lines: nil, process_existing: false, scope:)
+<<<<<<< HEAD
+    def self.install_phase1(gem_file_path, existing_variables: nil, existing_plugin_txt_lines: nil, process_existing: false, scope:, validate_only: false)
       gem_name = File.basename(gem_file_path).split("__")[0]
 
       temp_dir = Dir.mktmpdir
@@ -68,7 +69,7 @@ module Cosmos
       begin
         if File.exists?(gem_file_path)
           # Load gem to internal gem server
-          Cosmos::GemModel.put(gem_file_path, gem_install: false, scope: scope)
+          Cosmos::GemModel.put(gem_file_path, gem_install: false, scope: scope) unless validate_only
         else
           gem_file_path = Cosmos::GemModel.get(temp_dir, gem_name)
         end
@@ -130,20 +131,23 @@ module Cosmos
     # Called by the PluginsController to create the plugin
     # Because this uses ERB it must be run in a seperate process from the API to
     # prevent corruption and single require problems in the current proces
-    def self.install_phase2(plugin_hash, scope:)
+<<<<<<< HEAD
+    def self.install_phase2(plugin_hash, scope:, validate_only: false)
       rubys3_client = Aws::S3::Client.new
 
       # Ensure config bucket exists
-      begin
-        rubys3_client.head_bucket(bucket: 'config')
-      rescue Aws::S3::Errors::NotFound
-        rubys3_client.create_bucket(bucket: 'config')
+      unless validate_only
+        begin
+          rubys3_client.head_bucket(bucket: 'config')
+        rescue Aws::S3::Errors::NotFound
+          rubys3_client.create_bucket(bucket: 'config')
+        end
       end
 
       # Register plugin to aid in uninstall if install fails
       plugin_hash.delete("existing_plugin_txt_lines")
       plugin_model = PluginModel.new(**(plugin_hash.transform_keys(&:to_sym)), scope: scope)
-      plugin_model.create
+      plugin_model.create unless validate_only
 
       temp_dir = Dir.mktmpdir
       begin
@@ -190,8 +194,8 @@ module Cosmos
                 # Ignore during phase 2
               when 'TARGET', 'INTERFACE', 'ROUTER', 'MICROSERVICE', 'TOOL', 'WIDGET'
                 if current_model
-                  current_model.create
-                  current_model.deploy(gem_path, variables)
+                  current_model.create unless validate_only
+                  current_model.deploy(gem_path, variables, validate_only: validate_only)
                   current_model = nil
                 end
                 current_model = Cosmos.const_get((keyword.capitalize + 'Model').intern).handle_config(parser, keyword, params, plugin: plugin_model.name, needs_dependencies: needs_dependencies, scope: scope)
@@ -204,8 +208,8 @@ module Cosmos
               end
             end
             if current_model
-              current_model.create
-              current_model.deploy(gem_path, variables)
+              current_model.create unless validate_only
+              current_model.deploy(gem_path, variables, validate_only: validate_only)
               current_model = nil
             end
           end
@@ -216,7 +220,7 @@ module Cosmos
         end
       rescue => err
         # Install failed - need to cleanup
-        plugin_model.destroy
+        plugin_model.destroy unless validate_only
         raise err
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)

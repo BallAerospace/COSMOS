@@ -17,8 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'fileutils'
 require 'cosmos/models/plugin_model'
+require 'fileutils'
 require 'tmpdir'
 
 class PluginsController < ModelController
@@ -28,13 +28,7 @@ class PluginsController < ModelController
 
   # Add a new plugin
   def create(update = false)
-    begin
-      authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('admin')
     file = params[:plugin]
     if file
       temp_dir = Dir.mktmpdir
@@ -60,19 +54,14 @@ class PluginsController < ModelController
   end
 
   def update
+    return unless authorization('admin')
     # Grab the existing plugin we're updating so we can display existing variables
     @existing_model = @model_class.get(name: params[:id], scope: params[:scope])
     create(true)
   end
 
   def install
-    begin
-      authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('admin')
     begin
       temp_dir = Dir.mktmpdir
       variables_filename = Dir::Tmpname.create(['variables-', '.json']) {}

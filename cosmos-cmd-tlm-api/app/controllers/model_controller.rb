@@ -21,24 +21,12 @@ require 'cosmos/models/gem_model'
 
 class ModelController < ApplicationController
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     render :json => @model_class.names(scope: params[:scope])
   end
 
   def create(update_model = false)
-    begin
-      authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('admin')
     model = @model_class.from_json(params[:json], scope: params[:scope])
     if update_model
       model.update
@@ -51,13 +39,7 @@ class ModelController < ApplicationController
   end
 
   def show
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     if params[:id].downcase == 'all'
       render :json => @model_class.all(scope: params[:scope])
     else
@@ -70,13 +52,7 @@ class ModelController < ApplicationController
   end
 
   def destroy
-    begin
-      authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('admin')
     @model_class.new(name: params[:id], scope: params[:scope]).destroy
     Cosmos::Logger.info("#{@model_class.name} destroyed: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
   end

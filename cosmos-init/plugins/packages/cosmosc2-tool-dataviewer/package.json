@@ -11,7 +11,8 @@
     "test:components": "vue-cli-service test:components"
   },
   "resolutions": {
-    "acorn": "npm:acorn-with-stage3"
+    "acorn": "npm:acorn-with-stage3",
+    "error-stack-parser": "2.0.6"
   },
   "dependencies": {
     "@cosmosc2/tool-common": "5.0.5-beta0",

@@ -171,11 +171,10 @@ module Cosmos
       return nil
     end
 
-    def deploy(gem_path, variables)
+    def deploy(gem_path, variables, validate_only: false)
       return unless @folder_name
 
       variables["microservice_name"] = @name
-      rubys3_client = Aws::S3::Client.new
       start_path = "/microservices/#{@folder_name}/"
       Dir.glob(gem_path + start_path + "**/*") do |filename|
         next if filename == '.' or filename == '..' or File.directory?(filename)
@@ -188,7 +187,10 @@ module Cosmos
         Cosmos.set_working_dir(File.dirname(filename)) do
           data = ERB.new(data, trim_mode: "-").result(binding.set_variables(variables)) if data.is_printable?
         end
-        rubys3_client.put_object(bucket: 'config', key: key, body: data)
+        unless validate_only
+          Aws::S3::Client.new.put_object(bucket: 'config', key: key, body: data)
+          ConfigTopic.write({ kind: 'created', type: 'microservice', name: @name, plugin: @plugin }, scope: @scope)
+        end
       end
     end
 
@@ -198,6 +200,7 @@ module Cosmos
       rubys3_client.list_objects(bucket: 'config', prefix: prefix).contents.each do |object|
         rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
+      ConfigTopic.write({ kind: 'deleted', type: 'microservice', name: @name, plugin: @plugin }, scope: @scope)
     end
   end
 end

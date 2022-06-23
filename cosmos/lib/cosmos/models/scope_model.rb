@@ -52,6 +52,8 @@ module Cosmos
     def deploy(gem_path, variables)
       seed_database()
 
+      ConfigTopic.initialize_stream(@scope)
+
       # COSMOS Log Microservice
       microservice_name = "#{@scope}__COSMOS__LOG"
       microservice = MicroserviceModel.new(

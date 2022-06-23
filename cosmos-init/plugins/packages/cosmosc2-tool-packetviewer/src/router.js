@@ -30,7 +30,6 @@ export default new Router({
       path: '/:target?/:packet?',
       name: 'PackerViewer',
       component: () => import('./tools/PacketViewer/PacketViewer.vue'),
-      meta: { title: 'Packer Viewer', icon: 'mdi-format-list-bulleted' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

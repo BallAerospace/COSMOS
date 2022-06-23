@@ -29,13 +29,7 @@ class TimelineController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # @return [String] the array of timeline names converted into json format
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     timelines = @model_class.all
     ret = Array.new
     timelines.each do |timeline, value|
@@ -66,13 +60,7 @@ class TimelineController < ApplicationController
   #  }
   #```
   def create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.new(name: params['name'], color: params['color'], scope: params[:scope])
       model.create()
@@ -108,13 +96,7 @@ class TimelineController < ApplicationController
   #  }
   #```
   def color
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
       render :json => {
@@ -143,13 +125,7 @@ class TimelineController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # @return [String] hash/object of timeline name in json with a 204 no-content status code
   def destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
       render :json => {
@@ -169,5 +145,4 @@ class TimelineController < ApplicationController
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
-
 end

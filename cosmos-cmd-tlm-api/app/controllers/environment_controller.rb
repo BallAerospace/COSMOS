@@ -18,7 +18,6 @@
 # copyright holder
 
 require 'digest'
-
 require 'cosmos/models/environment_model'
 
 class EnvironmentController < ApplicationController
@@ -31,13 +30,7 @@ class EnvironmentController < ApplicationController
   # scope [String] the scope of the environment, `TEST`
   # @return [String] the array of environment names converted into json format
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     environments = @model_class.all(scope: params[:scope])
     ret = Array.new
     environments.each do |_environment, value|
@@ -66,13 +59,7 @@ class EnvironmentController < ApplicationController
   #  }
   # ```
   def create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     if params['key'].nil? || params['value'].nil?
       render :json => {
         'status' => 'error',
@@ -105,13 +92,7 @@ class EnvironmentController < ApplicationController
   # scope [String] the scope of the environment, `TEST`
   # @return [String] hash/object of environment name in json with a 204 no-content status code
   def destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
       render :json => {

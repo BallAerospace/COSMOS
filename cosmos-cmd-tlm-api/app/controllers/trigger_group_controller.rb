@@ -31,13 +31,7 @@ class TriggerGroupController < ApplicationController
   # scope [String] the scope of the group, `TEST`
   # @return [String] the array of triggers converted into json format
   def index
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       ret = Array.new
       trigger_groups = @model_class.all(scope: params[:scope])
@@ -56,13 +50,7 @@ class TriggerGroupController < ApplicationController
   # scope [String] the scope of the group, `TEST`
   # @return [String] the array of triggers converted into json format.
   def show
-    begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('system')
     begin
       model = @model_class.get(name: params[:name], scope: params[:scope])
       if model.nil?
@@ -97,13 +85,7 @@ class TriggerGroupController < ApplicationController
   #  }
   #```
   def create
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       model = @model_class.new(name: params[:name], color: params[:color], scope: params[:scope])
       model.create()
@@ -138,13 +120,7 @@ class TriggerGroupController < ApplicationController
   #  }
   #```
   def color
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:group], scope: params[:scope])
     if model.nil?
       render :json => {
@@ -182,13 +158,7 @@ class TriggerGroupController < ApplicationController
   #  {}
   #```
   def activate
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:group], scope: params[:scope])
     if model.nil?
       render :json => {
@@ -231,13 +201,7 @@ class TriggerGroupController < ApplicationController
   #  {}
   #```
   def deactivate
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     model = @model_class.get(name: params[:group], scope: params[:scope])
     if model.nil?
       render :json => {
@@ -276,13 +240,7 @@ class TriggerGroupController < ApplicationController
   #  }
   #```
   def destroy
-    begin
-      authorize(permission: 'run_script', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('run_script')
     begin
       @model_class.delete(name: params[:group], scope: params[:scope])
       render :json => { :delete => true, :group => params[:group] }, :status => 204
@@ -294,5 +252,4 @@ class TriggerGroupController < ApplicationController
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end
   end
-
 end

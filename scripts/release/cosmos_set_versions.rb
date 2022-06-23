@@ -90,6 +90,7 @@ package_dot_json_files = [
   'cosmos-init/plugins/packages/cosmosc2-tool-common/package.json',
   'cosmos-init/plugins/packages/cosmosc2-tool-dataextractor/package.json',
   'cosmos-init/plugins/packages/cosmosc2-tool-dataviewer/package.json',
+  'cosmos-init/plugins/packages/cosmosc2-tool-handbooks/package.json',
   'cosmos-init/plugins/packages/cosmosc2-tool-limitsmonitor/package.json',
   'cosmos-init/plugins/packages/cosmosc2-tool-packetviewer/package.json',
   'cosmos-init/plugins/packages/cosmosc2-tool-scriptrunner/package.json',

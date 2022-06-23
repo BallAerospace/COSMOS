@@ -30,7 +30,6 @@ export default new Router({
       path: '/',
       name: 'Data Extractor',
       component: () => import('./tools/DataExtractor/DataExtractor.vue'),
-      meta: { title: 'Data Extractor', icon: 'mdi-archive-arrow-down' },
     },
 
     // TODO: Create NotFoundComponent since we're doing history browser mode

@@ -237,7 +237,7 @@ module Cosmos
     end
 
     # Creates a MicroserviceModel to deploy the Interface/Router
-    def deploy(gem_path, variables)
+    def deploy(gem_path, variables, validate_only: false)
       type = self.class._get_type
       microservice_name = "#{@scope}__#{type}__#{@name}"
       microservice = MicroserviceModel.new(
@@ -249,9 +249,12 @@ module Cosmos
         needs_dependencies: @needs_dependencies,
         scope: @scope
       )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured #{type.downcase} microservice #{microservice_name}"
+      unless validate_only
+        microservice.create
+        microservice.deploy(gem_path, variables)
+        ConfigTopic.write({ kind: 'created', type: type.downcase, name: @name, plugin: @plugin }, scope: @scope)
+        Logger.info "Configured #{type.downcase} microservice #{microservice_name}"
+      end
       microservice
     end
 
@@ -259,9 +262,15 @@ module Cosmos
     # should should trigger the operator to kill the microservice that in turn
     # will destroy the InterfaceStatusModel when a stop is called.
     def undeploy
-      model = MicroserviceModel.get_model(name: "#{@scope}__#{self.class._get_type}__#{@name}", scope: @scope)
-      model.destroy if model
-      if self.class._get_type == 'INTERFACE'
+      type = self.class._get_type
+      name = "#{@scope}__#{type}__#{@name}"
+      model = MicroserviceModel.get_model(name: name, scope: @scope)
+      if model
+        model.destroy
+        ConfigTopic.write({ kind: 'deleted', type: type.downcase, name: @name, plugin: @plugin }, scope: @scope)
+      end
+
+      if type == 'INTERFACE'
         status_model = InterfaceStatusModel.get_model(name: @name, scope: @scope)
       else
         status_model = RouterStatusModel.get_model(name: @name, scope: @scope)

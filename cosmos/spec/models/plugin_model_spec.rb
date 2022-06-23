@@ -103,8 +103,8 @@ module Cosmos
 
         variables = { "folder" => "THE_FOLDER", "name" => "THE_NAME" }
         # Just stub the instance deploy method
-        expect_any_instance_of(ToolModel).to receive(:deploy).with(anything, variables).and_return(nil)
-        expect_any_instance_of(TargetModel).to receive(:deploy).with(anything, variables).and_return(nil)
+        expect_any_instance_of(ToolModel).to receive(:deploy).with(anything, variables, validate_only: false).and_return(nil)
+        expect_any_instance_of(TargetModel).to receive(:deploy).with(anything, variables, validate_only: false).and_return(nil)
         PluginModel.install_phase2("name", variables, scope: "DEFAULT")
       end
     end
