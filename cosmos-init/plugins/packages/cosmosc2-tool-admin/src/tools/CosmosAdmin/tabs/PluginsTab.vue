@@ -45,7 +45,7 @@
         <span> Download </span>
       </v-btn>
     </v-row>
-    <v-row no-gutters class="px-2 pb-2" style="margin-top:10px;">
+    <v-row no-gutters class="px-2 pb-2" style="margin-top: 10px">
       <v-checkbox
         v-model="showDefaultTools"
         label="Show Default Tools"
@@ -183,7 +183,7 @@ export default {
       showAlert: false,
       plugin_name: null,
       variables: {},
-      plugin_txt: "",
+      plugin_txt: '',
       existing_plugin_txt: null,
       showDownloadDialog: false,
       showProcessOutput: false,
@@ -205,23 +205,26 @@ export default {
         'cosmosc2-tool-tablemanager',
         'cosmosc2-tool-tlmgrapher',
         'cosmosc2-tool-tlmviewer',
-      ]
+      ],
     }
   },
   computed: {
     shownPlugins() {
       let result = []
       for (let plugin of this.plugins) {
-        let plugin_name_first = plugin.split("__")[0]
-        let plugin_name_split = plugin_name_first.split("-")
+        let plugin_name_first = plugin.split('__')[0]
+        let plugin_name_split = plugin_name_first.split('-')
         plugin_name_split = plugin_name_split.slice(0, -1)
-        let plugin_name = plugin_name_split.join("-")
-        if ((!(this.defaultPlugins.includes(plugin_name))) || (this.showDefaultTools)) {
+        let plugin_name = plugin_name_split.join('-')
+        if (
+          !this.defaultPlugins.includes(plugin_name) ||
+          this.showDefaultTools
+        ) {
           result.push(plugin)
         }
       }
       return result
-    }
+    },
   },
   mounted() {
     this.update()
@@ -262,7 +265,8 @@ export default {
       const formData = new FormData()
       formData.append('plugin', this.file, this.file.name)
       const promise = Api[method](path, { data: formData })
-      promise.then((response) => {
+      promise
+        .then((response) => {
           this.alert = 'Uploaded file'
           this.alertType = 'success'
           this.showAlert = true
@@ -272,13 +276,14 @@ export default {
           this.update()
           let existing_plugin_txt = null
           if (response.data.existing_plugin_txt_lines !== undefined) {
-            existing_plugin_txt = response.data.existing_plugin_txt_lines.join("\n")
+            existing_plugin_txt =
+              response.data.existing_plugin_txt_lines.join('\n')
           }
-          let plugin_txt = response.data.plugin_txt_lines.join("\n")
-          this.plugin_name = response.data.name,
-          this.variables = response.data.variables,
-          this.plugin_txt = plugin_txt,
-          this.existing_plugin_txt = existing_plugin_txt
+          let plugin_txt = response.data.plugin_txt_lines.join('\n')
+          ;(this.plugin_name = response.data.name),
+            (this.variables = response.data.variables),
+            (this.plugin_txt = plugin_txt),
+            (this.existing_plugin_txt = existing_plugin_txt)
           this.showPluginDialog = true
           this.file = undefined
         })
@@ -292,38 +297,42 @@ export default {
       if (this.pluginToUpgrade !== null) {
         plugin_hash['name'] = this.pluginToUpgrade
       }
-      const promise = Api.post(`/cosmos-api/plugins/install/${this.plugin_name}`, {
+      const promise = Api.post(
+        `/cosmos-api/plugins/install/${this.plugin_name}`,
+        {
           data: {
             plugin_hash: JSON.stringify(plugin_hash),
           },
-        })
+        }
+      )
       promise.then((response) => {
-          this.alert = "Started installing plugin"
-          this.alertType = 'success'
-          this.showAlert = true
-          this.pluginToUpgrade = null
-          this.file = undefined
-          this.variables = {}
-          this.plugin_txt = ""
-          this.existing_plugin_txt = null
-          setTimeout(() => {
-            this.showAlert = false
-            this.updateProcesses()
-          }, 5000)
-          this.update()
-        })
+        this.alert = 'Started installing plugin'
+        this.alertType = 'success'
+        this.showAlert = true
+        this.pluginToUpgrade = null
+        this.file = undefined
+        this.variables = {}
+        this.plugin_txt = ''
+        this.existing_plugin_txt = null
+        setTimeout(() => {
+          this.showAlert = false
+          this.updateProcesses()
+        }, 5000)
+        this.update()
+      })
     },
     editPlugin: function (name) {
       Api.get(`/cosmos-api/plugins/${name}`).then((response) => {
         let existing_plugin_txt = null
         if (response.data.existing_plugin_txt_lines !== undefined) {
-          existing_plugin_txt = response.data.existing_plugin_txt_lines.join("\n")
+          existing_plugin_txt =
+            response.data.existing_plugin_txt_lines.join('\n')
         }
-        let plugin_txt = response.data.plugin_txt_lines.join("\n")
-        this.plugin_name = response.data.name,
-        this.variables = response.data.variables,
-        this.plugin_txt = plugin_txt,
-        this.existing_plugin_txt = existing_plugin_txt
+        let plugin_txt = response.data.plugin_txt_lines.join('\n')
+        ;(this.plugin_name = response.data.name),
+          (this.variables = response.data.variables),
+          (this.plugin_txt = plugin_txt),
+          (this.existing_plugin_txt = existing_plugin_txt)
         this.showPluginDialog = true
       })
     },
@@ -362,7 +371,7 @@ export default {
           this.upload()
         }
       }
-    }
+    },
   },
 }
 </script>

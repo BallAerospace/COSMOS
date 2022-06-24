@@ -60,7 +60,6 @@ module Cosmos
 
     # Called by the PluginsController to parse the plugin variables
     # Doesn't actaully create the plugin during the phase
-<<<<<<< HEAD
     def self.install_phase1(gem_file_path, existing_variables: nil, existing_plugin_txt_lines: nil, process_existing: false, scope:, validate_only: false)
       gem_name = File.basename(gem_file_path).split("__")[0]
 
@@ -131,7 +130,6 @@ module Cosmos
     # Called by the PluginsController to create the plugin
     # Because this uses ERB it must be run in a seperate process from the API to
     # prevent corruption and single require problems in the current proces
-<<<<<<< HEAD
     def self.install_phase2(plugin_hash, scope:, validate_only: false)
       rubys3_client = Aws::S3::Client.new
 

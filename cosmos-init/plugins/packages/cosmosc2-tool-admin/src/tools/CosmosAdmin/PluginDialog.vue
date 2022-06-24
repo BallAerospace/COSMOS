@@ -21,99 +21,83 @@
   <v-dialog persistent v-model="show" width="600">
     <v-card>
       <v-card-text>
-      <v-row class="mt-3">
-        <v-col cols="12">
-          <h3>{{ plugin_name }}</h3>
-        </v-col>
-        <v-radio-group
-          v-if="existing_plugin_txt !== null"
-          v-model="radioGroup"
-          mandatory
-        >
-          <v-radio
-            label="Use existing plugin.txt"
-            :value="1"
-          ></v-radio>
-          <v-radio
-            label="Use new plugin.txt"
-            :value="0"
-          ></v-radio>
-        </v-radio-group>
-      </v-row>
-      <v-tabs
-        v-model="tab"
-        background-color="primary"
-        dark
-      >
-        <v-tab :key="0">
-          Variables
-        </v-tab>
-        <v-tab :key="1">
-          plugin.txt
-        </v-tab>
-        <v-tab v-if="existing_plugin_txt !== null" :key="2">
-          Existing plugin.txt
-        </v-tab>
-      </v-tabs>
-
-      <form v-on:submit.prevent="submit">
-        <v-tabs-items v-model="tab">
-          <v-tab-item :key="0">
-            <v-card-text>
-              <div class="pa-3">
-                <v-row class="mt-3">
-                  <div v-for="(value, name) in localVariables" :key="name">
-                    <v-col>
-                      <v-text-field
-                        clearable
-                        type="text"
-                        :label="name"
-                        v-model="localVariables[name]"
-                      />
-                    </v-col>
-                  </div>
-                </v-row>
-              </div>
-            </v-card-text>
-          </v-tab-item>
-          <v-tab-item :key="1">
-
-            <v-textarea
-              v-model="localPluginTxt"
-              rows="15"
-              data-test="editPluginTxt"
-            />
-          </v-tab-item>
-          <v-tab-item v-if="existing_plugin_txt !== null" :key="2">
-
-            <v-textarea
-              v-model="localExistingPluginTxt"
-              rows="15"
-              data-test="editExistingPluginTxt"
-            />
-          </v-tab-item>
-        </v-tabs-items>
-
-        <v-row>
-          <v-spacer />
-          <v-btn
-            @click.prevent="close"
-            outlined
-            class="mx-2"
-            data-test="editCancelBtn"
+        <v-row class="mt-3">
+          <v-col cols="12">
+            <h3>{{ plugin_name }}</h3>
+          </v-col>
+          <v-radio-group
+            v-if="existing_plugin_txt !== null"
+            v-model="radioGroup"
+            mandatory
           >
-            Cancel
-          </v-btn>
-          <v-btn
-            class="mx-2"
-            color="primary"
-            type="submit"
-            data-test="variables-dialog-ok"
-          >
-            Install
-          </v-btn>
+            <v-radio label="Use existing plugin.txt" :value="1"></v-radio>
+            <v-radio label="Use new plugin.txt" :value="0"></v-radio>
+          </v-radio-group>
         </v-row>
-      </form>
+        <v-tabs v-model="tab" background-color="primary" dark>
+          <v-tab :key="0"> Variables </v-tab>
+          <v-tab :key="1"> plugin.txt </v-tab>
+          <v-tab v-if="existing_plugin_txt !== null" :key="2">
+            Existing plugin.txt
+          </v-tab>
+        </v-tabs>
+
+        <form v-on:submit.prevent="submit">
+          <v-tabs-items v-model="tab">
+            <v-tab-item :key="0">
+              <v-card-text>
+                <div class="pa-3">
+                  <v-row class="mt-3">
+                    <div v-for="(value, name) in localVariables" :key="name">
+                      <v-col>
+                        <v-text-field
+                          clearable
+                          type="text"
+                          :label="name"
+                          v-model="localVariables[name]"
+                        />
+                      </v-col>
+                    </div>
+                  </v-row>
+                </div>
+              </v-card-text>
+            </v-tab-item>
+            <v-tab-item :key="1">
+              <v-textarea
+                v-model="localPluginTxt"
+                rows="15"
+                data-test="editPluginTxt"
+              />
+            </v-tab-item>
+            <v-tab-item v-if="existing_plugin_txt !== null" :key="2">
+              <v-textarea
+                v-model="localExistingPluginTxt"
+                rows="15"
+                data-test="editExistingPluginTxt"
+              />
+            </v-tab-item>
+          </v-tabs-items>
+
+          <v-row>
+            <v-spacer />
+            <v-btn
+              @click.prevent="close"
+              outlined
+              class="mx-2"
+              data-test="editCancelBtn"
+            >
+              Cancel
+            </v-btn>
+            <v-btn
+              class="mx-2"
+              color="primary"
+              type="submit"
+              data-test="variables-dialog-ok"
+            >
+              Install
+            </v-btn>
+          </v-row>
+        </form>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -124,7 +108,7 @@ export default {
   props: {
     plugin_name: {
       type: String,
-      required: true
+      required: true,
     },
     variables: {
       type: Object,
@@ -132,11 +116,11 @@ export default {
     },
     plugin_txt: {
       type: String,
-      required: true
+      required: true,
     },
     existing_plugin_txt: {
       type: String,
-      required: false
+      required: false,
     },
     value: Boolean, // value is the default prop when using v-model
   },
@@ -144,7 +128,7 @@ export default {
     return {
       tab: 0,
       localVariables: [],
-      localPluginTxt: "",
+      localPluginTxt: '',
       localExistingPluginTxt: null,
       radioGroup: 1,
     }
@@ -174,17 +158,17 @@ export default {
   },
   methods: {
     submit: function () {
-      let lines = ""
-      if ((this.existing_plugin_txt !== null) && (this.radioGroup === 1)) {
-        lines = this.localExistingPluginTxt.split("\n")
+      let lines = ''
+      if (this.existing_plugin_txt !== null && this.radioGroup === 1) {
+        lines = this.localExistingPluginTxt.split('\n')
       } else {
-        lines = this.localPluginTxt.split("\n")
+        lines = this.localPluginTxt.split('\n')
       }
 
       let plugin_hash = {
         name: this.plugin_name,
         variables: this.localVariables,
-        plugin_txt_lines: lines
+        plugin_txt_lines: lines,
       }
       this.$emit('submit', plugin_hash)
     },
