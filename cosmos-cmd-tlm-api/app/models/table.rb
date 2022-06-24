@@ -101,7 +101,7 @@ class Table
       # Convert the typical table naming convention of all caps with underscores
       # to the typical binary convention of camelcase, e.g. MC_CONFIG => McConfig.bin
       filename = table_name.split('_').map { |part| part.capitalize }.join()
-      report.filename = "#{filename}.bin"
+      report.filename = "#{filename}.csv"
     else
       report.filename = File.basename(binary_filename).sub('.bin', '.csv')
     end

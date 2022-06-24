@@ -177,7 +177,7 @@ RSpec.describe Table, :type => :model do
       Dir.mkdir(tmp_dir) unless File.exist?(tmp_dir)
       allow(Dir).to receive(:mktmpdir).and_return(tmp_dir)
       file = Table.report('DEFAULT', 'INST/tables/bin/table.bin', 'INST/tables/config/table_def.txt', 'MY_TABLE')
-      expect(file.filename).to eql 'table.csv' # Check the simple stub
+      expect(file.filename).to eql 'MyTable.csv'
       expect(file.contents).to eql 'report' # Check the simple stub
       expect(@put_object['DEFAULT/targets_modified/INST/tables/bin/table.csv']).to eql "report"
       # Real test is did we create the definition files

@@ -120,13 +120,40 @@
         <v-btn
           dense
           color="primary"
-          @click="upload"
+          @click="upload()"
           :disabled="!uploadScript"
           data-test="upload-file"
         >
           Upload
           <v-icon right dark> mdi-file-upload </v-icon>
         </v-btn>
+      </v-col>
+      <v-col cols="auto">
+        <v-btn
+          dense
+          color="primary"
+          @click="download()"
+          :disabled="!downloadScript"
+          data-test="download-file"
+        >
+          Download
+          <v-icon right dark> mdi-file-download </v-icon>
+        </v-btn>
+      </v-col>
+      <v-col cols="auto">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <span v-bind="attrs" v-on="on">
+              <v-checkbox
+                v-model="scriptBackground"
+                label="B/G"
+                class="shrink mt-0"
+                data-test="upload-background"
+              />
+            </span>
+          </template>
+          <span>Run upload download scripts in the background</span>
+        </v-tooltip>
       </v-col>
     </v-row>
     <v-card>
@@ -274,6 +301,8 @@ export default {
       errorTitle: '',
       errorText: '',
       uploadScript: false,
+      downloadScript: false,
+      scriptBackground: true,
     }
   },
   computed: {
@@ -323,15 +352,15 @@ export default {
               divider: true,
             },
             // {
-            //   label: 'Upload',
+            //   label: 'Load Binary',
             //   icon: 'mdi-cloud-upload',
             //   command: () => {
-            //     this.upload()
+            //     this.loadBinary()
             //   },
             // },
-            {
-              divider: true,
-            },
+            // {
+            //   divider: true,
+            // },
             {
               label: 'Delete File',
               icon: 'mdi-delete',
@@ -345,16 +374,31 @@ export default {
     },
   },
   watch: {
+    // Everytime the filename changes we figure out if there is an associated upload & download script
     filename: function (val) {
       let upload =
         this.filename.split('/').slice(0, 2).join('/') + '/procedures/upload.rb'
-      console.log(`watch filename:${upload}`)
+      let download =
+        this.filename.split('/').slice(0, 2).join('/') +
+        '/procedures/download.rb'
+      // Temporarily ignore any 404 errors since it's ok that we get one
+      // The whole point of this is to check if the file exists or not
+      localStorage.axiosIgnoreResponse = '404' // localStorage only supports strings
       Api.get(`/cosmos-api/tables/${upload}`)
         .then((response) => {
           this.uploadScript = true
         })
         .catch((error) => {
           this.uploadScript = false
+        })
+      Api.get(`/cosmos-api/tables/${download}`)
+        .then((response) => {
+          this.downloadScript = true
+          delete localStorage.axiosIgnoreResponse
+        })
+        .catch((error) => {
+          this.downloadScript = false
+          delete localStorage.axiosIgnoreResponse
         })
     },
   },
@@ -513,6 +557,7 @@ export default {
       Api.post(`/cosmos-api/tables/report`, {
         data: formData,
       }).then((response) => {
+        console.log(response)
         const blob = new Blob([response.data.contents], {
           type: 'text/plain',
         })
@@ -524,30 +569,61 @@ export default {
       })
     },
     upload() {
-      let openScript = true
       let upload =
         this.filename.split('/').slice(0, 2).join('/') + '/procedures/upload.rb'
-      // TODO: Pass parameter to script with filename
-      Api.post(`/script-api/scripts/${upload}/run`).then((response) => {
-        if (openScript) {
+      Api.post(`/script-api/scripts/${upload}/run`, {
+        data: {
+          environment: [{ key: 'TBL_FILENAME', value: this.filename }],
+        },
+      }).then((response) => {
+        if (this.scriptBackground !== true) {
           window.open(`/tools/scriptrunner/${response.data}`, '_blank')
         }
       })
     },
-    async loadBinary() {
-      this.fileInput = ''
-      this.$refs.fileInput.$refs.input.click()
-      // Wait for the file to be set by the dialog so upload works
-      while (this.fileInput === '') {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-      }
-      this.filename = this.fileInput.name
-      this.saveAs()
+    download() {
+      this.$dialog
+        .confirm(
+          `Are you sure you want to overwrite ${this.filename}? ` +
+            'You can Save As to create a new file and then Download to preserve the existing file. ' +
+            'Note: Once the download completes you will need to re-open the file to see changes.',
+          {
+            okText: 'Download (Overwrite!)',
+            cancelText: 'Cancel',
+          }
+        )
+        .then(() => {
+          let download =
+            this.filename.split('/').slice(0, 2).join('/') +
+            '/procedures/download.rb'
+          Api.post(`/script-api/scripts/${download}/run`, {
+            data: {
+              environment: [{ key: 'TBL_FILENAME', value: this.filename }],
+            },
+          }).then((response) => {
+            if (this.scriptBackground !== true) {
+              window.open(`/tools/scriptrunner/${response.data}`, '_blank')
+            }
+          })
+        })
+        .catch((error) => {}) // Cancel, do nothing
     },
+    // TODO: Need to load to tmp dir or something before we can saveAs to rename
+    // async loadBinary() {
+    //   this.fileInput = ''
+    //   this.$refs.fileInput.$refs.input.click()
+    //   // Wait for the file to be set by the dialog so upload works
+    //   while (this.fileInput === '') {
+    //     await new Promise((resolve) => setTimeout(resolve, 500))
+    //   }
+    //   this.filename = this.fileInput.name
+    //   this.saveAs()
+    // },
     confirmLocalUnlock: function () {
       this.$dialog
         .confirm(
-          'Are you sure you want to unlock this file for editing? If another user is editing this file, your changes might conflict with each other.',
+          'Are you sure you want to unlock this file for editing? ' +
+            'If another user is editing this file, your changes might conflict with each other.',
           {
             okText: 'Force Unlock',
             cancelText: 'Cancel',

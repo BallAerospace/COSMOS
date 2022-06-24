@@ -91,7 +91,7 @@ module Cosmos
         end
         report.write("\n") # newline after each table
       end
-      report.string
+      report.string.encode('UTF-8', 'UTF-8', :invalid => :replace)
     end
 
     def self.generate(definition_filename)

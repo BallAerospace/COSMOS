@@ -19,24 +19,12 @@
 
 class RunningScriptController < ApplicationController
   def index
-    begin
-      authorize(permission: 'script_view', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_view')
     render :json => RunningScript.all
   end
 
   def show
-    begin
-      authorize(permission: 'script_view', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_view')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       render :json => running_script
@@ -46,13 +34,7 @@ class RunningScriptController < ApplicationController
   end
 
   def stop
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "stop")
@@ -64,13 +46,7 @@ class RunningScriptController < ApplicationController
   end
 
   def delete
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       RunningScript.delete(params[:id].to_i)
@@ -82,13 +58,7 @@ class RunningScriptController < ApplicationController
   end
 
   def pause
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "pause")
@@ -100,13 +70,7 @@ class RunningScriptController < ApplicationController
   end
 
   def retry
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "retry")
@@ -118,13 +82,7 @@ class RunningScriptController < ApplicationController
   end
 
   def go
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "go")
@@ -136,13 +94,7 @@ class RunningScriptController < ApplicationController
   end
 
   def step
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "step")
@@ -154,13 +106,7 @@ class RunningScriptController < ApplicationController
   end
 
   def prompt
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       if params[:password]
@@ -177,13 +123,7 @@ class RunningScriptController < ApplicationController
   end
 
   def method
-    begin
-      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
-    rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
-    rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
-    end
+    return unless authorization('script_run')
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], args: params[:args], prompt_id: params[:prompt_id] })

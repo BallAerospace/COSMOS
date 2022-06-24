@@ -66,7 +66,7 @@ test('edits a binary file', async ({ page }) => {
   )
 
   // Verify original contents
-  await utils.download(page, '[data-test=download-report]', function (contents) {
+  await utils.download(page, '[data-test=download-file-report]', function (contents) {
     expect(contents).toContain('ConfigTables.bin')
     expect(contents).toContain('MC_CONFIGURATION')
     expect(contents).toContain('SCRUB_REGION_1_START_ADDR, 0x0')
@@ -154,7 +154,7 @@ test('edits a binary file', async ({ page }) => {
   await utils.sleep(1000)
 
   // Check for new values
-  await utils.download(page, '[data-test=download-report]', function (contents) {
+  await utils.download(page, '[data-test=download-file-report]', function (contents) {
     expect(contents).toContain('ConfigTables.bin')
     expect(contents).toContain('MC_CONFIGURATION')
     expect(contents).toContain('SCRUB_REGION_1_START_ADDR, 0xABCDEF')
@@ -203,12 +203,34 @@ test('downloads binary, definition, report', async ({ page }) => {
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  await utils.download(page, '[data-test=download-binary]')
-  await utils.download(page, '[data-test=download-definition]', function (contents) {
+  await utils.download(page, '[data-test=download-file-binary]')
+  await utils.download(page, '[data-test=download-file-definition]', function (contents) {
     expect(contents).toContain('TABLEFILE')
   })
-  await utils.download(page, '[data-test=download-report]', function (contents) {
+  await utils.download(page, '[data-test=download-file-report]', function (contents) {
     expect(contents).toContain('ConfigTables.bin')
+  })
+  await page.locator('text=PPS_SELECTION').click()
+  await utils.download(
+    page,
+    '[data-test=download-table-binary]',
+    function (contents) {
+      expect(contents.length).toBe(2)
+      let string = contents
+        .split('')
+        .map((char) => {
+          char.charCodeAt(0).toString(2)
+        })
+        .join('')
+      expect(string).toBe('0000')
+    },
+    'binary'
+  )
+  await utils.download(page, '[data-test=download-table-definition]', function (contents) {
+    expect(contents).toContain('TABLE "PPS_Selection"')
+  })
+  await utils.download(page, '[data-test=download-table-report]', function (contents) {
+    expect(contents).toContain('PPS_SELECTION')
   })
 })
 

@@ -36,6 +36,14 @@ axiosInstance.interceptors.response.use(
         delete localStorage.cosmosToken
         CosmosAuth.login(location.href)
       } else {
+        // Individual tools can set axiosIgnoreResponse to an error code
+        // they potentially expect, e.g. '404', in which case we ignore it
+        // Since localStorage only supports strings call toString on the status
+        if (
+          localStorage.axiosIgnoreResponse === error.response.status.toString()
+        ) {
+          return Promise.reject(error)
+        }
         let body = `HTTP ${error.response.status} - `
         if (error.response?.statusText) {
           body += `${error.response.statusText} `
