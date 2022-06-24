@@ -151,7 +151,7 @@ test('edits a binary file', async ({ page }) => {
 
   await page.locator('[data-test=table-manager-file]').click()
   await page.locator('text=Save File').click()
-  await utils.sleep(1000)
+  await utils.sleep(5000) // Saving takes some time
 
   // Check for new values
   await utils.download(page, '[data-test=download-file-report]', function (contents) {
@@ -213,25 +213,26 @@ test('downloads binary, definition, report', async ({ page }) => {
   await page.locator('text=PPS_SELECTION').click()
   await utils.download(
     page,
-    '[data-test=download-table-binary]',
+    '[data-test="PPS_SELECTION"] [data-test=download-table-binary]',
     function (contents) {
       expect(contents.length).toBe(2)
-      let string = contents
-        .split('')
-        .map((char) => {
-          char.charCodeAt(0).toString(2)
-        })
-        .join('')
-      expect(string).toBe('0000')
     },
     'binary'
   )
-  await utils.download(page, '[data-test=download-table-definition]', function (contents) {
-    expect(contents).toContain('TABLE "PPS_Selection"')
-  })
-  await utils.download(page, '[data-test=download-table-report]', function (contents) {
-    expect(contents).toContain('PPS_SELECTION')
-  })
+  await utils.download(
+    page,
+    '[data-test="PPS_SELECTION"] [data-test=download-table-definition]',
+    function (contents) {
+      expect(contents).toContain('TABLE "PPS_Selection"')
+    }
+  )
+  await utils.download(
+    page,
+    '[data-test="PPS_SELECTION"] [data-test=download-table-report]',
+    function (contents) {
+      expect(contents).toContain('PPS_SELECTION')
+    }
+  )
 })
 
 test('save as', async ({ page }) => {

@@ -557,7 +557,10 @@ export default {
       Api.post(`/cosmos-api/tables/report`, {
         data: formData,
       }).then((response) => {
-        const blob = new Blob([response.data.contents], {
+        const header =
+          `Binary: ${this.filename}\n` +
+          `Definition: ${this.definitionFilename}\n\n`
+        const blob = new Blob([header, response.data.contents], {
           type: 'text/plain',
         })
         // Make a link and then 'click' on it to start the download

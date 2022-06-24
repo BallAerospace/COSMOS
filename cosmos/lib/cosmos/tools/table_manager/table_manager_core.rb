@@ -84,14 +84,18 @@ module Cosmos
             else
               table_item = items[r]
             end
-
-            report.write "#{table.read(table_item.name, :FORMATTED).to_s}, "
+            value = table.read(table_item.name, :FORMATTED)
+            if value.is_printable?
+              report.write "#{value}, "
+            else
+              report.write "#{value.simple_formatted}, "
+            end
           end
           report.write("\n") # newline after each row
         end
         report.write("\n") # newline after each table
       end
-      report.string.encode('UTF-8', 'UTF-8', :invalid => :replace)
+      report.string
     end
 
     def self.generate(definition_filename)
@@ -106,7 +110,7 @@ module Cosmos
 
     def self.save(definition_filename, tables)
       config = TableConfig.process_file(definition_filename)
-      tables['tables'].each do |table|
+      tables.each do |table|
         table_def = config.tables[table['name']]
         table['rows'].each do |row|
           row.each do |item|
