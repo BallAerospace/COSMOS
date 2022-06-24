@@ -557,7 +557,6 @@ export default {
       Api.post(`/cosmos-api/tables/report`, {
         data: formData,
       }).then((response) => {
-        console.log(response)
         const blob = new Blob([response.data.contents], {
           type: 'text/plain',
         })
