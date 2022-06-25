@@ -98,7 +98,7 @@ module Cosmos
       # @param buffer [String] String buffer to hold the packet data
       # @param item_class [Class] Class used to instantiate items (Must be a
       #   subclass of PacketItem)
-      def initialize(target_name, packet_name, default_endianness = :BIG_ENDIAN, description = nil, buffer = '', item_class = PacketItem)
+      def initialize(target_name, packet_name, default_endianness = :BIG_ENDIAN, description = nil, buffer = nil, item_class = PacketItem)
         super(default_endianness, buffer, item_class)
         # Explictly call the defined setter methods
         self.target_name = target_name

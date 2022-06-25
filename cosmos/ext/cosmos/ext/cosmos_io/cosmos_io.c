@@ -30,19 +30,19 @@ VALUE mCosmosIO = Qnil;
 static ID id_method_read = 0;
 
 /* Reads a length field and then return the String resulting from reading the
-  * number of bytes the length field indicates
-  *
-  * For example:
-  *   io = StringIO.new
-  *   # where io is "\x02\x01\x02\x03\x04...."
-  *   result = io.read_length_bytes(1)
-  *   # result will be "\x01x02" because the length field was given
-  *   # to be 1 byte. We read 1 byte which is a 2. So we then read two
-  *   # bytes and return.
-  *
-  * @param length_num_bytes [Integer] Number of bytes in the length field
-  * @return [String] A String of "length field" number of bytes
-  */
+ * number of bytes the length field indicates
+ *
+ * For example:
+ *   io = StringIO.new
+ *   # where io is "\x02\x01\x02\x03\x04...."
+ *   result = io.read_length_bytes(1)
+ *   # result will be "\x01x02" because the length field was given
+ *   # to be 1 byte. We read 1 byte which is a 2. So we then read two
+ *   # bytes and return.
+ *
+ * @param length_num_bytes [Integer] Number of bytes in the length field
+ * @return [String] A String of "length field" number of bytes
+ */
 static VALUE read_length_bytes(int argc, VALUE *argv, VALUE self)
 {
   int length_num_bytes = 0;
@@ -134,7 +134,7 @@ static VALUE read_length_bytes(int argc, VALUE *argv, VALUE self)
   }
 
   /* Read String */
-  temp_string_length = UINT2NUM(string_length);
+  temp_string_length = UINT2NUM((unsigned int)string_length);
   return_value = rb_funcall(self, id_method_read, 1, temp_string_length);
   if (NIL_P(return_value) || (RSTRING_LEN(return_value) != string_length))
   {

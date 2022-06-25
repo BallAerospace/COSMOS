@@ -66,7 +66,7 @@ module Cosmos
       # @param buffer [String] Buffer used to store the structure
       # @param item_class [Class] Class used to instantiate new structure items.
       #   Must be StructureItem or one of its subclasses.
-      def initialize(default_endianness = BinaryAccessor::HOST_ENDIANNESS, buffer = '', item_class = StructureItem)
+      def initialize(default_endianness = BinaryAccessor::HOST_ENDIANNESS, buffer = nil, item_class = StructureItem)
         if (default_endianness == :BIG_ENDIAN) || (default_endianness == :LITTLE_ENDIAN)
           @default_endianness = default_endianness
           if buffer
@@ -102,14 +102,11 @@ module Cosmos
       def read_item(item, value_type = :RAW, buffer = @buffer)
         return nil if item.data_type == :DERIVED
 
-        if buffer
-          if item.array_size
-            return BinaryAccessor.read_array(item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness)
-          else
-            return BinaryAccessor.read(item.bit_offset, item.bit_size, item.data_type, buffer, item.endianness)
-          end
+        buffer = allocate_buffer() unless buffer
+        if item.array_size
+          return BinaryAccessor.read_array(item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness)
         else
-          raise "No buffer given to read_item"
+          return BinaryAccessor.read(item.bit_offset, item.bit_size, item.data_type, buffer, item.endianness)
         end
       end
 
@@ -117,9 +114,8 @@ module Cosmos
       #
       # @return [Integer] Size of the buffer in bytes
       def length
-        return @buffer.length if @buffer
-
-        return 0
+        allocate_buffer()
+        return @buffer.length
       end
 
       # Resize the buffer at least the defined length of the structure
@@ -129,10 +125,21 @@ module Cosmos
           if @buffer.length < @defined_length
             @buffer << (ZERO_STRING * (@defined_length - @buffer.length))
           end
+        else
+          allocate_buffer()
         end
 
         return self
       end
+    end
+
+    # Allocate a buffer if not available
+    def allocate_buffer
+      unless @buffer
+        @buffer = ZERO_STRING * @defined_length
+        @buffer.force_encoding(ASCII_8BIT_STRING)
+      end
+      return @buffer
     end
 
     # Indicates if any items have been defined for this structure
@@ -340,14 +347,11 @@ module Cosmos
     #   parameter to check whether to perform conversions on the item.
     # @param buffer [String] The binary buffer to write the value to
     def write_item(item, value, value_type = :RAW, buffer = @buffer)
-      if buffer
-        if item.array_size
-          BinaryAccessor.write_array(value, item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness, item.overflow)
-        else
-          BinaryAccessor.write(value, item.bit_offset, item.bit_size, item.data_type, buffer, item.endianness, item.overflow)
-        end
+      buffer = allocate_buffer() unless buffer
+      if item.array_size
+        BinaryAccessor.write_array(value, item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness, item.overflow)
       else
-        raise "No buffer given to write_item"
+        BinaryAccessor.write(value, item.bit_offset, item.bit_size, item.data_type, buffer, item.endianness, item.overflow)
       end
     end
 
@@ -432,14 +436,11 @@ module Cosmos
     # @param copy [TrueClass/FalseClass] Whether to copy the buffer
     # @return [String] Data buffer backing the structure
     def buffer(copy = true)
-      if @buffer
-        if copy
-          return @buffer.dup
-        else
-          return @buffer
-        end
+      local_buffer = allocate_buffer()
+      if copy
+        return local_buffer.dup
       else
-        return nil
+        return local_buffer
       end
     end
 
@@ -525,15 +526,11 @@ module Cosmos
     module MethodMissing
       # Method missing provides reading/writing item values as if they were methods to the class
       def method_missing(name, value = nil)
-        if @buffer
-          if value
-            # Strip off the equals sign before looking up the item
-            return write(name.to_s[0..-2], value)
-          else
-            return read(name.to_s)
-          end
+        if value
+          # Strip off the equals sign before looking up the item
+          return write(name.to_s[0..-2], value)
         else
-          raise "No buffer available for method_missing"
+          return read(name.to_s)
         end
       end
     end

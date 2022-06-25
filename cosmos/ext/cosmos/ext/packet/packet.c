@@ -196,7 +196,7 @@ static VALUE packet_initialize(int argc, VALUE *argv, VALUE self)
     packet_name = argv[1];
     default_endianness = symbol_BIG_ENDIAN;
     description = Qnil;
-    buffer = rb_str_new2("");
+    buffer = Qnil;
     item_class = cPacketItem;
     break;
   case 3:
@@ -204,7 +204,7 @@ static VALUE packet_initialize(int argc, VALUE *argv, VALUE self)
     packet_name = argv[1];
     default_endianness = argv[2];
     description = Qnil;
-    buffer = rb_str_new2("");
+    buffer = Qnil;
     item_class = cPacketItem;
     break;
   case 4:
@@ -212,7 +212,7 @@ static VALUE packet_initialize(int argc, VALUE *argv, VALUE self)
     packet_name = argv[1];
     default_endianness = argv[2];
     description = argv[3];
-    buffer = rb_str_new2("");
+    buffer = Qnil;
     item_class = cPacketItem;
     break;
   case 5:

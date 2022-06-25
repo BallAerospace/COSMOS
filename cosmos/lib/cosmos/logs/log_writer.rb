@@ -32,9 +32,41 @@ module Cosmos
     # @return [true/false] Whether logging is enabled
     attr_reader :logging_enabled
 
+    # @return cycle_time [Integer] The amount of time in seconds before creating
+    #   a new log file. This can be combined with cycle_size but is better used
+    #   independently.
+    attr_reader :cycle_time
+
+    # @return cycle_hour [Integer] The time at which to cycle the log. Combined with
+    #   cycle_minute to cycle the log daily at the specified time. If nil, the log
+    #   will be cycled hourly at the specified cycle_minute.
+    attr_reader :cycle_hour
+
+    # @return cycle_minute [Integer] The time at which to cycle the log. See cycle_hour
+    #   for more information.
+    attr_reader :cycle_minute
+
+    # @return [Time] Time that the current log file started
+    attr_reader :start_time
+
+    # @return [Mutex] Instance mutex protecting file
+    attr_reader :mutex
+
     # The cycle time interval. Cycle times are only checked at this level of
     # granularity.
-    CYCLE_TIME_INTERVAL = 2
+    CYCLE_TIME_INTERVAL = 10
+
+    # Mutex protecting class variables
+    @@mutex = Mutex.new
+
+    # Array of instances used to keep track of cycling logs
+    @@instances = []
+
+    # Thread used to cycle logs across all log writers
+    @@cycle_thread = nil
+
+    # Sleeper used to delay cycle thread
+    @@cycle_sleeper = nil
 
     # @param remote_log_directory [String] The s3 path to store the log files
     # @param logging_enabled [Boolean] Whether to start with logging enabled
@@ -89,11 +121,15 @@ module Cosmos
       # each time we create an entry which we do a LOT!
       @entry = String.new
 
-      @cycle_thread = nil
       if @cycle_time or @cycle_hour or @cycle_minute
-        @cycle_sleeper = Sleeper.new
-        @cycle_thread = Cosmos.safe_thread("Log cycle") do
-          cycle_thread_body()
+        @@mutex.synchronize do
+          @@instances << self
+
+          unless @@cycle_thread
+            @@cycle_thread = Cosmos.safe_thread("Log cycle") do
+              cycle_thread_body()
+            end
+          end
         end
       end
     end
@@ -113,10 +149,13 @@ module Cosmos
     # Stop all logging, close the current log file, and kill the logging threads.
     def shutdown
       stop()
-      if @cycle_thread
-        @cycle_sleeper.cancel
-        Cosmos.kill_thread(self, @cycle_thread)
-        @cycle_thread = nil
+      @@mutex.synchronize do
+        @@instances.delete(self)
+        if @@instances.length <= 0
+          @@cycle_sleeper.cancel if @@cycle_sleeper
+          Cosmos.kill_thread(self, @@cycle_thread) if @@cycle_thread
+          @@cycle_thread = nil
+        end
       end
     end
 
@@ -143,28 +182,38 @@ module Cosmos
     end
 
     def cycle_thread_body
+      @@cycle_sleeper = Sleeper.new
       while true
-        # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
-        # and closing the file
-        @mutex.synchronize do
-          utc_now = Time.now.utc
-          # Logger.debug("start:#{@start_time.to_f} now:#{utc_now.to_f} cycle:#{@cycle_time} new:#{(utc_now - @start_time) > @cycle_time}")
-          if @logging_enabled and
-             (
-               # Cycle based on total time logging
-               (@cycle_time and (utc_now - @start_time) > @cycle_time) or
+        start_time = Time.now
+        @@mutex.synchronize do
+          @@instances.each do |instance|
+            # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
+            # and closing the file
+            instance.mutex.synchronize do
+              utc_now = Time.now.utc
+              # Logger.debug("start:#{@start_time.to_f} now:#{utc_now.to_f} cycle:#{@cycle_time} new:#{(utc_now - @start_time) > @cycle_time}")
+              if instance.logging_enabled and
+                (
+                  # Cycle based on total time logging
+                  (instance.cycle_time and (utc_now - instance.start_time) > instance.cycle_time) or
 
-               # Cycle daily at a specific time
-               (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.min == @cycle_minute and @start_time.yday != utc_now.yday) or
+                  # Cycle daily at a specific time
+                  (instance.cycle_hour and instance.cycle_minute and utc_now.hour == instance.cycle_hour and utc_now.min == instance.cycle_minute and instance.start_time.yday != utc_now.yday) or
 
-               # Cycle hourly at a specific time
-               (@cycle_minute and not @cycle_hour and utc_now.min == @cycle_minute and @start_time.hour != utc_now.hour)
-             )
-            close_file(false)
+                  # Cycle hourly at a specific time
+                  (instance.cycle_minute and not instance.cycle_hour and utc_now.min == instance.cycle_minute and instance.start_time.hour != utc_now.hour)
+                )
+                instance.close_file(false)
+              end
+            end
           end
         end
+
         # Only check whether to cycle at a set interval
-        break if @cycle_sleeper.sleep(CYCLE_TIME_INTERVAL)
+        run_time = Time.now - start_time
+        sleep_time = CYCLE_TIME_INTERVAL - run_time
+        sleep_time = 0 if sleep_time < 0
+        break if @@cycle_sleeper.sleep(sleep_time)
       end
     end
 
