@@ -32,6 +32,7 @@ require 'cosmos/models/tool_model'
 require 'cosmos/models/widget_model'
 require 'cosmos/models/microservice_model'
 require 'tmpdir'
+require 'tempfile'
 
 module Cosmos
   # Represents a COSMOS plugin that can consist of targets, interfaces, routers
@@ -41,7 +42,9 @@ module Cosmos
     PRIMARY_KEY = 'cosmos_plugins'
 
     attr_accessor :variables
+    attr_accessor :plugin_txt_lines
     attr_accessor :needs_dependencies
+
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -59,57 +62,81 @@ module Cosmos
 
     # Called by the PluginsController to parse the plugin variables
     # Doesn't actaully create the plugin during the phase
-    def self.install_phase1(gem_file_path, existing_variables = nil, scope:, validate_only: false)
-      gem_filename = File.basename(gem_file_path)
-
-      # Load gem to internal gem server
-      Cosmos::GemModel.put(gem_file_path, gem_install: false, scope: scope) unless validate_only
-
-      # Extract gem and process plugin.txt to determine what VARIABLEs need to be filled in
-      pkg = Gem::Package.new(gem_file_path)
+    def self.install_phase1(gem_file_path, existing_variables: nil, existing_plugin_txt_lines: nil, process_existing: false, scope:, validate_only: false)
+      gem_name = File.basename(gem_file_path).split("__")[0]
 
       temp_dir = Dir.mktmpdir
+      tf = nil
       begin
-        pkg.extract_files(temp_dir)
-        plugin_txt_path = File.join(temp_dir, 'plugin.txt')
-        if File.exist?(plugin_txt_path)
-          parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
-
-          # Phase 1 Gather Variables
-          variables = {}
-          parser.parse_file(plugin_txt_path,
-                            false,
-                            true,
-                            false) do |keyword, params|
-            case keyword
-            when 'VARIABLE'
-              usage = "#{keyword} <Variable Name> <Default Value>"
-              parser.verify_num_parameters(2, nil, usage)
-              variable_name = params[0]
-              value = params[1..-1].join(" ")
-              variables[variable_name] = value
-              if existing_variables && existing_variables.key?(variable_name)
-                variables[variable_name] = existing_variables[variable_name]
-              end
-              # Ignore everything else during phase 1
-            end
-          end
-
-          model = PluginModel.new(name: gem_filename, variables: variables, scope: scope)
-          return model.as_json
+        if File.exists?(gem_file_path)
+          # Load gem to internal gem server
+          Cosmos::GemModel.put(gem_file_path, gem_install: false, scope: scope) unless validate_only
+        else
+          gem_file_path = Cosmos::GemModel.get(temp_dir, gem_name)
         end
+
+        # Extract gem and process plugin.txt to determine what VARIABLEs need to be filled in
+        pkg = Gem::Package.new(gem_file_path)
+
+        if existing_plugin_txt_lines and process_existing
+          # This is only used in cosmos load when everything is known
+          plugin_txt_lines = existing_plugin_txt_lines
+          file_data = existing_plugin_txt_lines.join("\n")
+          tf = Tempfile.new("plugin.txt")
+          tf.write(file_data)
+          tf.close
+          plugin_txt_path = tf.path
+        else
+          # Otherwise we always process the new and return both
+          pkg.extract_files(temp_dir)
+          plugin_txt_path = File.join(temp_dir, 'plugin.txt')
+          plugin_text = File.read(plugin_txt_path)
+          plugin_txt_lines = []
+          plugin_text.each_line do |line|
+            plugin_txt_lines << line.chomp
+          end
+        end
+
+        parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
+
+        # Phase 1 Gather Variables
+        variables = {}
+        parser.parse_file(plugin_txt_path,
+                          false,
+                          true,
+                          false) do |keyword, params|
+          case keyword
+          when 'VARIABLE'
+            usage = "#{keyword} <Variable Name> <Default Value>"
+            parser.verify_num_parameters(2, nil, usage)
+            variable_name = params[0]
+            value = params[1..-1].join(" ")
+            variables[variable_name] = value
+            if existing_variables && existing_variables.key?(variable_name)
+              variables[variable_name] = existing_variables[variable_name]
+            end
+            # Ignore everything else during phase 1
+          end
+        end
+
+        model = PluginModel.new(name: gem_name, variables: variables, plugin_txt_lines: plugin_txt_lines, scope: scope)
+        result = model.as_json
+        result['existing_plugin_txt_lines'] = existing_plugin_txt_lines if existing_plugin_txt_lines and not process_existing and existing_plugin_txt_lines != result['plugin_txt_lines']
+        return result
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+        tf.unlink if tf
       end
     end
 
     # Called by the PluginsController to create the plugin
     # Because this uses ERB it must be run in a seperate process from the API to
     # prevent corruption and single require problems in the current proces
-    def self.install_phase2(name, variables, scope:, gem_file_path: nil, validate_only: false)
+    def self.install_phase2(plugin_hash, scope:, validate_only: false)
+      rubys3_client = Aws::S3::Client.new
+
+      # Ensure config bucket exists
       unless validate_only
-        rubys3_client = Aws::S3::Client.new
-        # Ensure config bucket exists
         begin
           rubys3_client.head_bucket(bucket: 'config')
         rescue Aws::S3::Errors::NotFound
@@ -118,13 +145,17 @@ module Cosmos
       end
 
       # Register plugin to aid in uninstall if install fails
-      plugin_model = PluginModel.new(name: name, variables: variables, scope: scope)
+      plugin_hash.delete("existing_plugin_txt_lines")
+      plugin_model = PluginModel.new(**(plugin_hash.transform_keys(&:to_sym)), scope: scope)
       plugin_model.create unless validate_only
 
       temp_dir = Dir.mktmpdir
       begin
-        # Get the gem from local gem server if it hasn't been passed
-        gem_file_path = Cosmos::GemModel.get(temp_dir, name) unless gem_file_path
+        tf = nil
+
+        # Get the gem from local gem server
+        gem_name = plugin_hash['name'].split("__")[0]
+        gem_file_path = Cosmos::GemModel.get(temp_dir, gem_name)
 
         # Actually install the gem now (slow)
         Cosmos::GemModel.install(gem_file_path, scope: scope)
@@ -152,7 +183,12 @@ module Cosmos
           end
 
           # Process plugin.txt file
-          plugin_txt_path = File.join(gem_path, 'plugin.txt')
+          file_data = plugin_hash['plugin_txt_lines'].join("\n")
+          tf = Tempfile.new("plugin.txt")
+          tf.write(file_data)
+          tf.close
+          plugin_txt_path = tf.path
+          variables = plugin_hash['variables']
           if File.exist?(plugin_txt_path)
             parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
 
@@ -193,6 +229,7 @@ module Cosmos
         raise err
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+        tf.unlink if tf
       end
 
       return plugin_model.as_json
@@ -201,12 +238,14 @@ module Cosmos
     def initialize(
       name:,
       variables: {},
+      plugin_txt_lines: [],
       needs_dependencies: false,
       updated_at: nil,
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, scope: scope)
       @variables = variables
+      @plugin_txt_lines = plugin_txt_lines
       @needs_dependencies = ConfigParser.handle_true_false(needs_dependencies)
     end
 
@@ -219,6 +258,7 @@ module Cosmos
       {
         'name' => @name,
         'variables' => @variables,
+        'plugin_txt_lines' => @plugin_txt_lines,
         'needs_dependencies' => @needs_dependencies,
         'updated_at' => @updated_at
       }
@@ -231,6 +271,14 @@ module Cosmos
           model_instance.destroy
         end
       end
+    end
+
+    # Reinstall
+    def restore
+      plugin_hash = self.as_json
+      plugin_hash['name'] = plugin_hash['name'].split("__")[0]
+      Cosmos::PluginModel.install_phase2(plugin_hash, scope: @scope)
+      @destroyed = false
     end
   end
 end

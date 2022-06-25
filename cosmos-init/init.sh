@@ -54,6 +54,9 @@ else
     done
 fi
 
+# Fail on errors
+set -e
+
 mc alias set cosmosminio "${COSMOS_S3_URL}" ${COSMOS_MINIO_USERNAME} ${COSMOS_MINIO_PASSWORD} || exit 1
 
 # Create new canned policy by name script using script-runner.json policy file.
@@ -84,6 +87,9 @@ ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-autonomic-*.gem 
 if [ ! -z $COSMOS_DEMO ]; then
     ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-demo-*.gem || exit 1
 fi
+
+# Need to allow errors during this wait
+set +e
 
 RC=1
 if [ ! -z "${COSMOS_ISTIO_ENABLED}" ]; then

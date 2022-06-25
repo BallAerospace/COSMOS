@@ -19,14 +19,6 @@
 
 <template>
   <div>
-    <v-alert
-      :type="alertType"
-      v-model="showAlert"
-      dismissible
-      transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
     <v-list data-test="interfaceList">
       <div
         v-for="(cosmos_interface, index) in interfaces"
@@ -50,32 +42,10 @@
               <span>Show Interface Details</span>
             </v-tooltip>
           </v-list-item-icon>
-          <v-list-item-icon>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  @click="deleteInterface(cosmos_interface)"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-delete
-                </v-icon>
-              </template>
-              <span>Delete Interface</span>
-            </v-tooltip>
-          </v-list-item-icon>
         </v-list-item>
         <v-divider v-if="index < interfaces.length - 1" :key="index" />
       </div>
     </v-list>
-    <v-alert
-      :type="alertType"
-      v-model="showAlert"
-      dismissible
-      transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
     <edit-dialog
       :content="jsonContent"
       :title="`Interface: ${dialogTitle}`"
@@ -95,9 +65,6 @@ export default {
   data() {
     return {
       interfaces: [],
-      alert: '',
-      alertType: 'success',
-      showAlert: false,
       jsonContent: '',
       dialogTitle: '',
       showDialog: false,
@@ -121,25 +88,6 @@ export default {
     },
     dialogCallback(content) {
       this.showDialog = false
-    },
-    deleteInterface(name) {
-      this.$dialog
-        .confirm(`Are you sure you want to remove: ${name}`, {
-          okText: 'Delete',
-          cancelText: 'Cancel',
-        })
-        .then(function (dialog) {
-          return Api.delete(`/cosmos-api/interfaces/${name}`)
-        })
-        .then((response) => {
-          this.alert = `Removed interface ${name}`
-          this.alertType = 'success'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-          this.update()
-        })
     },
   },
 }

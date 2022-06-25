@@ -19,14 +19,6 @@
 
 <template>
   <div>
-    <v-alert
-      :type="alertType"
-      v-model="showAlert"
-      dismissible
-      transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
     <v-list data-test="microserviceList">
       <div v-for="(microservice, index) in microservices" :key="microservice">
         <v-list-item>
@@ -58,47 +50,26 @@
             <v-tooltip bottom>
               <template v-slot:activator="{ on, attrs }">
                 <v-icon
-                  @click="editMicroservice(microservice)"
+                  @click="showMicroservice(microservice)"
                   v-bind="attrs"
                   v-on="on"
                 >
-                  mdi-pencil
+                  mdi-eye
                 </v-icon>
               </template>
               <span>Edit Microservice</span>
-            </v-tooltip>
-          </v-list-item-icon>
-          <v-list-item-icon>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon
-                  @click="deleteMicroservice(microservice)"
-                  v-bind="attrs"
-                  v-on="on"
-                >
-                  mdi-delete
-                </v-icon>
-              </template>
-              <span>Delete Microservice</span>
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
         <v-divider v-if="index < microservices.length - 1" :key="index" />
       </div>
     </v-list>
-    <v-alert
-      dismissible
-      v-model="showAlert"
-      :type="alertType"
-      transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
     <edit-dialog
       v-model="showDialog"
       v-if="showDialog"
       :content="jsonContent"
       :title="`Microservice: ${dialogTitle}`"
+      readonly
       @submit="dialogCallback"
     />
     <text-box-dialog
@@ -125,9 +96,6 @@ export default {
       microservices: [],
       microservice_status: {},
       microservice_id: null,
-      alert: '',
-      alertType: 'success',
-      showAlert: false,
       jsonContent: '',
       dialogTitle: '',
       showDialog: false,
@@ -146,7 +114,7 @@ export default {
         this.microservices = response.data
       })
     },
-    editMicroservice: function (name) {
+    showMicroservice: function (name) {
       Api.get(`/cosmos-api/microservices/${name}`).then((response) => {
         this.microservice_id = name
         this.dialogTitle = name
@@ -185,25 +153,6 @@ export default {
           this.update()
         })
       }
-    },
-    deleteMicroservice: function (name) {
-      this.$dialog
-        .confirm(`Are you sure you want to remove: ${name}`, {
-          okText: 'Delete',
-          cancelText: 'Cancel',
-        })
-        .then(function (dialog) {
-          return Api.delete(`/cosmos-api/microservices/${name}`)
-        })
-        .then((response) => {
-          this.alert = `Removed microservice ${name}`
-          this.alertType = 'success'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-          this.update()
-        })
     },
   },
 }

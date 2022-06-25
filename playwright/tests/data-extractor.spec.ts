@@ -194,6 +194,7 @@ test('processes commands', async ({ page }) => {
   await page.goto('/tools/cmdsender/INST/ABORT')
   await page.locator('[data-test=select-send]').click()
   await page.locator('text=cmd("INST ABORT") sent')
+  await utils.sleep(1000)
   expect(await page.inputValue('[data-test=sender-history]')).toMatch('cmd("INST ABORT")')
 
   const start = sub(new Date(), { minutes: 5 })

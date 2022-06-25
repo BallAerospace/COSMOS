@@ -24,7 +24,6 @@ require 'tmpdir'
 class PluginsController < ModelController
   def initialize
     @model_class = Cosmos::PluginModel
-    @variables = nil
   end
 
   # Add a new plugin
@@ -36,15 +35,20 @@ class PluginsController < ModelController
       begin
         gem_file_path = temp_dir + '/' + file.original_filename
         FileUtils.cp(file.tempfile.path, gem_file_path)
-        result = Cosmos::PluginModel.install_phase1(gem_file_path, @variables, scope: params[:scope])
-        Cosmos::Logger.info("Plugin created: #{params[:plugin]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION'])) unless update
+        if @existing_model
+          result = Cosmos::PluginModel.install_phase1(gem_file_path, existing_variables: @existing_model['variables'], existing_plugin_txt_lines: @existing_model['plugin_txt_lines'], scope: params[:scope])
+        else
+          result = Cosmos::PluginModel.install_phase1(gem_file_path, scope: params[:scope])
+        end
         render :json => result
-      rescue
+      rescue => err
+        logger.error(err.formatted)
         head :internal_server_error
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     else
+      logger.error("No file received")
       head :internal_server_error
     end
   end
@@ -52,11 +56,8 @@ class PluginsController < ModelController
   def update
     return unless authorization('admin')
     # Grab the existing plugin we're updating so we can display existing variables
-    @variables = @model_class.get(name: params[:id], scope: params[:scope])['variables']
-    destroy()
+    @existing_model = @model_class.get(name: params[:id], scope: params[:scope])
     create(true)
-    Cosmos::Logger.info("Plugin updated: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
-    @variables = nil
   end
 
   def install
@@ -66,7 +67,7 @@ class PluginsController < ModelController
       variables_filename = Dir::Tmpname.create(['variables-', '.json']) {}
       variables_file_path = File.join(temp_dir, File.basename(variables_filename))
       File.open(variables_file_path, 'wb') do |file|
-        file.write(params[:variables])
+        file.write(params[:plugin_hash])
       end
 
       result = Cosmos::ProcessManager.instance.spawn(["ruby", "/cosmos/bin/cosmos", "load", params[:id], params[:scope], variables_file_path], "plugin_install", params[:id], Time.now + 1.hour, temp_dir: temp_dir, scope: params[:scope])

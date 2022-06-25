@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <v-dialog persistent v-model="show" width="600">
+  <v-dialog :persistent="!readonly" v-model="show" width="600">
     <v-card>
       <form v-on:submit.prevent="submit">
         <v-system-bar>
@@ -41,6 +41,7 @@
 
         <v-card-text>
           <div class="pa-3">
+            <div v-if="!readonly">
             <v-row class="mt-3"> Upload a file. </v-row>
             <v-row no-gutters align="center">
               <v-col cols="3">
@@ -67,7 +68,7 @@
                 />
               </v-col>
             </v-row>
-            <v-row> Edit json content </v-row>
+            </div>
             <v-row no-gutters>
               <v-textarea
                 v-model="json_content"
@@ -90,6 +91,7 @@
                 Cancel
               </v-btn>
               <v-btn
+                v-if="!readonly"
                 class="mx-2"
                 color="primary"
                 type="submit"

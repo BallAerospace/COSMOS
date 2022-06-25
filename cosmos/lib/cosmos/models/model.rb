@@ -128,6 +128,7 @@ module Cosmos
       @updated_at = kw_args[:updated_at]
       @plugin = kw_args[:plugin]
       @scope = kw_args[:scope]
+      @destroyed = false
     end
 
     # Update the Redis hash at primary_key and set the field "name"
@@ -163,8 +164,14 @@ module Cosmos
 
     # Delete the model from the Store
     def destroy
+      @destroyed = true
       undeploy()
       self.class.store.hdel(@primary_key, @name)
+    end
+
+    # Indicate if destroy has been called
+    def destroyed?
+      @destroyed
     end
 
     # @return [Hash] JSON encoding of this model

@@ -12,7 +12,7 @@
       "javascript"
     ],
     "eslint.workingDirectories": [
-      "./cosmos-frontend-init"
+      "./cosmos-init/plugins"
     ],
     "eslint.packageManager": "yarn",
     "editor.formatOnSave": true,
@@ -29,7 +29,6 @@
     },
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
-    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
     "git.ignoreLimitWarning": true,
     "ruby.rubocop.onSave": true,
     "ruby.format": "rubocop",
