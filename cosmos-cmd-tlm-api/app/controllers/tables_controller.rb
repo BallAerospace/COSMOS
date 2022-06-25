@@ -25,6 +25,54 @@ class TablesController < ApplicationController
     render json: Table.all(params[:scope])
   end
 
+  def binary
+    return unless authorization('system')
+    begin
+      file = Table.binary(params[:scope], params[:binary], params[:definition], params[:table])
+      if file
+        results = { 'filename' => file.filename, 'contents' => Base64.encode64(file.contents) }
+        render json: results
+      else
+        head :not_found
+      end
+    rescue Exception => e
+      render(json: { status: 'error', message: e.message }, status: 500) and
+        return
+    end
+  end
+
+  def definition
+    return unless authorization('system')
+    begin
+      file = Table.definition(params[:scope], params[:definition], params[:table])
+      if file
+        results = { 'filename' => file.filename, 'contents' => file.contents }
+        render json: results
+      else
+        head :not_found
+      end
+    rescue Exception => e
+      render(json: { status: 'error', message: e.message }, status: 500) and
+        return
+    end
+  end
+
+  def report
+    return unless authorization('system')
+    begin
+      file = Table.report(params[:scope], params[:binary], params[:definition], params[:table])
+      if file
+        results = { 'filename' => file.filename, 'contents' => file.contents }
+        render json: results
+      else
+        head :not_found
+      end
+    rescue Exception => e
+      render(json: { status: 'error', message: e.message }, status: 500) and
+        return
+    end
+  end
+
   def body
     return unless authorization('system')
     file = Table.body(params[:scope], params[:name])
@@ -84,7 +132,7 @@ class TablesController < ApplicationController
   def generate
     return unless authorization('system')
     begin
-      filename = Table.generate(params[:scope], params[:name], params[:contents])
+      filename = Table.generate(params[:scope], params[:definition])
       if filename
         results = { 'filename' => filename }
         render json: results
@@ -94,16 +142,6 @@ class TablesController < ApplicationController
     rescue Exception => e
       render(json: { status: 'error', message: e.message }, status: 500) and
         return
-    end
-  end
-
-  def report
-    return unless authorization('system')
-    table = Table.report(params[:scope], params[:binary], params[:definition])
-    if table
-      render json: table
-    else
-      head :not_found
     end
   end
 

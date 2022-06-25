@@ -37,7 +37,7 @@ export class Utilities {
     await this.page.locator('[data-test="select-send"]').click()
   }
 
-  async download(page, locator, validator = null) {
+  async download(page, locator, validator = null, encoding = 'utf-8') {
     const [download] = await Promise.all([
       // Start waiting for the download
       page.waitForEvent('download'),
@@ -47,7 +47,7 @@ export class Utilities {
     // Wait for the download process to complete
     const path = await download.path()
     const contents = await fs.readFileSync(path, {
-      encoding: 'utf-8',
+      encoding: encoding,
     })
     if (validator) {
       validator(contents)

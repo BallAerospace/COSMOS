@@ -5,4 +5,3 @@
 TABLEFILE "MCConfigurationTable_def.txt"
 TABLEFILE "TLMMonitoringTable_def.txt"
 TABLEFILE "PPSSelectionTable_def.txt"
-

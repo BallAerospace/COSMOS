@@ -105,6 +105,8 @@ def mock_redis
   redis
 end
 
+SPEC_DIR = File.dirname(__FILE__)
+
 RSpec.configure do |config|
   config.before(:all) do
     # Most tests want to disable authorization for simplicity

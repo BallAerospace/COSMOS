@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     onClick() {
-      const lines = this.eval.split('\n')
+      const lines = this.eval.split(';;')
       // Create local references to variables so users don't need to use 'this'
       const self = this // needed for $emit
       const screen = this.screen

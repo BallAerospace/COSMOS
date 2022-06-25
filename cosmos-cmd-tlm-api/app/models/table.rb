@@ -62,153 +62,87 @@ class Table
   end
 
   def self.body(scope, name)
-    name = name.split('*')[0] # Split '*' that indicates modified
-    rubys3_client = Aws::S3::Client.new
-    begin
-      # First try opening a potentially modified version by looking for the modified target
-      resp =
-        rubys3_client.get_object(
-          bucket: DEFAULT_BUCKET_NAME,
-          key: "#{scope}/targets_modified/#{name}",
-        )
-    rescue Aws::S3::Errors::NoSuchKey
-      begin
-        # Now try the original
-        resp =
-          rubys3_client.get_object(
-            bucket: DEFAULT_BUCKET_NAME,
-            key: "#{scope}/targets/#{name}",
-          )
-      rescue Aws::S3::Errors::NoSuchKey
-        return nil
-      end
-    end
-    resp.body.read
+    get_file(scope, name)
   end
 
-  def self.save(scope, binary_filename, definition_filename, tables = nil)
-    raise "Tables parameter empty!" unless tables
-    binary = Table.body(scope, binary_filename)
-    raise "Binary file '#{binary_filename}' not found" unless binary
-    definition = Table.body(scope, definition_filename)
-    raise "Definition file '#{definition_filename}' not found" unless definition
-    temp_dir = Dir.mktmpdir
-    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
-    begin
-      binary_path = temp_dir + '/data.bin'
-      File.open(binary_path, 'w') do |file|
-        file.write(binary)
-      end
-      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
-        path = "#{temp_dir}/#{File.basename(name)}"
-        File.open(path, 'w') do |file|
-          file.write(contents)
-        end
-      end
-      binary = Cosmos::TableManagerCore.new.save_tables(binary_path, definition_path, JSON.parse(tables))
-      binary_s3_path = "#{scope}/targets_modified/#{binary_filename}"
-      File.open(binary, 'rb') do |file|
-        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: binary_s3_path, body: file)
-      end
-    ensure
-      FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+  def self.binary(scope, binary_filename, definition_filename = nil, table_name = nil)
+    binary = OpenStruct.new
+    binary.filename = File.basename(binary_filename)
+    binary.contents = get_file(scope, binary_filename)
+    if definition_filename && table_name
+      root_definition = get_definitions(scope, definition_filename)
+      # Convert the typical table naming convention of all caps with underscores
+      # to the typical binary convention of camelcase, e.g. MC_CONFIG => McConfig.bin
+      filename = table_name.split('_').map { |part| part.capitalize }.join()
+      binary.filename = "#{filename}.bin"
+      binary.contents = Cosmos::TableManagerCore.binary(binary.contents, root_definition, table_name)
     end
-    true
+    return binary
   end
 
-  def self.save_as(scope, filename, new_filename)
-    file = Table.body(scope, filename)
-    raise "File '#{filename}' not found" unless file
-    s3_path = "#{scope}/targets_modified/#{new_filename}"
-    Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: s3_path, body: file)
-    true
+  def self.definition(scope, definition_filename, table_name = nil)
+    definition = OpenStruct.new
+    if table_name
+      root_definition = get_definitions(scope, definition_filename)
+      definition.filename, definition.contents =
+        Cosmos::TableManagerCore.definition(root_definition, table_name)
+    else
+      definition.filename = File.basename(definition_filename)
+      definition.contents = get_file(scope, definition_filename)
+    end
+    return definition
   end
 
-  def self.generate(scope, definition_filename, definition)
-    return false unless definition
-
-    tgt_s3_filename = nil
-    temp_dir = Dir.mktmpdir
-    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
-    begin
-      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
-        path = "#{temp_dir}/#{File.basename(name)}"
-        File.open(path, 'w') do |file|
-          file.write(contents)
-        end
-      end
-      binary = Cosmos::TableManagerCore.new.file_new(definition_path, temp_dir)
-      tgt_s3_filename = "#{File.dirname(definition_filename).sub('/config','/bin')}/#{File.basename(binary)}"
-      File.open(binary, 'rb') do |file|
-        # Any modifications to the plug-in (including File->New) goes in targets_modified
-        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{tgt_s3_filename}", body: file)
-      end
-    ensure
-      FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+  def self.report(scope, binary_filename, definition_filename, table_name = nil)
+    report = OpenStruct.new
+    binary = get_file(scope, binary_filename)
+    root_definition = get_definitions(scope, definition_filename)
+    if table_name
+      # Convert the typical table naming convention of all caps with underscores
+      # to the typical binary convention of camelcase, e.g. MC_CONFIG => McConfig.bin
+      filename = table_name.split('_').map { |part| part.capitalize }.join()
+      report.filename = "#{filename}.csv"
+    else
+      report.filename = File.basename(binary_filename).sub('.bin', '.csv')
     end
-    tgt_s3_filename
+    report.contents = Cosmos::TableManagerCore.report(binary, root_definition, table_name)
+    put_file(scope, binary_filename.sub('.bin', '.csv'), report.contents)
+    return report
   end
 
   def self.load(scope, binary_filename, definition_filename)
-    binary = Table.body(scope, binary_filename)
-    return nil unless binary
-    definition = Table.body(scope, definition_filename)
-    return nil unless definition
-
-    json = ''
-    temp_dir = Dir.mktmpdir
-    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
-    begin
-      binary_path = temp_dir + '/data.bin'
-      File.open(binary_path, 'wb') do |file|
-        file.write(binary)
-      end
-      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
-        path = "#{temp_dir}/#{File.basename(name)}"
-        File.open(path, 'w') do |file|
-          file.write(contents)
-        end
-      end
-      json = Cosmos::TableManagerCore.new.generate_json(binary_path, definition_path)
-    ensure
-      FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
-    end
-    json
+    binary = get_file(scope, binary_filename)
+    root_definition = get_definitions(scope, definition_filename)
+    return Cosmos::TableManagerCore.build_json(binary, root_definition)
   end
 
-  def self.report(scope, binary_filename, definition_filename)
-    binary = Table.body(scope, binary_filename)
-    return nil unless binary
-    definition = Table.body(scope, definition_filename)
-    return nil unless definition
+  def self.save(scope, binary_filename, definition_filename, tables)
+    binary = get_file(scope, binary_filename)
+    raise "Binary file '#{binary_filename}' not found" unless binary
+    root_definition = get_definitions(scope, definition_filename)
+    binary = Cosmos::TableManagerCore.save(root_definition, JSON.parse(tables))
+    put_file(scope, binary_filename, binary)
+  end
 
-    report = "File Binary, #{binary_filename}\n"
-    report += "File Definition, #{definition_filename}\n\n"
-    temp_dir = Dir.mktmpdir
-    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
-    begin
-      binary_path = temp_dir + '/data.bin'
-      File.open(binary_path, 'wb') do |file|
-        file.write(binary)
-      end
-      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
-        path = "#{temp_dir}/#{File.basename(name)}"
-        File.open(path, 'w') do |file|
-          file.write(contents)
-        end
-      end
-      report += Cosmos::TableManagerCore.new.file_report(binary_path, definition_path)
-    ensure
-      FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
-    end
-    report
+  def self.save_as(scope, filename, new_filename)
+    file = get_file(scope, filename)
+    raise "File '#{filename}' not found" unless file
+    put_file(scope, new_filename, file)
+  end
+
+  def self.generate(scope, definition_filename)
+    root_definition = get_definitions(scope, definition_filename)
+    binary = Cosmos::TableManagerCore.generate(root_definition)
+    binary_filename = "#{File.dirname(definition_filename).sub('/config','/bin')}/#{File.basename(definition_filename)}"
+    binary_filename.sub!('_def', '') # Strip off _def from the definition filename
+    binary_filename.sub!('.txt', '.bin')
+    put_file(scope, binary_filename, binary)
+    return binary_filename
   end
 
   def self.destroy(scope, name)
-    rubys3_client = Aws::S3::Client.new
-
     # Only delete file from the modified target directory
-    rubys3_client.delete_object(
+    Aws::S3::Client.new.delete_object(
       key: "#{scope}/targets_modified/#{name}",
       bucket: DEFAULT_BUCKET_NAME,
     )
@@ -232,18 +166,58 @@ class Table
     locked_by
   end
 
-  def self.get_definitions(scope, name, definition)
-    files = { name => definition }
+  # Private helper methods
+
+  def self.get_definitions(scope, definition_filename)
+    temp_dir = Dir.mktmpdir
+    definition = get_file(scope, definition_filename)
+    base_definition = File.join(temp_dir, File.basename(definition_filename))
+    File.write(base_definition, definition)
     # If the definition includes TABLEFILE we need to load
     # the other definitions locally so we can render them
-    base_dir = File.dirname(name)
+    base_dir = File.dirname(definition_filename)
     definition.split("\n").each do |line|
       if line.strip =~ /^TABLEFILE (.*)/
         filename = File.join(base_dir, $1.remove_quotes)
-        files[filename] = Table.body(scope, filename)
-        raise "Could not find file #{filename}" unless files[filename]
+        file = get_file(scope, filename)
+        raise "Could not find file #{filename}" unless file
+        File.write(File.join(temp_dir, File.basename(filename)), file)
       end
     end
-    files
+    base_definition
+  end
+
+  def self.get_file(scope, name)
+    name = name.split('*')[0] # Split '*' that indicates modified
+    rubys3_client = Aws::S3::Client.new
+    begin
+      # First try opening a potentially modified version by looking for the modified target
+      resp =
+        rubys3_client.get_object(
+          bucket: DEFAULT_BUCKET_NAME,
+          key: "#{scope}/targets_modified/#{name}",
+        )
+    rescue Aws::S3::Errors::NoSuchKey
+      begin
+        # Now try the original
+        resp =
+          rubys3_client.get_object(
+            bucket: DEFAULT_BUCKET_NAME,
+            key: "#{scope}/targets/#{name}",
+          )
+      rescue Aws::S3::Errors::NoSuchKey
+        return nil
+      end
+    end
+    if name.include?(".bin")
+      resp.body.binmode
+    end
+    resp.body.read
+  end
+
+  def self.put_file(scope, name, data)
+    rubys3_client = Aws::S3::Client.new
+    key = "#{scope}/targets_modified/#{name}"
+    rubys3_client.put_object(bucket: DEFAULT_BUCKET_NAME, key: key, body: data)
   end
 end
