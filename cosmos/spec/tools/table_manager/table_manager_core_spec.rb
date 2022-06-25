@@ -212,7 +212,7 @@ module Cosmos
         result['tables'][0]['rows'][1][0]['value'] = "0x1234"
         result['tables'][0]['rows'][2][0]['value'] = "ENABLE"
         result['tables'][0]['rows'][3][0]['value'] = "CHECKED"
-        binary = TableManagerCore.save(def_path, result)
+        binary = TableManagerCore.save(def_path, result['tables'])
         expect(binary).to eql "\x00\x01\x00\x00\x12\x34\x01\x01"
       end
 
@@ -266,7 +266,7 @@ module Cosmos
         result['tables'][0]['rows'][2][0]['value'] = "3"
         result['tables'][0]['rows'][2][1]['value'] = "ENABLE"
         result['tables'][0]['rows'][2][2]['value'] = "UNCHECKED"
-        binary = TableManagerCore.save(def_path, result)
+        binary = TableManagerCore.save(def_path, result['tables'])
         expect(binary).to eql "\x00\x00\x00\x01\x01\x01\x00\x00\x00\x02\x00\x00\x00\x00\x00\x03\x01\x00"
       end
     end
