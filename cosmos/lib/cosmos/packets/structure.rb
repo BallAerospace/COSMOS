@@ -102,7 +102,7 @@ module Cosmos
       def read_item(item, value_type = :RAW, buffer = @buffer)
         return nil if item.data_type == :DERIVED
 
-        buffer = allocate_buffer() unless buffer
+        buffer = allocate_buffer_if_needed() unless buffer
         if item.array_size
           return BinaryAccessor.read_array(item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness)
         else
@@ -114,7 +114,7 @@ module Cosmos
       #
       # @return [Integer] Size of the buffer in bytes
       def length
-        allocate_buffer()
+        allocate_buffer_if_needed()
         return @buffer.length
       end
 
@@ -126,7 +126,7 @@ module Cosmos
             @buffer << (ZERO_STRING * (@defined_length - @buffer.length))
           end
         else
-          allocate_buffer()
+          allocate_buffer_if_needed()
         end
 
         return self
@@ -134,7 +134,7 @@ module Cosmos
     end
 
     # Allocate a buffer if not available
-    def allocate_buffer
+    def allocate_buffer_if_needed
       unless @buffer
         @buffer = ZERO_STRING * @defined_length
         @buffer.force_encoding(ASCII_8BIT_STRING)
@@ -347,7 +347,7 @@ module Cosmos
     #   parameter to check whether to perform conversions on the item.
     # @param buffer [String] The binary buffer to write the value to
     def write_item(item, value, value_type = :RAW, buffer = @buffer)
-      buffer = allocate_buffer() unless buffer
+      buffer = allocate_buffer_if_needed() unless buffer
       if item.array_size
         BinaryAccessor.write_array(value, item.bit_offset, item.bit_size, item.data_type, item.array_size, buffer, item.endianness, item.overflow)
       else
@@ -436,7 +436,7 @@ module Cosmos
     # @param copy [TrueClass/FalseClass] Whether to copy the buffer
     # @return [String] Data buffer backing the structure
     def buffer(copy = true)
-      local_buffer = allocate_buffer()
+      local_buffer = allocate_buffer_if_needed()
       if copy
         return local_buffer.dup
       else

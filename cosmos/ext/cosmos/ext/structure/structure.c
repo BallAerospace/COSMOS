@@ -56,7 +56,7 @@ static ID id_method_reverse = 0;
 static ID id_method_Integer = 0;
 static ID id_method_Float = 0;
 static ID id_method_kind_of = 0;
-static ID id_method_allocate_buffer = 0;
+static ID id_method_allocate_buffer_if_needed = 0;
 
 static ID id_ivar_buffer = 0;
 static ID id_ivar_bit_offset = 0;
@@ -1280,7 +1280,7 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
  */
 static int get_int_length(VALUE self)
 {
-  rb_funcall(self, id_method_allocate_buffer, 0);
+  rb_funcall(self, id_method_allocate_buffer_if_needed, 0);
   return (int)RSTRING_LEN(rb_ivar_get(self, id_ivar_buffer));
 }
 
@@ -1310,7 +1310,7 @@ static VALUE read_item_internal(VALUE self, VALUE item, VALUE buffer)
 
   if (!(RTEST(buffer)))
   {
-    buffer = rb_funcall(self, id_method_allocate_buffer, 0);
+    buffer = rb_funcall(self, id_method_allocate_buffer_if_needed, 0);
   }
   bit_offset = rb_ivar_get(item, id_ivar_bit_offset);
   bit_size = rb_ivar_get(item, id_ivar_bit_size);
@@ -1589,7 +1589,7 @@ static VALUE resize_buffer(VALUE self)
   }
   else
   {
-    rb_funcall(self, id_method_allocate_buffer, 0);
+    rb_funcall(self, id_method_allocate_buffer_if_needed, 0);
   }
 
   return self;
@@ -1617,7 +1617,7 @@ void Init_structure(void)
   id_method_Integer = rb_intern("Integer");
   id_method_Float = rb_intern("Float");
   id_method_kind_of = rb_intern("kind_of?");
-  id_method_allocate_buffer = rb_intern("allocate_buffer");
+  id_method_allocate_buffer_if_needed = rb_intern("allocate_buffer_if_needed");
 
   MIN_INT8 = INT2NUM(-128);
   MAX_INT8 = INT2NUM(127);
