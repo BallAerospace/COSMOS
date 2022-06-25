@@ -7,7 +7,7 @@ module Cosmos
     MINOR = '0'
     PATCH = '5'
     OTHER = ''
-    BUILD = '406e47bc547660fc015be3b97098d9cd65591557'
+    BUILD = 'e31c5f3ab7a18f52db7c00430c36efe651048fd7'
   end
   VERSION = '5.0.5'
   GEM_VERSION = '5.0.5'
