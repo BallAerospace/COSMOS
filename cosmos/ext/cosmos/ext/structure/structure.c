@@ -56,6 +56,7 @@ static ID id_method_reverse = 0;
 static ID id_method_Integer = 0;
 static ID id_method_Float = 0;
 static ID id_method_kind_of = 0;
+static ID id_method_allocate_buffer_if_needed = 0;
 
 static ID id_ivar_buffer = 0;
 static ID id_ivar_bit_offset = 0;
@@ -520,7 +521,8 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
     {
       string_length = upper_bound - lower_bound + 1;
       string = malloc(string_length + 1);
-      if (string == NULL) {
+      if (string == NULL)
+      {
         rb_raise(rb_eNoMemError, "malloc of %d returned NULL", string_length + 1);
       }
       memcpy(string, buffer + lower_bound, string_length);
@@ -577,7 +579,8 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
       string_length = ((bit_size - 1) / 8) + 1;
       array_length = string_length + 4; /* Required number of bytes plus slack */
       unsigned_char_array = (unsigned char *)malloc(array_length);
-      if (unsigned_char_array == NULL) {
+      if (unsigned_char_array == NULL)
+      {
         rb_raise(rb_eNoMemError, "malloc of %d returned NULL", array_length);
       }
       read_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, buffer, (int)buffer_length, unsigned_char_array);
@@ -692,7 +695,8 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
       string_length = ((bit_size - 1) / 8) + 1;
       array_length = string_length + 4; /* Required number of bytes plus slack */
       unsigned_char_array = (unsigned char *)malloc(array_length);
-      if (unsigned_char_array == NULL) {
+      if (unsigned_char_array == NULL)
+      {
         rb_raise(rb_eNoMemError, "malloc of %d returned NULL", array_length);
       }
       read_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, buffer, (int)buffer_length, unsigned_char_array);
@@ -1147,7 +1151,8 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       string_length = ((bit_size - 1) / 8) + 1;
       array_length = string_length + 4; /* Required number of bytes plus slack */
       unsigned_char_array = (unsigned char *)malloc(array_length);
-      if (unsigned_char_array == NULL) {
+      if (unsigned_char_array == NULL)
+      {
         rb_raise(rb_eNoMemError, "malloc of %d returned NULL", array_length);
       }
 
@@ -1275,15 +1280,8 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
  */
 static int get_int_length(VALUE self)
 {
-  volatile VALUE buffer = rb_ivar_get(self, id_ivar_buffer);
-  if (RTEST(buffer))
-  {
-    return (int)RSTRING_LEN(buffer);
-  }
-  else
-  {
-    return 0;
-  }
+  rb_funcall(self, id_method_allocate_buffer_if_needed, 0);
+  return (int)RSTRING_LEN(rb_ivar_get(self, id_ivar_buffer));
 }
 
 /*
@@ -1310,24 +1308,21 @@ static VALUE read_item_internal(VALUE self, VALUE item, VALUE buffer)
     return Qnil;
   }
 
-  if (RTEST(buffer))
+  if (!(RTEST(buffer)))
   {
-    bit_offset = rb_ivar_get(item, id_ivar_bit_offset);
-    bit_size = rb_ivar_get(item, id_ivar_bit_size);
-    array_size = rb_ivar_get(item, id_ivar_array_size);
-    endianness = rb_ivar_get(item, id_ivar_endianness);
-    if (RTEST(array_size))
-    {
-      return rb_funcall(cBinaryAccessor, id_method_read_array, 6, bit_offset, bit_size, data_type, array_size, buffer, endianness);
-    }
-    else
-    {
-      return binary_accessor_read(cBinaryAccessor, bit_offset, bit_size, data_type, buffer, endianness);
-    }
+    buffer = rb_funcall(self, id_method_allocate_buffer_if_needed, 0);
+  }
+  bit_offset = rb_ivar_get(item, id_ivar_bit_offset);
+  bit_size = rb_ivar_get(item, id_ivar_bit_size);
+  array_size = rb_ivar_get(item, id_ivar_array_size);
+  endianness = rb_ivar_get(item, id_ivar_endianness);
+  if (RTEST(array_size))
+  {
+    return rb_funcall(cBinaryAccessor, id_method_read_array, 6, bit_offset, bit_size, data_type, array_size, buffer, endianness);
   }
   else
   {
-    rb_raise(rb_eRuntimeError, "No buffer given to read_item");
+    return binary_accessor_read(cBinaryAccessor, bit_offset, bit_size, data_type, buffer, endianness);
   }
 }
 
@@ -1404,8 +1399,8 @@ static VALUE structure_item_spaceship(VALUE self, VALUE other_item)
   if ((bit_offset == 0) && (other_bit_offset == 0))
   {
     /* Both bit_offsets are 0 so sort by bit_size
-      * This allows derived items with bit_size of 0 to be listed first
-      * Compare based on bit size */
+     * This allows derived items with bit_size of 0 to be listed first
+     * Compare based on bit size */
     bit_size = FIX2INT(rb_ivar_get(self, id_ivar_bit_size));
     other_bit_size = FIX2INT(rb_ivar_get(other_item, id_ivar_bit_size));
     if (bit_size == other_bit_size)
@@ -1518,12 +1513,12 @@ static VALUE structure_initialize(int argc, VALUE *argv, VALUE self)
   {
   case 0:
     default_endianness = HOST_ENDIANNESS;
-    buffer = rb_str_new2("");
+    buffer = Qnil;
     item_class = cStructureItem;
     break;
   case 1:
     default_endianness = argv[0];
-    buffer = rb_str_new2("");
+    buffer = Qnil;
     item_class = cStructureItem;
     break;
   case 2:
@@ -1592,6 +1587,10 @@ static VALUE resize_buffer(VALUE self)
       rb_str_concat(buffer, rb_str_times(ZERO_STRING, INT2FIX(defined_length - current_length)));
     }
   }
+  else
+  {
+    rb_funcall(self, id_method_allocate_buffer_if_needed, 0);
+  }
 
   return self;
 }
@@ -1618,6 +1617,7 @@ void Init_structure(void)
   id_method_Integer = rb_intern("Integer");
   id_method_Float = rb_intern("Float");
   id_method_kind_of = rb_intern("kind_of?");
+  id_method_allocate_buffer_if_needed = rb_intern("allocate_buffer_if_needed");
 
   MIN_INT8 = INT2NUM(-128);
   MAX_INT8 = INT2NUM(127);

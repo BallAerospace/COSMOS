@@ -98,6 +98,7 @@ module Cosmos
         expect(IO).to receive(:fast_select).at_least(:once).and_return([], nil)
         udp_read = UdpReadSocket.new(8889)
         expect { udp_read.read(2.0) }.to raise_error(Timeout::Error)
+        udp_read.close
       end
     end
   end
@@ -110,7 +111,7 @@ module Cosmos
         expect(udp.local_address.ip_port).to eql 8888
         udp.close
         if RUBY_ENGINE == 'ruby' # UDP multicast does not work in Jruby
-          udp = UdpReadWriteSocket.new(8888, '0.0.0.0', 0, '224.0.1.1')
+          udp = UdpReadWriteSocket.new(8888, '0.0.0.0', 1234, '224.0.1.1')
           expect(IPAddr.new_ntoh(udp.getsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_IF).data).to_s).to eql "0.0.0.0"
           udp.close
         end

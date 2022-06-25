@@ -350,10 +350,10 @@ module Cosmos
     end
 
     describe "read_item", no_ext: true do
-      it "complains if no buffer given" do
+      it "works if no buffer given" do
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT)
-        expect { s.read_item(s.get_item("test1"), :RAW, nil) }.to raise_error(RuntimeError, "No buffer given to read_item")
+        expect(s.read_item(s.get_item("test1"), :RAW, nil)).to eql 0
       end
 
       it "reads data from the buffer" do
@@ -372,8 +372,11 @@ module Cosmos
     end
 
     describe "write_item" do
-      it "complains if no buffer given" do
-        expect { Structure.new.write_item(nil, nil, nil, nil) }.to raise_error(RuntimeError, "No buffer given to write_item")
+      it "works if no buffer given" do
+        s = Structure.new
+        s.define_item("test1", 0, 8, :UINT)
+        s.write_item(s.get_item("test1"), 1, :RAW, nil)
+        expect(s.read_item(s.get_item("test1"), :RAW, nil)).to eql 1
       end
 
       it "writes data to the buffer" do
@@ -647,11 +650,12 @@ module Cosmos
         expect(s.test1).to eql [3, 4]
       end
 
-      it "raises an exception if there is no buffer" do
+      it "works if there is no buffer" do
         s = Structure.new(:BIG_ENDIAN, nil)
         s.append_item("test1", 8, :UINT, 16)
         s.enable_method_missing
-        expect { s.test1 }.to raise_error(/No buffer/)
+        s.test1 = [5, 6]
+        expect(s.test1).to eql [5, 6]
       end
 
       it "complains if it can't find an item" do

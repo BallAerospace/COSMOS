@@ -168,14 +168,14 @@ module Cosmos
         end
         plw.shutdown
         sleep 0.1
-        # Since we wrote about 5s we should see 3 separate cycles
+        # Since we wrote about 3s we should see 3 separate cycles
         expect(@files.keys.length).to eq 6
 
         # Monkey patch the constant back to the default
         # Fortify says Access Specifier Manipulation
         # but this is test code only
         LogWriter.__send__(:remove_const, :CYCLE_TIME_INTERVAL)
-        LogWriter.const_set(:CYCLE_TIME_INTERVAL, 2)
+        LogWriter.const_set(:CYCLE_TIME_INTERVAL, 10)
       end
 
       it "handles errors creating the log file" do
