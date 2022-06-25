@@ -95,6 +95,7 @@ module Cosmos
             file.puts "  URL myurl"
             file.puts "TARGET <%= folder %> <%= name %>"
           end
+          Dir.mkdir(File.join(path, 'lib'))
         end
         expect(Gem::Package).to receive(:new).and_return(gem)
         spec = double("spec")
@@ -105,7 +106,8 @@ module Cosmos
         # Just stub the instance deploy method
         expect_any_instance_of(ToolModel).to receive(:deploy).with(anything, variables, validate_only: false).and_return(nil)
         expect_any_instance_of(TargetModel).to receive(:deploy).with(anything, variables, validate_only: false).and_return(nil)
-        PluginModel.install_phase2("name", variables, scope: "DEFAULT")
+        plugin_model = PluginModel.install_phase2("name", variables, scope: "DEFAULT")
+        expect(plugin_model['needs_dependencies']).to eql true
       end
     end
 
