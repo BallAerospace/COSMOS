@@ -12,14 +12,19 @@ eval $(sed -e '/^#/d' -e 's/^/export /' -e 's/$/;/' .env) ;
 
 # Setup cacert.pem
 echo "Downloading cert from curl"
-curl -q -L https://curl.se/ca/cacert.pem --output cosmos-ruby/cacert.pem
+curl -q -L https://curl.se/ca/cacert.pem --output ./cacert.pem
 if [ $? -ne 0 ]; then
   echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" 1>&2
   echo "cosmos_setup FAILED" 1>&2
   exit 1
 else
-  echo "Successfully downloaded cosmos-ruby/cacert.pem file from: https://curl.se/ca/cacert.pem"
+  echo "Successfully downloaded ./cacert.pem file from: https://curl.se/ca/cacert.pem"
 fi
+
+cp ./cacert.pem cosmos-ruby/cacert.pem
+cp ./cacert.pem cosmos-redis/cacert.pem
+cp ./cacert.pem cosmos-traefik/cacert.pem
+cp ./cacert.pem cosmos-minio/cacert.pem
 
 # Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
 cd cosmos-ruby
@@ -30,6 +35,7 @@ docker buildx build \
   --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
   --build-arg APK_URL=${APK_URL} \
   --build-arg RUBYGEMS_URL=${RUBYGEMS_URL} \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
@@ -41,6 +47,7 @@ docker buildx build \
   --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
   --build-arg APK_URL=${APK_URL} \
   --build-arg RUBYGEMS_URL=${RUBYGEMS_URL} \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:latest .
 fi
 
@@ -85,6 +92,7 @@ cd ../cosmos-redis
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
@@ -92,6 +100,7 @@ then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:latest .
 fi
 
@@ -100,6 +109,7 @@ cd ../cosmos-minio
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
@@ -107,6 +117,7 @@ then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:latest .
 fi
 
@@ -169,6 +180,7 @@ cd ../cosmos-traefik
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
@@ -176,6 +188,7 @@ then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:latest .
 fi
 
@@ -183,9 +196,9 @@ cd ../cosmos-init
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg NPM_URL=${NPM_URL} \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --build-arg NPM_URL=${NPM_URL} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:${COSMOS_RELEASE_VERSION} .
 
 if [ $COSMOS_UPDATE_LATEST = true ]
@@ -193,8 +206,8 @@ then
 docker buildx build \
   --platform ${COSMOS_PLATFORMS} \
   --progress plain \
+  --build-arg NPM_URL=${NPM_URL} \
   --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
   --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --build-arg NPM_URL=${NPM_URL} \
   --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:latest .
 fi
