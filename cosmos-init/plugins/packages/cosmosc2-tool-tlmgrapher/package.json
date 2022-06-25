@@ -1,6 +1,6 @@
 {
   "name": "@cosmosc2/tool-tlmgrapher",
-  "version": "5.0.5-beta0",
+  "version": "5.0.5",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -15,7 +15,7 @@
     "error-stack-parser": "2.0.6"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "5.0.5-beta0",
+    "@cosmosc2/tool-common": "5.0.5",
     "date-fns": "2.28.0",
     "lodash": "4.17.21",
     "axios": "0.22.0",
