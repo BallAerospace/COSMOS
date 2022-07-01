@@ -44,8 +44,11 @@ module Cosmos
         :json_data => JSON.generate(json_hash.as_json),
       }
       Topic.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id)
-      # Also update the current value table with the latest decommutated data
-      CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
+
+      unless packet.stored
+        # Also update the current value table with the latest decommutated data
+        CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
+      end
     end
   end
 end
