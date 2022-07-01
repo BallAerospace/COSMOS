@@ -1,6 +1,6 @@
 ## COSMOS Tool Calendar Plugin
 
-[Documentation](https://cosmosc2.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the COSMOS Calendar Tool
 

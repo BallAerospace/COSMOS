@@ -1,6 +1,6 @@
 ## COSMOS Tool Common Javascript Library
 
-[Documentation](http://cosmosrb.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This package capture the code common between COSMOS Vue based tools
 

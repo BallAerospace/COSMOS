@@ -84,7 +84,7 @@ module Cosmos
 
       Logger.info "Processing CmdTlmServer configuration in file: #{File.expand_path(filename)}"
 
-      parser = ConfigParser.new("http://cosmosc2.com/docs/v5")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v5")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         when 'TITLE'

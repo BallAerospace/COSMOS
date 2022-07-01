@@ -1,6 +1,6 @@
 ## COSMOS Tool Handbooks Plugin
 
-[Documentation](http://cosmosrb.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the Handbooks user interface
 

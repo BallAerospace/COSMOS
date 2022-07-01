@@ -1,5 +1,5 @@
 SCREEN AUTO AUTO 1.0
 
 VERTICAL
-  IFRAME https://cosmosc2.com 900 450
+  IFRAME https://ballaerospace.github.io/cosmos-website/ 900 450
 END

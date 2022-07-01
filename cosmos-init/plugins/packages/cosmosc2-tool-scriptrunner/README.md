@@ -1,6 +1,6 @@
 ## COSMOS Tool Script Runner Plugin
 
-[Documentation](http://cosmosrb.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the Script Runner user interface
 

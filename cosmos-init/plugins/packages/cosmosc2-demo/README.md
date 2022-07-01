@@ -1,6 +1,6 @@
 ## COSMOS Demo Plugin
 
-[Documentation](http://cosmosc2.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides a simple demo configuration for COSMOS that shows off a lot of the features of COSMOS and provides a test environment.
 

@@ -1,6 +1,6 @@
 # COSMOS Configuration
 
-See the [COSMOS](cosmosc2.com) documentation for all things COSMOS.
+See the [COSMOS](https://ballaerospace.github.io/cosmos-website/) documentation for all things COSMOS.
 
 ## Building the plugin
 

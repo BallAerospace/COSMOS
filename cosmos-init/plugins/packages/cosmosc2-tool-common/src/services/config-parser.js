@@ -35,7 +35,7 @@ export class ConfigParserService {
   filename = ''
   line = ''
   line_number = 0
-  url = 'http://cosmosrb.com/docs/v5'
+  url = 'https://ballaerospace.github.io/cosmos-website/docs/v5'
 
   constructor() {}
 

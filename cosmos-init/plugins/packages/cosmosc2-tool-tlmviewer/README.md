@@ -1,6 +1,6 @@
 ## COSMOS Tool Tlm Viewer Plugin
 
-[Documentation](http://cosmosrb.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the Tlm Viewer user interface
 

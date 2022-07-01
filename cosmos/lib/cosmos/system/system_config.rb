@@ -87,7 +87,7 @@ module Cosmos
     # @param targets_config_dir [String] The configuration directory to
     #   search for the target command and telemetry files.
     def process_file(filename, targets_config_dir)
-      parser = ConfigParser.new("http://cosmosc2.com/docs/v5")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v5")
 
       # First pass - Everything except targets
       parser.parse_file(filename) do |keyword, parameters|

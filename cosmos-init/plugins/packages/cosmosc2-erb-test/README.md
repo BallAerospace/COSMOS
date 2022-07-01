@@ -1,6 +1,6 @@
 ## COSMOS ERB Test Plugin
 
-[Documentation](http://cosmosc2.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin is used to: 1. Verify ERB processing with requires in plugin config files, 2. verify plugin dependency installs, 3. Verify using external gems in scripts
 

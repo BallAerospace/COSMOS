@@ -97,7 +97,7 @@ module Cosmos
           end
         end
 
-        parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
+        parser = Cosmos::ConfigParser.new("https://ballaerospace.github.io/cosmos-website/")
 
         # Phase 1 Gather Variables
         variables = {}
@@ -190,7 +190,7 @@ module Cosmos
           plugin_txt_path = tf.path
           variables = plugin_hash['variables']
           if File.exist?(plugin_txt_path)
-            parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
+            parser = Cosmos::ConfigParser.new("https://ballaerospace.github.io/cosmos-website/")
 
             current_model = nil
             parser.parse_file(plugin_txt_path, false, true, true, variables) do |keyword, params|

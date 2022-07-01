@@ -85,7 +85,7 @@ module Cosmos
 
       parser =
         ConfigParser.new(
-          'http://cosmosrb.com/docs/tools/#table-manager-configuration-cosmos--39',
+          'https://ballaerospace.github.io/cosmos-website/docs/tools/#table-manager-configuration-cosmos--39',
         )
       parser.parse_file(filename) do |keyword, params|
         if @building_generic_conversion

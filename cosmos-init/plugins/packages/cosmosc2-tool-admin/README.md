@@ -1,6 +1,6 @@
 ## COSMOS Tool Cosmos Admin Plugin
 
-[Documentation](http://cosmosrb.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the COSMOS Administrative user interface
 

@@ -129,7 +129,7 @@ module Cosmos
       @building_generic_conversion = false
 
       process_target_name = process_target_name.upcase
-      parser = ConfigParser.new("http://cosmosc2.com/docs/v5")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v5")
       parser.instance_variable_set(:@target_name, process_target_name)
       parser.parse_file(filename) do |keyword, params|
         if @building_generic_conversion

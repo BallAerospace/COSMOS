@@ -1,6 +1,6 @@
 ## COSMOS Tool Packet Viewer Plugin
 
-[Documentation](http://cosmosc2.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the Table Manager user interface
 

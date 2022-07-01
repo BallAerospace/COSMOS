@@ -1,6 +1,6 @@
 ## COSMOS Tool Autonomic Plugin
 
-[Documentation](https://cosmosc2.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the COSMOS Autonomic Tool
 

@@ -1,6 +1,6 @@
 ## COSMOS Tool Packet Viewer Plugin
 
-[Documentation](http://cosmosrb.com)
+[Documentation](https://ballaerospace.github.io/cosmos-website/)
 
 This plugin provides the Packet Viewer user interface
 
