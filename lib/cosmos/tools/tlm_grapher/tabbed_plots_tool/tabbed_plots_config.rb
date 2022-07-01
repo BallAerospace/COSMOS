@@ -83,7 +83,7 @@ module Cosmos
 
       if File.exist?(filename.to_s)
         # Loop over each line of the configuration file
-        parser = ConfigParser.new("http://cosmosrb.com/docs/grapher/")
+        parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/grapher")
         parser.parse_file(filename) do |keyword, parameters|
           begin
             # Handle each keyword

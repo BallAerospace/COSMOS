@@ -5,7 +5,7 @@
 	"license": "BALL GPL",
 	"version": "0.0.8",
 	"icon": "images/icon.png",
-	"homepage": "https://cosmosrb.com/",
+	"homepage": "https://ballaerospace.github.io/cosmos-website/",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/BallAerospace/COSMOS"

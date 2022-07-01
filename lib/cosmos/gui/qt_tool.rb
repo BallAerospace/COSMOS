@@ -137,7 +137,7 @@ module Cosmos
       @documentation_action = Qt::Action.new('&Documentation', self)
       @documentation_action.statusTip = 'COSMOS Online Documentation'
       self.connect(@documentation_action, SIGNAL('triggered()')) do
-        Qt::DesktopServices.openUrl(Qt::Url.new("http://cosmosrb.com"))
+        Qt::DesktopServices.openUrl(Qt::Url.new("https://ballaerospace.github.io/cosmos-website/"))
       end
     end
 

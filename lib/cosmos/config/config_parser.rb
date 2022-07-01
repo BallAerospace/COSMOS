@@ -130,7 +130,7 @@ module Cosmos
     end
 
     # @param url [String] The url to link to in error messages
-    def initialize(url = "http://cosmosrb.com/docs/home")
+    def initialize(url = "https://ballaerospace.github.io/cosmos-website/docs/v4/home")
       @url = url
     end
 

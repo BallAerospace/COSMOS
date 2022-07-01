@@ -69,7 +69,7 @@ module Cosmos
         @items = []
         @invalid_items = []
         begin
-          parser = ConfigParser.new("http://cosmosrb.com/docs/screens/")
+          parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/screens")
           parser.parse_file(@filename) do |keyword, parameters|
             if keyword
               case keyword
@@ -130,7 +130,7 @@ module Cosmos
       @current_screens = nil
       @current_screen_info = nil
       @current_group = nil
-      parser = ConfigParser.new("http://cosmosrb.com/docs/screens/")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/screens")
       parser.parse_file(filename) do |keyword, parameters|
         case keyword
 

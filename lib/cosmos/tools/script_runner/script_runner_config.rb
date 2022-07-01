@@ -17,7 +17,7 @@ module Cosmos
     def initialize(filename)
       return unless filename
       @filename = filename
-      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#script-runner-configuration")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/tools#script-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         when 'LINE_DELAY'

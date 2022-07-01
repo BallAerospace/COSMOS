@@ -36,7 +36,7 @@ DECLARE_GEM_TARGET:
   summary: Declare a COSMOS target which resides in a Ruby gem
   description: COSMOS targets can be distributed in gem form in which case they
     must be named 'cosmos-<gem-name>' where <gem-name> is the descriptive name of
-    the gem. See the COSMOS documentation at cosmosrb.com for for information on
+    the gem. See the COSMOS documentation at https://ballaerospace.github.io/cosmos-website/ for for information on
     creating a COSMOS gem target.
   parameters:
     - name: Gem Name
@@ -64,7 +64,7 @@ DECLARE_GEM_MULTI_TARGET:
     the gem. Multiple Targets can be packaged into a single gem. This directive
     will tell COSMOS where to look for a target inside the first directory level
     of the gem.  The sub-directory name must be all uppercase and must contain a
-    sub-directory named 'cmd_tlm'. See the COSMOS documentation at cosmosrb.com
+    sub-directory named 'cmd_tlm'. See the COSMOS documentation at https://ballaerospace.github.io/cosmos-website/
     for for information on creating a COSMOS gem target.
   parameters:
     - name: Gem Name

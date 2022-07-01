@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-First check out our main documentation site at [cosmosrb.com](https://cosmosrb.com). There is a Google search box at the bottom of every page that may help you find information related to your bug.
+First check out our main documentation site at [https://ballaerospace.github.io/cosmos-website/](https://ballaerospace.github.io/cosmos-website/). There is a Google search box at the bottom of every page that may help you find information related to your bug.
 
 **Describe the bug**
 A clear and concise description of what the bug is.

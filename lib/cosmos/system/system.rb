@@ -215,7 +215,7 @@ module Cosmos
       @additional_hashing_files = []
 
       Cosmos.set_working_dir do
-        parser = ConfigParser.new("http://cosmosrb.com/docs/system")
+        parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/system")
 
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|
@@ -957,7 +957,7 @@ module Cosmos
 
       # Initialize the meta packet (if given init filename)
       if @meta_init_filename
-        parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
+        parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/cmdtlm")
         Cosmos.set_working_dir do
           parser.parse_file(@meta_init_filename) do |keyword, params|
             begin

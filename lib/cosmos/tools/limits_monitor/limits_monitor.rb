@@ -292,7 +292,7 @@ module Cosmos
     def open_config(filename)
       @ignored = []
       @ignored_stale = []
-      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#limits-monitor-configuration")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/tools#limits-monitor-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         # TODO: Eventually we can deprecate 'IGNORE' in favor

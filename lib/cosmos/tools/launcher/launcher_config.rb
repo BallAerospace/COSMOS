@@ -50,7 +50,7 @@ module Cosmos
     def parse_file(filename)
       multitool = nil
 
-      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#launcher-configuration")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/tools#launcher-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
 

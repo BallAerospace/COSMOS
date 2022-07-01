@@ -121,7 +121,7 @@ module Cosmos
       @building_generic_conversion = false
 
       process_target_name = process_target_name.upcase
-      parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/cmdtlm")
       parser.instance_variable_set(:@target_name, process_target_name)
       parser.parse_file(filename) do |keyword, params|
 

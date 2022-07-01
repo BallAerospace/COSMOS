@@ -39,7 +39,7 @@ module Cosmos
     def open(filename)
       clear()
 
-      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#command-sequence-configuration")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/tools#command-sequence-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         when 'COMMAND'

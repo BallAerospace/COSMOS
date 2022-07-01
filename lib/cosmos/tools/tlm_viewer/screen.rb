@@ -298,7 +298,7 @@ module Cosmos
       end
 
       begin
-        parser = ConfigParser.new("http://cosmosrb.com/docs/screens/")
+        parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/screens")
         parser.instance_variable_set(:@original_target_name, @original_target_name)
         name = @substitute ? @substitute : @original_target_name
         parser.instance_variable_set(:@target_name, name)

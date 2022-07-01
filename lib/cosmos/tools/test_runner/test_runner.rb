@@ -992,7 +992,7 @@ module Cosmos
       # Remember all the requires that fail and warn the user
       require_errors = []
 
-      parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#test-runner-configuration")
+      parser = ConfigParser.new("https://ballaerospace.github.io/cosmos-website/docs/v4/tools#test-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
         # REQUIRE_UTILITY was deprecated > 4.3.0 but left for compatibility purposes

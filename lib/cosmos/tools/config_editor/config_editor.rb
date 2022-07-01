@@ -674,7 +674,7 @@ module Cosmos
         file.puts "# AUTO_INTERFACE_TARGETS or INTERFACE_TARGET"
         file.puts "\n"
         file.puts "# NOTE: This line must be modified to match how your actual target connects."
-        file.puts "# See http://cosmosrb.com/docs/interfaces/ for more information."
+        file.puts "# See https://ballaerospace.github.io/cosmos-website/docs/v4/interfaces for more information."
         file.puts "INTERFACE #{target}_INT tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF"
         file.puts "  TARGET #{target}"
         file.puts "  # Add in the OverrideProtocol to allow override_tlm(\"#{target} STATUS STRING = 'HI'\")"
