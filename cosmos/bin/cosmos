@@ -294,8 +294,8 @@ def validate_plugin(plugin_file_path, scope:, variables_file: nil)
   variables = nil
   variables = JSON.parse(File.read(variables_file)) if variables_file
   puts "Installing #{File.basename(plugin_file_path)}"
-  plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope, validate_only: true)
-  Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope, validate_only: true,
+  plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, scope: scope, validate_only: true)
+  Cosmos::PluginModel.install_phase2(plugin_hash, scope: scope, validate_only: true,
     gem_file_path: plugin_file_path)
   puts "Successfully validated #{File.basename(plugin_file_path)}"
   result = 0 # bash and Windows consider 0 success
@@ -303,9 +303,13 @@ rescue => e
   puts "Error: #{e.message}"
   result = ERROR_CODE
 ensure
-  name = Psych.safe_load(`gem spec #{plugin_file_path} name`).to_s
-  version = Psych.safe_load(`gem spec #{plugin_file_path} version`, permitted_classes: [Gem::Version]).to_s
-  Gem::Uninstaller.new(name, {:version => version, :force => true}).uninstall
+  begin
+    name = Psych.safe_load(`gem spec #{plugin_file_path} name`).to_s
+    version = Psych.safe_load(`gem spec #{plugin_file_path} version`, permitted_classes: [Gem::Version]).to_s
+    Gem::Uninstaller.new(name, {:version => version, :force => true}).uninstall
+  rescue => e
+    puts "Could not uninstall #{plugin_file_path} due to #{e.message}"
+  end
   exit(result)
 end
 

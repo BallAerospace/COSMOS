@@ -132,11 +132,10 @@ module Cosmos
     # Called by the PluginsController to create the plugin
     # Because this uses ERB it must be run in a seperate process from the API to
     # prevent corruption and single require problems in the current proces
-    def self.install_phase2(plugin_hash, scope:, validate_only: false)
-      rubys3_client = Aws::S3::Client.new
-
+    def self.install_phase2(plugin_hash, scope:, gem_file_path: nil, validate_only: false)
       # Ensure config bucket exists
       unless validate_only
+        rubys3_client = Aws::S3::Client.new
         begin
           rubys3_client.head_bucket(bucket: 'config')
         rescue Aws::S3::Errors::NotFound
@@ -153,9 +152,11 @@ module Cosmos
       begin
         tf = nil
 
-        # Get the gem from local gem server
-        gem_name = plugin_hash['name'].split("__")[0]
-        gem_file_path = Cosmos::GemModel.get(temp_dir, gem_name)
+        # Get the gem from local gem server if it hasn't been passed
+        unless gem_file_path
+          gem_name = plugin_hash['name'].split("__")[0]
+          gem_file_path = Cosmos::GemModel.get(temp_dir, gem_name)
+        end
 
         # Actually install the gem now (slow)
         Cosmos::GemModel.install(gem_file_path, scope: scope)
