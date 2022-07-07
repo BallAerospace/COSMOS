@@ -38,7 +38,7 @@
           hide-details
           dense
           @change="packetNameChanged"
-          :disabled="packetsDisabled"
+          :disabled="packetsDisabled || buttonDisabled"
           :items="packetNames"
           item-text="label"
           item-value="value"
@@ -55,7 +55,7 @@
           hide-details
           dense
           @change="itemNameChanged($event)"
-          :disabled="itemsDisabled"
+          :disabled="itemsDisabled || buttonDisabled"
           :items="itemNames"
           item-text="label"
           item-value="value"
@@ -233,13 +233,15 @@ export default {
         return
       }
       this.internalDisabled = true
-      const cmd = this.mode === 'tlm' ? 'get_all_telemetry_list' : 'get_all_commands_list'
-      this.api[cmd](this.selectedTargetName).then((packets) => {
-        this.packetNames = packets.map((packet) => {
+      const cmd =
+        this.mode === 'tlm'
+          ? 'get_all_telemetry_names'
+          : 'get_all_command_names'
+      this.api[cmd](this.selectedTargetName).then((names) => {
+        this.packetNames = names.map((name) => {
           return {
-            label: packet.packet_name,
-            value: packet.packet_name,
-            description: packet.description,
+            label: name,
+            value: name,
           }
         })
         if (this.allowAll) {
@@ -252,7 +254,6 @@ export default {
         const item = this.packetNames.find((packet) => {
           return packet.value === this.selectedPacketName
         })
-        this.description = item.description
         if (this.chooseItem) {
           this.updateItems()
         }
@@ -268,17 +269,23 @@ export default {
       const cmd = this.mode === 'tlm' ? 'get_telemetry' : 'get_command'
       this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
         (packet) => {
-          this.itemNames = packet.items.map((item) => {
-            if (this.reduced === 'DECOM') {
-              return [{
-                label: item.name,
-                value: item.name,
-                description: item.description,
-              }]
-            } else {
-              return this.makeReducedItems(item)
-            }
-          }).reduce((result, item) => { return result.concat(item) }, [])
+          this.itemNames = packet.items
+            .map((item) => {
+              if (this.reduced === 'DECOM') {
+                return [
+                  {
+                    label: item.name,
+                    value: item.name,
+                    description: item.description,
+                  },
+                ]
+              } else {
+                return this.makeReducedItems(item)
+              }
+            })
+            .reduce((result, item) => {
+              return result.concat(item)
+            }, [])
           if (this.allowAll) {
             this.itemNames.unshift(this.ALL)
           }
@@ -299,9 +306,7 @@ export default {
 
     makeReducedItems: function (item) {
       const reducedOptions = !item.array_size && !item.states
-      if (
-        reducedOptions && ['UINT', 'INT', 'FLOAT'].includes(item.data_type)
-      ) {
+      if (reducedOptions && ['UINT', 'INT', 'FLOAT'].includes(item.data_type)) {
         return ['MIN', 'MAX', 'AVG', 'STDDEV'].map((ext) => {
           return {
             label: `${item.name}_${ext}`,
@@ -330,7 +335,12 @@ export default {
           return value === packet.value
         })
         this.selectedPacketName = packet.value
-        this.description = packet.description
+        const cmd = this.mode === 'tlm' ? 'get_telemetry' : 'get_command'
+        this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
+          (packet) => {
+            this.description = packet.description
+          }
+        )
       }
       if (this.chooseItem) {
         this.selectedItemName = ''

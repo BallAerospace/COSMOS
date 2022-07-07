@@ -35,7 +35,7 @@ module Cosmos
                        'cmd_raw_no_checks',
                        'send_raw',
                        'get_all_commands',
-                       'get_all_commands_list',
+                       'get_all_command_names',
                        'get_command',
                        'get_parameter',
                        'get_cmd_buffer',
@@ -213,14 +213,14 @@ module Cosmos
       TargetModel.packets(target_name, type: :CMD, scope: scope)
     end
 
-    # Returns an array of all the command names and their descriptions
+    # Returns an array of all the command packet names
     #
-    # @since 5.0.3
+    # @since 5.0.6
     # @param target_name [String] Name of the target
-    # @return [Array<Hash>] Array of all commands as a hash
-    def get_all_commands_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
+    # @return [Array<String>] Array of all command packet names
+    def get_all_command_names(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
-      TargetModel.all_packet_name_descriptions(target_name, type: :CMD, scope: scope)
+      TargetModel.packet_names(target_name, type: :CMD, scope: scope)
     end
 
     # Returns a hash of the given command

@@ -82,6 +82,13 @@ module Cosmos
       super("#{scope}__#{PRIMARY_KEY}")
     end
 
+    # @return [Array] Array of all the packet names
+    def self.packet_names(target_name, type: :TLM, scope:)
+      raise "Unknown type #{type} for #{target_name}" unless VALID_TYPES.include?(type)
+      # If the key doesn't exist or if there are no packets we return empty array
+      Store.hkeys("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}").sort
+    end
+
     # @return [Hash] Packet hash or raises an exception
     def self.packet(target_name, packet_name, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)

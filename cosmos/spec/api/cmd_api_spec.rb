@@ -485,21 +485,6 @@ module Cosmos
       end
     end
 
-    describe 'get_all_commands_list' do
-      it "complains with a unknown target" do
-        expect { @api.get_all_commands_list("BLAH") }.to raise_error(/does not exist/)
-      end
-
-      it "returns an array of command names and descriptions as hashes" do
-        result = @api.get_all_commands_list("INST")
-        expect(result).to be_a Array
-        result.each do |command|
-          expect(command).to be_a Hash
-          expect(command.keys).to eql(%w(packet_name description))
-        end
-      end
-    end
-
     describe "get_parameter" do
       it "returns parameter hash for state parameter" do
         result = @api.get_parameter("INST", "COLLECT", "TYPE")

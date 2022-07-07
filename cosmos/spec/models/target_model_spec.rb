@@ -67,6 +67,55 @@ module Cosmos
       end
     end
 
+    describe "self.packet_names" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(System.new(['INST'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
+        model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
+        model.create
+        model.update_store(System.new(['EMPTY'], File.join(SPEC_DIR, 'install', 'config', 'targets')))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet_names("INST", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "returns empty array for a non-existant target" do
+        names = TargetModel.packet_names("BLAH", scope: "DEFAULT")
+        expect(names).to be_a Array
+        expect(names).to be_empty
+      end
+
+      it "returns all telemetry packet names" do
+        names = TargetModel.packet_names("INST", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of strings
+        expect(names).to be_a Array
+        expect(names).to include("ADCS", "HEALTH_STATUS", "PARAMS", "IMAGE", "MECH")
+      end
+
+      it "returns empty array for no telemetry packets" do
+        names = TargetModel.packet_names("EMPTY", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of strings
+        expect(names).to be_a Array
+        expect(names).to be_empty
+      end
+
+      it "returns all command packet names" do
+        names = TargetModel.packet_names("INST", type: :CMD, scope: "DEFAULT")
+        expect(names).to be_a Array
+        expect(names).to include("ABORT", "COLLECT", "CLEAR") # Spot check
+      end
+
+      it "returns empty array for no command packets" do
+        names = TargetModel.packet_names("EMPTY", type: :CMD, scope: "DEFAULT")
+        # Verify result is Array of strings
+        expect(names).to be_a Array
+        expect(names).to be_empty
+      end
+    end
+
     describe "self.packets" do
       before(:each) do
         setup_system()
