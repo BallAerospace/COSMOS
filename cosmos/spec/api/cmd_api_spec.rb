@@ -485,6 +485,18 @@ module Cosmos
       end
     end
 
+    describe 'get_all_command_names' do
+      it "returns empty array with a unknown target" do
+        expect(@api.get_all_command_names("BLAH")).to eql []
+      end
+
+      it "returns an array of command names" do
+        result = @api.get_all_command_names("INST")
+        expect(result).to be_a Array
+        expect(result[0]).to be_a String
+      end
+    end
+
     describe "get_parameter" do
       it "returns parameter hash for state parameter" do
         result = @api.get_parameter("INST", "COLLECT", "TYPE")

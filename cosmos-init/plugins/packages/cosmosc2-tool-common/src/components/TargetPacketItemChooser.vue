@@ -249,8 +249,8 @@ export default {
         }
         if (!this.selectedPacketName) {
           this.selectedPacketName = this.packetNames[0].value
-          this.packetNameChanged(this.selectedPacketName)
         }
+        this.packetNameChanged(this.selectedPacketName)
         const item = this.packetNames.find((packet) => {
           return packet.value === this.selectedPacketName
         })

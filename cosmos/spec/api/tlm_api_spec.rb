@@ -407,6 +407,18 @@ module Cosmos
       end
     end
 
+    describe "get_all_telemetry_names" do
+      it "returns an empty array if the target does not exist" do
+        expect(@api.get_all_telemetry_names("BLAH")).to eql []
+      end
+
+      it "returns an array of all packet names" do
+        pkts = @api.get_all_telemetry_names("INST", scope: "DEFAULT")
+        expect(pkts).to be_a Array
+        expect(pkts[0]).to be_a String
+      end
+    end
+
     describe "get_telemetry" do
       it "raises if the target or packet do not exist" do
         expect { @api.get_telemetry("BLAH", "HEALTH_STATUS", scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
