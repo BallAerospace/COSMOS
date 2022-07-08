@@ -485,18 +485,15 @@ module Cosmos
       end
     end
 
-    describe 'get_all_commands_list' do
-      it "complains with a unknown target" do
-        expect { @api.get_all_commands_list("BLAH") }.to raise_error(/does not exist/)
+    describe 'get_all_command_names' do
+      it "returns empty array with a unknown target" do
+        expect(@api.get_all_command_names("BLAH")).to eql []
       end
 
-      it "returns an array of command names and descriptions as hashes" do
-        result = @api.get_all_commands_list("INST")
+      it "returns an array of command names" do
+        result = @api.get_all_command_names("INST")
         expect(result).to be_a Array
-        result.each do |command|
-          expect(command).to be_a Hash
-          expect(command.keys).to eql(%w(packet_name description))
-        end
+        expect(result[0]).to be_a String
       end
     end
 

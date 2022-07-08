@@ -407,19 +407,15 @@ module Cosmos
       end
     end
 
-    describe "get_all_telemetry_list" do
-      it "raises if the target does not exist" do
-        expect { @api.get_all_telemetry_list("BLAH", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+    describe "get_all_telemetry_names" do
+      it "returns an empty array if the target does not exist" do
+        expect(@api.get_all_telemetry_names("BLAH")).to eql []
       end
 
-      it "returns an array of all packet names and descriptions hashes" do
-        pkts = @api.get_all_telemetry_list("INST", scope: "DEFAULT")
+      it "returns an array of all packet names" do
+        pkts = @api.get_all_telemetry_names("INST", scope: "DEFAULT")
         expect(pkts).to be_a Array
-        names = []
-        pkts.each do |pkt|
-          expect(pkt).to be_a Hash
-          expect(pkt.keys).to eql(%w(packet_name description))
-        end
+        expect(pkts[0]).to be_a String
       end
     end
 

@@ -234,8 +234,8 @@ export class CosmosApi {
     return this.exec('get_all_telemetry', [target_name])
   }
 
-  get_all_telemetry_list(target_name) {
-    return this.exec('get_all_telemetry_list', [target_name])
+  get_all_telemetry_names(target_name) {
+    return this.exec('get_all_telemetry_names', [target_name])
   }
 
   // Called by PacketViewerComponent
@@ -300,8 +300,8 @@ export class CosmosApi {
     return this.exec('get_all_commands', [target_name])
   }
 
-  get_all_commands_list(target_name) {
-    return this.exec('get_all_commands_list', [target_name])
+  get_all_command_names(target_name) {
+    return this.exec('get_all_command_names', [target_name])
   }
 
   get_command(target_name, command_name) {
