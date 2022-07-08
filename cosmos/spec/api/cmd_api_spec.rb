@@ -659,27 +659,19 @@ module Cosmos
       end
     end
 
-    describe "get_all_cmd_info" do
-      it "returns transmit count for all commands" do
+    describe "get_cmd_cnts" do
+      it "returns transmit count for commands" do
         @api.cmd("INST ABORT")
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
-        base = @api.get_all_cmd_info()
-        a_base = base.index { | x | x[1] == "ABORT" }
-        c_base = base.index { | x | x[1] == "COLLECT" }
+        cnts = @api.get_cmd_cnts([['INST','ABORT'],['INST','COLLECT']])
+        expect(cnts).to eql([1, 1])
         @api.cmd("INST ABORT")
         @api.cmd("INST ABORT")
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
-        info = @api.get_all_cmd_info()
-        a_info = info.index { | x | x[1] == "ABORT" }
-        c_info = info.index { | x | x[1] == "COLLECT" }
-        expect(info[a_info][0]).to eql "INST"
-        expect(info[a_info][1]).to eql "ABORT"
-        expect(info[a_info][2]).to eql base[a_base][2] + 2
-        expect(info[c_info][0]).to eql "INST"
-        expect(info[c_info][1]).to eql "COLLECT"
-        expect(info[c_info][2]).to eql base[c_base][2] + 1
+        cnts = @api.get_cmd_cnts([['INST','ABORT'],['INST','COLLECT']])
+        expect(cnts).to eql([3, 2])
       end
     end
   end

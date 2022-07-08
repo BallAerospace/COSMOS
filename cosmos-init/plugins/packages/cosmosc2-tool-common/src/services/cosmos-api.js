@@ -138,10 +138,6 @@ export class CosmosApi {
     return this.exec('get_all_target_info', [])
   }
 
-  get_all_cmd_info() {
-    return this.exec('get_all_cmd_info', [])
-  }
-
   get_all_tlm_info() {
     return this.exec('get_all_tlm_info', [])
   }
@@ -306,6 +302,10 @@ export class CosmosApi {
 
   get_command(target_name, command_name) {
     return this.exec('get_command', [target_name, command_name])
+  }
+
+  get_cmd_cnts(target_commands) {
+    return this.exec('get_cmd_cnts', [target_commands])
   }
 
   get_cmd_value(

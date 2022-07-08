@@ -42,8 +42,8 @@ module Cosmos
                        'get_cmd_hazardous',
                        'get_cmd_value',
                        'get_cmd_time',
-                       'get_all_cmd_info',
                        'get_cmd_cnt',
+                       'get_cmd_cnts',
                      ])
 
     # Send a command packet to a target.
@@ -352,21 +352,17 @@ module Cosmos
       Topic.get_cnt("#{scope}__COMMAND__{#{target_name}}__#{command_name}")
     end
 
-    # Get information on all command packets
+    # Get the transmit counts for command packets
     #
-    # @return [Array<String, String, Numeric>] Transmit count for all commands
-    def get_all_cmd_info(scope: $cosmos_scope, token: $cosmos_token)
+    # @param target_commands [Array<Array<String, String>>] Array of arrays containing target_name, packet_name
+    # @return [Numeric] Transmit count for the command
+    def get_cmd_cnts(target_commands, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', scope: scope, token: token)
-      result = []
-      TargetModel.names(scope: scope).each do | target_name |
-        TargetModel.packets(target_name, type: :CMD, scope: scope).each do | packet |
-          command_name = packet['packet_name']
-          key = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
-          result << [target_name, command_name, Topic.get_cnt(key)]
-        end
+      counts = []
+      target_commands.each do |target_name, command_name|
+        counts << Topic.get_cnt("#{scope}__COMMAND__{#{target_name}}__#{command_name}")
       end
-      # Return the results sorted by target, packet
-      result.sort_by { |a| [a[0], a[1]] }
+      counts
     end
 
     ###########################################################################
