@@ -138,8 +138,8 @@ export class CosmosApi {
     return this.exec('get_all_target_info', [])
   }
 
-  get_all_tlm_info() {
-    return this.exec('get_all_tlm_info', [])
+  get_tlm_cnts() {
+    return this.exec('get_tlm_cnts', [])
   }
 
   get_item(target, packet, item) {

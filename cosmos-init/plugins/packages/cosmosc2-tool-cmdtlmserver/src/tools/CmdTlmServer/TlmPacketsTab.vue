@@ -36,6 +36,8 @@
       :search="search"
       :items-per-page="10"
       :footer-props="{ itemsPerPageOptions: [10, 20, 50, 100] }"
+      sort-by="target_name"
+      @pagination="pagination"
       calculate-widths
       multi-sort
       data-test="tlm-packets-table"
@@ -100,7 +102,21 @@ export default {
       viewRaw: false,
       target_name: null,
       packet_name: null,
+      paginationEvent: null,
     }
+  },
+  created() {
+    this.api.get_target_list().then((targets) => {
+      targets.map((target) => {
+        this.api.get_all_telemetry_names(target).then((names) => {
+          this.data = this.data.concat(
+            names.map((packet) => {
+              return { target_name: target, packet_name: packet, count: 0 }
+            })
+          )
+        })
+      })
+    })
   },
   methods: {
     // This method is hooked to the RawDialog as a callback to
@@ -116,12 +132,27 @@ export default {
     openPktViewer(target_name, packet_name) {
       window.open(`/tools/packetviewer/${target_name}/${packet_name}`, '_blank')
     },
+    pagination(event) {
+      this.paginationEvent = event
+    },
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_all_tlm_info().then((info) => {
-        this.data = info.map((x) => {
-          return { target_name: x[0], packet_name: x[1], count: x[2] }
+      if (this.paginationEvent === null) return
+      let visible = this.data
+        .slice(this.paginationEvent.pageStart, this.paginationEvent.pageStop)
+        .map((value) => {
+          return [value.target_name, value.packet_name]
         })
+      this.api.get_tlm_cnts(visible).then((counts) => {
+        let countIndex = 0
+        for (
+          let i = this.paginationEvent.pageStart;
+          i < this.paginationEvent.pageStart + counts.length;
+          i++
+        ) {
+          this.data[i].count = counts[countIndex]
+          countIndex++
+        }
       })
     },
   },

@@ -711,16 +711,14 @@ module Cosmos
       end
     end
 
-    describe "get_all_tlm_info" do
-      it "returns receive count for all packets" do
+    describe "get_tlm_cnts" do
+      it "returns receive counts for telemetry packets" do
         packet = System.telemetry.packet("INST", "ADCS").clone
         packet.received_time = Time.now.sys
         packet.received_count = 100 # This is what is used in the result
         TelemetryTopic.write_packet(packet, scope: "DEFAULT")
-        info = @api.get_all_tlm_info()
-        expect(info[0][0]).to eql "INST"
-        expect(info[0][1]).to eql "ADCS"
-        expect(info[0][2]).to eql 100
+        cnts = @api.get_tlm_cnts([['INST','ADCS']])
+        expect(cnts).to eql([100])
       end
     end
 
