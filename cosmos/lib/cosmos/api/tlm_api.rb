@@ -45,8 +45,8 @@ module Cosmos
                        'get_item',
                        'subscribe_packets',
                        'get_packets',
-                       'get_all_tlm_info',
                        'get_tlm_cnt',
+                       'get_tlm_cnts',
                        'get_packet_derived_items',
                        'get_oldest_logfile',
                      ])
@@ -343,25 +343,17 @@ module Cosmos
       Topic.get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}")
     end
 
-    # Get information on all telemetry packets
+    # Get the transmit counts for telemetry packets
     #
-    # @return [Array<String, String, Numeric>] Receive count for all telemetry
-    def get_all_tlm_info(scope: $cosmos_scope, token: $cosmos_token)
+    # @param target_packets [Array<Array<String, String>>] Array of arrays containing target_name, packet_name
+    # @return [Numeric] Transmit count for the command
+    def get_tlm_cnts(target_packets, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', scope: scope, token: token)
-      result = []
-      TargetModel.names(scope: scope).each do | target_name |
-        TargetModel.packets(target_name, scope: scope).each do | packet |
-          packet_name = packet['packet_name']
-          key = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
-          result << [target_name, packet_name, Topic.get_cnt(key)]
-        end
+      counts = []
+      target_packets.each do |target_name, packet_name|
+        counts << Topic.get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}")
       end
-      ['UNKNOWN'].each do | x |
-        key = "#{scope}__TELEMETRY__{#{x}}__#{x}"
-        result << [x, x, Topic.get_cnt(key)]
-      end
-      # Return the result sorted by target, packet
-      result.sort_by { |a| [a[0], a[1]] }
+      counts
     end
 
     # Get the list of derived telemetry items for a packet
