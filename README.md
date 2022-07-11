@@ -1,24 +1,24 @@
-## Welcome to Ball Aerospace COSMOS
+## Welcome to OpenC3
 
-> "The User Interface for Embedded Systems"
+> "Open Source, Open Architecture - Command, Control and Communication"
 
-[![Cosmos 5 Playwright Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/playwright.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/playwright.yml)<br/>
-[![Cosmos 5 Ruby Unit Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/ruby_unit_tests.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/ruby_unit_tests.yml)<br/>
-[![Cosmos 5 API Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/api_tests.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/api_tests.yml)<br/>
-[![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)<br/>
-[![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/BallAerospace/COSMOS)
+[![OpenC3 5 Playwright Tests](https://github.com/OpenC3/openc3/actions/workflows/playwright.yml/badge.svg)](https://github.com/OpenC3/openc3/actions/workflows/playwright.yml)<br/>
+[![Cosmos 5 Ruby Unit Tests](https://github.com/OpenC3/openc3/actions/workflows/ruby_unit_tests.yml/badge.svg)](https://github.com/OpenC3/openc3/actions/workflows/ruby_unit_tests.yml)<br/>
+[![Cosmos 5 API Tests](https://github.com/OpenC3/openc3/actions/workflows/api_tests.yml/badge.svg)](https://github.com/OpenC3/openc3/actions/workflows/api_tests.yml)<br/>
+[![Code Climate](https://codeclimate.com/github/OpenC3/openc3/badges/gpa.svg)](https://codeclimate.com/github/OpenC3/openc3)<br/>
+[![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/OpenC3/openc3)
 
-[Documentation](https://ballaerospace.github.io/cosmos-website/)
+[Documentation](https://openc3.com)
 
-Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, and more.
+OpenC3 provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, and more.
 
-So what can you use this for? We use it to test about everything we create and COSMOS is great for automating embedded systems testing or operation. It can provide a fully featured user interface to any piece of hardware that provides an electronic way of communicating with it (TCP/IP, UDP, Serial, etc). Potential uses range from testing embedded systems, to home automation, to verifying cell phones, to helping you make that next great thing that changes the world! The sky is the limit...
+So what can you use this for? We use it to test about everything we create and OpenC3 is great for automating embedded systems testing or operation. It can provide a fully featured user interface to any piece of hardware that provides an electronic way of communicating with it (TCP/IP, UDP, Serial, etc). Potential uses range from testing embedded systems, to home automation, to verifying cell phones, to helping you make that next great thing that changes the world! The sky is the limit...
 
-After configuring COSMOS to talk to your hardware, you immediately can use the following tools:
+After configuring OpenC3 to talk to your hardware, you immediately can use the following tools:
 
 1. **Command and Telemetry Server**
 
-   - This provides status of all the target connections within the Ball Aerospace COSMOS system. It provides allows interfaces to be connected and disconnected and allows raw packet data to be viewed.
+   - This provides status of all the target connections within the OpenC3 system. It provides allows interfaces to be connected and disconnected and allows raw packet data to be viewed.
 
 1. **Limits Monitor**
 
@@ -30,7 +30,7 @@ After configuring COSMOS to talk to your hardware, you immediately can use the f
 
 1. **Script Runner**
 
-   - Script Runner allows for running COSMOS test procedures or any other Ruby code from a graphical environment that highlights each line as it executes. At anytime during execution, the script can be paused or stopped. If a telemetry check fails or any other exception occurs, the script is immediately stopped and the user notified.
+   - Script Runner allows for running OpenC3 test procedures or any other Ruby code from a graphical environment that highlights each line as it executes. At anytime during execution, the script can be paused or stopped. If a telemetry check fails or any other exception occurs, the script is immediately stopped and the user notified.
 
    - Script Runner also allows you to break your operational or test procedures down into discreet test cases that each complete with either SUCCESS or FAILURE. After running, a test report is automatically created for you. Convenient features such as the ability to loop testing help get the kinks out of your system before formal runs.
 
@@ -50,22 +50,17 @@ After configuring COSMOS to talk to your hardware, you immediately can use the f
 
    - Used for offline analysis of command and telemetry data. Extracts a given list of items into a CSV file for further analysis in other tools such as Excel or Matlab.
 
-COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Thomas (jmthomas) at Ball Aerospace & Technologies Corp.
+OpenC3 is built and maintained by Ryan Melton (ryanmelt) and Jason Thomas (jmthomas) at OpenC3, Inc.
 
 ## Getting Started
 
-1.  See the [Installation Guide](https://ballaerospace.github.io/cosmos-website/docs/v5/installation) for detailed instructions.
+1.  See the [Installation Guide](https://openc3.com/docs/v5/installation) for detailed instructions.
 
-1.  Follow the [Getting Started](https://ballaerospace.github.io/cosmos-website/docs/v5/gettingstarted) to start developing your configuration.
-
-## Docker
-
-See our Docker documentation here:
-[COSMOS Docker Directions](https://github.com/BallAerospace/cosmos-docker)
+1.  Follow the [Getting Started](https://openc3.com/docs/v5/gettingstarted) to start developing your configuration.
 
 ## Contributing
 
-We encourage you to contribute to COSMOS!
+We encourage you to contribute to OpenC3!
 
 Contributing is easy.
 
@@ -74,15 +69,10 @@ Contributing is easy.
 3. Make your changes
 4. Submit a pull request
 
-Before any contributions can be incorporated we do require all contributors to sign a Contributor License Agreement here:
-[Contributor License Agreement](https://docs.google.com/forms/d/1ppnHUSXtY1GRTNPIyUaB1OYHbW5Ca67GFMgMRPBG8u0/viewform)
+YOU MUST AGREE TO THE FOLLOWING TO SUBMIT CODE TO THIS PROJECT:
 
-This protects both you and us and you retain full rights to any code you write.
-
-Personally identifying information gathered as part of the CLA process is only used to ensure that contributions to the COSMOS project are done by known individuals who certify that code is authorized to be submitted to the project and is free from patents and other encumbrances. Access to this data is only available to COSMOS project leadership and is not used for any other purpose.
-
-FOR ALL CONTRIBUTIONS TO THE COSMOS PROJECT, EVEN IF A CLA HAS NOT BEEN FILLED OUT, BALL AEROSPACE MAINTAINS ALL RIGHTS TO ALL CODE IN THE COSMOS PROJECT INCLUDING THE RIGHT TO LICENSE IT UNDER COMMERCIAL TERMS.
+FOR ALL CONTRIBUTIONS TO THE OPENC3 PROJECT, OPENC3, INC. MAINTAINS ALL RIGHTS TO ALL CODE CONTRIBUTED TO THE OPENC3 PROJECT INCLUDING THE RIGHT TO LICENSE IT UNDER OTHER TERMS.
 
 ## License
 
-Ball Aerospace COSMOS is released under the AGPL v3 with a few addendums. See [LICENSE.txt](LICENSE.txt)
+OpenC3 is released under the AGPL v3 with a few addendums. See [LICENSE.txt](LICENSE.txt)
