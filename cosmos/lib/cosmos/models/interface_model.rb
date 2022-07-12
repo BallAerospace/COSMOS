@@ -60,7 +60,7 @@ module Cosmos
       case keyword
       when 'INTERFACE'
         parser.verify_num_parameters(2, nil, "INTERFACE <Name> <Filename> <Specific Parameters>")
-        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, scope: scope)
+        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, needs_dependencies: needs_dependencies, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface: #{keyword} #{parameters.join(" ")}")
       end
