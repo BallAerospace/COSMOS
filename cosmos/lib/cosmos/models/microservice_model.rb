@@ -63,7 +63,7 @@ module Cosmos
       when 'MICROSERVICE'
         parser.verify_num_parameters(2, 2, "#{keyword} <Folder Name> <Name>")
         # Create name by adding scope and type 'USER' to indicate where this microservice came from
-        return self.new(folder_name: parameters[0], name: "#{scope}__USER__#{parameters[1].upcase}", plugin: plugin, scope: scope)
+        return self.new(folder_name: parameters[0], name: "#{scope}__USER__#{parameters[1].upcase}", plugin: plugin, needs_dependencies: needs_dependencies, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Microservice: #{keyword} #{parameters.join(" ")}")
       end

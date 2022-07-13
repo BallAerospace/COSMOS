@@ -88,7 +88,7 @@ module Cosmos
       # If the key doesn't exist or if there are no packets we return empty array
       Store.hkeys("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}").sort
     end
-
+  
     # @return [Hash] Packet hash or raises an exception
     def self.packet(target_name, packet_name, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
@@ -170,7 +170,7 @@ module Cosmos
         usage = "#{keyword} <TARGET FOLDER NAME> <TARGET NAME>"
         parser.verify_num_parameters(2, 2, usage)
         parser.verify_parameter_naming(2) # Target name is the 2nd parameter
-        return self.new(name: parameters[1].to_s.upcase, folder_name: parameters[0].to_s.upcase, plugin: plugin, scope: scope)
+        return self.new(name: parameters[1].to_s.upcase, folder_name: parameters[0].to_s.upcase, plugin: plugin,  needs_dependencies: needs_dependencies, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Target: #{keyword} #{parameters.join(" ")}")
       end

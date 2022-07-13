@@ -79,7 +79,7 @@ module Cosmos
       case keyword
       when 'TOOL'
         parser.verify_num_parameters(2, 2, "TOOL <Folder Name> <Name>")
-        return self.new(folder_name: parameters[0], name: parameters[1], plugin: plugin, scope: scope)
+        return self.new(folder_name: parameters[0], name: parameters[1], plugin: plugin, needs_dependencies: needs_dependencies, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
       end

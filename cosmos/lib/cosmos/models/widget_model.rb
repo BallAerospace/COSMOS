@@ -69,7 +69,7 @@ module Cosmos
       case keyword
       when 'WIDGET'
         parser.verify_num_parameters(1, 1, "WIDGET <Name>")
-        return self.new(name: parameters[0], plugin: plugin, scope: scope)
+        return self.new(name: parameters[0], plugin: plugin, needs_dependencies: needs_dependencies, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Widget: #{keyword} #{parameters.join(" ")}")
       end
