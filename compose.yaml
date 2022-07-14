@@ -103,6 +103,8 @@ services:
     volumes:
       - "cosmos-gems-v:/gems:ro"
       #- ./cacert.pem:/devel/cacert.pem
+      # Add access to the entire C drive on Windows
+      # - "/c:/c"
     environment:
       - "GEM_HOME=/gems"
     env_file:

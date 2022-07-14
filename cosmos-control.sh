@@ -36,7 +36,7 @@ case $1 in
   cosmos )
     # Source the .env file to setup environment variables
     set -a
-    . ./.env
+    . "$(dirname -- "$0")/.env"
     # Start (and remove when done --rm) the cosmos-base container with the current working directory
     # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
     # This allows tools running in the container to have a consistent path to the current working directory.
