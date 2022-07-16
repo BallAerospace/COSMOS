@@ -1,4 +1,4 @@
-COSMOS 5 Release Process
+OpenC3 Release Process
 
 1. Make sure all tests are passing
 2. Change versions to desired

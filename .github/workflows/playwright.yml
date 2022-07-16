@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Cosmos 5 Playwright Tests
+name: OpenC3 Playwright Tests
 
 # Only run on a push to master to avoid running for all the dependabot PRs
 on:
@@ -60,25 +60,25 @@ jobs:
         with:
           name: playwright
           path: playwright/test-results
-      - uses: anchore/scan-action/download-grype@v3
-        id: grype
-      - name: Run grype on the image ruby
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-ruby:latest
-      - name: Run grype on the image node
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest
-      - name: Run grype on the image base
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-base:latest
-      - name: Run grype on the image init
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-init:latest
-      - name: Run grype on the image redis
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-redis:latest
-      - name: Run grype on the image minio
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-minio:latest
-      - name: Run grype on the image operator
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-operator:latest
-      - name: Run grype on the image cmd-tlm-api
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest
-      - name: Run grype on the image script-runner-api
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-script-runner-api:latest
-      - name: Run grype on the image traefik
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-traefik:latest
+      # - uses: anchore/scan-action/download-grype@v3
+      #   id: grype
+      # - name: Run grype on the image ruby
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-ruby:latest
+      # - name: Run grype on the image node
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest
+      # - name: Run grype on the image base
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-base:latest
+      # - name: Run grype on the image init
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-init:latest
+      # - name: Run grype on the image redis
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-redis:latest
+      # - name: Run grype on the image minio
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-minio:latest
+      # - name: Run grype on the image operator
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-operator:latest
+      # - name: Run grype on the image cmd-tlm-api
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest
+      # - name: Run grype on the image script-runner-api
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-script-runner-api:latest
+      # - name: Run grype on the image traefik
+      #   run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-traefik:latest
