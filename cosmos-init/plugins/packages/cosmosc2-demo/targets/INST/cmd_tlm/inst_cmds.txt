@@ -51,3 +51,7 @@ COMMAND <%= target_name %> SLRPNLDEPLOY BIG_ENDIAN "Deploy solar array panels"
 
 COMMAND <%= target_name %> SLRPNLRESET BIG_ENDIAN "Reset solar array panels"
   <%= render "_ccsds_cmd.txt", locals: {id: 9} %>
+
+COMMAND <%= target_name %> MEMLOAD BIG_ENDIAN "Load memory"
+  <%= render "_ccsds_cmd.txt", locals: {id: 10} %>
+  APPEND_PARAMETER DATA 80 BLOCK "" "Block of data"

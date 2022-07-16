@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: OpenC3 5 API Tests
+name: OpenC3 API Tests
 
 on:
   push:
