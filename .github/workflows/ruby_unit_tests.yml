@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos 5 Ruby Unit Tests
+name: OpenC3 Ruby Unit Tests
 
 on:
   push:

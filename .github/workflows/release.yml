@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Cosmos 5 Release
+name: OpenC3 Release
 
 on:
   workflow_dispatch:
