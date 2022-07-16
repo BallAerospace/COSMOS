@@ -11,7 +11,6 @@ ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 RUN apk add --update docker-compose
 
 WORKDIR /cosmos/
-
 COPY ./ ./
 
 # RUN docker-compose -f /cosmos/docker-compose.yaml -f /cosmos/compose-build.yaml build
