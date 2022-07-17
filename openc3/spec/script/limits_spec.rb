@@ -1,0 +1,75 @@
+# encoding: ascii-8bit
+
+# Copyright 2022 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU Affero General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
+
+require 'spec_helper'
+require 'openc3'
+require 'openc3/script'
+require 'tempfile'
+
+module OpenC3
+  describe Script do
+    before(:each) do
+      @proxy = double("ServerProxy")
+      # Mock the server proxy to determine if it's received methods
+      allow(ServerProxy).to receive(:new).and_return(@proxy)
+      allow(@proxy).to receive(:shutdown)
+      allow(@proxy).to receive(:generate_url).and_return("http://localhost:2900")
+      initialize_script()
+    end
+
+    after(:each) do
+      shutdown_script()
+    end
+
+    describe "limits api calls" do
+      %w(connected disconnected).each do |state|
+        context(state) do
+          it "#{state == 'connected' ? 'sends' : 'does not send'} to the api server" do
+            disconnect_script() if state == 'disconnected'
+
+            # These methods go through to the api server no matter if we're disconnected or not
+            getters = %i(get_stale get_out_of_limits get_overall_limits_state limits_enabled? get_limits get_limits_groups get_limits_sets get_limits_set)
+            getters.each do |method_name|
+              expect(@proxy).to receive(:method_missing).with(method_name)
+              send(method_name)
+            end
+            expect(@proxy).to receive(:method_missing).with(:get_limits_events, nil, count: 100)
+            get_limits_events()
+
+            # These methods are simply logged in disconnect mode and don't go through
+            setters = %i(enable_limits disable_limits set_limits enable_limits_group disable_limits_group set_limits_set)
+            setters.each do |method_name|
+              if state == 'connected'
+                expect(@proxy).to receive(method_name)
+              else
+                expect(@proxy).to_not receive(method_name)
+              end
+              capture_io do |stdout|
+                send(method_name, *method(method_name).parameters)
+                if state == 'disconnected'
+                  expect(stdout.string).to match(/DISCONNECT: #{method_name}/) # "
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

@@ -1,0 +1,89 @@
+---
+TABLEFILE:
+  summary: Specify another file to open and process for table definitions
+  parameters:
+    - name: File Name
+      required: true
+      description: Name of the file. The file will be looked for in the directory
+        of the current definition file.
+      values: '.+\.txt'
+TABLE:
+  modifiers:
+    PARAMETER:
+      modifiers:
+        <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(8) %>
+        <%= MetaConfigParser.load('table_parameter_modifiers.yaml').to_meta_config_yaml(8) %>
+      summary: Defines a parameter in the current table
+      parameters:
+        - name: Name
+          required: true
+          description: Name of the parameter. Must be unique within the table.
+          values: '\D\S*'
+        - name: Bit Offset
+          required: true
+          description: Bit offset into the table of the Most Significant Bit of this parameter.
+            May be negative to indicate on offset from the end of the table.
+            Always use a bit offset of 0 for derived parameters.
+          values: '[-]?\d+'
+        <%= MetaConfigParser.load('_params.yaml').to_meta_config_yaml(8) %>
+    APPEND_PARAMETER:
+      modifiers:
+        <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(8) %>
+        <%= MetaConfigParser.load('table_parameter_modifiers.yaml').to_meta_config_yaml(8) %>
+      summary: Defines a parameter in the current table
+      parameters:
+        - name: Name
+          required: true
+          description: Name of the parameter. Must be unique within the table.
+          values: .+
+        <%= MetaConfigParser.load('_params.yaml').to_meta_config_yaml(8) %>
+  summary: Start a new table definition
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the table in quotes. The name will appear on the GUI tab.
+      values: "['\"].*['\"]"
+    - name: Endianness
+      required: true
+      description: Indicates if the data in this table is in Big Endian or Little Endian format
+      values: ['BIG_ENDIAN', 'LITTLE_ENDIAN']
+    - name: Display
+      requires: true
+      description: Indicates the table contains KEY_VALUE rows (e.g. each row is unique),
+        or a ROW_COLUMN table with identical rows containing different values.
+      values:
+        KEY_VALUE:
+          summary: Table rows will be unique items (previously ONE_DIMENSIONAL, now deprecated)
+          parameters:
+            - name: Description
+              requires: true
+              description: Description of the table in quotes. The description is
+                used in mouseover popups and status line information.
+              values: "['\"].*['\"]"
+        ROW_COLUMN:
+          summary: Table rows will be indentical with multiple columns (previously TWO_DIMENSIONAL, now deprecated)
+          parameters:
+            - name: Rows
+              requires: true
+              description: The number of rows in the table
+              values: \d+
+            - name: Description
+              requires: true
+              description: Description of the table in quotes. The description is
+                used in mouseover popups and status line information.
+              values: "['\"].*['\"]"
+SELECT_TABLE:
+  summary: Select an existing table for editing, typically done to override an existing definition
+  parameters:
+    - name: Table
+      required: true
+      description: The name of the existin table
+      values: .*
+DEFAULT:
+  summary: Specify default values for a SINGLE row in a multi-column table.
+    If you have multiple rows you need a DEFAULT line for each row.
+    If all your rows are identical consider using ERB as shown in the OpenC3 demo.
+  parameters:
+    - name: Default values
+      required: false
+      description: A STATE value or data value corresponding to the data type

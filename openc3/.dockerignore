@@ -1,0 +1,11 @@
+Dockerfile
+Gemfile.lock
+.git
+.gitignore
+openc3/
+coverage/
+spec/
+test/
+log/*
+tmp/*
+**/*.so

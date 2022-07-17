@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Cosmos 5 Playwright Tests
+name: OpenC3 Playwright Tests
 
 # Only run on a push to master to avoid running for all the dependabot PRs
 on:
@@ -13,17 +13,17 @@ on:
     branches: [master]
 
 jobs:
-  cosmos-build-test-scan:
+  openc3-build-test-scan:
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
-      - name: cosmos-control.sh build
+      - name: openc3.sh build
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
-        run: ./cosmos-control.sh build
+        run: ./openc3.sh build
       - uses: actions/setup-node@v3
         with:
           node-version: "14"
@@ -35,10 +35,10 @@ jobs:
       - name: Check for test.only
         run: yarn playwright test --list --forbid-only
         working-directory: playwright
-      - name: cosmos-control.sh run
+      - name: openc3.sh run
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
-        run: ./cosmos-control.sh run
+        run: ./openc3.sh run
         # Allow the containers to spin up
       - name: Sleep for 2min
         run: sleep 120s
@@ -63,22 +63,22 @@ jobs:
       - uses: anchore/scan-action/download-grype@v3
         id: grype
       - name: Run grype on the image ruby
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-ruby:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-ruby:latest
       - name: Run grype on the image node
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-node:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-node:latest
       - name: Run grype on the image base
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-base:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-base:latest
       - name: Run grype on the image init
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-init:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-init:latest
       - name: Run grype on the image redis
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-redis:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-redis:latest
       - name: Run grype on the image minio
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-minio:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-minio:latest
       - name: Run grype on the image operator
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-operator:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-operator:latest
       - name: Run grype on the image cmd-tlm-api
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-cmd-tlm-api:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-cmd-tlm-api:latest
       - name: Run grype on the image script-runner-api
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-script-runner-api:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-script-runner-api:latest
       - name: Run grype on the image traefik
-        run: ${{steps.grype.outputs.cmd}} docker.io/ballaerospace/cosmosc2-traefik:latest
+        run: ${{steps.grype.outputs.cmd}} docker.io/openc3/openc3-traefik:latest

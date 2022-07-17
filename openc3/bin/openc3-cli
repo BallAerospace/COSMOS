@@ -1,0 +1,518 @@
+#!/usr/bin/env ruby
+# encoding: ascii-8bit
+
+# Copyright 2022 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU Affero General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
+
+# This file will handle OpenC3 tasks such as instantiating a new project
+
+require 'openc3'
+require 'openc3/utilities/s3'
+require 'openc3/models/scope_model'
+require 'openc3/models/plugin_model'
+require 'openc3/packets/packet_config'
+require 'openc3/bridge/bridge'
+require 'ostruct'
+require 'optparse'
+require 'openc3/utilities/zip'
+require 'fileutils'
+require 'find'
+require 'json'
+require 'redis'
+require 'psych'
+require 'erb'
+
+$redis_url = "redis://#{ENV['OPENC3_REDIS_HOSTNAME']}:#{ENV['OPENC3_REDIS_PORT']}"
+
+# Build the OpenStruct and OptionParser here as constants so we can use in methods
+MIGRATE_OPTIONS = OpenStruct.new
+MIGRATE_OPTIONS.all = false
+MIGRATE_PARSER = OptionParser.new do |op|
+  op.banner = "openc3-cli migrate PLUGIN [TGT1...] # Create a OpenC3 plugin from existing COSMOS 4 targets"
+  op.on("-a", "--all", "    Move all COSMOS 4 targets into a single OpenC3 plugin") do
+    MIGRATE_OPTIONS.all = true
+  end
+end
+ERROR_CODE = 1
+
+# Prints the usage text for the openc3-cli executable
+def print_usage
+  puts "Usage:"
+  puts "  openc3-cli help                          # Displays this information"
+  puts "  openc3-cli rake                          # Runs rake in the local directory"
+  puts "  openc3-cli validate /PATH/FILENAME.gem SCOPE variables.txt # Validate a OpenC3 plugin gem file"
+  puts "  openc3-cli load /PATH/FILENAME.gem SCOPE variables.txt     # Loads a OpenC3 plugin gem file"
+  puts "  openc3-cli generate plugin PLUGIN_NAME   # Generate a OpenC3 plugin"
+  puts "  #{MIGRATE_PARSER}"
+  puts "  openc3-cli bridge CONFIG_FILENAME        # Run OpenC3 host bridge"
+  puts "  openc3-cli bridgesetup CONFIG_FILENAME   # Create a default config file"
+  puts "  openc3-cli geminstall GEMFILENAME        # Install loaded gem to /gems"
+  puts "  openc3-cli rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
+  puts "  openc3-cli xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
+  puts "  openc3-cli cstol_converter               # Converts CSTOL files (.prc) to OpenC3. Run with --help for more info."
+  puts ""
+end
+
+def generate(args)
+  case args[0]
+  when 'plugin'
+    if args.length != 2
+      abort("Usage: openc3-cli generate plugin <NAME>")
+    end
+    if args[1] =~ /\s/
+      abort("Plugin names can not have spaces!")
+    end
+
+    plugin = args[1].downcase.gsub(/_+|-+/, '-')
+    plugin_name = "openc3-#{plugin}"
+    if File.exist?(plugin_name)
+      abort("Plugin #{plugin_name} already exists!")
+    end
+    FileUtils.mkdir(plugin_name)
+    Dir.chdir(plugin_name) # Change to the plugin path to make copying easier
+
+    # Grab the plugin template
+    template_dir = "#{File.dirname(__FILE__)}/../templates/plugin-template"
+    target_name = plugin.upcase.gsub('-', '_')
+    target_lib_filename = "#{target_name.downcase}.rb"
+    target_class = target_lib_filename.filename_to_class_name
+    target_object = target_name.downcase
+    b = binding
+
+    Dir.glob("#{template_dir}/**/*").each do |file|
+      base_name = file.sub("#{template_dir}/", '')
+      # Rename the template TARGET to our actual target named after the plugin
+      base_name.sub!("targets/TARGET", "targets/#{target_name}")
+      if File.directory?(file)
+        FileUtils.mkdir(base_name)
+        next
+      end
+      base_name.sub!("target.rb", target_lib_filename)
+      base_name.sub!("plugin.gemspec", "#{plugin_name}.gemspec")
+      output = ERB.new(File.read(file), trim_mode: "-").result(b)
+      File.open(base_name, 'w') do |file|
+        file.write output
+      end
+    end
+
+    puts "Plugin #{plugin_name} successfully generated!\n"
+    return target_name # This makes the migrate method easier
+  else # Unknown generator
+    abort("Unknown generator #{args[0]}")
+  end
+end
+
+def migrate(args)
+  MIGRATE_PARSER.parse!(args)
+  abort(MIGRATE_PARSER.to_s) if args.length == 0
+  if MIGRATE_OPTIONS.all and args.length > 1
+    puts "Only specify the plugin name when using --all"
+    abort(MIGRATE_PARSER.to_s)
+  end
+  if !MIGRATE_OPTIONS.all and args.length < 2
+    puts "Specify the individual target names when not using --all"
+    abort(MIGRATE_PARSER.to_s)
+  end
+  if Dir.glob("config/targets/**/*").empty?
+    puts "No targets found in config/targets/*"
+    puts "Migrate must be run within an existing COSMOS configuration"
+    abort(MIGRATE_PARSER.to_s)
+  end
+
+  ###############################################################
+  # Create the framework for the plugin
+  # NOTE: generate does a chdir to be inside the plugin directory
+  ###############################################################
+  plugin = args.shift
+  target_name = generate(['plugin', plugin])
+  # Delete target contents from the plugin framework (but keep directory)
+  FileUtils.rm_rf Dir.glob("targets/#{target_name}/*")
+
+  if MIGRATE_OPTIONS.all
+    # Grab all target directories to match the command line input
+    args = Dir.glob("../config/targets/*").map { |path| File.basename(path) }
+  else
+    # Ensure targets passed in on command line actually exist
+    args.each do |target|
+      path = File.join('..', 'config', 'targets', target)
+      unless File.exist?(path)
+        puts "Target #{path} does not exist!"
+        abort(MIGRATE_PARSER.to_s)
+      end
+    end
+  end
+
+  # Overwrite plugin.txt with specified targets
+  plugin = File.open('plugin.txt', 'w')
+  plugin.puts "TARGET #{target_name}"
+
+  args.each do |target|
+    puts "Migrating target #{target}"
+    FileUtils.cp_r "../config/targets/#{target}", 'targets'
+    plugin.puts "TARGET #{target}"
+  end
+  plugin.puts ""
+
+  puts "Migrating /lib & /procedures to #{target_name}"
+  FileUtils.cp_r '../lib', "targets/#{target_name}"
+  FileUtils.cp_r '../procedures', "targets/#{target_name}"
+
+  # Migrate cmd_tlm_server.txt info to plugin.txt
+  Dir.glob('targets/**/cmd_tlm_server*.txt') do |file|
+    File.open(file) do |file|
+      file.each do |line|
+        next if line =~ /^\s*#/ # Ignore comments
+        next if line.strip.empty? # Ignore empty lines
+
+        # Convert TARGET to MAP_TARGET
+        line.gsub!(/TARGET (\S+)/, 'MAP_TARGET \1')
+        plugin.puts line
+      end
+    end
+    plugin.puts ''
+  end
+  plugin.close
+  puts "Plugin complete: #{File.expand_path('.')}" # Remember we're inside the plugin dir
+end
+
+def xtce_converter(args)
+  options = {}
+  option_parser = OptionParser.new do |option_parser|
+    option_parser.banner = "Usage: xtce_converter [options] --import input_xtce_filename --output output_dir\n"+
+      "       xtce_converter [options] --plugin /PATH/FILENAME.gem --output output_dir --variables variables.txt"
+    option_parser.separator("")
+    option_parser.on("-h", "--help", "Show this message") do
+      puts option_parser
+      exit
+    end
+    option_parser.on("-i VALUE", "--import VALUE", "Import the specified .xtce file") do |arg|
+      options[:import] = arg
+    end
+    option_parser.on("-o", "--output DIRECTORY", "Create files in the directory") do |arg|
+      options[:output] = arg
+    end
+    option_parser.on("-p", "--plugin PLUGIN", "Export .xtce file(s) from the plugin") do |arg|
+      options[:plugin] = arg
+    end
+    option_parser.on("-v", "--variables", "Optional variables file to pass to the plugin") do |arg|
+      options[:variables] = arg
+    end
+  end
+
+  begin
+    option_parser.parse!(args)
+  rescue => err
+    abort(option_parser.to_s)
+  end
+
+  if options[:import] && options[:plugin]
+    puts "xtce_converter options --import and --plugin are mutually exclusive"
+    abort(option_parser.to_s)
+  end
+
+  ENV['OPENC3_NO_STORE'] = '1' # it can be anything
+  OpenC3::Logger.stdout = false
+  OpenC3::Logger.level = OpenC3::Logger::DEBUG
+
+  if options[:import] && options[:output]
+    packet_config = OpenC3::PacketConfig.new
+    puts "Processing #{options[:import]}..."
+    packet_config.process_file(options[:import], nil)
+    puts "Writing OpenC3 config files to #{options[:output]}/"
+    packet_config.to_config(options[:output])
+    exit(0)
+  elsif options[:plugin] && options[:output]
+    begin
+      variables = nil
+      variables = JSON.parse(File.read(options[:variables])) if options[:variables]
+      puts "Installing #{File.basename(options[:plugin])}"
+      plugin_hash = OpenC3::PluginModel.install_phase1(options[:plugin], variables, scope: 'DEFAULT', validate_only: true)
+      plugin_hash['variables']['xtce_output'] = options[:output]
+      OpenC3::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: 'DEFAULT', validate_only: true,
+        gem_file_path: options[:plugin])
+      result = 0 # bash and Windows consider 0 success
+    rescue => e
+      puts "Error: #{e.message}"
+      result = ERROR_CODE
+    ensure
+      name = Psych.safe_load(`gem spec #{options[:plugin]} name`).to_s
+      version = Psych.safe_load(`gem spec #{options[:plugin]} version`, permitted_classes: [Gem::Version]).to_s
+      Gem::Uninstaller.new(name, {:version => version, :force => true}).uninstall
+      exit(result)
+    end
+  else
+    abort(option_parser.to_s)
+  end
+end
+
+# A helper method to make the zip writing recursion work
+def write_zip_entries(base_dir, entries, zip_path, io)
+  io.add(zip_path, base_dir) # Add the directory whether it has entries or not
+  entries.each do |e|
+    zip_file_path = File.join(zip_path, e)
+    disk_file_path = File.join(base_dir, e)
+    if File.directory? disk_file_path
+      recursively_deflate_directory(disk_file_path, io, zip_file_path)
+    else
+      put_into_archive(disk_file_path, io, zip_file_path)
+    end
+  end
+end
+
+def recursively_deflate_directory(disk_file_path, io, zip_file_path)
+  io.add(zip_file_path, disk_file_path)
+  write_zip_entries(disk_file_path, entries, zip_file_path, io)
+end
+
+def put_into_archive(disk_file_path, io, zip_file_path)
+  io.get_output_stream(zip_file_path) do |f|
+    data = nil
+    File.open(disk_file_path, 'rb') { |file| data = file.read }
+    f.write(data)
+  end
+end
+
+def validate_plugin(plugin_file_path, scope:, variables_file: nil)
+  ENV['OpenC3_NO_STORE'] = '1' # it can be anything
+  OpenC3::Logger.stdout = false
+  OpenC3::Logger.level = OpenC3::Logger::DEBUG
+  scope ||= 'DEFAULT'
+  variables = nil
+  variables = JSON.parse(File.read(variables_file)) if variables_file
+  puts "Installing #{File.basename(plugin_file_path)}"
+  plugin_hash = OpenC3::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, scope: scope, validate_only: true)
+  OpenC3::PluginModel.install_phase2(plugin_hash, scope: scope, validate_only: true,
+    gem_file_path: plugin_file_path)
+  puts "Successfully validated #{File.basename(plugin_file_path)}"
+  result = 0 # bash and Windows consider 0 success
+rescue => e
+  puts "Error: #{e.message}"
+  result = ERROR_CODE
+ensure
+  begin
+    name = Psych.safe_load(`gem spec #{plugin_file_path} name`).to_s
+    version = Psych.safe_load(`gem spec #{plugin_file_path} version`, permitted_classes: [Gem::Version]).to_s
+    Gem::Uninstaller.new(name, {:version => version, :force => true}).uninstall
+  rescue => e
+    puts "Could not uninstall #{plugin_file_path} due to #{e.message}"
+  end
+  exit(result)
+end
+
+def update_plugin(plugin_file_path, plugin_name, variables: nil, plugin_txt_lines: nil, scope:)
+  new_gem = File.basename(plugin_file_path)
+  old_gem = plugin_name.split("__")[0]
+  puts "Updating existing plugin: #{plugin_name} with #{File.basename(plugin_file_path)}"
+  plugin_model = OpenC3::PluginModel.get_model(name: plugin_name, scope: scope)
+  begin
+    # Only update if something has changed
+    if (new_gem != old_gem) or (variables != plugin_model.variables) or (plugin_txt_lines != plugin_model.plugin_txt_lines)
+      variables = plugin_model.variables unless variables
+      plugin_model.destroy
+      plugin_hash = OpenC3::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, existing_plugin_txt_lines: plugin_txt_lines, process_existing: true, scope: scope)
+      OpenC3::PluginModel.install_phase2(plugin_hash, scope: scope)
+    else
+      puts "No changes detected - Exiting without change"
+    end
+  rescue => error
+    puts error.formatted
+    plugin_model.restore if plugin_model.destroyed?
+    raise error
+  end
+end
+
+# Loads a plugin into the OpenC3 system
+# This code is used from the command line and is the same code that gets called if you
+# edit/upgrade or install a new plugin from the Admin interface
+#
+# Usage: openc3-cli load gemfile_path [scope] [plugin_hash_file_path]
+#
+# With just gemfile_path and/or scope: Will do nothing if any plugin
+# with the same gem file already exists
+#
+# Otherwise will do what the plugin_hash_file says to do
+# Plugin hash file must have the exact name of an existing plugin for upgrades and edits
+# Otherwise, it will be assumed that the plugin is intentionally being installed for a second
+# time
+#
+def load_plugin(plugin_file_path, scope:, plugin_hash_file: nil)
+  scope ||= 'DEFAULT'
+  # Only create the scope if it doesn't already exist
+  unless OpenC3::ScopeModel.names.include?(scope)
+    begin
+      scope_model = OpenC3::ScopeModel.new(name: scope, scope: scope)
+      scope_model.create
+      scope_model.deploy(".", {})
+    rescue => err
+      abort("Error creating scope: #{scope}: #{err.formatted}")
+    end
+  end
+
+  begin
+    if plugin_hash_file
+      # Admin Create / Edit / or Upgrade Plugin
+      OpenC3::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      plugin_hash = JSON.parse(File.read(plugin_hash_file))
+    else
+      # Init or Command Line openc3-cli load with no plugin_hash_file
+      file_full_name = File.basename(plugin_file_path, ".gem")
+      file_gem_name = file_full_name.split('-')[0..-2].join('-')
+      found = false
+      plugin_names = OpenC3::PluginModel.names(scope: scope)
+      plugin_names.each do |plugin_name|
+        gem_name = plugin_name.split("__")[0]
+        full_name = File.basename(gem_name, ".gem")
+        gem_name = full_name.split('-')[0..-2].join('-')
+        if file_gem_name == gem_name
+          found = true
+          # Upgrade if version changed else do nothing
+          if file_full_name != full_name
+            update_plugin(plugin_file_path, plugin_name, scope: scope)
+          end
+        end
+      end
+      return if found
+
+      plugin_hash = OpenC3::PluginModel.install_phase1(plugin_file_path, scope: scope)
+    end
+
+    # Determine if plugin named in plugin_hash exists
+    existing_plugin_hash = OpenC3::PluginModel.get(name: plugin_hash['name'], scope: scope)
+
+    # Existing plugin hash will be present if plugin is being edited or upgraded
+    # If editing, gem name will match existing hash name
+    # If upgrading, gem name will not match the existing hash name
+
+    if existing_plugin_hash
+      # Upgrade or Edit
+      update_plugin(plugin_file_path, plugin_hash['name'], variables: plugin_hash['variables'], plugin_txt_lines: plugin_hash['plugin_txt_lines'], scope: scope)
+    else
+      # New Install
+      puts "Loading new plugin: #{plugin_file_path}\n#{plugin_hash}"
+      OpenC3::PluginModel.install_phase2(plugin_hash, scope: scope)
+    end
+  rescue => err
+    abort("Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}")
+  end
+end
+
+def gem_install(gem_filename)
+  OpenC3::GemModel.install(gem_filename)
+end
+
+def get_redis_keys
+  redis = Redis.new(url: $redis_url, username: ENV['OPENC3_REDIS_USERNAME'], password: ENV['OPENC3_REDIS_PASSWORD'])
+  puts "\n--- OpenC3 Redis database keys ---"
+  cursor = 0
+  keys = []
+  loop do
+    cursor, result = redis.scan(cursor)
+    keys.concat(result)
+    cursor = cursor.to_i # cursor is returned as a string
+    break if cursor == 0
+  end
+  keys.uniq!
+  keys.sort!
+  keys.select { |item| !item[/^tlm__/] }.each do |key|
+    puts "#{key}\n  #{redis.hkeys(key)}"
+  rescue Redis::CommandError
+    begin
+      # CommandError is raised if you try to hkeys on a stream
+      puts "Stream: #{key}\n  #{redis.xinfo(:stream, key)}"
+    rescue
+      puts "Unknown key '#{key}'"
+    end
+  end
+  puts "Packets Defs: #{keys.select { |item| item[/^tlm__/] }}"
+end
+
+if not ARGV[0].nil? # argument(s) given
+
+  # Handle each task
+  case ARGV[0].downcase
+
+  when 'rake'
+    puts `rake #{ARGV[1..-1].join(' ')}`
+
+  when 'validate'
+    validate_plugin(ARGV[1], scope: ARGV[2], variables_file: ARGV[3])
+
+  when 'load'
+    load_plugin(ARGV[1], scope: ARGV[2], plugin_hash_file: ARGV[3])
+
+  when 'geminstall'
+    gem_install(ARGV[1])
+
+  when 'generate'
+    generate(ARGV[1..-1])
+
+  when 'migrate'
+    migrate(ARGV[1..-1])
+
+  when 'rubysloc'
+    puts `ruby /openc3/bin/rubysloc #{ARGV[1..-1].join(' ')}`
+
+  when 'cstol_converter'
+    puts `ruby /openc3/bin/cstol_converter #{ARGV[1..-1].join(' ')}`
+
+  when 'xtce_converter'
+    xtce_converter(ARGV[1..-1])
+
+  when 'bridge'
+    ENV['OPENC3_NO_STORE'] = '1'
+    filename = ARGV[1]
+    filename = 'bridge.txt' unless filename
+    bridge = OpenC3::Bridge.new(filename)
+    begin
+      while true
+        sleep(1)
+      end
+    rescue Interrupt
+      exit(0)
+    end
+
+  when 'bridgesetup'
+    ENV['OPENC3_NO_STORE'] = '1'
+    filename = ARGV[1]
+    filename = 'bridge.txt' unless filename
+    unless File.exist?(filename)
+      OpenC3::BridgeConfig.generate_default(filename)
+    end
+
+  when 'help'
+    print_usage()
+
+  when 'redis'
+    case (ARGV[1])
+    when 'keys'
+      get_redis_keys()
+    when 'hget'
+      redis = Redis.new(url: $redis_url, username: ENV['OPENC3_REDIS_USERNAME'], password: ENV['OPENC3_REDIS_PASSWORD'])
+      puts JSON.parse(redis.hget(ARGV[2], ARGV[3]))
+    else
+      puts "Unknown redis task: #{ARGV[1]}\n"
+      puts "Valid redis tasks: keys, hget"
+    end
+
+  else # Unknown task
+    print_usage()
+    abort("Unknown task: #{ARGV[0]}")
+  end
+
+else # No arguments given
+  print_usage()
+end

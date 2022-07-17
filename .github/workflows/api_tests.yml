@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos 5 API Tests
+name: OpenC3 API Tests
 
 on:
   push:
@@ -18,13 +18,13 @@ on:
 env:
   RUBYGEMS_URL: https://rubygems.org
   BUNDLE_WITHOUT: development
-  COSMOS_REDIS_USERNAME: cosmos
-  COSMOS_REDIS_PASSWORD: cosmospassword
-  COSMOS_REDIS_HOSTNAME: 127.0.0.1
-  COSMOS_REDIS_PORT: 6379
-  COSMOS_REDIS_EPHEMERAL_HOSTNAME: 127.0.0.1
-  COSMOS_REDIS_EPHEMERAL_PORT: 6380
-  COSMOS_SERVICE_PASSWORD: cosmosservice
+  OPENC3_REDIS_USERNAME: openc3
+  OPENC3_REDIS_PASSWORD: openc3password
+  OPENC3_REDIS_HOSTNAME: 127.0.0.1
+  OPENC3_REDIS_PORT: 6379
+  OPENC3_REDIS_EPHEMERAL_HOSTNAME: 127.0.0.1
+  OPENC3_REDIS_EPHEMERAL_PORT: 6380
+  OPENC3_SERVICE_PASSWORD: openc3service
 
 jobs:
   cmd-tlm-api:
@@ -39,21 +39,21 @@ jobs:
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
         env:
-          COSMOS_DEVEL: ../cosmos
+          OPENC3_DEVEL: ../openc3
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos-cmd-tlm-api
-      - name: Build cosmos
+          working-directory: openc3-cmd-tlm-api
+      - name: Build OpenC3
         run: bundle install; bundle exec rake build
-        working-directory: cosmos
+        working-directory: openc3
         env:
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          OPENC3_DEVEL: ${GITHUB_WORKSPACE}/openc3
       - name: Run cmd-tlm-api tests
         run: bundle exec rspec
-        working-directory: cosmos-cmd-tlm-api
+        working-directory: openc3-cmd-tlm-api
         env:
-          COSMOS_DEVEL: ../cosmos
+          OPENC3_DEVEL: ../openc3
 
   script-runner-api:
     if: ${{ github.actor != 'dependabot[bot]' }}
@@ -67,16 +67,16 @@ jobs:
       - name: Set up Ruby ${{ matrix.ruby-version }}
         uses: ruby/setup-ruby@v1
         env:
-          COSMOS_DEVEL: ../cosmos
+          OPENC3_DEVEL: ../openc3
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos-script-runner-api
-      - name: Build cosmos
+          working-directory: openc3-script-runner-api
+      - name: Build OpenC3
         run: bundle install; bundle exec rake build
-        working-directory: cosmos
+        working-directory: openc3
       - name: Run script-runner-api tests
         run: bundle exec rspec
-        working-directory: cosmos-script-runner-api
+        working-directory: openc3-script-runner-api
         env:
-          COSMOS_DEVEL: ../cosmos
+          OPENC3_DEVEL: ../openc3

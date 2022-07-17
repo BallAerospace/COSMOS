@@ -1,0 +1,80 @@
+---
+VARIABLE:
+  summary: Define a configurable variable for the plugin
+  description: The VARIABLE keyword defines a variable that will be requested for the user to enter during plugin installation.   Variables can be used to handle details of targets that are user defined such as specific IP addresses and ports.  Variables should also be used to allow users to rename targets to whatever name they want and support multiple installations of the same target with different names.
+    Variables can be used later in plugin.txt or in any other configuration file included in a plugin using Ruby ERB syntax.  The variables are assigned to accessible local variables in the file.
+    At a high level, ERB allows you to run Ruby code in configuration files.
+  parameters:
+    - name: Variable Name
+      required: true
+      description: The name of the variable
+      values: .+
+    - name: Default Value
+      required: true
+      description: Default value of the variable
+      values: .+
+INTERFACE:
+  modifiers:
+    <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a connection to a physical target
+  description: Interfaces are what OpenC3 uses to talk to a particular piece
+    of hardware. Interfaces require a Ruby file which implements all the interface
+    methods necessary to talk to the hardware. OpenC3 defines many built in interfaces
+    or you can define your own as long as it implements the interface protocol.
+  parameters:
+    - name: Interface Name
+      required: true
+      description: Name of the interface. This name will appear in the
+        Interfaces tab of the Server and is also referenced by other keywords.
+        The OpenC3 convention is to name interfaces after their targets with
+        '_INT' appended to the name, e.g. INST_INT for the INST target.
+      values: \D\S*
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating the interface.
+      values:
+        <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/v5/interfaces)
+        documentation for more details.
+ROUTER:
+  modifiers:
+    ROUTE:
+      summary: Map an interface to a router
+      description: Once an interface has been mapped to a router, all its received telemetry
+        will be sent out through the router.
+      parameters:
+        - name: Interface
+          required: true
+          description: Name of the interface
+          values: .+
+    <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Create router to receive commands and output telemetry packets from one or more interfaces
+  description: Creates an router which receives command packets from
+    their remote clients and sends them to associated interfaces. They receive telemetry
+    packets from their interfaces and send them to their remote clients. This allows
+    routers to be intermediaries between an external client and an actual device.
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the router
+      values: .+
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating the interface.
+      values:
+        <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/v5/interfaces)
+        documentation for more details.
+<%= MetaConfigParser.load('target.yaml').to_meta_config_yaml() %>
+<%= MetaConfigParser.load('microservice.yaml').to_meta_config_yaml() %>
+<%= MetaConfigParser.load('tool.yaml').to_meta_config_yaml() %>
+WIDGET:
+  summary: Define a custom widget
+  example: WIDGET HELLOWORLD
+  description: Defines a custom widget that can be used in Telemetry Viewer screens.
+  parameters:
+    - name: Widget Name
+      description: The name of the widget wil be used to build a path to the widget implementation. For example, `WIDGET HELLOWORLD` will find the as-built file tools/widgets/HelloworldWidget/HelloworldWidget.umd.min.js. See the [Custom Widgets](/docs/v5/custom-widgets)
+        guide for more details.
+      required: true
+      values: .+

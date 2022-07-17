@@ -1,0 +1,78 @@
+---
+MICROSERVICE:
+  summary: Defines a new microservice
+  example: MICROSERVICE EXAMPLE example-microservice
+  description: Defines a microservice that the plugin adds to the OpenC3 system. Microservices are background software processes that perform persistent processing.
+  parameters:
+    - name: Microservice Folder Name
+      description: The exact name of the microservice folder in the plugin. ie. microservices/<Microservice Folder Name>
+      required: true
+      values: .+
+    - name: Microservice Name
+      description: The specific name of this instance of the microservice in the OpenC3 system
+      required: true
+      values: .+
+  modifiers:
+    ENV:
+      summary: Sets an environment variable in the microservice.
+      parameters:
+        - name: Key
+          required: true
+          description: Environment variable name
+          values: .+
+        - name: Value
+          required: true
+          description: Environment variable value
+          values: .+
+    WORK_DIR:
+      summary: Set the working directory
+      description: Working directory to run the microservice CMD in.  Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.
+      parameters:
+        - name: Directory
+          required: true
+          description: Working directory to run the microservice CMD in. Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.
+          values: .+
+    TOPIC:
+      summary: Associate a Redis topic
+      description: Redis topic to associate with this microservice. Standard OpenC3 microservices such as decom_microservice use this information to know what packet streams to subscribe to. The TOPIC keyword can be used as many times as necessary to associate all needed topics.
+      parameters:
+        - name: Topic Name
+          required: true
+          description: Redis Topic to associate with the microservice
+          values: .+
+    TARGET_NAME:
+      summary: Associate a OpenC3 target
+      description: OpenC3 target to associate with the microservice. For standard OpenC3 microservices such as decom_microservice this causes the target configuration to get loaded into the container for the microservice.
+      parameters:
+        - name: Target Name
+          required: true
+          description: OpenC3 target to associate with the microservice
+          values: .+
+    CMD:
+      summary: Command line to execute to run the microservice.
+      description: Command line to execute to run the microservice.
+      parameters:
+        - name: Args
+          required: true
+          description: One or more arguments to exec to run the microservice.
+          values: .+
+    OPTION:
+      summary: Pass an option to the microservice
+      description: Generic key/value(s) options to pass to the microservice. These take the form of KEYWORD/PARAMS like a line in a OpenC3 configuration file. Multiple OPTION keywords can be used to pass multiple options to the microservice.
+      parameters:
+        - name: Option Name
+          required: true
+          description: Name of the option
+          values: .+
+        - name: Option Value(s)
+          required: true
+          description: One or more values to associate with the option
+          values: .+
+    CONTAINER:
+      summary: Docker Container.
+      description: Container to execute and run the microservice in.
+      parameters:
+        - name: Args
+          required: false
+          description: Name of the container
+          values: .+

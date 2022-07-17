@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos 5 Ruby Unit Tests
+name: OpenC3 Ruby Unit Tests
 
 on:
   push:
@@ -33,15 +33,15 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
+          working-directory: openc3
       - name: Run unit tests
         run: bundle exec rake build spec
-        working-directory: cosmos
+        working-directory: openc3
         env:
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          OPENC3_DEVEL: ${GITHUB_WORKSPACE}/openc3
       - name: Run unit tests without extensions
         run: bundle exec rspec --tag no_ext
-        working-directory: cosmos
+        working-directory: openc3
         env:
-          COSMOS_NO_EXT: 1
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}/cosmos
+          OPENC3_NO_EXT: 1
+          OPENC3_DEVEL: ${GITHUB_WORKSPACE}/openc3

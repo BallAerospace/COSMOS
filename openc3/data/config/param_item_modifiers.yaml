@@ -1,0 +1,52 @@
+---
+FORMAT_STRING:
+  summary: Adds printf style formatting
+  example: FORMAT_STRING "0x%0X"
+  parameters:
+    - name: Format
+      required: true
+      description: How to format using printf syntax.
+        For example, '0x%0X' will display the value in hex.
+      values: .*
+UNITS:
+  summary: Add displayed units
+  example: |
+    UNITS Celsius C
+    UNITS Kilometers KM
+  parameters:
+    - name: Full Name
+      required: true
+      description: Full name of the units type, e.g. Celsius
+      values: .*
+    - name: Abbreviated
+      required: true
+      description: Abbreviation for the units, e.g. C
+      values: .*
+DESCRIPTION:
+  summary: Override the defined description
+  parameters:
+    - name: Value
+      required: true
+      description: The new description
+      values: .*
+META:
+  summary: Stores custom user metadata
+  description: Meta data is user specific data that can be used by custom tools
+    for various purposes. One example is to store additional information needed
+    to generate source code header files.
+  example: META TEST "This parameter is for test purposes only"
+  parameters:
+    - name: Meta Name
+      required: true
+      description: Name of the metadata to store
+      values: .*
+    - name: Meta Values
+      required: false
+      description: One or more values to be stored for this Meta Name
+      values: .*
+OVERLAP:
+  summary: This item is allowed to overlap other items in the packet
+  description:
+    If an item's bit offset overlaps another item, OpenC3 issues a warning. This keyword explicitly
+    allows an item to overlap another and supresses the warning message.
+  since: 4.4.1

@@ -1,9 +1,0 @@
-# Set VARIABLEs here to allow variation in your plugin
-# See https://ballaerospace.github.io/cosmos-website/docs/v5/plugins for more information
-VARIABLE <%= target_name.downcase %>_target_name <%= target_name %>
-
-# Modify this according to your actual target connection
-# See https://ballaerospace.github.io/cosmos-website/docs/v5/interfaces for more information
-TARGET <%= target_name %> <%%= <%= target_name.downcase %>_target_name %>
-INTERFACE <%%= <%= target_name.downcase %>_target_name %>_INT tcpip_client_interface.rb host.docker.internal 8080 8081 10.0 nil BURST
-  MAP_TARGET <%%= <%= target_name.downcase %>_target_name %>

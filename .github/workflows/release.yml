@@ -3,7 +3,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Cosmos 5 Release
+name: OpenC3 Release
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
         with:
           ruby-version: 3.1
           bundler-cache: false # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
+          working-directory: openc3
       - uses: actions/setup-node@v3
         with:
           node-version: "16.x"
@@ -49,10 +49,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Update version to desired
-        run: ruby cosmos_set_versions.rb
+        run: ruby openc3_set_versions.rb
         working-directory: scripts/release
         env:
-          COSMOS_RELEASE_VERSION: ${{ github.event.inputs.version }}
+          OPENC3_RELEASE_VERSION: ${{ github.event.inputs.version }}
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "[Github Action] Update version to ${{ github.event.inputs.version }}"
@@ -63,16 +63,16 @@ jobs:
         run: ./build_multi_arch.sh
         working-directory: scripts/release
         env:
-          COSMOS_RELEASE_VERSION: ${{ github.event.inputs.version }}
-          COSMOS_UPDATE_LATEST: ${{ github.event.inputs.update_latest }}
+          OPENC3_RELEASE_VERSION: ${{ github.event.inputs.version }}
+          OPENC3_UPDATE_LATEST: ${{ github.event.inputs.update_latest }}
       - name: extract gems
         # This `shell` line is required to get around a known issue: https://github.com/actions/runner/issues/241#issuecomment-745902718
         shell: 'script -q -e -c "bash {0}"'
         run: ./extract_gems.sh
         working-directory: scripts/release
         env:
-          COSMOS_REGISTRY: docker.io
-          COSMOS_RELEASE_VERSION: ${{ github.event.inputs.version }}
+          OPENC3_REGISTRY: docker.io
+          OPENC3_RELEASE_VERSION: ${{ github.event.inputs.version }}
       - name: publish gems
         run: ruby publish_gems.rb
         working-directory: scripts/release
@@ -81,20 +81,20 @@ jobs:
       - name: publish npm packages
         if: ${{ github.event.inputs.update_latest == true }}
         run: npm publish --access public
-        working-directory: cosmos-init/plugins/packages/cosmosc2-tool-common
+        working-directory: openc3-init/plugins/packages/openc3-tool-common
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: publish npm packages pre
         if: ${{ github.event.inputs.update_latest != true }}
         run: npm publish --tag pre --access public
-        working-directory: cosmos-init/plugins/packages/cosmosc2-tool-common
+        working-directory: openc3-init/plugins/packages/openc3-tool-common
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Update version to next
-        run: ruby cosmos_set_versions.rb
+        run: ruby openc3_set_versions.rb
         working-directory: scripts/release
         env:
-          COSMOS_RELEASE_VERSION: ${{ github.event.inputs.next_version }}
+          OPENC3_RELEASE_VERSION: ${{ github.event.inputs.next_version }}
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "[Github Action] Update version to ${{ github.event.inputs.next_version }}"

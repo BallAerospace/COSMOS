@@ -6,7 +6,7 @@ labels: ""
 assignees: ""
 ---
 
-First check out our main documentation site at [https://ballaerospace.github.io/cosmos-website/](https://ballaerospace.github.io/cosmos-website/). There is a Google search box at the bottom of every page that may help you find information related to your bug.
+First check out our main documentation site at [https://openc3.com](https://openc3.com).
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -28,8 +28,8 @@ If applicable, add screenshots to help explain your problem.
 **Environment (please complete the following information):**
 
 - OS: [e.g. Windows 10, Mac OS 10.13]
-- COSMOS Version [e.g. 4.0.0]
-- **Cosmos v5**
+- OpenC3 Version [e.g. 5.0.6]
+- Browser
   -- [] Internet Explorer (IE)
   -- [] Google Chrome
   -- [] Chromium based browsers
