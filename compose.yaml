@@ -12,35 +12,35 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 
 version: "3.5"
 
 services:
-  cosmos-minio:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:${COSMOS_TAG}"
+  openc3-minio:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-minio:${OPENC3_TAG}"
     volumes:
-      - "cosmos-minio-v:/data"
+      - "openc3-minio-v:/data"
       - "./cacert.pem:/devel/cacert.pem"
     command: ["server", "/data"]
     restart: "unless-stopped"
     environment:
-      MINIO_ROOT_USER: "${COSMOS_MINIO_USERNAME}"
-      MINIO_ROOT_PASSWORD: "${COSMOS_MINIO_PASSWORD}"
+      MINIO_ROOT_USER: "${OPENC3_MINIO_USERNAME}"
+      MINIO_ROOT_PASSWORD: "${OPENC3_MINIO_PASSWORD}"
       SSL_CERT_FILE: "/devel/cacert.pem"
       CURL_CA_BUNDLE: "/devel/cacert.pem"
       REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
       NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
-  cosmos-redis:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+  openc3-redis:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-redis:${OPENC3_TAG}"
     volumes:
-      - "cosmos-redis-v:/data"
+      - "openc3-redis-v:/data"
       - "./cacert.pem:/devel/cacert.pem"
-      - "./cosmos-redis/users.acl:/config/users.acl"
+      - "./openc3-redis/users.acl:/config/users.acl"
     restart: "unless-stopped"
     environment:
       SSL_CERT_FILE: "/devel/cacert.pem"
@@ -48,11 +48,11 @@ services:
       REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
       NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
-  cosmos-redis-ephemeral:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+  openc3-redis-ephemeral:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-redis:${OPENC3_TAG}"
     volumes:
       - "./cacert.pem:/devel/cacert.pem"
-      - "./cosmos-redis/users.acl:/config/users.acl"
+      - "./openc3-redis/users.acl:/config/users.acl"
     restart: "unless-stopped"
     command: ["redis-server", "/config/redis_ephemeral.conf"]
     environment:
@@ -61,15 +61,15 @@ services:
       REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
       NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
-  cosmos-cmd-tlm-api:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
+  openc3-cmd-tlm-api:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-cmd-tlm-api:${OPENC3_TAG}"
     restart: "unless-stopped"
     depends_on:
-      - "cosmos-redis"
-      - "cosmos-redis-ephemeral"
-      - "cosmos-minio"
+      - "openc3-redis"
+      - "openc3-redis-ephemeral"
+      - "openc3-minio"
     volumes:
-      - "cosmos-gems-v:/gems"
+      - "openc3-gems-v:/gems"
       - "./cacert.pem:/devel/cacert.pem"
     environment:
       - "RAILS_ENV=production"
@@ -77,15 +77,15 @@ services:
     env_file:
       - ".env"
 
-  cosmos-script-runner-api:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
+  openc3-script-runner-api:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-script-runner-api:${OPENC3_TAG}"
     restart: "unless-stopped"
     depends_on:
-      - "cosmos-redis"
-      - "cosmos-redis-ephemeral"
-      - "cosmos-minio"
+      - "openc3-redis"
+      - "openc3-redis-ephemeral"
+      - "openc3-minio"
     volumes:
-      - "cosmos-gems-v:/gems:ro"
+      - "openc3-gems-v:/gems:ro"
       - "./cacert.pem:/devel/cacert.pem"
     environment:
       - "RAILS_ENV=production"
@@ -93,15 +93,15 @@ services:
     env_file:
       - ".env"
 
-  cosmos-operator:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
+  openc3-operator:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-operator:${OPENC3_TAG}"
     restart: "unless-stopped"
     depends_on:
-      - "cosmos-redis"
-      - "cosmos-redis-ephemeral"
-      - "cosmos-minio"
+      - "openc3-redis"
+      - "openc3-redis-ephemeral"
+      - "openc3-minio"
     volumes:
-      - "cosmos-gems-v:/gems:ro"
+      - "openc3-gems-v:/gems:ro"
       #- ./cacert.pem:/devel/cacert.pem
       # Add access to the entire C drive on Windows
       # - "/c:/c"
@@ -112,16 +112,16 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
-  cosmos-traefik:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
+  openc3-traefik:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-traefik:${OPENC3_TAG}"
     volumes:
       - "./cacert.pem:/devel/cacert.pem"
-      - "./cosmos-traefik/traefik.yaml:/etc/traefik/traefik.yaml"
-      # - "./cosmos-traefik/traefik-allow-http.yaml:/etc/traefik/traefik.yaml"
-      # - "./cosmos-traefik/traefik-ssl.yaml:/etc/traefik/traefik.yaml"
-      # - "./cosmos-traefik/traefik-letsencrypt.yaml:/etc/traefik/traefik.yaml"
-      # - "./cosmos-traefik/cert.key:/etc/traefik/cert.key"
-      # - "./cosmos-traefik/cert.crt:/etc/traefik/cert.crt"
+      - "./openc3-traefik/traefik.yaml:/etc/traefik/traefik.yaml"
+      # - "./openc3-traefik/traefik-allow-http.yaml:/etc/traefik/traefik.yaml"
+      # - "./openc3-traefik/traefik-ssl.yaml:/etc/traefik/traefik.yaml"
+      # - "./openc3-traefik/traefik-letsencrypt.yaml:/etc/traefik/traefik.yaml"
+      # - "./openc3-traefik/cert.key:/etc/traefik/cert.key"
+      # - "./openc3-traefik/cert.crt:/etc/traefik/cert.crt"
     ports:
       - "127.0.0.1:2900:80"
       - "127.0.0.1:2943:443"
@@ -129,25 +129,25 @@ services:
       # - "443:443"
     restart: "unless-stopped"
     depends_on:
-      - "cosmos-redis"
-      - "cosmos-redis-ephemeral"
-      - "cosmos-minio"
+      - "openc3-redis"
+      - "openc3-redis-ephemeral"
+      - "openc3-minio"
     environment:
       SSL_CERT_FILE: "/devel/cacert.pem"
       CURL_CA_BUNDLE: "/devel/cacert.pem"
       REQUESTS_CA_BUNDLE: "/devel/cacert.pem"
       NODE_EXTRA_CA_CERTS: "/devel/cacert.pem"
 
-  cosmos-init:
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:${COSMOS_TAG}"
+  openc3-init:
+    image: "${OPENC3_REGISTRY}/openc3/openc3-init:${OPENC3_TAG}"
     restart: on-failure
     depends_on:
-      - "cosmos-traefik"
-      - "cosmos-redis"
-      - "cosmos-redis-ephemeral"
-      - "cosmos-minio"
+      - "openc3-traefik"
+      - "openc3-redis"
+      - "openc3-redis-ephemeral"
+      - "openc3-minio"
     volumes:
-      - "cosmos-gems-v:/gems"
+      - "openc3-gems-v:/gems"
       - "./cacert.pem:/devel/cacert.pem"
     environment:
       - "GEM_HOME=/gems"
@@ -155,6 +155,6 @@ services:
       - ".env"
 
 volumes:
-  cosmos-redis-v: {}
-  cosmos-minio-v: {}
-  cosmos-gems-v: {}
+  openc3-redis-v: {}
+  openc3-minio-v: {}
+  openc3-gems-v: {}

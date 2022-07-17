@@ -15,7 +15,7 @@ fi
 
 case $1 in
   rspec )
-    cd cosmos
+    cd openc3
     rspec
     cd -
     ;;

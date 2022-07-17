@@ -19,7 +19,7 @@ if [ ! -f ./cacert.pem ]; then
     curl -q -L https://curl.se/ca/cacert.pem --output ./cacert.pem
     if [ $? -ne 0 ]; then
       echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" 1>&2
-      echo "cosmos_setup FAILED" 1>&2
+      echo "openc3_setup FAILED" 1>&2
       exit 1
     else
       echo "Successfully downloaded ./cacert.pem file from: https://curl.se/ca/cacert.pem"
@@ -29,10 +29,10 @@ else
   echo "Using existing ./cacert.pem"
 fi
 
-cp ./cacert.pem cosmos-ruby/cacert.pem
-cp ./cacert.pem cosmos-redis/cacert.pem
-cp ./cacert.pem cosmos-traefik/cacert.pem
-cp ./cacert.pem cosmos-minio/cacert.pem
+cp ./cacert.pem openc3-ruby/cacert.pem
+cp ./cacert.pem openc3-redis/cacert.pem
+cp ./cacert.pem openc3-traefik/cacert.pem
+cp ./cacert.pem openc3-minio/cacert.pem
 
 docker --version
 if [ "$?" -ne 0 ]; then

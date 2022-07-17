@@ -1,213 +1,213 @@
 #!/bin/sh
 
-# To debug, uncomment COSMOS_REGISTRY line below
+# To debug, uncomment OPENC3_REGISTRY line below
 # docker run -d -p 5000:5000 --restart=always --name registry registry:2
 # docker buildx create --use --name insecure-builder2 --driver-opt network=host --buildkitd-flags '--allow-insecure-entitlement security.insecure'
 
 set -eux
-COSMOS_PLATFORMS=linux/amd64,linux/arm64
+OPENC3_PLATFORMS=linux/amd64,linux/arm64
 cd ../..
 eval $(sed -e '/^#/d' -e 's/^/export /' -e 's/$/;/' .env) ;
-#COSMOS_REGISTRY=localhost:5000
+#OPENC3_REGISTRY=localhost:5000
 
 # Setup cacert.pem
 echo "Downloading cert from curl"
 curl -q -L https://curl.se/ca/cacert.pem --output ./cacert.pem
 if [ $? -ne 0 ]; then
   echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" 1>&2
-  echo "cosmos_setup FAILED" 1>&2
+  echo "openc3_setup FAILED" 1>&2
   exit 1
 else
   echo "Successfully downloaded ./cacert.pem file from: https://curl.se/ca/cacert.pem"
 fi
 
-cp ./cacert.pem cosmos-ruby/cacert.pem
-cp ./cacert.pem cosmos-redis/cacert.pem
-cp ./cacert.pem cosmos-traefik/cacert.pem
-cp ./cacert.pem cosmos-minio/cacert.pem
+cp ./cacert.pem openc3-ruby/cacert.pem
+cp ./cacert.pem openc3-redis/cacert.pem
+cp ./cacert.pem openc3-traefik/cacert.pem
+cp ./cacert.pem openc3-minio/cacert.pem
 
-# Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
-cd cosmos-ruby
+# Note: Missing OPENC3_REGISTRY build-arg intentionally to default to docker.io
+cd openc3-ruby
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
   --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
   --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
   --build-arg APK_URL=${APK_URL} \
   --build-arg RUBYGEMS_URL=${RUBYGEMS_URL} \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-ruby:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
   --build-arg ALPINE_VERSION=${ALPINE_VERSION} \
   --build-arg ALPINE_BUILD=${ALPINE_BUILD} \
   --build-arg APK_URL=${APK_URL} \
   --build-arg RUBYGEMS_URL=${RUBYGEMS_URL} \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-ruby:latest .
 fi
 
-cd ../cosmos-node
+cd ../openc3-node
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-node:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-node:latest .
 fi
 
-cd ../cosmos
+cd ../openc3
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-base:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-base:latest .
 fi
 
-# Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
-cd ../cosmos-redis
+# Note: Missing OPENC3_REGISTRY build-arg intentionally to default to docker.io
+cd ../openc3-redis
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-redis:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-redis:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-redis:latest .
 fi
 
-# Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
-cd ../cosmos-minio
+# Note: Missing OPENC3_REGISTRY build-arg intentionally to default to docker.io
+cd ../openc3-minio
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-minio:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-minio:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-minio:latest .
 fi
 
-cd ../cosmos-cmd-tlm-api
+cd ../openc3-cmd-tlm-api
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-cmd-tlm-api:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-cmd-tlm-api:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-cmd-tlm-api:latest .
 fi
 
-cd ../cosmos-script-runner-api
+cd ../openc3-script-runner-api
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-script-runner-api:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-script-runner-api:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-script-runner-api:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-script-runner-api:latest .
 fi
 
-cd ../cosmos-operator
+cd ../openc3-operator
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-operator:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-operator:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-operator:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-operator:latest .
 fi
 
-# Note: Missing COSMOS_REGISTRY build-arg intentionally to default to docker.io
-cd ../cosmos-traefik
+# Note: Missing OPENC3_REGISTRY build-arg intentionally to default to docker.io
+cd ../openc3-traefik
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-traefik:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-traefik:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-traefik:latest .
 fi
 
-cd ../cosmos-init
+cd ../openc3-init
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
   --build-arg NPM_URL=${NPM_URL} \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:${COSMOS_RELEASE_VERSION} .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-init:${OPENC3_RELEASE_VERSION} .
 
-if [ $COSMOS_UPDATE_LATEST = true ]
+if [ $OPENC3_UPDATE_LATEST = true ]
 then
 docker buildx build \
-  --platform ${COSMOS_PLATFORMS} \
+  --platform ${OPENC3_PLATFORMS} \
   --progress plain \
   --build-arg NPM_URL=${NPM_URL} \
-  --build-arg COSMOS_REGISTRY=${COSMOS_REGISTRY} \
-  --build-arg COSMOS_TAG=${COSMOS_RELEASE_VERSION} \
-  --push -t ${COSMOS_REGISTRY}/ballaerospace/cosmosc2-init:latest .
+  --build-arg OPENC3_REGISTRY=${OPENC3_REGISTRY} \
+  --build-arg OPENC3_TAG=${OPENC3_RELEASE_VERSION} \
+  --push -t ${OPENC3_REGISTRY}/openc3/openc3-init:latest .
 fi

@@ -12,11 +12,11 @@ cacert.pem
 .idea
 .rubocop-http*
 .nyc_output
-cosmos/*_exception.txt
-cosmos/*_unexpected.txt
-cosmos/cosmos/
-cosmos/spec/install/outputs
-cosmos/spec/examples.txt
+openc3/*_exception.txt
+openc3/*_unexpected.txt
+openc3/openc3/
+openc3/spec/install/outputs
+openc3/spec/examples.txt
 coverage/
 profile/
 
@@ -47,3 +47,5 @@ yarn-error.log*
 
 # Ignore node modules
 node_modules
+
+typescript

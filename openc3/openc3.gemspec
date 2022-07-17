@@ -46,7 +46,7 @@ spec = Gem::Specification.new do |s|
   s.licenses = ['AGPL-3.0-only', 'Nonstandard']
 
   # Executables
-  s.executables << 'openc3-cli'
+  s.executables << 'openc3cli'
   s.executables << 'rubysloc'
   s.executables << 'cstol_converter'
 

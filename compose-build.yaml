@@ -12,17 +12,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 
 version: "3.5"
 
 services:
-  cosmos-ruby:
+  openc3-ruby:
     build:
-      context: "cosmos-ruby"
+      context: "openc3-ruby"
       network: host
       args:
         ALPINE_VERSION: ${ALPINE_VERSION}
@@ -30,89 +30,89 @@ services:
         APK_URL: ${APK_URL}
         RUBYGEMS_URL: ${RUBYGEMS_URL}
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/openc3-ruby:${COSMOS_TAG}"
 
-  cosmos-node:
+  openc3-node:
     build:
-      context: "cosmos-node"
+      context: "openc3-node"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
         COSMOS_TAG: ${COSMOS_TAG}
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/openc3-node:${COSMOS_TAG}"
     depends_on:
-      - "cosmos-ruby"
+      - "openc3-ruby"
 
-  cosmos-base:
+  openc3-base:
     build:
-      context: "cosmos"
+      context: "openc3"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
         COSMOS_TAG: ${COSMOS_TAG}
-    image: "${COSMOS_REGISTRY}/ballaerospace/cosmosc2-base:${COSMOS_TAG}"
+    image: "${COSMOS_REGISTRY}/ballaerospace/openc3-base:${COSMOS_TAG}"
     depends_on:
-      - "cosmos-ruby"
+      - "openc3-ruby"
 
-  cosmos-minio:
+  openc3-minio:
     build:
-      context: "cosmos-minio"
+      context: "openc3-minio"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
 
-  cosmos-redis:
+  openc3-redis:
     build:
-      context: "cosmos-redis"
+      context: "openc3-redis"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
 
-  cosmos-cmd-tlm-api:
+  openc3-cmd-tlm-api:
     build:
-      context: "cosmos-cmd-tlm-api"
-      network: host
-      args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
-    depends_on:
-      - "cosmos-base"
-
-  cosmos-script-runner-api:
-    build:
-      context: "cosmos-script-runner-api"
+      context: "openc3-cmd-tlm-api"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
         COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
-      - "cosmos-base"
+      - "openc3-base"
 
-  cosmos-operator:
+  openc3-script-runner-api:
     build:
-      context: "cosmos-operator"
+      context: "openc3-script-runner-api"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
         COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
-      - "cosmos-base"
+      - "openc3-base"
 
-  cosmos-traefik:
+  openc3-operator:
     build:
-      context: "cosmos-traefik"
+      context: "openc3-operator"
+      network: host
+      args:
+        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        COSMOS_TAG: ${COSMOS_TAG}
+    depends_on:
+      - "openc3-base"
+
+  openc3-traefik:
+    build:
+      context: "openc3-traefik"
       network: host
       args:
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
 
-  cosmos-init:
+  openc3-init:
     build:
-      context: "cosmos-init"
+      context: "openc3-init"
       network: host
       args:
         NPM_URL: ${NPM_URL}
         COSMOS_REGISTRY: ${COSMOS_REGISTRY}
         COSMOS_TAG: ${COSMOS_TAG}
     depends_on:
-      - "cosmos-node"
-      - "cosmos-base"
+      - "openc3-node"
+      - "openc3-base"

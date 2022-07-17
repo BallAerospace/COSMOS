@@ -2,16 +2,16 @@ version_tag = ARGV[0] || "latest"
 
 # Manual list - MAKE SURE UP TO DATE especially base images
 containers = [
-  { name: "ballaerospace/cosmosc2-ruby:#{version_tag}", base_image: "alpine:3.15.4", apk: true, gems: true },
-  { name: "ballaerospace/cosmosc2-node:#{version_tag}", base_image: "ballaerospace/cosmosc2-ruby:#{version_tag}", apk: true },
-  { name: "ballaerospace/cosmosc2-base:#{version_tag}", base_image: "ballaerospace/cosmosc2-ruby:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/cosmosc2-cmd-tlm-api:#{version_tag}", base_image: "ballaerospace/cosmosc2-base:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/cosmosc2-init:#{version_tag}", base_image: "ballaerospace/cosmosc2-base:#{version_tag}", apk: true, gems: true, yarn: "/cosmos/plugins/yarn.lock" },
-  { name: "ballaerospace/cosmosc2-operator:#{version_tag}", base_image: "ballaerospace/cosmosc2-base:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/cosmosc2-script-runner-api:#{version_tag}", base_image: "ballaerospace/cosmosc2-base:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/cosmosc2-redis:#{version_tag}", base_image: "redis:6.2", apt: true },
-  { name: "ballaerospace/cosmosc2-traefik:#{version_tag}", base_image: "traefik:2.6.6", apk: true },
-  { name: "ballaerospace/cosmosc2-minio:#{version_tag}", base_image: "minio/minio:RELEASE.2021-06-17T00-10-46Z", rpm: true },
+  { name: "ballaerospace/openc3-ruby:#{version_tag}", base_image: "alpine:3.15.4", apk: true, gems: true },
+  { name: "ballaerospace/openc3-node:#{version_tag}", base_image: "ballaerospace/openc3-ruby:#{version_tag}", apk: true },
+  { name: "ballaerospace/openc3-base:#{version_tag}", base_image: "ballaerospace/openc3-ruby:#{version_tag}", apk: true, gems: true },
+  { name: "ballaerospace/openc3-cmd-tlm-api:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true },
+  { name: "ballaerospace/openc3-init:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true, yarn: "/openc3/plugins/yarn.lock" },
+  { name: "ballaerospace/openc3-operator:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true },
+  { name: "ballaerospace/openc3-script-runner-api:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true },
+  { name: "ballaerospace/openc3-redis:#{version_tag}", base_image: "redis:6.2", apt: true },
+  { name: "ballaerospace/openc3-traefik:#{version_tag}", base_image: "traefik:2.6.6", apk: true },
+  { name: "ballaerospace/openc3-minio:#{version_tag}", base_image: "minio/minio:RELEASE.2021-06-17T00-10-46Z", rpm: true },
 ]
 
 $overall_apk = []
@@ -164,7 +164,7 @@ end
 
 def build_summary_report(containers)
   report = ""
-  report << "COSMOS C2 Package Report Summary\n"
+  report << "OpenC3 C2 Package Report Summary\n"
   report << "-" * 80
   report << "\n\nCreated: #{Time.now}\n\n"
   report << "Containers:\n"
@@ -226,7 +226,7 @@ end
 report = build_report(containers)
 summary_report = build_summary_report(containers)
 
-File.open("cosmosc2_package_report.txt", "w") do |file|
+File.open("openc3_package_report.txt", "w") do |file|
   file.write(summary_report)
   file.write(report)
 end

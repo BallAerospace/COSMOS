@@ -12,33 +12,33 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 
 version: "3.5"
 
 services:
-  cosmos-redis:
+  openc3-redis:
     ports:
       - "127.0.0.1:6379:6379" # only allow localhost access to internal apis
 
-  cosmos-redis-ephemeral:
+  openc3-redis-ephemeral:
     ports:
       - "127.0.0.1:6380:6380" # only allow localhost access to internal apis
 
-  cosmos-minio:
+  openc3-minio:
     ports:
       - "127.0.0.1:9000:9000" # only allow localhost access to internal apis
 
-  cosmos-cmd-tlm-api:
+  openc3-cmd-tlm-api:
     ports:
       - "127.0.0.1:2901:2901" # only allow localhost access to internal apis
     environment:
       - "RAILS_ENV=development"
 
-  cosmos-script-runner-api:
+  openc3-script-runner-api:
     ports:
       - "127.0.0.1:2902:2902" # only allow localhost access to internal apis
     environment:

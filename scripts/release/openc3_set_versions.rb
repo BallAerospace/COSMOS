@@ -1,12 +1,12 @@
-# Set cosmos main gem version path
+# Set openc3 main gem version path
 base_path = File.expand_path(File.join(__dir__, '..', '..'))
-path = File.join(base_path, 'cosmos', 'lib', 'cosmos', 'version.rb')
+path = File.join(base_path, 'openc3', 'lib', 'openc3', 'version.rb')
 
 puts "Getting the revision from git"
 revision = `git rev-parse HEAD`.chomp
 puts "Git revision: #{revision}"
 
-version = ENV['COSMOS_RELEASE_VERSION'].to_s.dup
+version = ENV['OPENC3_RELEASE_VERSION'].to_s.dup
 if version.length <= 0
   raise "Version is required"
 end
@@ -35,8 +35,8 @@ puts "Setting version to: #{version}"
 File.open(path, 'wb') do |file|
   file.puts "# encoding: ascii-8bit"
   file.puts ""
-  file.puts "COSMOS_VERSION = '#{version}'"
-  file.puts "module Cosmos"
+  file.puts "OPENC3_VERSION = '#{version}'"
+  file.puts "module OpenC3"
   file.puts "  module Version"
   file.puts "    MAJOR = '#{major}'"
   file.puts "    MINOR = '#{minor}'"
@@ -53,8 +53,7 @@ puts "Updated: #{path}"
 require path
 
 gemspec_files = [
-  'cosmos/cosmos.gemspec',
-  'cosmos/cosmosc2.gemspec',
+  'openc3/openc3.gemspec',
 ]
 
 gemspec_files.each do |rel_path|
@@ -67,8 +66,8 @@ gemspec_files.each do |rel_path|
   data.each_line do |line|
     if line =~ /s\.version =/
       mod_data << "  s.version = '#{gem_version}'\n"
-    elsif line =~ /s\.add_runtime_dependency 'cosmos'/
-      mod_data << "  s.add_runtime_dependency 'cosmos', '#{gem_version}'\n"
+    elsif line =~ /s\.add_runtime_dependency 'openc3'/
+      mod_data << "  s.add_runtime_dependency 'openc3', '#{gem_version}'\n"
     else
       mod_data << line
     end
@@ -80,23 +79,23 @@ gemspec_files.each do |rel_path|
 end
 
 package_dot_json_files = [
-  'cosmos-init/plugins/cosmosc2-tool-base/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-demo/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-admin/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-autonomic/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-calendar/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-cmdsender/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-cmdtlmserver/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-common/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-dataextractor/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-dataviewer/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-handbooks/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-limitsmonitor/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-packetviewer/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-scriptrunner/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-tablemanager/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-tlmgrapher/package.json',
-  'cosmos-init/plugins/packages/cosmosc2-tool-tlmviewer/package.json',
+  'openc3-init/plugins/openc3-tool-base/package.json',
+  'openc3-init/plugins/packages/openc3-demo/package.json',
+  'openc3-init/plugins/packages/openc3-tool-admin/package.json',
+  'openc3-init/plugins/packages/openc3-tool-autonomic/package.json',
+  'openc3-init/plugins/packages/openc3-tool-calendar/package.json',
+  'openc3-init/plugins/packages/openc3-tool-cmdsender/package.json',
+  'openc3-init/plugins/packages/openc3-tool-cmdtlmserver/package.json',
+  'openc3-init/plugins/packages/openc3-tool-common/package.json',
+  'openc3-init/plugins/packages/openc3-tool-dataextractor/package.json',
+  'openc3-init/plugins/packages/openc3-tool-dataviewer/package.json',
+  'openc3-init/plugins/packages/openc3-tool-handbooks/package.json',
+  'openc3-init/plugins/packages/openc3-tool-limitsmonitor/package.json',
+  'openc3-init/plugins/packages/openc3-tool-packetviewer/package.json',
+  'openc3-init/plugins/packages/openc3-tool-scriptrunner/package.json',
+  'openc3-init/plugins/packages/openc3-tool-tablemanager/package.json',
+  'openc3-init/plugins/packages/openc3-tool-tlmgrapher/package.json',
+  'openc3-init/plugins/packages/openc3-tool-tlmviewer/package.json',
 ]
 
 package_dot_json_files.each do |rel_path|
@@ -109,8 +108,8 @@ package_dot_json_files.each do |rel_path|
   data.each_line do |line|
     if line =~ /\"version\":/
       mod_data << "  \"version\": \"#{version}\",\n"
-    elsif line =~ /\"@cosmosc2\/tool-common\":/
-      mod_data << "    \"@cosmosc2/tool-common\": \"#{version}\",\n"
+    elsif line =~ /\"@openc3\/tool-common\":/
+      mod_data << "    \"@openc3/tool-common\": \"#{version}\",\n"
     else
       mod_data << line
     end
@@ -122,9 +121,9 @@ package_dot_json_files.each do |rel_path|
 end
 
 shell_scripts = [
-  'cosmos-init/plugins/docker-package-build.sh',
-  'cosmos-init/plugins/docker-package-install.sh',
-  'examples/hostinstall/centos7/cosmosc2_install_cosmosc2.sh',
+  'openc3-init/plugins/docker-package-build.sh',
+  'openc3-init/plugins/docker-package-install.sh',
+  'examples/hostinstall/centos7/openc3_install_openc3.sh',
 ]
 
 shell_scripts.each do |rel_path|
@@ -135,8 +134,8 @@ shell_scripts.each do |rel_path|
   end
   mod_data = ''
   data.each_line do |line|
-    if line =~ /COSMOS_RELEASE_VERSION=/
-      mod_data << "COSMOS_RELEASE_VERSION=#{version}\n"
+    if line =~ /OPENC3_RELEASE_VERSION=/
+      mod_data << "OPENC3_RELEASE_VERSION=#{version}\n"
     else
       mod_data << line
     end
@@ -148,8 +147,8 @@ shell_scripts.each do |rel_path|
 end
 
 gemfiles = [
-  'cosmos-cmd-tlm-api/Gemfile',
-  'cosmos-script-runner-api/Gemfile',
+  'openc3-cmd-tlm-api/Gemfile',
+  'openc3-script-runner-api/Gemfile',
 ]
 
 gemfiles.each do |rel_path|
@@ -160,8 +159,8 @@ gemfiles.each do |rel_path|
   end
   mod_data = ''
   data.each_line do |line|
-    if line =~ /gem 'cosmos'/ and line !~ /:path/
-      mod_data << "  gem 'cosmos', '#{gem_version}'\n"
+    if line =~ /gem 'openc3'/ and line !~ /:path/
+      mod_data << "  gem 'openc3', '#{gem_version}'\n"
     else
       mod_data << line
     end

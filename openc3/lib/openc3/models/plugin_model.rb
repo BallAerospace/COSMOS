@@ -79,7 +79,7 @@ module OpenC3
         pkg = Gem::Package.new(gem_file_path)
 
         if existing_plugin_txt_lines and process_existing
-          # This is only used in openc3-cli load when everything is known
+          # This is only used in openc3cli load when everything is known
           plugin_txt_lines = existing_plugin_txt_lines
           file_data = existing_plugin_txt_lines.join("\n")
           tf = Tempfile.new("plugin.txt")

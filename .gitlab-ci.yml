@@ -3,5 +3,4 @@ run:
     - k8s
   image: docker/compose
   script:
-    - ls; ./cosmos-control.sh run
-    
+    - ls; ./openc3-control.sh run

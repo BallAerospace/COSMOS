@@ -12,7 +12,7 @@
       "javascript"
     ],
     "eslint.workingDirectories": [
-      "./cosmos-init/plugins"
+      "./openc3-init/plugins"
     ],
     "eslint.packageManager": "yarn",
     "editor.formatOnSave": true,

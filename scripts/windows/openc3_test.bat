@@ -13,13 +13,13 @@ if "%1" == "playwright" (
 GOTO usage
 
 :rspec
-  CD cosmos
+  CD openc3
   rspec
   CD ..
 GOTO :EOF
 
 :playwright
-  REM Starting COSMOS
+  REM Starting OpenC3
   docker-compose -f compose.yaml up -d
   CD playwright
   CALL yarn run fixwindows

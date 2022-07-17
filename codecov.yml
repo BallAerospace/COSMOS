@@ -5,13 +5,13 @@ coverage:
         target: auto
         # Coverage can drop by 5% and still be a success
         threshold: 5%
-      cosmos-ruby:
+      openc3-ruby:
         paths:
-          - cosmos
+          - openc3
       frontend:
         paths:
-          - cosmos-init
+          - openc3-init
       api:
         paths:
-          - cosmos-cmd-tlm-api
-          - cosmos-script-runner-api
+          - openc3-cmd-tlm-api
+          - openc3-script-runner-api

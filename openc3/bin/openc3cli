@@ -42,28 +42,28 @@ $redis_url = "redis://#{ENV['OPENC3_REDIS_HOSTNAME']}:#{ENV['OPENC3_REDIS_PORT']
 MIGRATE_OPTIONS = OpenStruct.new
 MIGRATE_OPTIONS.all = false
 MIGRATE_PARSER = OptionParser.new do |op|
-  op.banner = "openc3-cli migrate PLUGIN [TGT1...] # Create a OpenC3 plugin from existing COSMOS 4 targets"
+  op.banner = "openc3cli migrate PLUGIN [TGT1...] # Create a OpenC3 plugin from existing COSMOS 4 targets"
   op.on("-a", "--all", "    Move all COSMOS 4 targets into a single OpenC3 plugin") do
     MIGRATE_OPTIONS.all = true
   end
 end
 ERROR_CODE = 1
 
-# Prints the usage text for the openc3-cli executable
+# Prints the usage text for the openc3cli executable
 def print_usage
   puts "Usage:"
-  puts "  openc3-cli help                          # Displays this information"
-  puts "  openc3-cli rake                          # Runs rake in the local directory"
-  puts "  openc3-cli validate /PATH/FILENAME.gem SCOPE variables.txt # Validate a OpenC3 plugin gem file"
-  puts "  openc3-cli load /PATH/FILENAME.gem SCOPE variables.txt     # Loads a OpenC3 plugin gem file"
-  puts "  openc3-cli generate plugin PLUGIN_NAME   # Generate a OpenC3 plugin"
+  puts "  openc3cli help                          # Displays this information"
+  puts "  openc3cli rake                          # Runs rake in the local directory"
+  puts "  openc3cli validate /PATH/FILENAME.gem SCOPE variables.txt # Validate a OpenC3 plugin gem file"
+  puts "  openc3cli load /PATH/FILENAME.gem SCOPE variables.txt     # Loads a OpenC3 plugin gem file"
+  puts "  openc3cli generate plugin PLUGIN_NAME   # Generate a OpenC3 plugin"
   puts "  #{MIGRATE_PARSER}"
-  puts "  openc3-cli bridge CONFIG_FILENAME        # Run OpenC3 host bridge"
-  puts "  openc3-cli bridgesetup CONFIG_FILENAME   # Create a default config file"
-  puts "  openc3-cli geminstall GEMFILENAME        # Install loaded gem to /gems"
-  puts "  openc3-cli rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
-  puts "  openc3-cli xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
-  puts "  openc3-cli cstol_converter               # Converts CSTOL files (.prc) to OpenC3. Run with --help for more info."
+  puts "  openc3cli bridge CONFIG_FILENAME        # Run OpenC3 host bridge"
+  puts "  openc3cli bridgesetup CONFIG_FILENAME   # Create a default config file"
+  puts "  openc3cli geminstall GEMFILENAME        # Install loaded gem to /gems"
+  puts "  openc3cli rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
+  puts "  openc3cli xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
+  puts "  openc3cli cstol_converter               # Converts CSTOL files (.prc) to OpenC3. Run with --help for more info."
   puts ""
 end
 
@@ -71,7 +71,7 @@ def generate(args)
   case args[0]
   when 'plugin'
     if args.length != 2
-      abort("Usage: openc3-cli generate plugin <NAME>")
+      abort("Usage: openc3cli generate plugin <NAME>")
     end
     if args[1] =~ /\s/
       abort("Plugin names can not have spaces!")
@@ -339,7 +339,7 @@ end
 # This code is used from the command line and is the same code that gets called if you
 # edit/upgrade or install a new plugin from the Admin interface
 #
-# Usage: openc3-cli load gemfile_path [scope] [plugin_hash_file_path]
+# Usage: openc3cli load gemfile_path [scope] [plugin_hash_file_path]
 #
 # With just gemfile_path and/or scope: Will do nothing if any plugin
 # with the same gem file already exists
@@ -368,7 +368,7 @@ def load_plugin(plugin_file_path, scope:, plugin_hash_file: nil)
       OpenC3::PluginModel.install_phase1(plugin_file_path, scope: scope)
       plugin_hash = JSON.parse(File.read(plugin_hash_file))
     else
-      # Init or Command Line openc3-cli load with no plugin_hash_file
+      # Init or Command Line openc3cli load with no plugin_hash_file
       file_full_name = File.basename(plugin_file_path, ".gem")
       file_gem_name = file_full_name.split('-')[0..-2].join('-')
       found = false

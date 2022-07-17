@@ -11,7 +11,7 @@ if not exist .\cacert.pem (
     powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('https://curl.se/ca/cacert.pem', '.\cacert.pem')"
     if errorlevel 1 (
       echo ERROR: Problem downloading .\cacert.pem file from https://curl.se/ca/cacert.pem
-      echo cosmos_start FAILED
+      echo openc3_start FAILED
       exit /b 1
     ) else (
       echo Successfully downloaded .\cacert.pem file from: https://curl.se/ca/cacert.pem
@@ -21,9 +21,9 @@ if not exist .\cacert.pem (
   echo Using existing cacert.pem
 )
 
-copy .\cacert.pem cosmos-ruby\cacert.pem
-copy .\cacert.pem cosmos-redis\cacert.pem
-copy .\cacert.pem cosmos-traefik\cacert.pem
-copy .\cacert.pem cosmos-minio\cacert.pem
+copy .\cacert.pem openc3-ruby\cacert.pem
+copy .\cacert.pem openc3-redis\cacert.pem
+copy .\cacert.pem openc3-traefik\cacert.pem
+copy .\cacert.pem openc3-minio\cacert.pem
 
 @echo on

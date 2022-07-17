@@ -62,7 +62,7 @@ module OpenC3
           rubys3_client.put_object(bucket: 'gems', key: gem_filename, body: file)
         end
         if gem_install
-          result = OpenC3::ProcessManager.instance.spawn(["ruby", "/openc3/bin/openc3-cli", "geminstall", gem_filename], "gem_install", gem_filename, Time.now + 3600.0, scope: scope)
+          result = OpenC3::ProcessManager.instance.spawn(["ruby", "/openc3/bin/openc3cli", "geminstall", gem_filename], "gem_install", gem_filename, Time.now + 3600.0, scope: scope)
           return result
         end
       else

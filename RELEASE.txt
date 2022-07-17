@@ -1,20 +1,5 @@
-COSMOS 5 Release Process
+OpenC3 Release Process
 
-1. Make sure all tests are passing
-2. Change versions to desired
-3. Commit
-4. Tag
-5. Build Artifacts
-   * Main Ruby Gem
-   * Tool Ruby Gems
-   * Demo Ruby Gem
-   * Tool-Common Npm Package
-   * 10 Docker Containers (5 runtime, 2 init, 3 base - multiple platforms)
-6. Publish Artifacts
-   * Ruby gems to rubygems.org
-   * Tool-Common to Npm
-   * Docker Containers to Docker Hub
-7. Change versions to next beta
-8. Commit
-9. Write-up Release Notes on Github
-10. Release Notes on Website
+1. Run Release Github Action. Give next version number and desired next beta version number. ie. 5.0.6, and 5.0.7-beta0
+2. Write-up Release Notes on Github
+3. Release Notes on Website
