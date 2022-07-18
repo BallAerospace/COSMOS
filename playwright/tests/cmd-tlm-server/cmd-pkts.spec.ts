@@ -12,9 +12,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 // @ts-check
@@ -71,7 +71,7 @@ test('links to command sender', async ({ page }) => {
     await page.locator('text=INSTCOLLECT >> td >> nth=4').click(),
   ])
   await expect(newPage.locator('.v-app-bar')).toContainText('Command Sender', { timeout: 30000 })
-  await expect(newPage.locator('id=cosmos-tool')).toContainText(
+  await expect(newPage.locator('id=openc3-tool')).toContainText(
     'Starts a collect on the INST target'
   )
 })

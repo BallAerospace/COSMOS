@@ -12,9 +12,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 // @ts-check
@@ -32,7 +32,7 @@ test('resets clock sync warning suppression', async ({ page }) => {
   // Must force due to "subtree intercepts pointer events"
   await page.locator('[data-test=select-all-suppressed-warnings]').click({ force: true })
   await page.locator('[data-test=reset-suppressed-warnings]').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('No warnings to reset')
+  await expect(page.locator('id=openc3-tool')).toContainText('No warnings to reset')
 })
 
 test('clears recent configs', async ({ page }) => {
@@ -47,11 +47,11 @@ test('clears recent configs', async ({ page }) => {
 
   await page.goto('/tools/admin/settings')
   await expect(page.locator('.v-app-bar')).toContainText('Administrator')
-  await expect(page.locator('id=cosmos-tool')).toContainText(config)
+  await expect(page.locator('id=openc3-tool')).toContainText(config)
   // Must force due to "subtree intercepts pointer events"
   await page.locator('[data-test=select-all-last-configs]').click({ force: true })
   await page.locator('[data-test=clear-last-configs]').click()
-  await expect(page.locator('id=cosmos-tool')).not.toContainText(config)
+  await expect(page.locator('id=openc3-tool')).not.toContainText(config)
   localStorage = await page.evaluate(() => window.localStorage)
   expect(localStorage['lastconfig__data_viewer']).toBe(undefined)
 })

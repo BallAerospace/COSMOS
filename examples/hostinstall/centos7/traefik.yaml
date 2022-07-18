@@ -6,7 +6,7 @@ entrypoints:
 http:
   middlewares:
     # Removes the first part of the url before passing onto the service
-    # ie. /cosmos-api/api becomes /api
+    # ie. /openc3-api/api becomes /api
     removeFirst:
       replacePathRegex:
         regex: "^/([^/]*)/(.*)"
@@ -23,9 +23,9 @@ http:
         replacement: "/tools/base/$1"
   routers:
     # Note: Priorities control router check order with highest priority evaluated first
-    # Route to the cosmos cmd/tlm api
+    # Route to the openc3 cmd/tlm api
     api-router:
-      rule: PathPrefix(`/cosmos-api`)
+      rule: PathPrefix(`/openc3-api`)
       service: service-api
       priority: 7
     # Route to the script api
@@ -64,7 +64,7 @@ http:
       service: service-minio
       priority: 2
     # This is the default route for everything that doesn't match a more specific route
-    # It gets us to the base cosmos application
+    # It gets us to the base openc3 application
     web-router:
       rule: HostRegexp(`{name:.*}`)
       middlewares:
@@ -73,13 +73,13 @@ http:
       service: service-minio
       priority: 1
   services:
-    # The COSMOS cmd/tlm api service
+    # The OpenC3 cmd/tlm api service
     service-api:
       loadBalancer:
         passHostHeader: false
         servers:
           - url: "http://localhost:2901"
-    # The COSMOS script api service
+    # The OpenC3 script api service
     service-script:
       loadBalancer:
         passHostHeader: false

@@ -1,0 +1,39 @@
+{
+  "name": "widgets_src",
+  "version": "5.0.6-beta0",
+  "private": true,
+  "scripts": {
+    "build": "vue-cli-service build --target lib --dest tools/widgets/HelloworldWidget --formats umd-min src/HelloworldWidget.vue --name HelloworldWidget && vue-cli-service build --target lib --dest tools/widgets/BigWidget --formats umd-min src/BigWidget.vue --name BigWidget"
+  },
+  "dependencies": {
+    "@openc3/tool-common": "5.0.6-beta0",
+    "vue": "2.6.14",
+    "vuetify": "2.6.4"
+  },
+  "devDependencies": {
+    "@vue/babel-preset-app": "5.0.4",
+    "@vue/cli": "5.0.4",
+    "@vue/cli-plugin-babel": "5.0.4",
+    "@vue/cli-plugin-eslint": "5.0.4",
+    "@vue/cli-service": "5.0.4",
+    "@vue/eslint-config-prettier": "7.0.0",
+    "@rushstack/eslint-patch": "^1.1.1",
+    "@babel/eslint-parser": "7.17.0",
+    "babel-loader": "8.2.4",
+    "babel-plugin-istanbul": "6.1.1",
+    "eslint": "8.12.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-vue": "8.5.0",
+    "prettier": "2.6.1",
+    "sass": "1.49.10",
+    "sass-loader": "12.6.0",
+    "vue-cli-plugin-vuetify": "2.4.8",
+    "vue-template-compiler": "2.6.14",
+    "webpack": "5.71.0"
+  },
+  "resolutions": {
+    "acorn": "npm:acorn-with-stage3",
+    "error-stack-parser": "2.0.6"
+  }
+}

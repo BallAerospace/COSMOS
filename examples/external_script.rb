@@ -12,19 +12,19 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
 
-ENV['COSMOS_API_SCHEMA'] ||= 'http'
-ENV['COSMOS_API_HOSTNAME'] ||= 'localhost'
-ENV['COSMOS_API_PORT'] ||= '2900'
-ENV['COSMOS_API_PASSWORD'] ||= 'cosmos'
-ENV['COSMOS_NO_STORE'] ||= '1'
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 
-require 'cosmos'
-require 'cosmos/script'
+ENV['OPENC3_API_SCHEMA'] ||= 'http'
+ENV['OPENC3_API_HOSTNAME'] ||= 'localhost'
+ENV['OPENC3_API_PORT'] ||= '2900'
+ENV['OPENC3_API_PASSWORD'] ||= 'openc3'
+ENV['OPENC3_NO_STORE'] ||= '1'
+
+require 'openc3'
+require 'openc3/script'
 
 puts get_target_list()
 

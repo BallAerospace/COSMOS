@@ -1,0 +1,5 @@
+user healthcheck on nopass -@all +cluster|info +ping
+user openc3 on >openc3password allkeys allchannels -@all +@read +@write +@pubsub +@connection +@transaction +info
+user scriptrunner on >scriptrunnerpassword resetkeys resetchannels ~running-script* ~*script-locks ~*script-breakpoints ~*openc3_log_messages &_action_cable_internal &script-api:* -@all +@read +@write +@pubsub +@hash +@connection
+user admin on >adminpassword +@admin
+user default off

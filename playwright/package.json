@@ -2,7 +2,7 @@
   "name": "playwright",
   "version": "1.0.0",
   "license": "ISC",
-  "description": "COSMOS integration testing",
+  "description": "OpenC3 integration testing",
   "scripts": {
     "fixlinux": "cp ./context.js node_modules/istanbul-lib-report/lib/context.js",
     "fixwindows": "copy .\\context.js node_modules\\istanbul-lib-report\\lib\\context.js",

@@ -1,0 +1,7 @@
+{
+  "name": "openc3",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+}

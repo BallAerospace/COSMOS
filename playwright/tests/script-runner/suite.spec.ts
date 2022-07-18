@@ -12,9 +12,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 // @ts-check
@@ -120,11 +120,11 @@ test('loads Suite controls when opening a suite', async ({ page }) => {
 
 test('disables all suite buttons when running', async ({ page }) => {
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
-  class TestGroup < Cosmos::Group
+  load "openc3/script/suite.rb"
+  class TestGroup < OpenC3::Group
     def test_test; wait; end
   end
-  class TestSuite < Cosmos::Suite
+  class TestSuite < OpenC3::Suite
     def initialize
       super()
       add_group("TestGroup")
@@ -155,13 +155,13 @@ test('disables all suite buttons when running', async ({ page }) => {
 
 test('starts a suite', async ({ page }) => {
   await page.locator('textarea').fill(`
-  load "cosmos/script/suite.rb"
-  class TestGroup < Cosmos::Group
+  load "openc3/script/suite.rb"
+  class TestGroup < OpenC3::Group
     def test_test; puts "test"; end
   end
-  class TestSuite < Cosmos::Suite
-    def setup; Cosmos::Group.puts("setup"); end
-    def teardown; Cosmos::Group.puts("teardown"); end
+  class TestSuite < OpenC3::Suite
+    def setup; OpenC3::Group.puts("setup"); end
+    def teardown; OpenC3::Group.puts("teardown"); end
     def initialize
       super()
       add_group("TestGroup")
@@ -204,11 +204,11 @@ test('starts a suite', async ({ page }) => {
   await page.keyboard.press('Control+A')
   await page.keyboard.press('Backspace')
   await page.locator('textarea').fill(`
-  require "cosmos/script/suite.rb"
-  class TestGroup < Cosmos::Group
+  require "openc3/script/suite.rb"
+  class TestGroup < OpenC3::Group
     def test_test; puts "test"; end
   end
-  class TestSuite < Cosmos::Suite
+  class TestSuite < OpenC3::Suite
     def initialize
       super()
       add_group("TestGroup")
@@ -229,16 +229,16 @@ test('starts a suite', async ({ page }) => {
 
 test('starts a group', async ({ page }) => {
   await page.locator('textarea').fill(`
-  require "cosmos/script/suite.rb"
-  class TestGroup1 < Cosmos::Group
-    def setup; Cosmos::Group.puts("setup"); end
-    def teardown; Cosmos::Group.puts("teardown"); end
+  require "openc3/script/suite.rb"
+  class TestGroup1 < OpenC3::Group
+    def setup; OpenC3::Group.puts("setup"); end
+    def teardown; OpenC3::Group.puts("teardown"); end
     def test_test1; puts "test"; end
   end
-  class TestGroup2 < Cosmos::Group
+  class TestGroup2 < OpenC3::Group
     def test_test2; puts "test"; end
   end
-  class TestSuite < Cosmos::Suite
+  class TestSuite < OpenC3::Suite
     def initialize
       super()
       add_group("TestGroup1")
@@ -277,14 +277,14 @@ test('starts a group', async ({ page }) => {
   await page.keyboard.press('Control+A')
   await page.keyboard.press('Backspace')
   await page.locator('textarea').fill(`
-  require "cosmos/script/suite.rb"
-  class TestGroup1 < Cosmos::Group
+  require "openc3/script/suite.rb"
+  class TestGroup1 < OpenC3::Group
     def test_test1; puts "test"; end
   end
-  class TestGroup2 < Cosmos::Group
+  class TestGroup2 < OpenC3::Group
     def test_test2; puts "test"; end
   end
-  class TestSuite < Cosmos::Suite
+  class TestSuite < OpenC3::Suite
     def initialize
       super()
       add_group("TestGroup1")
@@ -306,12 +306,12 @@ test('starts a group', async ({ page }) => {
 
 test('starts a script', async ({ page }) => {
   await page.locator('textarea').fill(`
-  require "cosmos/script/suite.rb"
-  class TestGroup < Cosmos::Group
+  require "openc3/script/suite.rb"
+  class TestGroup < OpenC3::Group
     def test_test1; puts "test1"; end
     def test_test2; puts "test2"; end
   end
-  class TestSuite < Cosmos::Suite
+  class TestSuite < OpenC3::Suite
     def initialize
       super()
       add_group("TestGroup")
@@ -330,12 +330,12 @@ test('starts a script', async ({ page }) => {
 
 test('handles manual mode', async ({ page }) => {
   await page.locator('textarea').fill(`
-  require "cosmos/script/suite.rb"
-  class TestGroup < Cosmos::Group
-    def test_test1; Cosmos::Group.puts "manual1" if $manual; end
-    def test_test2; Cosmos::Group.puts "manual2" unless $manual; end
+  require "openc3/script/suite.rb"
+  class TestGroup < OpenC3::Group
+    def test_test1; OpenC3::Group.puts "manual1" if $manual; end
+    def test_test2; OpenC3::Group.puts "manual2" unless $manual; end
   end
-  class TestSuite < Cosmos::Suite
+  class TestSuite < OpenC3::Suite
     def initialize
       super()
       add_group("TestGroup")

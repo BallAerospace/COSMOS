@@ -1,0 +1,87 @@
+---
+# Listen for everything coming in on the standard HTTP port
+entrypoints:
+  web:
+    address: ":80"
+http:
+  middlewares:
+    # Removes the first part of the url before passing onto the service
+    # ie. /openc3-api/api becomes /api
+    removeFirst:
+      replacePathRegex:
+        regex: "^/([^/]*)/(.*)"
+        replacement: "/$2"
+  routers:
+    # Note: Priorities control router check order with highest priority evaluated first
+    # Route to the openc3 cmd/tlm api
+    api-router:
+      rule: PathPrefix(`/openc3-api`)
+      service: service-api
+      priority: 6
+    # Route to the script api
+    script-router:
+      rule: PathPrefix(`/script-api`)
+      service: service-script
+      priority: 5
+    # Route to minio user interface
+    minio-router:
+      rule: PathPrefix(`/minio`)
+      service: service-minio
+      priority: 4
+    # Route to any files in minio
+    files-router:
+      rule: PathPrefix(`/files`)
+      middlewares:
+        # remove /files from the beginning
+        - "removeFirst"
+      service: service-minio
+      priority: 3
+    # Route to other tool plugins hosted statically in Minio
+    tools-router:
+      rule: Path(`/tools/{id:.*/.*[.].*}`)
+      service: service-minio
+      priority: 2
+    # This is the default route for everything that doesn't match a more specific route
+    # It gets us to the base openc3 application
+    web-router:
+      rule: HostRegexp(`{name:.*}`)
+      service: service-web
+      priority: 1
+  services:
+    # Local development of the base tool
+    service-web:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:2910"
+    # The OpenC3 cmd/tlm api service
+    service-api:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:2901"
+    # The OpenC3 script api service
+    service-script:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:2902"
+    # The Minio S3 file server
+    service-minio:
+      loadBalancer:
+        servers:
+          - url: "http://openc3-minio:9000"
+# Declare the routes are currently coming from this file, not dynamically
+providers:
+  file:
+    filename: /etc/traefik/traefik.yaml
+accessLog: {}
+# api:
+#   dashboard: true
+#   insecure: trues
+# log:
+#   filePath: '/etc/traefik/traefik.log'
+#   level: 'DEBUG'
+# accessLog:
+#   filePath: '/etc/traefik/access.log'
+#   fields:
+#     defaultMode: keep
+#     headers:
+#       defaultMode: keep

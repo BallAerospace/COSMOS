@@ -1,12 +1,12 @@
-# Testing COSMOS with Playwright
+# Testing OpenC3 with Playwright
 
 NOTE: All commands are assumed to be executed from this (playwright) directory unless otherwise noted
 
-1.  Start cosmos
+1.  Start openc3
 
-        COSMOS> cosmos-control.bat start
+        OPENC3> openc3.bat start
 
-1.  Open COSMOS in your browser. It should take you to the login screen. Set the password to "password"
+1.  Open OpenC3 in your browser. It should take you to the login screen. Set the password to "password"
 
 1.  Install testing dependencies with yarn
 

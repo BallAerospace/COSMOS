@@ -12,9 +12,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 // @ts-check
@@ -59,7 +59,7 @@ test('view started scripts', async ({ page }) => {
   )
 
   // Get out of the Running Scripts sheet
-  await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
+  await page.locator('#openc3-menu >> text=Script Runner').click({ force: true })
   await page.locator('[data-test=go-button]').click()
   await expect(page.locator('[data-test=state]')).toHaveValue('stopped')
   await page.locator('[data-test=script-runner-script]').click()
@@ -78,7 +78,7 @@ test('sets environment variables', async ({ page }) => {
   await page.locator('[data-test=env-key]').fill('KEY')
   await page.locator('[data-test=env-value]').fill('VALUE')
   await page.locator('[data-test=add-env]').click()
-  await page.locator('#cosmos-menu >> text=Script Runner').click({ force: true })
+  await page.locator('#openc3-menu >> text=Script Runner').click({ force: true })
 
   await page.locator('[data-test=env-button]').click()
   await page.locator('div[role="button"]:has-text("Select Environment Options")').click()

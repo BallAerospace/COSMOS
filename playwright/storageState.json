@@ -13,7 +13,7 @@
           "value": "true"
         },
         {
-          "name": "cosmosToken",
+          "name": "openc3Token",
           "value": "password"
         }
       ]

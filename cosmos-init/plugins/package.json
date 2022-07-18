@@ -1,7 +1,0 @@
-{
-  "name": "cosmosc2",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ]
-}

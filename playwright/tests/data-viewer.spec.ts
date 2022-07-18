@@ -12,9 +12,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 // @ts-check
@@ -252,7 +252,7 @@ test('validates start and end time inputs', async ({ page }) => {
 
 test('validates start and end time values', async ({ page }) => {
   // validate future start date
-  await page.locator('[data-test=start-date]').fill('4000-01-01') // If this version of COSMOS is still used 2000 years from now, this test will need to be updated
+  await page.locator('[data-test=start-date]').fill('4000-01-01') // If this version of OpenC3 is still used 2000 years from now, this test will need to be updated
   await page.locator('[data-test=start-time]').fill('12:15:15')
   await page.locator('[data-test=start-button]').click()
   await expect(page.locator('.warning')).toContainText('Start date/time is in the future!')

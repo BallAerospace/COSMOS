@@ -1,0 +1,41 @@
+{
+	"name": "@openc3/tool-base",
+  "version": "5.0.6-beta0",
+	"scripts": {
+		"serve": "webpack serve --port 2910 --env isLocal",
+		"lint": "eslint src --ext js",
+		"format": "prettier --write \"./**\"",
+		"build": "webpack --mode=production"
+	},
+	"dependencies": {
+		"@rails/actioncable": "6.1.6",
+		"axios": "0.22.0",
+		"date-fns": "2.28.0",
+		"dotenv": "10.0.0",
+		"single-spa": "5.9.3",
+		"vue": "2.6.14",
+		"vue-router": "3.5.3",
+		"vuetify": "2.6.4"
+	},
+	"devDependencies": {
+		"@babel/core": "7.15.5",
+		"@babel/plugin-proposal-class-properties": "7.14.5",
+		"@babel/plugin-transform-runtime": "7.15.0",
+		"@babel/preset-env": "7.15.6",
+		"@babel/runtime": "7.15.4",
+		"@types/systemjs": "6.1.1",
+		"copy-webpack-plugin": "10.2.4",
+		"eslint": "8.12.0",
+		"html-webpack-plugin": "5.5.0",
+		"prettier": "2.6.1",
+		"sass-loader": "12.4.0",
+		"serve": "12.0.1",
+		"vue-loader": "15.9.8",
+		"vue-template-compiler": "2.6.14",
+		"webpack": "5.71.0",
+		"webpack-cli": "4.9.2",
+		"webpack-config-single-spa": "5.2.0",
+		"webpack-dev-server": "4.7.4",
+		"webpack-merge": "5.8.0"
+	}
+}

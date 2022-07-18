@@ -12,9 +12,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
 #
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 // @ts-check
@@ -38,7 +38,7 @@ test('creates a single binary file', async ({ page }) => {
   await page.locator('[data-test=file-open-save-search]').type('MCConfig')
   await page.locator('text=MCConfigurationTable >> nth=0').click() // nth=0 because INST, INST2
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('MC_CONFIGURATION')
+  await expect(page.locator('id=openc3-tool')).toContainText('MC_CONFIGURATION')
   expect(await page.locator('.v-tab').count()).toBe(1)
   expect(await page.inputValue('[data-test=definition-filename]')).toMatch(
     'INST/tables/config/MCConfigurationTable_def.txt'
@@ -54,9 +54,9 @@ test('edits a binary file', async ({ page }) => {
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables_')
   await page.locator('text=ConfigTables_ >> nth=0').click() // nth=0 because INST, INST2
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('MC_CONFIGURATION')
-  await expect(page.locator('id=cosmos-tool')).toContainText('TLM_MONITORING')
-  await expect(page.locator('id=cosmos-tool')).toContainText('PPS_SELECTION')
+  await expect(page.locator('id=openc3-tool')).toContainText('MC_CONFIGURATION')
+  await expect(page.locator('id=openc3-tool')).toContainText('TLM_MONITORING')
+  await expect(page.locator('id=openc3-tool')).toContainText('PPS_SELECTION')
   expect(await page.locator('.v-tab').count()).toBe(3)
   expect(await page.locator('[data-test=definition-filename]').inputValue()).toMatch(
     'INST/tables/config/ConfigTables_def.txt'
@@ -83,7 +83,7 @@ test('edits a binary file', async ({ page }) => {
   await page.locator('text=1SCRUB_REGION_1_START_ADDR >> input[type="text"]').fill('0xabcdef')
 
   await page.locator('text=TLM_MONITORING').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('THRESHOLD')
+  await expect(page.locator('id=openc3-tool')).toContainText('THRESHOLD')
   await page
     .locator(
       '[data-test=TLM_MONITORING] tr:nth-child(1) td:nth-child(2) [data-test=table-item-text-field]'
@@ -172,9 +172,9 @@ test('opens and searches file', async ({ page }) => {
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('MC_CONFIGURATION')
-  await expect(page.locator('id=cosmos-tool')).toContainText('TLM_MONITORING')
-  await expect(page.locator('id=cosmos-tool')).toContainText('PPS_SELECTION')
+  await expect(page.locator('id=openc3-tool')).toContainText('MC_CONFIGURATION')
+  await expect(page.locator('id=openc3-tool')).toContainText('TLM_MONITORING')
+  await expect(page.locator('id=openc3-tool')).toContainText('PPS_SELECTION')
   expect(await page.locator('.v-tab').count()).toBe(3)
   expect(await page.locator('[data-test=definition-filename]').inputValue()).toMatch(
     'INST/tables/config/ConfigTables_def.txt'
@@ -241,7 +241,7 @@ test('save as', async ({ page }) => {
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('MC_CONFIGURATION')
+  await expect(page.locator('id=openc3-tool')).toContainText('MC_CONFIGURATION')
   expect(await page.locator('[data-test=filename]').inputValue()).toMatch(
     'INST/tables/bin/ConfigTables.bin'
   )
@@ -270,7 +270,7 @@ test('delete', async ({ page }) => {
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
-  await expect(page.locator('id=cosmos-tool')).toContainText('MC_CONFIGURATION')
+  await expect(page.locator('id=openc3-tool')).toContainText('MC_CONFIGURATION')
   expect(await page.locator('[data-test=filename]').inputValue()).toMatch(
     'INST/tables/bin/ConfigTables.bin'
   )

@@ -16,11 +16,11 @@ function defaultSourceLookup(filePath) {
         filePath = filePath.split(path.sep).join(path.posix.sep);
         // Remove any Windows drive letters
         filePath = filePath.replace("C:", "")
-        filePath = filePath.replace("/cosmos", process.cwd().split(path.sep).join(path.posix.sep) + "/../cosmos-init");
+        filePath = filePath.replace("/openc3", process.cwd().split(path.sep).join(path.posix.sep) + "/../openc3-init");
         // For some reason we get duplicate path portions like:
-        // /cosmos-init/plugins/cosmosc2-tool-base/src/src/AppNav.vue
-        // /cosmos-init/plugins/cosmosc2-tool-base/src/components/src/components/ClockFooter.vue
-        // /cosmos-init/plugins/packages/cosmosc2-tool-dataviewer/src/tools/DataViewer/src/tools/DataViewer/DumpComponent.vue
+        // /openc3-init/plugins/openc3-tool-base/src/src/AppNav.vue
+        // /openc3-init/plugins/openc3-tool-base/src/components/src/components/ClockFooter.vue
+        // /openc3-init/plugins/packages/openc3-tool-dataviewer/src/tools/DataViewer/src/tools/DataViewer/DumpComponent.vue
         // So look look for those duplicate src patterns and replace them with a single copy
         const found = filePath.match(/(src\/.*)src/);
         if (found) {

@@ -1,0 +1,155 @@
+---
+entrypoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: false
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        domains:
+          - main: "mydomain.com" # Update with your domain
+certificatesResolvers:
+  myresolver:
+    acme:
+      email: me@mydomain.com
+      storage: "/etc/traefik/acme.json"
+      tlsChallenge: {}
+http:
+  middlewares:
+    # Removes the first part of the url before passing onto the service
+    # ie. /openc3-api/api becomes /api
+    removeFirst:
+      replacePathRegex:
+        regex: "^/([^/]*)/(.*)"
+        replacement: "/$2"
+    # Serve /tools/base/index.html
+    gotoToolsBaseIndex:
+      replacePath:
+        path: "/tools/base/index.html"
+    # Adds /tools/base to the beginning of the given url
+    # ie. /index.html becomes /tools/base/index.html
+    addToolsBase:
+      replacePathRegex:
+        regex: "^/(.*)"
+        replacement: "/tools/base/$1"
+  routers:
+    # Note: Priorities control router check order with highest priority evaluated first
+    # Route to the openc3 cmd/tlm api
+    api-router:
+      rule: PathPrefix(`/openc3-api`)
+      service: service-api
+      priority: 7
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+    # Route to the script api
+    script-router:
+      rule: PathPrefix(`/script-api`)
+      service: service-script
+      priority: 6
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+    # Route to other tool plugins hosted statically in Minio
+    # Matches any path with a file extension which is assumed to be
+    # a static file
+    tools-router:
+      rule: Path(`/tools/{id:.*/.*[.].*}`)
+      service: service-minio
+      priority: 5
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+    # Route to minio user interface
+    minio-router:
+      rule: PathPrefix(`/minio`)
+      service: service-minio
+      priority: 4
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+    # Route to any path in minio
+    files-router:
+      rule: PathPrefix(`/files`)
+      middlewares:
+        # remove /files from the beginning
+        - "removeFirst"
+      service: service-minio
+      priority: 3
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+    # Route to base files hosted statically in Minio
+    # Matches any path with a file extension which is assumed to be
+    # a static file
+    base-router:
+      rule: Path(`/{id:.*[.].*}`)
+      middlewares:
+        # add /tools/base to the beginning
+        - "addToolsBase"
+      service: service-minio
+      priority: 2
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+    # This is the default route for everything that doesn't match a more specific route
+    # It gets us to the base openc3 application
+    web-router:
+      rule: HostRegexp(`{name:.*}`)
+      middlewares:
+        # Serve /tools/base/index.html from minio
+        - "gotoToolsBaseIndex"
+      service: service-minio
+      priority: 1
+      tls:
+        certResolver: myresolver
+        domains:
+          - main: "mydomain.com"
+  services:
+    # The OpenC3 cmd/tlm api service
+    service-api:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: "http://openc3-cmd-tlm-api:2901"
+    # The OpenC3 script api service
+    service-script:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: "http://openc3-script-runner-api:2902"
+    # The Minio S3 file server
+    service-minio:
+      loadBalancer:
+        passHostHeader: false
+        servers:
+          - url: "http://openc3-minio:9000"
+# Declare the routes are currently coming from this file, not dynamically
+providers:
+  file:
+    filename: /etc/traefik/traefik.yaml
+accessLog: {}
+# api:
+#   dashboard: true
+#   insecure: trues
+#log:
+#  filePath: "/etc/traefik/traefik.log"
+#  level: "DEBUG"
+# accessLog:
+#   filePath: '/etc/traefik/access.log'
+#   fields:
+#     defaultMode: keep
+#     headers:
+#       defaultMode: keep

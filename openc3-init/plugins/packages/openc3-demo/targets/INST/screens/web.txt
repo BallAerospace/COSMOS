@@ -1,0 +1,5 @@
+SCREEN AUTO AUTO 1.0
+
+VERTICAL
+  IFRAME https://openc3.com 900 450
+END

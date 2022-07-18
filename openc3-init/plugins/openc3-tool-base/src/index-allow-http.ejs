@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>OpenC3</title>
+
+  <link rel="stylesheet" href="/css/roboto.css" />
+  <link rel="stylesheet" href="/css/materialdesignicons-6.1.95.min.css" />
+  <!--
+    Update by downloading latest release from https://github.com/vuetifyjs/vuetify/releases
+    and putting the vuetify-vX.Y.Z.min.css in ../public/css (delete the old one)
+  -->
+  <link href="/css/vuetify-v2.6.4.min.css" rel="stylesheet" />
+  <!-- OPENC3EE KEYCLOAK PLACEHOLDER -->
+
+  <!--
+    Remove this if you only support browsers that support async/await.
+    This is needed by babel to share largeish helper code for compiling async/await in older
+    browsers. More information at https://github.com/single-spa/create-single-spa/issues/112
+  -->
+  <script src="/js/regenerator-runtime-0.13.9.min.js"></script>
+  <!--
+    This CSP allows any SSL-enabled host and for arbitrary eval(), but you should limit these directives further to increase your app's security.
+    Learn more about CSP policies at https://content-security-policy.com/#directive
+  -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' blob: data: http: https:; script-src 'unsafe-inline' 'unsafe-eval' http: https: blob:; connect-src blob: http: https: wss: ws:; style-src 'unsafe-inline' http: https:; object-src 'none';">
+
+  <meta name="importmap-type" content="systemjs-importmap" />
+  <!-- If you wish to turn off import-map-overrides for specific environments (prod), uncomment the line below -->
+  <!-- More info at https://github.com/joeldenning/import-map-overrides/blob/master/docs/configuration.md#domain-list -->
+  <!-- <meta name="import-map-overrides-domains" content="denylist:prod.example.com" /> -->
+
+  <!-- Shared dependencies go into this import map. Your shared dependencies must be of one of the following formats:
+
+    1. System.register (preferred when possible) - https://github.com/systemjs/systemjs/blob/master/docs/system-register.md
+    2. UMD - https://github.com/umdjs/umd
+    3. Global variable
+
+    More information about shared dependencies can be found at https://single-spa.js.org/docs/recommended-setup#sharing-with-import-maps.
+
+    Update by downloading latest release from https://github.com/vuetifyjs/vuetify/releases (for example)
+    and putting the vuetify-vX.Y.Z.min.js in ../public/js (delete the old one)
+  -->
+  <script type="systemjs-importmap">
+    {
+      "imports": {
+        "single-spa": "/js/single-spa-5.9.3.min.js",
+        "vue": "/js/vue-2.6.14.min.js",
+        "vuetify": "/js/vuetify-v2.6.4.min.js",
+        "vue-router": "/js/vue-router-3.5.2.min.js",
+        "vuex": "/js/vuex-3.6.2.min.js",
+        "openc3-tool-base": "/openc3-tool-base.js"
+      }
+    }
+  </script>
+  <!-- See note above for how to update these -->
+  <link rel="preload" href="/js/single-spa-5.9.3.min.js" as="script" />
+  <link rel="preload" href="/js/vue-2.6.14.min.js" as="script" />
+  <link rel="preload" href="/js/vuetify-v2.6.4.min.js" as="script" />
+  <link rel="preload" href="/js/vue-router-3.5.2.min.js" as="script" />
+  <link rel="preload" href="/js/vuex-3.6.2.min.js" as="script" />
+  <script type="systemjs-importmap" src="/openc3-api/map.json"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/authConstants.js"></script>
+  <script src="/js/import-map-overrides-2.4.1.js"></script>
+  <!-- Get latest systemjs here: https://github.com/systemjs/systemjs/releases
+    We use system.js instead of s.js which includes global and module-types.
+    We also explictily use amd (asyncrhonous module definition) which uses named-register
+    Note that named-exports, transform and use-default are deprecated.
+  -->
+  <script src="/js/system-6.12.1.min.js"></script>
+  <!-- All the following belong to the system package -->
+  <script src="/js/amd.min.js"></script>
+  <script src="/js/named-register.min.js"></script>
+</head>
+
+<body>
+  <div id="openc3-main"></div>
+  <import-map-overrides-full show-when-local-storage="devtools"></import-map-overrides-full>
+  <script>
+  (function() {
+    Promise.all([
+      System.import('single-spa'),
+      System.import('vue'),
+      System.import('vuetify'),
+      System.import('vue-router'),
+      System.import('vuex'),
+    ]).then(function (modules) {
+      System.import('openc3-tool-base')
+    })
+  })()
+  </script>
+</body>
+
+</html>
