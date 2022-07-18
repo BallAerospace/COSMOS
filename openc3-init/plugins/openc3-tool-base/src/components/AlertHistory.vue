@@ -63,9 +63,10 @@
           max-height="80vh"
           class="overflow-y-auto"
         >
-          <template v-for="(alert, index) in alerts" :key="`alert-${index}`">
+          <template v-for="(alert, index) in alerts">
             <v-list-item
               @click="openDialog(alert)"
+              :key="`alert-${index}`"
               class="pl-2"
             >
               <v-badge left inline color="transparent">

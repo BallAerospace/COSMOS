@@ -63,8 +63,8 @@
             </v-tooltip>
           </th>
         </tr>
-        <template v-for="(env, i) in selected" :key="`tr-${i}`">
-          <tr>
+        <template v-for="(env, i) in selected">
+          <tr :key="`tr-${i}`">
             <td>
               <v-text-field
                 v-model="env.key"

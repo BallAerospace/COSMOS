@@ -31,8 +31,8 @@
                   <th class="text-left">Key</th>
                   <th class="text-left">Value</th>
                 </tr>
-                <template v-for="(value, i) in metadataValues" :key="`tr-${i}`">
-                  <tr>
+                <template v-for="(value, i) in metadataValues">
+                  <tr :key="`tr-${i}`">
                     <td class="text-left">
                       <span v-text="value.key" />
                     </td>
