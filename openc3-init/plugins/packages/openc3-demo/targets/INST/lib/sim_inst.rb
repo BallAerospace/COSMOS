@@ -148,6 +148,8 @@ module OpenC3
         hs_packet.collect_type = packet.read("type")
       when 'CLEAR'
         hs_packet.collects = 0
+      when 'MEMLOAD'
+        hs_packet.blocktest = packet.read('data')
       when 'SETPARAMS'
         params_packet.value1 = packet.read('value1')
         params_packet.value2 = packet.read('value2')
