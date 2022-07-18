@@ -30,7 +30,7 @@ services:
         APK_URL: ${APK_URL}
         RUBYGEMS_URL: ${RUBYGEMS_URL}
         OPENC3_REGISTRY: ${OPENC3_REGISTRY}
-    image: "${OPENC3_REGISTRY}/ballaerospace/openc3-ruby:${OPENC3_TAG}"
+    image: "${OPENC3_REGISTRY}/openc3/openc3-ruby:${OPENC3_TAG}"
 
   openc3-node:
     build:
@@ -39,7 +39,7 @@ services:
       args:
         OPENC3_REGISTRY: ${OPENC3_REGISTRY}
         OPENC3_TAG: ${OPENC3_TAG}
-    image: "${OPENC3_REGISTRY}/ballaerospace/openc3-node:${OPENC3_TAG}"
+    image: "${OPENC3_REGISTRY}/openc3/openc3-node:${OPENC3_TAG}"
     depends_on:
       - "openc3-ruby"
 
@@ -50,7 +50,7 @@ services:
       args:
         OPENC3_REGISTRY: ${OPENC3_REGISTRY}
         OPENC3_TAG: ${OPENC3_TAG}
-    image: "${OPENC3_REGISTRY}/ballaerospace/openc3-base:${OPENC3_TAG}"
+    image: "${OPENC3_REGISTRY}/openc3/openc3-base:${OPENC3_TAG}"
     depends_on:
       - "openc3-ruby"
 

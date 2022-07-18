@@ -31,7 +31,7 @@ spec = Gem::Specification.new do |s|
     Command Sending, Logging, and more.
   EOF
   s.authors = ['Ryan Melton', 'Jason Thomas']
-  s.email = ['rmelton@ball.com', 'jmthomas@ball.com']
+  s.email = ['ryan@openc3.com', 'jason@openc3.com']
   s.homepage = 'https://github.com/OpenC3/openc3'
 
   if RUBY_ENGINE == 'ruby'

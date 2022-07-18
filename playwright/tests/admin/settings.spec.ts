@@ -96,10 +96,10 @@ test('changes the source url', async ({ page }) => {
   await expect(page.locator('.v-app-bar')).toContainText('Administrator')
   await page.locator('.v-app-bar__nav-icon').click()
 
-  await page.locator('[data-test=source-url]').fill('https://www.ball.com/aerospace')
+  await page.locator('[data-test=source-url]').fill('https://openc3.com')
   await page.locator('[data-test=save-source-url]').click()
   await page.reload()
-  await expect(page.locator('footer a')).toHaveAttribute('href', 'https://www.ball.com/aerospace')
+  await expect(page.locator('footer a')).toHaveAttribute('href', 'https://openc3.com')
 })
 
 // TODO: Test Rubygems URL

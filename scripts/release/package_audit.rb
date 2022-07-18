@@ -2,16 +2,16 @@ version_tag = ARGV[0] || "latest"
 
 # Manual list - MAKE SURE UP TO DATE especially base images
 containers = [
-  { name: "ballaerospace/openc3-ruby:#{version_tag}", base_image: "alpine:3.15.4", apk: true, gems: true },
-  { name: "ballaerospace/openc3-node:#{version_tag}", base_image: "ballaerospace/openc3-ruby:#{version_tag}", apk: true },
-  { name: "ballaerospace/openc3-base:#{version_tag}", base_image: "ballaerospace/openc3-ruby:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/openc3-cmd-tlm-api:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/openc3-init:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true, yarn: "/openc3/plugins/yarn.lock" },
-  { name: "ballaerospace/openc3-operator:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/openc3-script-runner-api:#{version_tag}", base_image: "ballaerospace/openc3-base:#{version_tag}", apk: true, gems: true },
-  { name: "ballaerospace/openc3-redis:#{version_tag}", base_image: "redis:6.2", apt: true },
-  { name: "ballaerospace/openc3-traefik:#{version_tag}", base_image: "traefik:2.6.6", apk: true },
-  { name: "ballaerospace/openc3-minio:#{version_tag}", base_image: "minio/minio:RELEASE.2021-06-17T00-10-46Z", rpm: true },
+  { name: "openc3/openc3-ruby:#{version_tag}", base_image: "alpine:3.15.4", apk: true, gems: true },
+  { name: "openc3/openc3-node:#{version_tag}", base_image: "openc3/openc3-ruby:#{version_tag}", apk: true },
+  { name: "openc3/openc3-base:#{version_tag}", base_image: "openc3/openc3-ruby:#{version_tag}", apk: true, gems: true },
+  { name: "openc3/openc3-cmd-tlm-api:#{version_tag}", base_image: "openc3/openc3-base:#{version_tag}", apk: true, gems: true },
+  { name: "openc3/openc3-init:#{version_tag}", base_image: "openc3/openc3-base:#{version_tag}", apk: true, gems: true, yarn: "/openc3/plugins/yarn.lock" },
+  { name: "openc3/openc3-operator:#{version_tag}", base_image: "openc3/openc3-base:#{version_tag}", apk: true, gems: true },
+  { name: "openc3/openc3-script-runner-api:#{version_tag}", base_image: "openc3/openc3-base:#{version_tag}", apk: true, gems: true },
+  { name: "openc3/openc3-redis:#{version_tag}", base_image: "redis:6.2", apt: true },
+  { name: "openc3/openc3-traefik:#{version_tag}", base_image: "traefik:2.6.6", apk: true },
+  { name: "openc3/openc3-minio:#{version_tag}", base_image: "minio/minio:RELEASE.2021-06-17T00-10-46Z", rpm: true },
 ]
 
 $overall_apk = []
