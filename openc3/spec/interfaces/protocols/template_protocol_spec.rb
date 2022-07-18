@@ -18,10 +18,13 @@
 # All Rights Reserved
 
 require 'spec_helper'
+require 'openc3'
 require 'openc3/interfaces/protocols/template_protocol'
 require 'openc3/interfaces/interface'
 require 'openc3/streams/stream'
 require 'openc3/utilities/logger'
+require 'openc3/packets/packet_config'
+require 'openc3/packets/telemetry'
 
 module OpenC3
   describe TemplateProtocol do
@@ -446,7 +449,7 @@ module OpenC3
       packet.restore_defaults
       @interface.connect
       read_result = nil
-      $read_buffer = "\x43\x4F\x53\x0A\x4D\x4F\x53\x0A" # ASCII
+      $read_buffer = "\x4F\x70\x65\x0A\x6E\x43\x33\x0A" # ASCII
       Thread.new { sleep(0.5); read_result = @interface.read }
       @interface.write(packet)
       expect($write_buffer).to eql("GO\xAD")

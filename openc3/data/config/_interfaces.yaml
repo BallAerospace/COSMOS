@@ -27,7 +27,8 @@ tcpip_client_interface.rb:
     - name: Protocol Type
       required: true
       description: Protocol to apply on the interface data
-      values: <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
+      values: 
+        <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
 tcpip_server_interface.rb:
   parameters:
     - name: Write Port
@@ -51,7 +52,8 @@ tcpip_server_interface.rb:
     - name: Protocol Type
       required: true
       description: Protocol to apply on the interface data
-      values: <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
+      values: 
+        <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
 udp_interface.rb:
   description: The UDP interface uses UDP packets to send and receive telemetry
     from the target
@@ -140,7 +142,8 @@ serial_interface.rb:
     - name: Protocol Type
       required: true
       description: Protocol to apply on the interface data
-      values: <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
+      values: 
+        <%= MetaConfigParser.load('protocols.yaml').to_meta_config_yaml(8) %>
 cmd_tlm_server_interface.rb:
   description: Provides a connection to the OpenC3 Command and Telemetry Server.
     This allows scripts and other OpenC3 tools to send commands to the CmdTlmServer
