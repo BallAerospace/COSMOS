@@ -83,8 +83,8 @@ ENV['OPENC3_MINIO_PASSWORD'] = 'openc3miniopassword'
 # Set openc3 scope
 ENV['OPENC3_SCOPE'] = 'DEFAULT'
 
-$OPENC3_scope = ENV['OPENC3_SCOPE']
-$OPENC3_token = ENV['OPENC3_API_PASSWORD']
+$openc3_scope = ENV['OPENC3_SCOPE']
+$openc3_token = ENV['OPENC3_API_PASSWORD']
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   require 'openc3/system'
@@ -110,7 +110,7 @@ SPEC_DIR = File.dirname(__FILE__)
 RSpec.configure do |config|
   config.before(:all) do
     # Most tests want to disable authorization for simplicity
-    $OPENC3_authorize = false
+    $openc3_authorize = false
   end
 
   # rspec-expectations config goes here. You can use an alternate

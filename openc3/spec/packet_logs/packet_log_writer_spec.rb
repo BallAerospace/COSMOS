@@ -78,13 +78,13 @@ module OpenC3
         # Verify the OPENC3 header on the binary file
         bin = @files["#{first_timestamp}__#{last_timestamp}__#{label}.bin"]
         results = bin.unpack("Z8")[0]
-        expect(results).to eq 'OPENC3_5'
+        expect(results).to eq 'COSMOS5_'
         # puts bin.formatted
 
         # Verify the OPENC3 header on the index file
         idx = @files["#{first_timestamp}__#{last_timestamp}__#{label}.idx"]
         results = idx.unpack("Z8")[0]
-        expect(results).to eq 'OC3IDX_5'
+        expect(results).to eq 'COSIDX5_'
         # puts idx.formatted
 
         # Verify the packets by using PacketLogReader

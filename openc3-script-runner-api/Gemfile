@@ -1,4 +1,4 @@
-source ENV['RUBYGEMS_URL']
+source ENV['RUBYGEMS_URL'] || "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Ultimately we want to deploy on 3.x but we don't want to mandate it here

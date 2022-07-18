@@ -78,9 +78,9 @@ require 'openc3/script'
 # require 'openc3/utilities/logger'
 # Create a easy alias to the base of the spec directory
 SPEC_DIR = File.dirname(__FILE__)
-$OPENC3_scope = ENV['OPENC3_SCOPE']
-$OPENC3_token = ENV['OPENC3_API_PASSWORD']
-$OPENC3_authorize = false
+$openc3_scope = ENV['OPENC3_SCOPE']
+$openc3_token = ENV['OPENC3_API_PASSWORD']
+$openc3_authorize = false
 
 def setup_system(targets = %w[SYSTEM INST EMPTY])
   result = nil
@@ -133,7 +133,7 @@ def mock_redis
   OpenC3::Store.instance_variable_set(:@instance, nil)
   OpenC3::EphemeralStore.instance_variable_set(:@instance, nil)
   require 'openc3/models/auth_model'
-  OpenC3::AuthModel.set($OPENC3_token, nil)
+  OpenC3::AuthModel.set($openc3_token, nil)
   redis
 end
 

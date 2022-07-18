@@ -24,8 +24,8 @@ module OpenC3
     COSMOS4_FILE_HEADER = 'COSMOS4_'.freeze
 
     # OPENC3 5 Constants
-    OPENC3_FILE_HEADER = 'OPENC3_5'.freeze
-    OPENC3_INDEX_HEADER = 'OC3IDX_5'.freeze
+    OPENC3_FILE_HEADER = 'COSMOS5_'.freeze
+    OPENC3_INDEX_HEADER = 'COSIDX5_'.freeze
     OPENC3_HEADER_LENGTH = OPENC3_FILE_HEADER.length
     # Flags which are bit masked into file entries
     OPENC3_ENTRY_TYPE_MASK = 0xF000

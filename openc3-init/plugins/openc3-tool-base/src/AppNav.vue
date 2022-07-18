@@ -21,16 +21,10 @@
   <div>
     <v-navigation-drawer v-model="drawer" app id="openc3-nav-drawer">
       <v-list>
-        <v-list-item two-line>
-          <v-list-item-icon>
+        <v-list-item>
+          <v-list-item-icon style="margin-right: auto !important; margin-left: auto;">
             <img :src="logo" alt="OpenC3" />
           </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title class="font-weight-bold">
-              OpenC3
-            </v-list-item-title>
-            <!-- v-list-item-subtitle>Enterprise Edition</v-list-item-subtitle -->
-          </v-list-item-content>
         </v-list-item>
         <v-list-item class="my-0">
           <v-list-item-content>

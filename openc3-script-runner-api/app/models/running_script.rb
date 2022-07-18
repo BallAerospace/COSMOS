@@ -241,7 +241,7 @@ class RunningScript
       if @@instance
         @@message_log = OpenC3::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: @@instance.scope)
       else
-        @@message_log = OpenC3::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: $OPENC3_scope)
+        @@message_log = OpenC3::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: $openc3_scope)
       end
     end
     return @@message_log
