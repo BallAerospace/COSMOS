@@ -92,7 +92,7 @@
 <script>
 import Api from '@openc3/tool-common/src/services/api'
 import { OpenC3Api } from '@openc3/tool-common/src/services/openc3-api'
-import OpenC3Screen from './OpenC3Screen'
+import Openc3Screen from './Openc3Screen'
 import OpenConfigDialog from '@openc3/tool-common/src/components/OpenConfigDialog'
 import SaveConfigDialog from '@openc3/tool-common/src/components/SaveConfigDialog'
 import Muuri from 'muuri'
@@ -100,7 +100,7 @@ import TopBar from '@openc3/tool-common/src/components/TopBar'
 
 export default {
   components: {
-    OpenC3Screen,
+    Openc3Screen,
     TopBar,
     OpenConfigDialog,
     SaveConfigDialog,
