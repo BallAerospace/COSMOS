@@ -41,12 +41,11 @@
             dense
             class="ma-0 pa-0"
           >
-            <template v-for="(option, j) in menu.items">
-              <v-divider v-if="option.divider" :key="j" />
+            <template v-for="(option, j) in menu.items" :key="j">
+              <v-divider v-if="option.divider" />
               <v-list-item
                 v-else
                 @click="option.command"
-                :key="j"
                 :disabled="option.disabled"
                 :data-test="formatDT(`${title} ${menu.label} ${option.label}`)"
               >

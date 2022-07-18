@@ -20,7 +20,7 @@
 <template>
   <div>
     <v-app id="innerapp">
-      <router-view />
+      <router-view></router-view>
     </v-app>
   </div>
 </template>

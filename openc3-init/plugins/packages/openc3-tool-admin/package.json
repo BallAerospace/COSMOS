@@ -41,7 +41,6 @@
     "babel-loader": "8.2.4",
     "babel-plugin-istanbul": "6.1.1",
     "eslint": "8.12.0",
-    "html-webpack-plugin": "5.5.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-vue": "8.5.0",

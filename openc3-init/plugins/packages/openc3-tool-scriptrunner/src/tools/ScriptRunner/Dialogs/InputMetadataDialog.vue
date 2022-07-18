@@ -48,8 +48,8 @@
                   </v-tooltip>
                 </th>
               </tr>
-              <template v-for="(meta, i) in metadata">
-                <tr :key="`tr-${i}`">
+              <template v-for="(meta, i) in metadata" :key="`tr-${i}`">
+                <tr>
                   <td>
                     <v-text-field
                       v-model="meta.key"

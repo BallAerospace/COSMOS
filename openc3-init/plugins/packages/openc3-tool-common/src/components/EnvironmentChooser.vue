@@ -32,7 +32,7 @@
         hint="Inject Environment Variables"
         :items="environmentItems"
       >
-        <template v-slot:selection="">
+        <template>
           <div>
             <span> Select Environment Options </span>
           </div>
@@ -63,8 +63,8 @@
             </v-tooltip>
           </th>
         </tr>
-        <template v-for="(env, i) in selected">
-          <tr :key="`tr-${i}`">
+        <template v-for="(env, i) in selected" :key="`tr-${i}`">
+          <tr>
             <td>
               <v-text-field
                 v-model="env.key"

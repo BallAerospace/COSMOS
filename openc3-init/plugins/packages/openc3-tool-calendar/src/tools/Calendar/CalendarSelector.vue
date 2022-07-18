@@ -82,9 +82,8 @@
       <!--- TIMELINES --->
       <v-subheader style="height: 25px">Timelines</v-subheader>
       <v-list-item-group multiple v-model="selectedTimelines" @change="select">
-        <template v-for="timeline in timelines">
+        <template v-for="timeline in timelines" :key="`timeline-${timeline.name}`">
           <v-list-item
-            :key="`timeline-${timeline.name}`"
             :value="timeline"
             :data-test="`select-timeline-${timeline.name}`"
           >

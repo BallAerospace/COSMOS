@@ -63,9 +63,8 @@
           max-height="80vh"
           class="overflow-y-auto"
         >
-          <template v-for="(alert, index) in alerts">
+          <template v-for="(alert, index) in alerts" :key="`alert-${index}`">
             <v-list-item
-              :key="`alert-${index}`"
               @click="openDialog(alert)"
               class="pl-2"
             >
