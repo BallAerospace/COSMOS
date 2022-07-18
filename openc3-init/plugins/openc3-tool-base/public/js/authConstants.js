@@ -11,17 +11,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
-// This is typically used with the CosmosAuth.updateToken method.
+// This is typically used with the OpenC3Auth.updateToken method.
 // Passing a value of 30 to this method means that the access token
 // will be updated if it is currently expired or if it will expire
 // within the next 30 seconds.
-Object.defineProperty(CosmosAuth, 'defaultMinValidity', {
+Object.defineProperty(OpenC3Auth, 'defaultMinValidity', {
   value: 30,
   writable: false,
   enumerable: true,

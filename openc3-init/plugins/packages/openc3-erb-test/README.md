@@ -1,4 +1,4 @@
-## COSMOS ERB Test Plugin
+## OpenC3 ERB Test Plugin
 
 [Documentation](https://openc3.com)
 

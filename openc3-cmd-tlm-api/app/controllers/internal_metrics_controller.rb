@@ -46,7 +46,7 @@ class InternalMetricsController < ActionController::Base
     scopes.each do |scope|
       OpenC3::Logger.debug("search metrics for scope: #{scope}")
       begin
-        scope_resp = Cosmos::MetricModel.all(scope: scope)
+        scope_resp = OpenC3::MetricModel.all(scope: scope)
       rescue RuntimeError
         OpenC3::Logger.error("failed to connect to redis to pull metrics")
         render plain: "failed to access datastore", :status => 500

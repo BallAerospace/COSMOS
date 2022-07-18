@@ -1,5 +1,5 @@
 {
-  "name": "@cosmosc2/tool-dataextractor",
+  "name": "@openc3/tool-dataextractor",
   "version": "5.0.6-beta0",
   "private": true,
   "scripts": {
@@ -15,7 +15,7 @@
     "error-stack-parser": "2.0.6"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "5.0.6-beta0",
+    "@openc3/tool-common": "5.0.6-beta0",
     "axios": "0.22.0",
     "date-fns": "2.28.0",
     "portal-vue": "2.1.7",

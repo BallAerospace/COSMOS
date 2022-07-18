@@ -29,17 +29,17 @@ services:
         ALPINE_BUILD: ${ALPINE_BUILD}
         APK_URL: ${APK_URL}
         RUBYGEMS_URL: ${RUBYGEMS_URL}
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-    image: "${COSMOS_REGISTRY}/ballaerospace/openc3-ruby:${COSMOS_TAG}"
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+    image: "${OPENC3_REGISTRY}/ballaerospace/openc3-ruby:${OPENC3_TAG}"
 
   openc3-node:
     build:
       context: "openc3-node"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
-    image: "${COSMOS_REGISTRY}/ballaerospace/openc3-node:${COSMOS_TAG}"
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+        OPENC3_TAG: ${OPENC3_TAG}
+    image: "${OPENC3_REGISTRY}/ballaerospace/openc3-node:${OPENC3_TAG}"
     depends_on:
       - "openc3-ruby"
 
@@ -48,9 +48,9 @@ services:
       context: "openc3"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
-    image: "${COSMOS_REGISTRY}/ballaerospace/openc3-base:${COSMOS_TAG}"
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+        OPENC3_TAG: ${OPENC3_TAG}
+    image: "${OPENC3_REGISTRY}/ballaerospace/openc3-base:${OPENC3_TAG}"
     depends_on:
       - "openc3-ruby"
 
@@ -59,22 +59,22 @@ services:
       context: "openc3-minio"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
 
   openc3-redis:
     build:
       context: "openc3-redis"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
 
   openc3-cmd-tlm-api:
     build:
       context: "openc3-cmd-tlm-api"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+        OPENC3_TAG: ${OPENC3_TAG}
     depends_on:
       - "openc3-base"
 
@@ -83,8 +83,8 @@ services:
       context: "openc3-script-runner-api"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+        OPENC3_TAG: ${OPENC3_TAG}
     depends_on:
       - "openc3-base"
 
@@ -93,8 +93,8 @@ services:
       context: "openc3-operator"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+        OPENC3_TAG: ${OPENC3_TAG}
     depends_on:
       - "openc3-base"
 
@@ -103,7 +103,7 @@ services:
       context: "openc3-traefik"
       network: host
       args:
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
 
   openc3-init:
     build:
@@ -111,8 +111,8 @@ services:
       network: host
       args:
         NPM_URL: ${NPM_URL}
-        COSMOS_REGISTRY: ${COSMOS_REGISTRY}
-        COSMOS_TAG: ${COSMOS_TAG}
+        OPENC3_REGISTRY: ${OPENC3_REGISTRY}
+        OPENC3_TAG: ${OPENC3_TAG}
     depends_on:
       - "openc3-node"
       - "openc3-base"

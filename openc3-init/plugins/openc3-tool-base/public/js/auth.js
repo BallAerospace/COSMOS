@@ -11,10 +11,10 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 const emptyPromise = function (resolution = null) {
@@ -24,7 +24,7 @@ const emptyPromise = function (resolution = null) {
 }
 class Auth {
   updateToken(value) {
-    if (!localStorage.cosmosToken) this.login(location.href)
+    if (!localStorage.openc3Token) this.login(location.href)
     return emptyPromise()
   }
   login(redirect) {
@@ -33,7 +33,7 @@ class Auth {
       location = `/login?redirect=${encodeURI(redirect)}`
   }
   logout() {
-    delete localStorage.cosmosToken
+    delete localStorage.openc3Token
     location.reload()
   }
   getInitOptions() {}
@@ -41,4 +41,4 @@ class Auth {
     return emptyPromise(true)
   }
 }
-var CosmosAuth = new Auth()
+var OpenC3Auth = new Auth()

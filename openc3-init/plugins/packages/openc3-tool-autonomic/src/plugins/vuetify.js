@@ -11,15 +11,15 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-#
-# This program may also be used under the terms of a commercial or
-# enterprise edition license of COSMOS if purchased from the
-# copyright holder
+
+# Modified by OpenC3, Inc.
+# All changes Copyright 2022, OpenC3, Inc.
+# All Rights Reserved
 */
 
 import Vue from 'vue'
 import Vuetify from 'vuetify'
-import { AstroIconVuetifyValues } from '@cosmosc2/tool-common/src/components/icons/index.js'
+import { AstroIconVuetifyValues } from '@openc3/tool-common/src/components/icons/index.js'
 
 Vue.use(Vuetify)
 

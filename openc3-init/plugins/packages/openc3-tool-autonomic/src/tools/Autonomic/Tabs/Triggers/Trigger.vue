@@ -152,7 +152,7 @@ export default {
   },
   methods: {
     getGroups: function () {
-      Api.get('/cosmos-api/autonomic/group').then((response) => {
+      Api.get('/openc3-api/autonomic/group').then((response) => {
         this.triggerGroups = response.data
         this.group = this.triggerGroupNames[0]
       })
@@ -161,7 +161,7 @@ export default {
       if (!this.group) {
         return
       }
-      Api.get(`/cosmos-api/autonomic/${this.group}/trigger`).then(
+      Api.get(`/openc3-api/autonomic/${this.group}/trigger`).then(
         (response) => {
           this.triggers = response.data
         }
