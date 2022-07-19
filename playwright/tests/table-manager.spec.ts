@@ -168,7 +168,7 @@ test('edits a binary file', async ({ page }) => {
 
 test('opens and searches file', async ({ page }) => {
   await page.locator('[data-test=table-manager-file]').click()
-  await page.locator('text=Open').click()
+  await page.locator('text=Open File').click()
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
@@ -199,7 +199,7 @@ test('opens and searches file', async ({ page }) => {
 
 test('downloads binary, definition, report', async ({ page }) => {
   await page.locator('[data-test=table-manager-file]').click()
-  await page.locator('text=Open').click()
+  await page.locator('text=Open File').click()
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
@@ -237,7 +237,7 @@ test('downloads binary, definition, report', async ({ page }) => {
 
 test('save as', async ({ page }) => {
   await page.locator('[data-test=table-manager-file]').click()
-  await page.locator('text=Open').click()
+  await page.locator('text=Open File').click()
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
@@ -266,7 +266,7 @@ test('save as', async ({ page }) => {
 
 test('delete', async ({ page }) => {
   await page.locator('[data-test=table-manager-file]').click()
-  await page.locator('text=Open').click()
+  await page.locator('text=Open File').click()
   await page.locator('[data-test=file-open-save-search]').type('ConfigTables.bin')
   await page.locator('text=ConfigTables >> nth=0').click()
   await page.locator('[data-test=file-open-save-submit-btn]').click()
