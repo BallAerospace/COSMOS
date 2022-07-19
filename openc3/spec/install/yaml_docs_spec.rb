@@ -80,7 +80,7 @@ module OpenC3
       end
 
       # Get the screen keywords
-      path = File.expand_path(File.join(File.dirname(__FILE__), "../../../openc3-init/plugins/packages/openc3-tool-tlmviewer/src/tools/TlmViewer/OpenC3Screen.vue"))
+      path = File.expand_path(File.join(File.dirname(__FILE__), "../../../openc3-init/plugins/packages/openc3-tool-tlmviewer/src/tools/TlmViewer/Openc3Screen.vue"))
       File.readlines(path).each do |line|
         if match = line.match(/^\s+case '(.*)'/)
           @src_keywords << match.captures[0]
