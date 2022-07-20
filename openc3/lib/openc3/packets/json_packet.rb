@@ -36,7 +36,7 @@ module OpenC3
       @packet_name = packet_name
       @packet_time = ::Time.from_nsec_from_epoch(time_nsec_from_epoch)
       @stored = ConfigParser.handle_true_false(stored)
-      @json_hash = JSON.parse(json_data)
+      @json_hash = JSON.parse(json_data, :allow_nan => true, :create_additions => true)
     end
 
     # Read an item in the packet by name

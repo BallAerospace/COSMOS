@@ -108,7 +108,7 @@ module OpenC3
         elsif value == 0 && trigger.state == true
           trigger.disable()
         end
-        @triggers[name] = trigger.as_json
+        @triggers[name] = trigger.as_json(:allow_nan => true)
       end
     end
 
@@ -511,7 +511,7 @@ module OpenC3
           Topic.read_topics(@topics) do |topic, _msg_id, msg_hash, _redis|
             Logger.debug "TriggerGroupManager block_for_updates: #{topic} #{msg_hash.to_s}"
             if topic != @share.trigger_base.autonomic_topic
-              packet = JSON.parse(msg_hash['json_data'])
+              packet = JSON.parse(msg_hash['json_data'], :allow_nan => true, :create_additions => true)
               @share.packet_base.add(topic: topic, packet: packet)
             end
             @queue << "#{topic}"
@@ -590,7 +590,7 @@ module OpenC3
           AutonomicTopic.read_topics(@topics) do |_topic, _msg_id, msg_hash, _redis|
             Logger.debug "TriggerGroupMicroservice block_for_updates: #{msg_hash.to_s}"
             if msg_hash['type'] == 'trigger'
-              data = JSON.parse(msg_hash['data'])
+              data = JSON.parse(msg_hash['data'], :allow_nan => true, :create_additions => true)
               public_send(topic_lookup_functions[msg_hash['kind']], data)
             end
           end

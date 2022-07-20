@@ -120,7 +120,7 @@ class Table
     binary = get_file(scope, binary_filename)
     raise "Binary file '#{binary_filename}' not found" unless binary
     root_definition = get_definitions(scope, definition_filename)
-    binary = OpenC3::TableManagerCore.save(root_definition, JSON.parse(tables))
+    binary = OpenC3::TableManagerCore.save(root_definition, JSON.parse(tables, :allow_nan => true, :create_additions => true))
     put_file(scope, binary_filename, binary)
   end
 

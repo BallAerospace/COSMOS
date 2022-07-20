@@ -45,7 +45,7 @@ module OpenC3
 
     # Set the current value table for a target, packet
     def self.set(hash, target_name:, packet_name:, scope:)
-      EphemeralStore.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
+      EphemeralStore.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json(:allow_nan => true)))
     end
 
     # Set an item in the current value table
@@ -62,9 +62,9 @@ module OpenC3
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      hash = JSON.parse(EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name))
+      hash = JSON.parse(EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name), :allow_nan => true, :create_additions => true)
       hash[field] = value
-      EphemeralStore.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
+      EphemeralStore.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json(:allow_nan => true)))
     end
 
     # Get an item from the current value table
@@ -86,7 +86,7 @@ module OpenC3
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      hash = JSON.parse(EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name))
+      hash = JSON.parse(EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name), :allow_nan => true, :create_additions => true)
       hash.values_at(*types).each do |result|
         return result if result
       end
@@ -108,7 +108,7 @@ module OpenC3
         unless packet_lookup[target_packet_key]
           packet = EphemeralStore.hget("#{scope}__tlm__#{target_name}", packet_name)
           raise "Packet '#{target_name} #{packet_name}' does not exist" unless packet
-          packet_lookup[target_packet_key] = JSON.parse(packet)
+          packet_lookup[target_packet_key] = JSON.parse(packet, :allow_nan => true, :create_additions => true)
         end
         hash = packet_lookup[target_packet_key]
         item_result = []

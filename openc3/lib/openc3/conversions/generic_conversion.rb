@@ -70,7 +70,7 @@ module OpenC3
       config
     end
 
-    def as_json
+    def as_json(*a)
       { 'class' => self.class.name.to_s, 'params' => [@code_to_eval, @converted_type, @converted_bit_size] }
     end
   end

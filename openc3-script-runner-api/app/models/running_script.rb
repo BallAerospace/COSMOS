@@ -255,7 +255,7 @@ class RunningScript
     array = OpenC3::Store.smembers('running-scripts')
     items = []
     array.each do |member|
-      items << JSON.parse(member)
+      items << JSON.parse(member, :allow_nan => true, :create_additions => true)
     end
     items.sort { |a, b| b['id'] <=> a['id'] }
   end
@@ -263,7 +263,7 @@ class RunningScript
   def self.find(id)
     result = OpenC3::Store.get("running-script:#{id}").to_s
     if result.length > 0
-      JSON.parse(result)
+      JSON.parse(result, :allow_nan => true, :create_additions => true)
     else
       return nil
     end
@@ -273,7 +273,7 @@ class RunningScript
     OpenC3::Store.del("running-script:#{id}")
     running = OpenC3::Store.smembers("running-scripts")
     running.each do |item|
-      parsed = JSON.parse(item)
+      parsed = JSON.parse(item, :allow_nan => true, :create_additions => true)
       if parsed["id"].to_s == id.to_s
         OpenC3::Store.srem("running-scripts", item)
         break
@@ -298,14 +298,14 @@ class RunningScript
       disconnect: disconnect,
       environment: environment
     }
-    OpenC3::Store.sadd('running-scripts', details.to_json)
+    OpenC3::Store.sadd('running-scripts', details.as_json(:allow_nan => true).to_json(:allow_nan => true))
     details[:hostname] = Socket.gethostname
     # details[:pid] = process.pid
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
-    details[:suite_runner] = suite_runner.to_json if suite_runner
-    OpenC3::Store.set("running-script:#{running_script_id}", details.to_json)
+    details[:suite_runner] = suite_runner.as_json(:allow_nan => true).to_json(:allow_nan => true) if suite_runner
+    OpenC3::Store.set("running-script:#{running_script_id}", details.as_json(:allow_nan => true).to_json(:allow_nan => true))
 
     process = ChildProcess.build(ruby_process_name, runner_path.to_s, running_script_id.to_s)
     process.io.inherit! # Helps with debugging
@@ -371,7 +371,7 @@ class RunningScript
 
     details = OpenC3::Store.get("running-script:#{id}")
     if details
-      @details = JSON.parse(details)
+      @details = JSON.parse(details, :allow_nan => true, :create_additions => true)
     else
       # Create as much details as we know
       @details = { id: @id, name: @filename, scope: @scope, start_time: Time.now.to_s, update_time: Time.now.to_s }
@@ -382,7 +382,7 @@ class RunningScript
     @details[:state] = @state
     @details[:line_no] = 1
     @details[:update_time] = Time.now.to_s
-    OpenC3::Store.set("running-script:#{id}", @details.to_json)
+    OpenC3::Store.set("running-script:#{id}", @details.as_json(:allow_nan => true).to_json(:allow_nan => true))
 
     # Retrieve file
     @body = ::Script.body(@scope, name)
@@ -940,7 +940,7 @@ class RunningScript
       line_count = 0
       string.each_line do |out_line|
         begin
-          json = JSON.parse(out_line)
+          json = JSON.parse(out_line, :allow_nan => true, :create_additions => true)
           time_formatted = Time.parse(json["@timestamp"]).sys.formatted if json["@timestamp"]
           out_line = json["log"] if json["log"]
         rescue
@@ -958,7 +958,7 @@ class RunningScript
           end
         end
 
-        OpenC3::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
+        OpenC3::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write.as_json(:allow_nan => true), color: color }))
         lines_to_write << line_to_write
 
         line_count += 1
@@ -970,7 +970,7 @@ class RunningScript
             line_to_write = time_formatted + " (SCRIPTRUNNER): " + out_line
           end
 
-          OpenC3::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: 'RED' }))
+          OpenC3::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write.as_json(:allow_nan => true), color: 'RED' }))
           lines_to_write << line_to_write
           break
         end

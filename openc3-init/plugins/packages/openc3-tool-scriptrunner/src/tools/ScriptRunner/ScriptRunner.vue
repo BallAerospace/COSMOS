@@ -440,7 +440,7 @@ export default {
       cable: null,
       fatal: false,
       messages: [],
-      maxArrayLength: 30,
+      maxArrayLength: 200,
       Range: ace.require('ace/range').Range,
       ask: {
         show: false,

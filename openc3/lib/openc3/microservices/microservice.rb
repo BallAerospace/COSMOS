@@ -42,7 +42,7 @@ module OpenC3
     def self.run
       microservice = self.new(ENV['OPENC3_MICROSERVICE_NAME'])
       begin
-        MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
+        MicroserviceStatusModel.set(microservice.as_json(:allow_nan => true), scope: microservice.scope)
         microservice.state = 'RUNNING'
         microservice.run
         microservice.state = 'FINISHED'
@@ -55,17 +55,17 @@ module OpenC3
           Logger.fatal("Microservice #{ENV['OPENC3_MICROSERVICE_NAME']} dying from exception\n#{err.formatted}")
         end
       ensure
-        MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
+        MicroserviceStatusModel.set(microservice.as_json(:allow_nan => true), scope: microservice.scope)
       end
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'state' => @state,
         'count' => @count,
-        'error' => @error.as_json,
-        'custom' => @custom.as_json,
+        'error' => @error.as_json(*a),
+        'custom' => @custom.as_json(*a),
         'plugin' => @plugin,
       }
     end
@@ -178,7 +178,7 @@ module OpenC3
             @metric.output
             diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
             @metric.add_sample(name: metric_name, value: diff, labels: {})
-            MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
+            MicroserviceStatusModel.set(as_json(:allow_nan => true), scope: @scope) unless @cancel_thread
             break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
           end
         rescue Exception => err
@@ -196,7 +196,7 @@ module OpenC3
     def shutdown
       @cancel_thread = true
       @microservice_sleeper.cancel if @microservice_sleeper
-      MicroserviceStatusModel.set(as_json(), scope: @scope)
+      MicroserviceStatusModel.set(as_json(:allow_nan => true), scope: @scope)
       FileUtils.remove_entry(@temp_dir) if File.exist?(@temp_dir)
       @metric.destroy
     end

@@ -42,14 +42,14 @@ module OpenC3
     # @return [String|nil] String of the saved json or nil if start not found
     def self.get(start:, scope:)
       result = Store.zrangebyscore(self.pk(scope), start, start)
-      return JSON.parse(result[0]) unless result.empty?
+      return JSON.parse(result[0], :allow_nan => true, :create_additions => true) unless result.empty?
       nil
     end
 
     # @return [Array<Hash>] Array up to the limit of the models (as Hash objects) stored under the primary key
     def self.all(scope:, limit: 100)
       result = Store.zrevrangebyscore(self.pk(scope), '+inf', '-inf', limit: [0, limit])
-      result.map { |item| JSON.parse(item) }
+      result.map { |item| JSON.parse(item, :allow_nan => true, :create_additions => true) }
     end
 
     # @return [String|nil] json or nil if metadata empty
@@ -68,7 +68,7 @@ module OpenC3
         raise SortedInputError.new "start: #{start} must be before stop: #{stop}"
       end
       result = Store.zrangebyscore(self.pk(scope), start, stop, limit: [0, limit])
-      result.map { |item| JSON.parse(item) }
+      result.map { |item| JSON.parse(item, :allow_nan => true, :create_additions => true) }
     end
 
     # @return [Integer] count of the members stored under the primary key
@@ -120,7 +120,7 @@ module OpenC3
       validate_start(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
       SortedModel.destroy(scope: @scope, start: update) if update
-      Store.zadd(@primary_key, @start, JSON.generate(as_json()))
+      Store.zadd(@primary_key, @start, JSON.generate(as_json(:allow_nan => true)))
       if update
         notify(kind: 'updated')
       else
@@ -144,7 +144,7 @@ module OpenC3
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:, extra: nil)
       notification = {
-        'data' => JSON.generate(as_json()),
+        'data' => JSON.generate(as_json(:allow_nan => true)),
         'kind' => kind,
         'type' => 'calendar',
       }
@@ -157,8 +157,8 @@ module OpenC3
     end
 
     # @return [Hash] JSON encoding of this model
-    def as_json
-      { **super(),
+    def as_json(*a)
+      { **super(*a),
         'start' => @start,
         'type' => SORTED_TYPE,
       }

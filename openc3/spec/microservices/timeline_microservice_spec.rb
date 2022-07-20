@@ -61,7 +61,7 @@ module OpenC3
         kind: "cmd",
         data: { "cmd" => "INST ABORT" }
       )
-      return JSON.generate(activity.as_json)
+      return JSON.generate(activity.as_json(:allow_nan => true))
     end
 
     def valid_events?(events, check)

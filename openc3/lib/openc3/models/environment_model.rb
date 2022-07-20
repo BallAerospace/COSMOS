@@ -46,7 +46,7 @@ module OpenC3
       @value = value
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'updated_at' => @updated_at,

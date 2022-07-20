@@ -79,7 +79,7 @@ module OpenC3
       "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@value_type}\n"
     end
 
-    def as_json
+    def as_json(*a)
       { 'name' => @name, 'class' => self.class.name, 'params' => [@value_type.to_s] }
     end
   end # class Processor

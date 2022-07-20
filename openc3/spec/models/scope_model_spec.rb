@@ -70,7 +70,7 @@ module OpenC3
     describe "as_json" do
       it "encodes all the input parameters" do
         model = ScopeModel.new(name: "DEFAULT", updated_at: 12345)
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['name']).to eql "DEFAULT"
         expect(json['updated_at']).to eql 12345
       end

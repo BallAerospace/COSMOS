@@ -86,13 +86,13 @@ module OpenC3
     def generate_json_trigger(name:)
       t = generate_custom_trigger(name: name)
       t.create()
-      return JSON.generate(t.as_json)
+      return JSON.generate(t.as_json(:allow_nan => true))
     end
 
     def generate_json_reaction(name:)
       r = generate_custom_reaction(name: name)
       r.create()
-      return JSON.generate(r.as_json)
+      return JSON.generate(r.as_json(:allow_nan => true))
     end
 
     def setup_autonomic_topic

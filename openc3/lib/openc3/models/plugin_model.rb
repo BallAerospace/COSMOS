@@ -120,7 +120,7 @@ module OpenC3
         end
 
         model = PluginModel.new(name: gem_name, variables: variables, plugin_txt_lines: plugin_txt_lines, scope: scope)
-        result = model.as_json
+        result = model.as_json(:allow_nan => true)
         result['existing_plugin_txt_lines'] = existing_plugin_txt_lines if existing_plugin_txt_lines and not process_existing and existing_plugin_txt_lines != result['plugin_txt_lines']
         return result
       ensure
@@ -233,7 +233,7 @@ module OpenC3
         tf.unlink if tf
       end
 
-      return plugin_model.as_json
+      return plugin_model.as_json(:allow_nan => true)
     end
 
     def initialize(
@@ -255,7 +255,7 @@ module OpenC3
       super(update: update, force: force)
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'variables' => @variables,
@@ -276,7 +276,7 @@ module OpenC3
 
     # Reinstall
     def restore
-      plugin_hash = self.as_json
+      plugin_hash = self.as_json(:allow_nan => true)
       plugin_hash['name'] = plugin_hash['name'].split("__")[0]
       OpenC3::PluginModel.install_phase2(plugin_hash, scope: @scope)
       @destroyed = false

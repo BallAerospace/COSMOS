@@ -49,7 +49,7 @@ RSpec.describe TriggerController, :type => :controller do
   xdescribe 'GET index' do
     it 'returns an empty array and status code 200' do
       get :index, params: {'scope'=>'DEFAULT'}
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json).to eql([])
       expect(response).to have_http_status(:ok)
     end
@@ -60,10 +60,10 @@ RSpec.describe TriggerController, :type => :controller do
       hash = generate_trigger_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
-      trigger = JSON.parse(response.body)
+      trigger = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(trigger['name']).not_to be_nil
       get :index, params: {'scope'=>'DEFAULT'}
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json.empty?).to eql(false)
       expect(json.length).to eql(1)
       expect(json[0]['name']).to eql(trigger['name'])
@@ -76,7 +76,7 @@ RSpec.describe TriggerController, :type => :controller do
       hash = generate_trigger_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['name']).not_to be_nil
     end
   end
@@ -86,16 +86,16 @@ RSpec.describe TriggerController, :type => :controller do
       hash = generate_trigger_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
-      default_json = JSON.parse(response.body)
+      default_json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       post :create, params: hash.merge({'scope'=>'TEST'})
       expect(response).to have_http_status(:created)
-      test_json = JSON.parse(response.body)
+      test_json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       # name should not match
       expect(default_json['name']).not_to eql(test_json['name'])
       # check the value on the index
       get :index, params: {'scope'=>'DEFAULT'}
       expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json.empty?).to eql(false)
       expect(json.length).to eql(1)
       expect(json[0]['name']).to eql(default_json['name'])
@@ -107,13 +107,13 @@ RSpec.describe TriggerController, :type => :controller do
   #     hash = generate_trigger_hash()
   #     post :create, params: hash.merge({'scope'=>'DEFAULT'})
   #     expect(response).to have_http_status(:created)
-  #     json = JSON.parse(response.body)
+  #     json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
   #     expect(json['name']).not_to be_nil
   #     expect(json['dependents']).not_to be_nil
   #     json['right']['value'] = 23
   #     put :update, params: json.merge({'scope'=>'DEFAULT'})
   #     expect(response).to have_http_status(:ok)
-  #     json = JSON.parse(response.body)
+  #     json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
   #     expect(json['name']).not_to be_nil
   #     expect(json['right']['value']).to eql(23)
   #   end
@@ -122,7 +122,7 @@ RSpec.describe TriggerController, :type => :controller do
   xdescribe 'POST' do
     it 'returns a hash and status code 400 on error' do
       post :create, params: {'scope'=>'DEFAULT'}
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(400)
@@ -130,7 +130,7 @@ RSpec.describe TriggerController, :type => :controller do
 
     it 'returns a hash and status code 400 with bad operand' do
       post :create, params: {'scope'=>'DEFAULT', 'left' => 'name'}
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(400)
@@ -141,7 +141,7 @@ RSpec.describe TriggerController, :type => :controller do
     it 'returns a json hash of name and status code 404 if not found' do
       delete :destroy, params: {'scope'=>'DEFAULT', 'name'=>'test'}
       expect(response).to have_http_status(:not_found)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
     end
@@ -151,10 +151,10 @@ RSpec.describe TriggerController, :type => :controller do
       hash = generate_trigger_hash()
       post :create, params: hash.merge({'scope'=>'DEFAULT'})
       expect(response).to have_http_status(:created)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       delete :destroy, params: {'scope'=>'DEFAULT', 'name'=>json['name']}
       expect(response).to have_http_status(:no_content)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['name']).to eql('test')
     end
   end

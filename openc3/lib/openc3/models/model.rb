@@ -38,7 +38,7 @@ module OpenC3
     def self.get(primary_key, name:)
       json = store.hget(primary_key, name)
       if json
-        return JSON.parse(json)
+        return JSON.parse(json, :allow_nan => true, :create_additions => true)
       else
         return nil
       end
@@ -53,7 +53,7 @@ module OpenC3
     def self.all(primary_key)
       hash = store.hgetall(primary_key)
       hash.each do |key, value|
-        hash[key] = JSON.parse(value)
+        hash[key] = JSON.parse(value, :allow_nan => true, :create_additions => true)
       end
       hash
     end
@@ -80,7 +80,7 @@ module OpenC3
 
     # @return [Model] Model generated from the passed JSON
     def self.from_json(json, scope:)
-      json = JSON.parse(json) if String === json
+      json = JSON.parse(json, :allow_nan => true, :create_additions => true) if String === json
       raise "json data is nil" if json.nil?
 
       json[:scope] = scope
@@ -143,7 +143,7 @@ module OpenC3
         end
       end
       @updated_at = Time.now.to_nsec_from_epoch
-      self.class.store.hset(@primary_key, @name, JSON.generate(self.as_json))
+      self.class.store.hset(@primary_key, @name, JSON.generate(self.as_json(:allow_nan => true)))
     end
 
     # Alias for create(update: true)
@@ -175,7 +175,7 @@ module OpenC3
     end
 
     # @return [Hash] JSON encoding of this model
-    def as_json
+    def as_json(*a)
       { 'name' => @name,
         'updated_at' => @updated_at,
         'plugin' => @plugin,

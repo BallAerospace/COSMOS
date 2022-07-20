@@ -103,7 +103,7 @@ module OpenC3
 
     describe "instance as_json" do
       it "encodes all the input parameters" do
-        json = generate_trigger_group_model().as_json
+        json = generate_trigger_group_model().as_json(:allow_nan => true)
         expect(json['name']).to eql(TGMO_GROUP)
         expect(json['scope']).to eql($openc3_scope)
         expect(json['color']).to eql('#ff0000')

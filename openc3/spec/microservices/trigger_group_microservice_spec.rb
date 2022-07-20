@@ -62,7 +62,7 @@ module OpenC3
     def generate_json_trigger(name:)
       t = generate_trigger(name: name)
       t.create()
-      return JSON.generate(t.as_json)
+      return JSON.generate(t.as_json(:allow_nan => true))
     end
 
     def generate_trigger_dependent_model

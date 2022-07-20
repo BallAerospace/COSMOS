@@ -132,7 +132,7 @@ module OpenC3
     end
     alias dup clone
 
-    def as_json
+    def as_json(*a)
       hash = {}
       hash['values'] = self.values
       hash['enabled'] = self.enabled

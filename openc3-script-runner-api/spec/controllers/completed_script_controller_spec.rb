@@ -30,8 +30,8 @@ RSpec.describe CompletedScriptController, :type => :controller do
       it "renders status error" do
         get :index
         expect(response.content_type).to include('application/json')
-        expect(JSON.parse(response.body, symbolize_names: true)).to include(status: 'error')
-        expect(JSON.parse(response.body, symbolize_names: true)).to include(message: 'Scope is required')
+        expect(JSON.parse(response.body, symbolize_names: true, :allow_nan => true, :create_additions => true)).to include(status: 'error')
+        expect(JSON.parse(response.body, symbolize_names: true, :allow_nan => true, :create_additions => true)).to include(message: 'Scope is required')
       end
     end
 
@@ -45,8 +45,8 @@ RSpec.describe CompletedScriptController, :type => :controller do
         get :index, params: { "scope" => "DEFAULT" }
         expect(response.content_type).to include('application/json')
         expect(response.status).to eq(401)
-        expect(JSON.parse(response.body, symbolize_names: true)).to include(status: 'error')
-        expect(JSON.parse(response.body, symbolize_names: true)).to include(message: 'Token is required')
+        expect(JSON.parse(response.body, symbolize_names: true, :allow_nan => true, :create_additions => true)).to include(status: 'error')
+        expect(JSON.parse(response.body, symbolize_names: true, :allow_nan => true, :create_additions => true)).to include(message: 'Token is required')
         $openc3_authorize = false
       end
 
@@ -57,7 +57,7 @@ RSpec.describe CompletedScriptController, :type => :controller do
         get :index, params: { "scope" => "DEFAULT" }
         expect(response.status).to eq(403)
         expect(response.content_type).to include('application/json')
-        expect(JSON.parse(response.body, symbolize_names: true)).to include(status: 'error')
+        expect(JSON.parse(response.body, symbolize_names: true, :allow_nan => true, :create_additions => true)).to include(status: 'error')
         $openc3_authorize = false
       end
 

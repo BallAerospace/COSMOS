@@ -150,7 +150,7 @@ module OpenC3
       it "encodes all the input parameters" do
         now = Time.now.to_i
         model = create_model(start: now, color: '#123456', metadata: {'test' => 'one', 'foo' => 'bar'})
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json).to eql(model.to_s)
         expect(json["start"]).to eql(now)
         expect(json["color"]).to eql('#123456')
@@ -162,7 +162,7 @@ module OpenC3
     describe "from_json" do
       it "encodes all the input parameters" do
         model = create_model()
-        hash = model.as_json
+        hash = model.as_json(:allow_nan => true)
         json = JSON.generate(hash)
         new_model = MetadataModel.from_json(json, scope: 'DEFAULT')
         expect(new_model).to be_a MetadataModel

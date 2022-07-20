@@ -50,14 +50,14 @@ module OpenC3
 
     describe "as_json" do
       it "converts to a Hash" do
-        hash = @ti.as_json
+        hash = @ti.as_json(:allow_nan => true)
         # Check the values from StructureItem
         expect(hash.keys).to include('editable')
         expect(hash["editable"]).to eql true
 
         @ti.editable = false
 
-        hash = @ti.as_json
+        hash = @ti.as_json(:allow_nan => true)
         expect(hash["editable"]).to eql false
       end
     end

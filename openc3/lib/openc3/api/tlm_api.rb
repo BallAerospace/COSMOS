@@ -324,7 +324,7 @@ module OpenC3
       xread.each do |topic, data|
         data.each do |id, msg_hash|
           lookup[topic] = id # save the new ID
-          json_hash = JSON.parse(msg_hash['json_data'])
+          json_hash = JSON.parse(msg_hash['json_data'], :allow_nan => true, :create_additions => true)
           msg_hash.delete('json_data')
           packets << msg_hash.merge(json_hash)
         end

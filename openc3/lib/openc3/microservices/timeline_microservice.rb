@@ -68,23 +68,23 @@ module OpenC3
       when 'EXPIRE'
         clear_expired(activity)
       else
-        Logger.error "Unknown kind passed to microservice #{@timeline_name}: #{activity.as_json}"
+        Logger.error "Unknown kind passed to microservice #{@timeline_name}: #{activity.as_json(:allow_nan => true)}"
       end
     end
 
     def run_command(activity)
-      Logger.info "#{@timeline_name} run_command > #{activity.as_json}"
+      Logger.info "#{@timeline_name} run_command > #{activity.as_json(:allow_nan => true)}"
       begin
         cmd_no_hazardous_check(activity.data['command'], scope: @scope)
         activity.commit(status: 'completed', fulfillment: true)
       rescue StandardError => e
         activity.commit(status: 'failed', message: e.message)
-        Logger.error "#{@timeline_name} run_cmd failed > #{activity.as_json}, #{e.message}"
+        Logger.error "#{@timeline_name} run_cmd failed > #{activity.as_json(:allow_nan => true)}, #{e.message}"
       end
     end
 
     def run_script(activity)
-      Logger.info "#{@timeline_name} run_script > #{activity.as_json}"
+      Logger.info "#{@timeline_name} run_script > #{activity.as_json(:allow_nan => true)}"
       begin
         request = Net::HTTP::Post.new(
           "/script-api/scripts/#{activity.data['script']}/run?scope=#{@scope}",
@@ -104,7 +104,7 @@ module OpenC3
         activity.commit(status: 'completed', message: "#{activity.data['script']} => #{response.body}", fulfillment: true)
       rescue StandardError => e
         activity.commit(status: 'failed', message: e.message)
-        Logger.error "#{@timeline_name} run_script failed > #{activity.as_json.to_s}, #{e.message}"
+        Logger.error "#{@timeline_name} run_script failed > #{activity.as_json(:allow_nan => true).to_s}, #{e.message}"
       end
     end
 
@@ -113,7 +113,7 @@ module OpenC3
         ActivityModel.range_destroy(name: @timeline_name, scope: @scope, min: activity.start, max: activity.stop)
         activity.add_event(status: 'completed')
       rescue StandardError => e
-        Logger.error "#{@timeline_name} clear_expired failed > #{activity.as_json} #{e.message}"
+        Logger.error "#{@timeline_name} clear_expired failed > #{activity.as_json(:allow_nan => true)} #{e.message}"
       end
     end
   end
@@ -313,7 +313,7 @@ module OpenC3
         begin
           TimelineTopic.read_topics(@topics) do |_topic, _msg_id, msg_hash, _redis|
             if msg_hash['timeline'] == @timeline_name
-              data = JSON.parse(msg_hash['data'])
+              data = JSON.parse(msg_hash['data'], :allow_nan => true, :create_additions => true)
               public_send(topic_lookup_functions[msg_hash['type']][msg_hash['kind']], data)
             end
           end

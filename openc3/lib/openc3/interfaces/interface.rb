@@ -324,7 +324,7 @@ module OpenC3
       raise err
     end
 
-    def as_json
+    def as_json(*a)
       config = {}
       config['name'] = @name
       config['state'] = @state

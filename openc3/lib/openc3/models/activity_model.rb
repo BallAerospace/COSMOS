@@ -59,7 +59,7 @@ module OpenC3
       array = Store.zrangebyscore("#{scope}#{PRIMARY_KEY}__#{name}", start, stop, :limit => [0, limit])
       ret_array = Array.new
       array.each do |value|
-        ret_array << JSON.parse(value)
+        ret_array << JSON.parse(value, :allow_nan => true, :create_additions => true)
       end
       return ret_array
     end
@@ -69,7 +69,7 @@ module OpenC3
       array = Store.zrange("#{scope}#{PRIMARY_KEY}__#{name}", 0, -1, :limit => [0, limit])
       ret_array = Array.new
       array.each do |value|
-        ret_array << JSON.parse(value)
+        ret_array << JSON.parse(value, :allow_nan => true, :create_additions => true)
       end
       return ret_array
     end
@@ -102,7 +102,7 @@ module OpenC3
 
     # @return [ActivityModel] Model generated from the passed JSON
     def self.from_json(json, name:, scope:)
-      json = JSON.parse(json) if String === json
+      json = JSON.parse(json, :allow_nan => true, :create_additions => true) if String === json
       raise "json data is nil" if json.nil?
 
       json.transform_keys!(&:to_sym)
@@ -148,7 +148,7 @@ module OpenC3
       max_score = @start - MAX_DURATION
       array = Store.zrevrangebyscore(@primary_key, @stop, max_score)
       array.each do |value|
-        activity = JSON.parse(value)
+        activity = JSON.parse(value, :allow_nan => true, :create_additions => true)
         if ignore_score == activity['start']
           next
         elsif activity['stop'] > @start
@@ -218,7 +218,7 @@ module OpenC3
 
       @updated_at = Time.now.to_nsec_from_epoch
       add_event(status: 'created')
-      Store.zadd(@primary_key, @start, JSON.generate(self.as_json))
+      Store.zadd(@primary_key, @start, JSON.generate(self.as_json(:allow_nan => true)))
       notify(kind: 'created')
     end
 
@@ -244,7 +244,7 @@ module OpenC3
       add_event(status: 'updated')
       Store.multi do |multi|
         multi.zremrangebyscore(@primary_key, old_start, old_start)
-        multi.zadd(@primary_key, @start, JSON.generate(self.as_json))
+        multi.zadd(@primary_key, @start, JSON.generate(self.as_json(:allow_nan => true)))
       end
       notify(kind: 'updated', extra: old_start)
       return @start
@@ -264,7 +264,7 @@ module OpenC3
       @events << event
       Store.multi do |multi|
         multi.zremrangebyscore(@primary_key, @start, @start)
-        multi.zadd(@primary_key, @start, JSON.generate(self.as_json))
+        multi.zadd(@primary_key, @start, JSON.generate(self.as_json(:allow_nan => true)))
       end
       notify(kind: 'event')
     end
@@ -288,7 +288,7 @@ module OpenC3
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:, extra: nil)
       notification = {
-        'data' => JSON.generate(as_json()),
+        'data' => JSON.generate(as_json(:allow_nan => true)),
         'kind' => kind,
         'type' => 'activity',
         'timeline' => @name
@@ -302,7 +302,7 @@ module OpenC3
     end
 
     # @return [Hash] generated from the ActivityModel
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'updated_at' => @updated_at,
@@ -312,7 +312,7 @@ module OpenC3
         'stop' => @stop,
         'kind' => @kind,
         'events' => @events,
-        'data' => @data
+        'data' => @data.as_json(*a)
       }
     end
   end

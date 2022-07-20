@@ -166,7 +166,7 @@ module OpenC3
         parser.parse_file(tf.path) do |keyword, params|
           model.handle_config(parser, keyword, params)
         end
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['target_names']).to include("TARGET1", "TARGET2")
         expect(json['connect_on_startup']).to be false
         expect(json['auto_reconnect']).to be false
@@ -196,7 +196,7 @@ module OpenC3
     describe "as_json" do
       it "encodes all the input parameters" do
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['name']).to eq "TEST_INT"
         params = model.method(:initialize).parameters
         params.each do |type, name|

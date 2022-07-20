@@ -103,7 +103,7 @@ module OpenC3
             title: "#{packet.target_name} #{packet.packet_name} #{item.name} out of limits",
             body: "Item went into #{item.limits.state} limit status."
           )
-          NotificationsTopic.write_notification(notification.as_json, scope: @scope)
+          NotificationsTopic.write_notification(notification.as_json(:allow_nan => true), scope: @scope)
           Logger.error message
         end
       end

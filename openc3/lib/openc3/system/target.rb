@@ -184,7 +184,7 @@ module OpenC3
       end
     end
 
-    def as_json
+    def as_json(*a)
       config = {}
       config['name'] = @name
       config['requires'] = @requires

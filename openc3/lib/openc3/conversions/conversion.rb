@@ -58,7 +58,7 @@ module OpenC3
       "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename}\n"
     end
 
-    def as_json
+    def as_json(*a)
       { 'class' => self.class.name.to_s }
     end
   end

@@ -140,7 +140,7 @@ module OpenC3
       if response.nil? || response.code != 201
         raise "Failed to get presigned URL for #{endpoint}"
       end
-      JSON.parse(response.body)
+      JSON.parse(response.body, :allow_nan => true, :create_additions => true)
     end
   end
 end

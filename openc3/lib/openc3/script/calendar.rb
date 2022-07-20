@@ -32,7 +32,7 @@ module OpenC3
     def get_metadata()
       response = $api_server.request('get', "/openc3-api/metadata/latest")
       return nil if response.nil? || response.code != 200
-      return JSON.parse(response.body)
+      return JSON.parse(response.body, :allow_nan => true, :create_additions => true)
     end
 
     # Sets the metadata
@@ -50,7 +50,7 @@ module OpenC3
       data[:start] = start.iso8601 unless start.nil?
       response = $api_server.request('post', '/openc3-api/metadata', data: data, json: true)
       return nil if response.nil? || response.code != 201
-      return JSON.parse(response.body)
+      return JSON.parse(response.body, :allow_nan => true, :create_additions => true)
     end
 
     # Updates the metadata
@@ -73,7 +73,7 @@ module OpenC3
       data[:start] = Time.at(start).iso8601
       response = $api_server.request('put', "/openc3-api/metadata/#{start}", data: data, json: true)
       return nil if response.nil? || response.code != 201
-      return JSON.parse(response.body)
+      return JSON.parse(response.body, :allow_nan => true, :create_additions => true)
     end
 
     # Requests the metadata from the user for a target

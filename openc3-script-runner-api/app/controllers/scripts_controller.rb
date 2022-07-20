@@ -77,7 +77,7 @@ class ScriptsController < ApplicationController
 
   def run
     return unless authorization('script_run')
-    suite_runner = params[:suiteRunner] ? params[:suiteRunner].as_json : nil
+    suite_runner = params[:suiteRunner] ? params[:suiteRunner].as_json(:allow_nan => true) : nil
     disconnect = params[:disconnect] == 'disconnect'
     environment = params[:environment]
     running_script_id = Script.run(params[:scope], params[:name], suite_runner, disconnect, environment)

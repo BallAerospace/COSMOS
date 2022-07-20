@@ -44,10 +44,10 @@ module OpenC3
     end
 
     # @return [Hash] JSON encoding of this model
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
-        'data' => @data,
+        'data' => @data.as_json(*a),
         'updated_at' => @updated_at
       }
     end

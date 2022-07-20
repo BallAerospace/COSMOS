@@ -41,7 +41,7 @@ class ActivityController < ApplicationController
       start = start.strftime('%s').to_i
       stop = stop.strftime('%s').to_i
       model = @model_class.get(name: params[:name], scope: params[:scope], start: start, stop: stop)
-      render :json => model.as_json(), :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue ArgumentError
       render :json => { :status => 'error', :message => 'Invalid date provided. Recommend ISO format' }, :status => 400
     rescue OpenC3::ActivityInputError => e
@@ -90,9 +90,9 @@ class ActivityController < ApplicationController
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION'])
       )
-      render :json => model.as_json, :status => 201
+      render :json => model.as_json(:allow_nan => true), :status => 201
     rescue ArgumentError, TypeError => e
-      message = "Invalid input: #{JSON.parse(hash)}"
+      message = "Invalid input: #{JSON.parse(hash, :allow_nan => true, :create_additions => true)}"
       render :json => { :status => 'error', :message => message, :type => e.class, :e => e.to_s }, :status => 400
     rescue OpenC3::ActivityInputError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
@@ -147,7 +147,7 @@ class ActivityController < ApplicationController
       if model.nil?
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
       else
-        render :json => model.as_json, :status => 200
+        render :json => model.as_json(:allow_nan => true), :status => 200
       end
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
@@ -190,7 +190,7 @@ class ActivityController < ApplicationController
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION'])
       )
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue ArgumentError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
     rescue OpenC3::ActivityError => e
@@ -240,9 +240,9 @@ class ActivityController < ApplicationController
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION'])
       )
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue ArgumentError, TypeError => e
-      message = "Invalid input: #{JSON.parse(hash)}"
+      message = "Invalid input: #{JSON.parse(hash, :allow_nan => true, :create_additions => true)}"
       render :json => { :status => 'error', :message => message, :type => e.class, :e => e.to_s }, :status => 400
     rescue OpenC3::ActivityInputError => e
       render :json => { :status => 'error', :message => e.message, :type => e.class, :e => e.to_s }, :status => 400
@@ -339,7 +339,7 @@ class ActivityController < ApplicationController
           scope: params[:scope],
           user: user_info(request.headers['HTTP_AUTHORIZATION'])
         )
-        ret << model.as_json
+        ret << model.as_json(:allow_nan => true)
       rescue ArgumentError, TypeError => e
         ret << { :status => 'error', :message => "Invalid input, #{e.message}", 'input' => input, 'type' => e.class, status => 400 }
       rescue OpenC3::ActivityInputError => e

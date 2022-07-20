@@ -301,7 +301,7 @@ module OpenC3
         endianness, hash['array_size'], overflow)
     end
 
-    def as_json
+    def as_json(*a)
       hash = {}
       hash['name'] = self.name
       hash['bit_offset'] = self.bit_offset

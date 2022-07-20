@@ -58,7 +58,7 @@ class TriggerController < ApplicationController
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
       end
-      render :json => model.as_json(), :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::TriggerInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
@@ -104,7 +104,7 @@ class TriggerController < ApplicationController
       name = @model_class.create_mini_id()
       model = @model_class.from_json(hash.symbolize_keys, name: name, scope: params[:scope])
       model.create()
-      render :json => model.as_json, :status => 201
+      render :json => model.as_json(:allow_nan => true), :status => 201
     rescue OpenC3::TriggerInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue OpenC3::TriggerError => e
@@ -140,7 +140,7 @@ class TriggerController < ApplicationController
         return
       end
       model.activate() if model.active == false
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end
@@ -172,7 +172,7 @@ class TriggerController < ApplicationController
         return
       end
       model.deactivate() if model.active == true
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end

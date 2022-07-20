@@ -354,7 +354,7 @@ module OpenC3
     describe "as_json" do
       it "encodes all the input parameters" do
         model = TargetModel.new(folder_name: "TEST", name: "TEST", scope: "DEFAULT")
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['name']).to eq "TEST"
         params = model.method(:initialize).parameters
         params.each do |type, name|
@@ -393,7 +393,7 @@ module OpenC3
         parser.parse_file(tf.path) do |keyword, params|
           model.handle_config(parser, keyword, params)
         end
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['cmd_log_cycle_time']).to eql 1
         expect(json['cmd_log_cycle_size']).to eql 2
         expect(json['cmd_decom_log_cycle_time']).to eql 3

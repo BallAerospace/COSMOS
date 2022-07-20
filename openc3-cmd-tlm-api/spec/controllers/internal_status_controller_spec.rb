@@ -27,7 +27,7 @@ RSpec.describe InternalStatusController, :type => :controller do
   describe "GET status" do
     it "returns a Hash<string, string> and status code 200" do
       get :status
-      expect(JSON.parse(response.body, symbolize_names: true)).to include(status: 'UP')
+      expect(JSON.parse(response.body, symbolize_names: true, :allow_nan => true, :create_additions => true)).to include(status: 'UP')
       expect(response).to have_http_status(:ok)
     end
   end

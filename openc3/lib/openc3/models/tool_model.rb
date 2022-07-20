@@ -154,7 +154,7 @@ module OpenC3
       super(update: update, force: force)
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'folder_name' => @folder_name,
@@ -254,7 +254,7 @@ module OpenC3
     def self.unordered_all(scope: nil)
       tools = Store.hgetall("#{scope}__#{PRIMARY_KEY}")
       tools.each do |key, value|
-        tools[key] = JSON.parse(value)
+        tools[key] = JSON.parse(value, :allow_nan => true, :create_additions => true)
       end
       return tools
     end

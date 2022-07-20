@@ -424,7 +424,7 @@ module OpenC3
       config
     end
 
-    def as_json
+    def as_json(*a)
       config = {}
       config['name'] = self.name
       config['bit_offset'] = self.bit_offset
@@ -432,13 +432,13 @@ module OpenC3
       config['data_type'] = self.data_type.to_s
       config['array_size'] = self.array_size if self.array_size
       config['description'] = self.description
-      config['id_value'] = self.id_value.as_json if self.id_value
+      config['id_value'] = self.id_value.as_json(*a) if self.id_value
       if @default
-        config['default'] = @default.as_json
+        config['default'] = @default.as_json(*a)
       end
       if self.range
-        config['minimum'] = self.range.first.as_json
-        config['maximum'] = self.range.last.as_json
+        config['minimum'] = self.range.first.as_json(*a)
+        config['maximum'] = self.range.last.as_json(*a)
       end
       config['endianness'] = self.endianness.to_s
       config['required'] = self.required
@@ -454,14 +454,14 @@ module OpenC3
         @states.each do |state_name, state_value|
           state = {}
           states[state_name] = state
-          state['value'] = state_value.as_json
+          state['value'] = state_value.as_json(*a)
           state['hazardous'] = @hazardous[state_name] if @hazardous and @hazardous[state_name]
           state['color'] = @state_colors[state_name].to_s if @state_colors and @state_colors[state_name]
         end
       end
 
-      config['read_conversion'] = self.read_conversion.as_json if self.read_conversion
-      config['write_conversion'] = self.write_conversion.as_json if self.write_conversion
+      config['read_conversion'] = self.read_conversion.as_json(*a) if self.read_conversion
+      config['write_conversion'] = self.write_conversion.as_json(*a) if self.write_conversion
 
       if self.limits
         if self.limits.values
@@ -479,7 +479,7 @@ module OpenC3
             config['limits'][limits_set] = limits
           end
         end
-        config['limits_response'] = self.limits.response.as_json if self.limits.response
+        config['limits_response'] = self.limits.response.as_json(*a) if self.limits.response
       end
 
       config['meta'] = @meta if @meta

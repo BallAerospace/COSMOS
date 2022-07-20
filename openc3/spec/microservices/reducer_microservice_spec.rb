@@ -108,7 +108,7 @@ module OpenC3
       num_pkts.times do
         json_hash = CvtModel.build_json_from_packet(@pkt)
         plw.write(:JSON_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @pkt.received_time.to_nsec_from_epoch,
-          true, JSON.generate(json_hash.as_json))
+          true, JSON.generate(json_hash.as_json(:allow_nan => true)))
         @pkt.received_time += time_delta
         collects += 1
         collects = 1 if collects > 65535

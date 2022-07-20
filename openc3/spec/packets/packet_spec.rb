@@ -1503,7 +1503,7 @@ module OpenC3
 
     describe "as_json" do
       it "creates a hash" do
-        json = Packet.new("tgt", "pkt").as_json
+        json = Packet.new("tgt", "pkt").as_json(:allow_nan => true)
         expect(json['target_name']).to eql 'TGT'
         expect(json['packet_name']).to eql 'PKT'
         expect(json['items']).to eql []
@@ -1514,7 +1514,7 @@ module OpenC3
       it "creates a Packet from a hash" do
         p = Packet.new("tgt", "pkt")
         p.append_item("test1", 8, :UINT)
-        packet = Packet.from_json(p.as_json)
+        packet = Packet.from_json(p.as_json(:allow_nan => true))
         expect(packet.target_name).to eql p.target_name
         expect(packet.packet_name).to eql p.packet_name
         item = packet.sorted_items[0]

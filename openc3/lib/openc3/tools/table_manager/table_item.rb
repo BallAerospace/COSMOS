@@ -80,7 +80,7 @@ module OpenC3
     alias dup clone
 
     # Create a hash of this item's attributes
-    def as_json
+    def as_json(*a)
       hash = super()
       hash['editable'] = self.editable
       hash['hidden'] = self.hidden

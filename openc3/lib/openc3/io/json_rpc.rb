@@ -187,7 +187,7 @@ module OpenC3
     def <=>(other)
       return nil unless other.respond_to?(:as_json)
 
-      self.as_json <=> other.as_json
+      self.as_json(:allow_nan => true) <=> other.as_json(:allow_nan => true)
     end
 
     # @param a [Array] Array of options

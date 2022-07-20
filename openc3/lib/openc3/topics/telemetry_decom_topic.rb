@@ -41,7 +41,7 @@ module OpenC3
         :target_name => packet.target_name,
         :packet_name => packet.packet_name,
         :received_count => packet.received_count,
-        :json_data => JSON.generate(json_hash.as_json),
+        :json_data => JSON.generate(json_hash.as_json(:allow_nan => true)),
       }
       Topic.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id)
 

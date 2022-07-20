@@ -29,7 +29,7 @@ module OpenC3
       @body = body
     end
 
-    def as_json
+    def as_json(*a)
       { "time" => @time,
         "severity" => @severity,
         "url" => @url,

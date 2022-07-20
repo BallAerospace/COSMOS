@@ -182,7 +182,7 @@ module OpenC3
             packet_name,
             entry_time * Time::NSEC_PER_SECOND,
             false,
-            JSON.generate(reduced.as_json),
+            JSON.generate(reduced.as_json(:allow_nan => true)),
           )
           # Reset all our sample variables
           entry_time = current_time
@@ -243,7 +243,7 @@ module OpenC3
         packet_name,
         entry_time * Time::NSEC_PER_SECOND,
         false,
-        JSON.generate(reduced.as_json),
+        JSON.generate(reduced.as_json(:allow_nan => true)),
       )
       true
     rescue => e

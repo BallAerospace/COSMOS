@@ -61,7 +61,7 @@ module OpenC3
       @output = output
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'state' => @state,

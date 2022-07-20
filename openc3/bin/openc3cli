@@ -238,7 +238,7 @@ def xtce_converter(args)
   elsif options[:plugin] && options[:output]
     begin
       variables = nil
-      variables = JSON.parse(File.read(options[:variables])) if options[:variables]
+      variables = JSON.parse(File.read(options[:variables]), :allow_nan => true, :create_additions => true) if options[:variables]
       puts "Installing #{File.basename(options[:plugin])}"
       plugin_hash = OpenC3::PluginModel.install_phase1(options[:plugin], variables, scope: 'DEFAULT', validate_only: true)
       plugin_hash['variables']['xtce_output'] = options[:output]
@@ -292,7 +292,7 @@ def validate_plugin(plugin_file_path, scope:, variables_file: nil)
   OpenC3::Logger.level = OpenC3::Logger::DEBUG
   scope ||= 'DEFAULT'
   variables = nil
-  variables = JSON.parse(File.read(variables_file)) if variables_file
+  variables = JSON.parse(File.read(variables_file), :allow_nan => true, :create_additions => true) if variables_file
   puts "Installing #{File.basename(plugin_file_path)}"
   plugin_hash = OpenC3::PluginModel.install_phase1(plugin_file_path, existing_variables: variables, scope: scope, validate_only: true)
   OpenC3::PluginModel.install_phase2(plugin_hash, scope: scope, validate_only: true,
@@ -366,7 +366,7 @@ def load_plugin(plugin_file_path, scope:, plugin_hash_file: nil)
     if plugin_hash_file
       # Admin Create / Edit / or Upgrade Plugin
       OpenC3::PluginModel.install_phase1(plugin_file_path, scope: scope)
-      plugin_hash = JSON.parse(File.read(plugin_hash_file))
+      plugin_hash = JSON.parse(File.read(plugin_hash_file), :allow_nan => true, :create_additions => true)
     else
       # Init or Command Line openc3cli load with no plugin_hash_file
       file_full_name = File.basename(plugin_file_path, ".gem")
@@ -502,7 +502,7 @@ if not ARGV[0].nil? # argument(s) given
       get_redis_keys()
     when 'hget'
       redis = Redis.new(url: $redis_url, username: ENV['OPENC3_REDIS_USERNAME'], password: ENV['OPENC3_REDIS_PASSWORD'])
-      puts JSON.parse(redis.hget(ARGV[2], ARGV[3]))
+      puts JSON.parse(redis.hget(ARGV[2], ARGV[3]), :allow_nan => true, :create_additions => true)
     else
       puts "Unknown redis task: #{ARGV[1]}\n"
       puts "Valid redis tasks: keys, hget"

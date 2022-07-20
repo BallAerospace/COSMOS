@@ -27,7 +27,7 @@ RSpec.describe EnvironmentController, :type => :controller do
   describe "GET index" do
     it "returns an empty array and status code 200" do
       get :index, params: { "scope" => "DEFAULT" }
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json).to eql([])
       expect(response).to have_http_status(:ok)
     end
@@ -38,7 +38,7 @@ RSpec.describe EnvironmentController, :type => :controller do
       post :create, params: { 'scope' => 'DEFAULT', 'key' => 'NAME', 'value' => 'BOB' }
       expect(response).to have_http_status(:created)
       get :index, params: { "scope" => "DEFAULT" }
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(response).to have_http_status(:ok)
       expect(json.empty?).to eql(false)
       expect(json.length).to eql(1)
@@ -54,7 +54,7 @@ RSpec.describe EnvironmentController, :type => :controller do
       expect(response).to have_http_status(:created)
       get :index, params: { 'scope' => 'DEFAULT' }
       expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json.empty?).to eql(false)
       expect(json.length).to eql(1)
       expect(json[0]["name"]).to eql('OBO')
@@ -65,7 +65,7 @@ RSpec.describe EnvironmentController, :type => :controller do
     it "returns a json hash of name and status code 201" do
       post :create, params: { 'scope' => 'DEFAULT', 'key' => 'NAME', 'value' => 'BOB' }
       expect(response).to have_http_status(:created)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json["name"]).to eql('BOB')
     end
   end
@@ -73,7 +73,7 @@ RSpec.describe EnvironmentController, :type => :controller do
   describe "POST error" do
     it "returns a hash and status code 400" do
       post :create, params: { 'scope' => 'DEFAULT' }
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(400)
@@ -83,7 +83,7 @@ RSpec.describe EnvironmentController, :type => :controller do
   describe "POST error missing key and value" do
     it "returns a hash and status code 400" do
       post :create, params: { 'scope' => 'DEFAULT', 'test' => 'name' }
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(400)
@@ -93,7 +93,7 @@ RSpec.describe EnvironmentController, :type => :controller do
   describe "POST error invalid json" do
     it "returns a hash and status code 400" do
       post :create, params: { 'scope' => 'DEFAULT', 'key' => 'ERROR' }
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(400)
@@ -103,13 +103,13 @@ RSpec.describe EnvironmentController, :type => :controller do
   xdescribe "DELETE" do
     it "returns a json hash of name and status code 204" do
       delete :destroy, params: { 'scope' => 'DEFAULT', "name" => "foobar" }
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       expect(json['status']).to eql('error')
       expect(json['message']).not_to be_nil
       expect(response).to have_http_status(:not_found)
       post :create, params: { 'scope' => 'DEFAULT', 'key' => 'FOO', 'value' => 'BAR' }
       expect(response).to have_http_status(:created)
-      json = JSON.parse(response.body)
+      json = JSON.parse(response.body, :allow_nan => true, :create_additions => true)
       delete :destroy, params: { 'scope' => 'DEFAULT', 'name' => json['name'] }
       expect(response).to have_http_status(:no_content)
       get :index, params: { 'scope' => 'DEFAULT', 'name' => json['name'] }

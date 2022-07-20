@@ -57,7 +57,7 @@ class TriggerGroupController < ApplicationController
         render :json => { :status => 'error', :message => 'not found' }, :status => 404
         return
       end
-      render :json => model.as_json(), :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::TriggerGroupInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
@@ -90,7 +90,7 @@ class TriggerGroupController < ApplicationController
       model = @model_class.new(name: params[:name], color: params[:color], scope: params[:scope])
       model.create()
       model.deploy()
-      render :json => model.as_json, :status => 201
+      render :json => model.as_json(:allow_nan => true), :status => 201
     rescue OpenC3::TriggerGroupInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue OpenC3::TriggerGroupError => e
@@ -132,7 +132,7 @@ class TriggerGroupController < ApplicationController
     begin
       model.update_color(color: params['color'])
       model.update()
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::ReactionInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
@@ -175,7 +175,7 @@ class TriggerGroupController < ApplicationController
         trigger.activate() unless trigger.active
         ret << t_name
       end
-      render :json => ret.as_json, :status => 200
+      render :json => ret.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::TriggerError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
@@ -218,7 +218,7 @@ class TriggerGroupController < ApplicationController
         trigger.deactivate() if trigger.active
         ret << t_name
       end
-      render :json => ret.as_json, :status => 200
+      render :json => ret.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::TriggerError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e

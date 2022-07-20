@@ -105,13 +105,13 @@ module OpenC3
         raise TriggerGroupInputError.new "exsisting TriggerGroup found: #{@name}"
       end
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'created')
     end
 
     def update
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'updated')
     end
 
@@ -121,7 +121,7 @@ module OpenC3
     end
 
     # @return [Hash] generated from the TriggerGroupModel
-    def as_json
+    def as_json(*a)
       return {
         'name' => @name,
         'scope' => @scope,
@@ -132,7 +132,7 @@ module OpenC3
 
     # @return [TriggerGroupModel] Model generated from the passed JSON
     def self.from_json(json, name:, scope:)
-      json = JSON.parse(json) if String === json
+      json = JSON.parse(json, :allow_nan => true, :create_additions => true) if String === json
       raise "json data is nil" if json.nil?
 
       json.transform_keys!(&:to_sym)
@@ -141,7 +141,7 @@ module OpenC3
 
     # @return [] update the redis stream / trigger topic that something has changed
     def notify(kind:, error: nil)
-      data = as_json()
+      data = as_json(:allow_nan => true)
       data['error'] = error unless error.nil?
       notification = {
         'kind' => kind,

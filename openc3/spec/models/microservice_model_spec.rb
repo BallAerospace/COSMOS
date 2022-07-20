@@ -122,7 +122,7 @@ module OpenC3
     describe "as_json" do
       it "encodes all the input parameters" do
         model = MicroserviceModel.new(folder_name: "TEST", name: "DEFAULT__TYPE__NAME", scope: "DEFAULT")
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['name']).to eq "DEFAULT__TYPE__NAME"
         params = model.method(:initialize).parameters
         params.each do |type, name|
@@ -161,7 +161,7 @@ module OpenC3
         parser.parse_file(tf.path) do |keyword, params|
           model.handle_config(parser, keyword, params)
         end
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json['env']).to include("KEY1" => "VALUE 1", "KEY2" => "VALUE 2")
         expect(json['work_dir']).to eql Dir.pwd
         expect(json['topics']).to include("TOPIC1", "TOPIC2")

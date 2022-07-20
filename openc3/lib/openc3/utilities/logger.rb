@@ -171,7 +171,7 @@ module OpenC3
         end
         data[:container_name] = @container_name
         data[:log] = message
-        puts data.to_json if @stdout
+        puts data.as_json(:allow_nan => true).to_json(:allow_nan => true) if @stdout
         unless @no_store
           if scope
             Topic.write_topic("#{scope}__openc3_log_messages", data)

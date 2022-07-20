@@ -59,13 +59,13 @@ module OpenC3
       @custom = custom
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'state' => @state,
         'count' => @count,
-        'error' => @error.as_json,
-        'custom' => @custom.as_json,
+        'error' => @error.as_json(:allow_nan => true),
+        'custom' => @custom.as_json(:allow_nan => true),
         'plugin' => @plugin,
         'updated_at' => @updated_at
       }

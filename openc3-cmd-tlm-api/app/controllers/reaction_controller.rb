@@ -52,7 +52,7 @@ class ReactionController < ApplicationController
     return unless authorization('system')
     begin
       model = @model_class.get(name: params[:name], scope: params[:scope])
-      render :json => model.as_json(), :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::ReactionInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 404
     rescue OpenC3::ReactionError => e
@@ -103,7 +103,7 @@ class ReactionController < ApplicationController
       model = @model_class.from_json(hash.symbolize_keys, name: name, scope: params[:scope])
       model.create()
       model.deploy()
-      render :json => model.as_json, :status => 201
+      render :json => model.as_json(:allow_nan => true), :status => 201
     rescue OpenC3::ReactionInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue OpenC3::ReactionError => e
@@ -140,7 +140,7 @@ class ReactionController < ApplicationController
     begin
       hash = params.to_unsafe_h.slice(:description, :review, :snooze, :triggers, :actions).to_h
       model.update()
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue OpenC3::ReactionInputError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue OpenC3::ReactionError => e
@@ -175,7 +175,7 @@ class ReactionController < ApplicationController
         return
       end
       model.activate() unless model.active
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end
@@ -206,7 +206,7 @@ class ReactionController < ApplicationController
         return
       end
       model.deactivate() if model.active
-      render :json => model.as_json, :status => 200
+      render :json => model.as_json(:allow_nan => true), :status => 200
     rescue StandardError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class, 'backtrace' => e.backtrace }, :status => 500
     end

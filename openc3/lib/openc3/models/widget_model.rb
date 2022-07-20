@@ -49,7 +49,7 @@ module OpenC3
     def self.all(scope: nil)
       tools = Store.hgetall("#{scope}__#{PRIMARY_KEY}")
       tools.each do |key, value|
-        tools[key] = JSON.parse(value)
+        tools[key] = JSON.parse(value, :allow_nan => true, :create_additions => true)
       end
       return tools
     end
@@ -90,7 +90,7 @@ module OpenC3
       @needs_dependencies = needs_dependencies
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'updated_at' => @updated_at,

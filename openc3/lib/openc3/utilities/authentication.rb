@@ -130,7 +130,7 @@ module OpenC3
       @log[1] = "response status: #{resp.status} header: #{resp.headers} body: #{resp.body}"
       STDOUT.puts @log[1] if JsonDRb.debug?
       if resp.status >= 200 && resp.status <= 299
-        return JSON.parse(resp.body)
+        return JSON.parse(resp.body, :allow_nan => true, :create_additions => true)
       elsif resp.status >= 500 && resp.status <= 599
         raise OpenC3AuthenticationRetryableError, "authentication request retryable #{@log[0]} ::: #{@log[1]}"
       else

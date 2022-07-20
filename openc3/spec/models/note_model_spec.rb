@@ -109,7 +109,7 @@ module OpenC3
       it "encodes all the input parameters" do
         now = Time.now.to_i
         model = create_model(start: now, stop: now + 5, color: '#123456', description: 'json')
-        json = model.as_json
+        json = model.as_json(:allow_nan => true)
         expect(json["start"]).to eql(now)
         expect(json["stop"]).to eql(now + 5)
         expect(json["color"]).to eql('#123456')
@@ -121,7 +121,7 @@ module OpenC3
     describe "from_json" do
       it "encodes all the input parameters" do
         model = create_model()
-        hash = model.as_json
+        hash = model.as_json(:allow_nan => true)
         json = JSON.generate(hash)
         new_model = NoteModel.from_json(json, scope: 'DEFAULT')
         expect(new_model.start).to eql(hash['start'])

@@ -107,7 +107,7 @@ module OpenC3
         if reaction.snoozed_until.nil? || Time.now.to_i >= reaction.snoozed_until
           reaction.sleep()
         end
-        @reactions[name] = reaction.as_json
+        @reactions[name] = reaction.as_json(:allow_nan => true)
       end
     end
 
@@ -119,7 +119,7 @@ module OpenC3
         return unless data
         reaction = ReactionModel.from_json(data, name: data['name'], scope: data['scope'])
         reaction.awaken()
-        @reactions[name] = reaction.as_json
+        @reactions[name] = reaction.as_json(:allow_nan => true)
       end
     end
 
@@ -406,7 +406,7 @@ module OpenC3
             next
           end
           if active_triggers(reaction: reaction)
-            @share.queue_base.enqueue(kind: 'reaction', data: reaction.as_json)
+            @share.queue_base.enqueue(kind: 'reaction', data: reaction.as_json(:allow_nan => true))
           else
             @share.reaction_base.wake(name: reaction.name)
           end
@@ -509,25 +509,25 @@ module OpenC3
     # 
     def trigger_enabled_event(msg_hash)
       Logger.debug "ReactionMicroservice trigger event msg_hash: #{msg_hash}"
-      @share.queue_base.enqueue(kind: 'trigger', data: JSON.parse(msg_hash['data']))
+      @share.queue_base.enqueue(kind: 'trigger', data: JSON.parse(msg_hash['data'], :allow_nan => true, :create_additions => true))
     end
 
     # Add the reaction to the shared data. 
     def reaction_created_event(msg_hash)
       Logger.debug "ReactionMicroservice reaction created msg_hash: #{msg_hash}"
-      @share.reaction_base.add(reaction: JSON.parse(msg_hash['data']))
+      @share.reaction_base.add(reaction: JSON.parse(msg_hash['data'], :allow_nan => true, :create_additions => true))
     end
 
     # Update the reaction to the shared data. 
     def reaction_updated_event(msg_hash)
       Logger.debug "ReactionMicroservice reaction updated msg_hash: #{msg_hash}"
-      @share.reaction_base.update(reaction: JSON.parse(msg_hash['data']))
+      @share.reaction_base.update(reaction: JSON.parse(msg_hash['data'], :allow_nan => true, :create_additions => true))
     end
 
     # Remove the reaction from the shared data
     def reaction_deleted_event(msg_hash)
       Logger.debug "ReactionMicroservice reaction deleted msg_hash: #{msg_hash}"
-      @share.reaction_base.remove(reaction: JSON.parse(msg_hash['data']))
+      @share.reaction_base.remove(reaction: JSON.parse(msg_hash['data'], :allow_nan => true, :create_additions => true))
     end
 
     def shutdown

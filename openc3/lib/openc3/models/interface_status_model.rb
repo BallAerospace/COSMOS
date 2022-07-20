@@ -98,7 +98,7 @@ module OpenC3
       @rxcnt = rxcnt
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'state' => @state,

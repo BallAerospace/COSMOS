@@ -60,7 +60,7 @@ module OpenC3
     def self.reactions(scope:)
       reactions = Array.new
       Store.hgetall("#{scope}#{PRIMARY_KEY}").each do |key, value|
-        data = JSON.parse(value)
+        data = JSON.parse(value, :allow_nan => true, :create_additions => true)
         reaction = self.from_json(data, name: data['name'], scope: data['scope'])
         reactions << reaction if reaction.active
       end
@@ -209,14 +209,14 @@ module OpenC3
       end
       verify_triggers()
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'created')
     end
 
     def update
       verify_triggers()
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'updated')
     end
 
@@ -224,28 +224,28 @@ module OpenC3
       @active = true
       @snoozed_until = nil if @snoozed_until && @snoozed_until < Time.now.to_i
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'activated')
     end
 
     def deactivate
       @active = false
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'deactivated')
     end
 
     def sleep
       @snoozed_until = Time.now.to_i + @snooze
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'sleep')
     end
 
     def awaken
       @snoozed_until = nil
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'awaken')
     end
 
@@ -255,7 +255,7 @@ module OpenC3
     end
 
     # @return [Hash] generated from the ReactionModel
-    def as_json
+    def as_json(*a)
       return {
         'name' => @name,
         'scope' => @scope,
@@ -272,7 +272,7 @@ module OpenC3
 
     # @return [ReactionModel] Model generated from the passed JSON
     def self.from_json(json, name:, scope:)
-      json = JSON.parse(json) if String === json
+      json = JSON.parse(json, :allow_nan => true, :create_additions => true) if String === json
       raise "json data is nil" if json.nil?
 
       json.transform_keys!(&:to_sym)
@@ -284,7 +284,7 @@ module OpenC3
       notification = {
         'kind' => kind,
         'type' => 'reaction',
-        'data' => JSON.generate(as_json()),
+        'data' => JSON.generate(as_json(:allow_nan => true)),
       }
       AutonomicTopic.write_notification(notification, scope: @scope)
     end

@@ -54,13 +54,13 @@ module OpenC3
 
       it "should convert unquoted hex values into binary for blocks and strings" do
         cmd_params = {}
-        add_cmd_parameter('STRING', '0xAABBCCDD', @packet.as_json, cmd_params)
+        add_cmd_parameter('STRING', '0xAABBCCDD', @packet.as_json(:allow_nan => true), cmd_params)
         expect(cmd_params['STRING']).to eql("\xAA\xBB\xCC\xDD")
       end
 
       it "should preserve quoted hex values for blocks and strings" do
         cmd_params = {}
-        add_cmd_parameter('STRING', "'0xAABBCCDD'", @packet.as_json, cmd_params)
+        add_cmd_parameter('STRING', "'0xAABBCCDD'", @packet.as_json(:allow_nan => true), cmd_params)
         expect(cmd_params['STRING']).to eql("0xAABBCCDD")
       end
     end

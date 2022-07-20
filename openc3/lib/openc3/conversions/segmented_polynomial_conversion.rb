@@ -158,7 +158,7 @@ module OpenC3
       config
     end
 
-    def as_json
+    def as_json(*a)
       params = []
       @segments.each do |segment|
         params << [segment.lower_bound, segment.coeffs]

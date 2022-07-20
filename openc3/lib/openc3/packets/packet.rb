@@ -902,7 +902,7 @@ module OpenC3
         end
       end
       packet.instance_variable_set("@read_conversion_cache".freeze, nil)
-      packet.extra = JSON.parse(packet.extra.to_json) if packet.extra # Deep copy using JSON
+      packet.extra = JSON.parse(packet.extra.as_json(:allow_nan => true).to_json(:allow_nan => true), :allow_nan => true, :create_additions => true) if packet.extra # Deep copy using JSON
       packet
     end
     alias dup clone
@@ -973,7 +973,7 @@ module OpenC3
       config
     end
 
-    def as_json
+    def as_json(*a)
       config = {}
       config['target_name'] = @target_name.to_s
       config['packet_name'] = @packet_name.to_s
@@ -991,7 +991,7 @@ module OpenC3
         processors = []
         config['processors'] = processors
         @processors.each do |processor_name, processor|
-          processors << processor.as_json
+          processors << processor.as_json(*a)
         end
       end
 
@@ -1002,12 +1002,12 @@ module OpenC3
       # Items with derived items last
       @sorted_items.each do |item|
         if item.data_type != :DERIVED
-          items << item.as_json
+          items << item.as_json(*a)
         end
       end
       @sorted_items.each do |item|
         if item.data_type == :DERIVED
-          items << item.as_json
+          items << item.as_json(*a)
         end
       end
 

@@ -195,7 +195,7 @@ module OpenC3
         end
 
         json = TableManagerCore.build_json("\x00\x00\x00\x00\x00\x00\x00\x00", def_path)
-        result = JSON.parse(json)
+        result = JSON.parse(json, :allow_nan => true, :create_additions => true)
         expect(result).to be_a Hash
         expect(result['tables'][0]["numRows"]).to eql 4
         expect(result['tables'][0]["numColumns"]).to eql 1
@@ -249,7 +249,7 @@ module OpenC3
         end
 
         json = TableManagerCore.build_json("\x00\x00\x00\x00\x00\x00\xDE\xAD\xBE\xEF\x01\x01\xBA\x5E\xBA\x11\x00\x01", def_path)
-        result = JSON.parse(json)
+        result = JSON.parse(json, :allow_nan => true, :create_additions => true)
         expect(result['tables'][0]["numRows"]).to eql 3
         expect(result['tables'][0]["numColumns"]).to eql 3
         expect(result['tables'][0]["headers"]).to eql %w(INDEX THROTTLE SCRUBBING PPS)

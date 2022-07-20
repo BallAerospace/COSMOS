@@ -23,7 +23,7 @@ module OpenC3
   class RouterMicroservice < InterfaceMicroservice
     def handle_packet(packet)
       @count += 1
-      RouterStatusModel.set(@interface.as_json, scope: @scope)
+      RouterStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       if !packet.identified?
         # Need to identify so we can find the target
         identified_packet = System.commands.identify(packet.buffer(false), @target_names)

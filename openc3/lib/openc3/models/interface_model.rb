@@ -144,7 +144,7 @@ module OpenC3
       interface_or_router
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'config_params' => @config_params,

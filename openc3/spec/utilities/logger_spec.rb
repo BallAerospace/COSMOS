@@ -47,7 +47,7 @@ module OpenC3
         # Fortify doesn't like this due to Access Specifier Manipulation
         # but this is only test code
         Logger.send(method, "Message1") { "Block1" }
-        json = JSON.parse(stdout.string)
+        json = JSON.parse(stdout.string, :allow_nan => true, :create_additions => true)
         expect(json['log']).not_to match("Message1")
         expect(json['severity']).to match(method.upcase)
         expect(json['log']).to match("Block1")
@@ -55,7 +55,7 @@ module OpenC3
         # Fortify doesn't like this due to Access Specifier Manipulation
         # but this is only test code
         Logger.send(method, "Message1")
-        json = JSON.parse(stdout.string)
+        json = JSON.parse(stdout.string, :allow_nan => true, :create_additions => true)
         expect(json['severity']).to match(method.upcase)
         expect(json['log']).to match("Message1")
       end

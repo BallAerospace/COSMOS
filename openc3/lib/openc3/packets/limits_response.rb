@@ -46,7 +46,7 @@ module OpenC3
       "    LIMITS_RESPONSE #{self.class.name.class_name_to_filename}\n"
     end
 
-    def as_json
+    def as_json(*a)
       { "class" => self.class.name.to_s }
     end
   end # class LimitsResponse

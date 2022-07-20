@@ -87,7 +87,7 @@ module OpenC3
       validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
       NoteModel.destroy(scope: @scope, start: update) if update
-      Store.zadd(@primary_key, @start, JSON.generate(as_json()))
+      Store.zadd(@primary_key, @start, JSON.generate(as_json(:allow_nan => true)))
       if update
         notify(kind: 'updated')
       else
@@ -106,7 +106,7 @@ module OpenC3
     end
 
     # @return [Hash] generated from the NoteModel
-    def as_json
+    def as_json(*a)
       return {
         'scope' => @scope,
         'start' => @start,

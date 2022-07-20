@@ -44,7 +44,7 @@ module OpenC3
       super(PRIMARY_KEY, name: name, scope: name, updated_at: updated_at)
     end
 
-    def as_json
+    def as_json(*a)
       { 'name' => @name,
         'updated_at' => @updated_at }
     end

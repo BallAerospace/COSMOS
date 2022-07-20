@@ -40,7 +40,7 @@ ENV['OPENC3_REDIS_PASSWORD'] = nil
 ENV['OPENC3_PASSWORD'] = nil
 
 id = ARGV[0]
-script = JSON.parse(OpenC3::Store.get("running-script:#{id}"))
+script = JSON.parse(OpenC3::Store.get("running-script:#{id}"), :allow_nan => true, :create_additions => true)
 scope = script['scope']
 name = script['name']
 disconnect = script['disconnect']
@@ -69,7 +69,7 @@ begin
   end
 
   if script['suite_runner']
-    script['suite_runner'] = JSON.parse(script['suite_runner']) # Convert to hash
+    script['suite_runner'] = JSON.parse(script['suite_runner'], :allow_nan => true, :create_additions => true) # Convert to hash
     running_script.parse_options(script['suite_runner']['options'])
     if script['suite_runner']['script']
       running_script.run_text("OpenC3::SuiteRunner.start(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']}, '#{script['suite_runner']['script']}')")
@@ -90,7 +90,7 @@ begin
   redis = OpenC3::Store.instance.build_redis
   redis.subscribe(["script-api", "cmd-running-script-channel:#{id}"].compact.join(":")) do |on|
     on.message do |channel, msg|
-      parsed_cmd = JSON.parse(msg)
+      parsed_cmd = JSON.parse(msg, :allow_nan => true, :create_additions => true)
       run_script_log(id, "Script #{path} received command: #{msg}") unless parsed_cmd == "shutdown" or parsed_cmd["method"]
       case parsed_cmd
       when "go"
@@ -154,7 +154,7 @@ ensure
     OpenC3::Store.del("running-script:#{id}") if script
     running = OpenC3::Store.smembers("running-scripts")
     running.each do |item|
-      parsed = JSON.parse(item)
+      parsed = JSON.parse(item, :allow_nan => true, :create_additions => true)
       if parsed["id"].to_s == id.to_s
         OpenC3::Store.srem("running-scripts", item)
         break

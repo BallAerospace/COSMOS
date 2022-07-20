@@ -404,7 +404,7 @@ module OpenC3
         name = "foobar"
         scope = "scope"
         activity = generate_activity(name: name, scope: scope, start: 1.0)
-        json = activity.as_json
+        json = activity.as_json(:allow_nan => true)
         expect(json["duration"]).to eql(activity.duration)
         expect(json["start"]).to eql(activity.start)
         expect(json["stop"]).to eql(activity.stop)
@@ -418,7 +418,7 @@ module OpenC3
         name = "foobar"
         scope = "scope"
         activity = generate_activity(name: name, scope: scope, start: 1.0)
-        model_hash = activity.as_json
+        model_hash = activity.as_json(:allow_nan => true)
         json = JSON.generate(model_hash)
         new_activity = ActivityModel.from_json(json, name: name, scope: scope)
         expect(activity.duration).to eql(new_activity.duration)

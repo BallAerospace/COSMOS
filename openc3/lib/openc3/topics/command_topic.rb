@@ -40,7 +40,7 @@ module OpenC3
       Topic.update_topic_offsets([ack_topic])
       # Save the existing cmd_params Hash and JSON generate before writing to the topic
       cmd_params = command['cmd_params']
-      command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
+      command['cmd_params'] = JSON.generate(command['cmd_params'].as_json(:allow_nan => true))
       cmd_id = Topic.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command, '*', 100)
       # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
       time = Time.now

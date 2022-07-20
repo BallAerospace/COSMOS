@@ -104,7 +104,7 @@ module OpenC3
       validate(update: update)
       @updated_at = Time.now.to_nsec_from_epoch
       MetadataModel.destroy(scope: @scope, start: update) if update
-      Store.zadd(@primary_key, @start, JSON.generate(as_json()))
+      Store.zadd(@primary_key, @start, JSON.generate(as_json(:allow_nan => true)))
       if update
         notify(kind: 'updated')
       else
@@ -123,12 +123,12 @@ module OpenC3
     end
 
     # @return [Hash] generated from the MetadataModel
-    def as_json
+    def as_json(*a)
       {
         'scope' => @scope,
         'start' => @start,
         'color' => @color,
-        'metadata' => @metadata,
+        'metadata' => @metadata.as_json(*a),
         'constraints' => @constraints,
         'type' => METADATA_TYPE,
         'updated_at' => @updated_at,

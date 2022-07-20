@@ -100,7 +100,7 @@ module OpenC3
     end
 
     # @return [Hash] generated from the TimelineModel
-    def as_json
+    def as_json(*a)
       {
         'name' => @timeline_name,
         'color' => @color,
@@ -112,7 +112,7 @@ module OpenC3
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:)
       notification = {
-        'data' => JSON.generate(as_json()),
+        'data' => JSON.generate(as_json(:allow_nan => true)),
         'kind' => kind,
         'type' => 'timeline',
         'timeline' => @timeline_name

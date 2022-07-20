@@ -85,7 +85,7 @@ class NotesController < ApplicationController
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION']),
       )
-      render json: model.as_json, status: 201
+      render json: model.as_json(:allow_nan => true), status: 201
     end
   end
 
@@ -159,7 +159,7 @@ class NotesController < ApplicationController
         scope: params[:scope],
         user: user_info(request.headers['HTTP_AUTHORIZATION']),
       )
-      render json: model.as_json, status: 200
+      render json: model.as_json(:allow_nan => true), status: 200
     end
   end
 

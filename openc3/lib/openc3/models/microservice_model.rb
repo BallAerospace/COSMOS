@@ -105,7 +105,7 @@ module OpenC3
       @needs_dependencies = needs_dependencies
     end
 
-    def as_json
+    def as_json(*a)
       {
         'name' => @name,
         'folder_name' => @folder_name,

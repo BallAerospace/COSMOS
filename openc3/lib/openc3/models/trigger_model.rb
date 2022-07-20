@@ -209,35 +209,35 @@ module OpenC3
       end
       verify_triggers()
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'created')
     end
 
     def update
       verify_triggers()
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'updated')
     end
 
     def enable
       @state = true
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'enabled')
     end
 
     def disable
       @state = false
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'disabled')
     end
 
     def activate
       @active = true
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'activated')
     end
 
@@ -245,7 +245,7 @@ module OpenC3
       @active = false
       @state = false
       @updated_at = Time.now.to_nsec_from_epoch
-      Store.hset(@primary_key, @name, JSON.generate(as_json()))
+      Store.hset(@primary_key, @name, JSON.generate(as_json(:allow_nan => true)))
       notify(kind: 'deactivated')
     end
 
@@ -279,7 +279,7 @@ module OpenC3
     end
 
     # @return [Hash] generated from the TriggerModel
-    def as_json
+    def as_json(*a)
       return {
         'name' => @name,
         'scope' => @scope,
@@ -297,7 +297,7 @@ module OpenC3
 
     # @return [TriggerModel] Model generated from the passed JSON
     def self.from_json(json, name:, scope:)
-      json = JSON.parse(json) if String === json
+      json = JSON.parse(json, :allow_nan => true, :create_additions => true) if String === json
       raise "json data is nil" if json.nil?
 
       json.transform_keys!(&:to_sym)
@@ -309,7 +309,7 @@ module OpenC3
       notification = {
         'kind' => kind,
         'type' => 'trigger',
-        'data' => JSON.generate(as_json()),
+        'data' => JSON.generate(as_json(:allow_nan => true)),
       }
       AutonomicTopic.write_notification(notification, scope: @scope)
     end

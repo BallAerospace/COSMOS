@@ -103,7 +103,7 @@ class Script
 
   def self.get_breakpoints(scope, name)
     breakpoints = OpenC3::Store.hget("#{scope}__script-breakpoints", name.split('*')[0]) # Split '*' that indicates modified
-    return JSON.parse(breakpoints) if breakpoints
+    return JSON.parse(breakpoints, :allow_nan => true, :create_additions => true) if breakpoints
     []
   end
 
@@ -165,7 +165,7 @@ class Script
       success = process.exit_code == 0
     else
       require temp.path
-      stdout_results = OpenC3::SuiteRunner.build_suites.to_json
+      stdout_results = OpenC3::SuiteRunner.build_suites.as_json(:allow_nan => true).to_json(:allow_nan => true)
     end
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
@@ -188,7 +188,7 @@ class Script
       bucket: DEFAULT_BUCKET_NAME,
       content_type: 'text/plain',
     )
-    OpenC3::Store.hset("#{scope}__script-breakpoints", name, breakpoints.to_json) if breakpoints
+    OpenC3::Store.hset("#{scope}__script-breakpoints", name, breakpoints.as_json(:allow_nan => true).to_json(:allow_nan => true)) if breakpoints
     true
   end
 
@@ -222,7 +222,7 @@ class Script
           text,
           filename,
           true,
-        ).split("\n").to_json,
+        ).split("\n").as_json(:allow_nan => true).to_json(:allow_nan => true),
     }
   end
 
@@ -237,7 +237,7 @@ class Script
         return(
           {
             'title' => 'Syntax Check Successful',
-            'description' => results.to_json,
+            'description' => results.as_json(:allow_nan => true).to_json(:allow_nan => true),
           }
         )
       else
@@ -246,7 +246,7 @@ class Script
         # are writing to the process this is blank so we throw it away
         results.map! { |result| result.split(':')[1..-1].join(':') }
         return(
-          { 'title' => 'Syntax Check Failed', 'description' => results.to_json }
+          { 'title' => 'Syntax Check Failed', 'description' => results.as_json(:allow_nan => true).to_json(:allow_nan => true) }
         )
       end
     else

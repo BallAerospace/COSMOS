@@ -48,7 +48,7 @@ module OpenC3
           title: "test",
           body: "foobar"
         )
-        hash = notification.as_json
+        hash = notification.as_json(:allow_nan => true)
         expect(hash["time"]).not_to be_nil
         expect(hash["severity"]).to eql("INFO")
         expect(hash["url"]).to eql("/tools/limitsmonitor")

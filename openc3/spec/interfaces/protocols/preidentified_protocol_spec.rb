@@ -129,7 +129,7 @@ module OpenC3
         @interface.write(pkt)
         offset = 0
         expect($buffer[0..0].unpack('C')[0]).to eql 0x40
-        json_extra = extra_data.to_json
+        json_extra = extra_data.as_json(:allow_nan => true).to_json(:allow_nan => true)
         offset += 1
         expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql json_extra.length
         offset += 4
@@ -163,7 +163,7 @@ module OpenC3
         @interface.write(pkt)
         offset = 0
         expect($buffer[0..0].unpack('C')[0]).to eql 0xC0
-        json_extra = extra_data.to_json
+        json_extra = extra_data.as_json(:allow_nan => true).to_json(:allow_nan => true)
         offset += 1
         expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql json_extra.length
         offset += 4
@@ -223,7 +223,7 @@ module OpenC3
         expect($buffer[0..1]).to eql("\xDE\xAD")
         offset = 2
         expect($buffer[2..2].unpack('C')[0]).to eql 0xC0
-        json_extra = extra_data.to_json
+        json_extra = extra_data.as_json(:allow_nan => true).to_json(:allow_nan => true)
         offset += 1
         expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql json_extra.length
         offset += 4

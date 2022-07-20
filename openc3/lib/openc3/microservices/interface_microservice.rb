@@ -101,7 +101,7 @@ module OpenC3
         cmd_buffer = nil
         hazardous_check = nil
         if msg_hash['cmd_params']
-          cmd_params = JSON.parse(msg_hash['cmd_params'])
+          cmd_params = JSON.parse(msg_hash['cmd_params'], :allow_nan => true, :create_additions => true)
           range_check = ConfigParser.handle_true_false(msg_hash['range_check'])
           raw = ConfigParser.handle_true_false(msg_hash['raw'])
           hazardous_check = ConfigParser.handle_true_false(msg_hash['hazardous_check'])
@@ -130,6 +130,7 @@ module OpenC3
             end
             command.received_time = Time.now
           rescue => e
+            Logger.error "#{@interface.name}: #{msg_hash}"
             Logger.error "#{@interface.name}: #{e.formatted}"
             next e.message
           end
@@ -145,7 +146,7 @@ module OpenC3
             @interface.write(command)
             CommandTopic.write_packet(command, scope: @scope)
             CommandDecomTopic.write_packet(command, scope: @scope)
-            InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+            InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
             next 'SUCCESS'
           rescue => e
             Logger.error "#{@interface.name}: #{e.formatted}"
@@ -223,7 +224,7 @@ module OpenC3
 
           begin
             @router.write(packet)
-            RouterStatusModel.set(@router.as_json, scope: @scope)
+            RouterStatusModel.set(@router.as_json(:allow_nan => true), scope: @scope)
             next 'SUCCESS'
           rescue => e
             Logger.error "#{@router.name}: #{e.formatted}"
@@ -259,9 +260,9 @@ module OpenC3
         @interface.state = 'DISCONNECTED'
       end
       if @interface_or_router == 'INTERFACE'
-        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       else
-        RouterStatusModel.set(@interface.as_json, scope: @scope)
+        RouterStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       end
 
       @interface_thread_sleeper = Sleeper.new
@@ -282,9 +283,9 @@ module OpenC3
     def attempting
       @interface.state = 'ATTEMPTING'
       if @interface_or_router == 'INTERFACE'
-        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       else
-        RouterStatusModel.set(@interface.as_json, scope: @scope)
+        RouterStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       end
     end
 
@@ -345,15 +346,15 @@ module OpenC3
         disconnect(false)
       end
       if @interface_or_router == 'INTERFACE'
-        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       else
-        RouterStatusModel.set(@interface.as_json, scope: @scope)
+        RouterStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       end
       Logger.info "#{@interface.name}: Stopped packet reading"
     end
 
     def handle_packet(packet)
-      InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+      InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       packet.received_time = Time.now.sys unless packet.received_time
 
       if packet.stored
@@ -458,9 +459,9 @@ module OpenC3
       @interface.connect
       @interface.state = 'CONNECTED'
       if @interface_or_router == 'INTERFACE'
-        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       else
-        RouterStatusModel.set(@interface.as_json, scope: @scope)
+        RouterStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
       end
       Logger.info "#{@interface.name}: Connection Success"
     end
@@ -490,9 +491,9 @@ module OpenC3
       else
         @interface.state = 'DISCONNECTED'
         if @interface_or_router == 'INTERFACE'
-          InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+          InterfaceStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
         else
-          RouterStatusModel.set(@interface.as_json, scope: @scope)
+          RouterStatusModel.set(@interface.as_json(:allow_nan => true), scope: @scope)
         end
       end
     end
