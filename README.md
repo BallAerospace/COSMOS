@@ -10,6 +10,8 @@
 
 [Documentation](https://ballaerospace.github.io/cosmos-website/)
 
+***Please note that Ball Aerospace support for COSMOS open source is currently paused. More information to come.***
+
 Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, and more.
 
 So what can you use this for? We use it to test about everything we create and COSMOS is great for automating embedded systems testing or operation. It can provide a fully featured user interface to any piece of hardware that provides an electronic way of communicating with it (TCP/IP, UDP, Serial, etc). Potential uses range from testing embedded systems, to home automation, to verifying cell phones, to helping you make that next great thing that changes the world! The sky is the limit...
@@ -50,7 +52,7 @@ After configuring COSMOS to talk to your hardware, you immediately can use the f
 
    - Used for offline analysis of command and telemetry data. Extracts a given list of items into a CSV file for further analysis in other tools such as Excel or Matlab.
 
-COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Thomas (jmthomas) at Ball Aerospace & Technologies Corp.
+COSMOS is built and maintained by Ball Aerospace & Technologies Corp.
 
 ## Getting Started
 
