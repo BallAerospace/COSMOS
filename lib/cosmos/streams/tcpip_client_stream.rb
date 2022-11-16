@@ -55,6 +55,8 @@ module Cosmos
       if @write_addr
         write_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
         write_socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+        write_socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
+        write_socket.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 7200)
       end
 
       read_socket = nil
@@ -62,6 +64,8 @@ module Cosmos
         if @write_port != @read_port
           read_socket = Socket.new(Socket::AF_INET, Socket::SOCK_STREAM, 0)
           read_socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+          read_socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_KEEPALIVE, true)
+          read_socket.setsockopt(Socket::SOL_TCP, Socket::TCP_KEEPCNT, 7200)
         else
           read_socket = write_socket
         end
