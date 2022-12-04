@@ -1,3 +1,5 @@
+#      Ball Aerospace is suspending further development of the COSMOS open source software and will no longer upgrade the platform beyond Version 5. For the time being, if you need technical assistance in support  of Version 5 or earlier versions, please contact: ATIS Front Range. Any changes to the support available will be communicated in the future.
+
 ## Welcome to Ball Aerospace COSMOS
 
 > "The User Interface for Embedded Systems"
